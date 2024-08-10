@@ -1,3 +1,4 @@
+# IMPORTANT NOTE: edit this workflow on the branch 'workflow'
 name: Generate
 
 on:
