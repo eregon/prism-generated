@@ -29,7 +29,7 @@ jobs:
       working-directory: prism
     - run: rm .gitignore
       working-directory: prism
-    - run: rm -rf .github/workflows vendor
+    - run: rm -rf .github vendor
       working-directory: prism
 
     - uses: actions/checkout@v4
