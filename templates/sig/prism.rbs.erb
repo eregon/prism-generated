@@ -1,0 +1,80 @@
+module Prism
+  BACKEND: :CEXT | :FFI
+  VERSION: String
+
+  # Methods taking a Ruby source code string:
+  <%-
+    {
+      parse: "ParseResult",
+      profile: "nil",
+      lex: "LexResult",
+      lex_compat: "LexCompat::Result",
+      parse_lex: "ParseLexResult",
+      dump: "String",
+      parse_comments: "Array[comment]",
+      parse_success?: "bool",
+      parse_failure?: "bool",
+    }.each do |method, return_type|
+  -%>
+
+  def self.<%= method %>: (
+    String source,
+    ?filepath: String,
+    ?line: Integer,
+    ?offset: Integer,
+    ?encoding: Encoding,
+    ?frozen_string_literal: bool,
+    ?verbose: bool,
+    ?scopes: Array[Array[Symbol]]
+  ) -> <%= return_type %>
+  <%- end -%>
+
+  def self.load: (
+    String source,
+    String serialized
+  ) -> ParseResult
+
+  def self.lex_ripper: (
+    String source
+  ) -> Array[[[Integer, Integer], Symbol, String, untyped]]
+
+  # Methods taking a path to a Ruby file:
+  <%-
+    {
+      parse_file: "ParseResult",
+      profile_file: "nil",
+      lex_file: "LexResult",
+      parse_lex_file: "ParseLexResult",
+      dump_file: "String",
+      parse_file_comments: "Array[comment]",
+      parse_file_success?: "bool",
+      parse_file_failure?: "bool",
+    }.each do |method, return_type|
+  -%>
+
+  def self.<%= method %>: (
+    String filepath,
+    ?line: Integer,
+    ?offset: Integer,
+    ?encoding: Encoding,
+    ?frozen_string_literal: bool,
+    ?verbose: bool,
+    ?scopes: Array[Array[Symbol]]
+  ) -> <%= return_type %>
+  <%- end -%>
+
+  interface _Stream
+    def gets: (?Integer integer) -> (String | nil)
+  end
+
+  def self.parse_stream: (
+    _Stream stream,
+    ?filepath: String,
+    ?line: Integer,
+    ?offset: Integer,
+    ?encoding: Encoding,
+    ?frozen_string_literal: bool,
+    ?verbose: bool,
+    ?scopes: Array[Array[Symbol]]
+  ) -> ParseResult
+end
