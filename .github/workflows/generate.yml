@@ -37,12 +37,18 @@ jobs:
         ref: generated
         fetch-depth: 0
         path: prism-generated
+    - uses: actions/checkout@v4
+      with:
+        ref: workflow
+        fetch-depth: 0
+        path: workflow
     - run: |
         mv prism-generated/.git .
         rm -rf prism-generated
         rm -rf prism/.git
         mv prism prism-generated
         mv .git prism-generated
+        cp -R workflow/.github prism-generated/.github
     - run: |
         git config user.name 'github-actions[bot]'
         git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
