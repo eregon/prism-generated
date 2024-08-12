@@ -140,6 +140,12 @@ const SymbolFlags = {
  */
 
 /**
+ * An encoded Ruby string.
+ *
+ * @typedef {{ value: string, encoding: string, validEncoding: boolean }} RubyString
+ */
+
+/**
  * A generic node in the tree.
  *
  * @typedef {(AliasGlobalVariableNode|AliasMethodNode|AlternationPatternNode|AndNode|ArgumentsNode|ArrayNode|ArrayPatternNode|AssocNode|AssocSplatNode|BackReferenceReadNode|BeginNode|BlockArgumentNode|BlockLocalVariableNode|BlockNode|BlockParameterNode|BlockParametersNode|BreakNode|CallAndWriteNode|CallNode|CallOperatorWriteNode|CallOrWriteNode|CallTargetNode|CapturePatternNode|CaseMatchNode|CaseNode|ClassNode|ClassVariableAndWriteNode|ClassVariableOperatorWriteNode|ClassVariableOrWriteNode|ClassVariableReadNode|ClassVariableTargetNode|ClassVariableWriteNode|ConstantAndWriteNode|ConstantOperatorWriteNode|ConstantOrWriteNode|ConstantPathAndWriteNode|ConstantPathNode|ConstantPathOperatorWriteNode|ConstantPathOrWriteNode|ConstantPathTargetNode|ConstantPathWriteNode|ConstantReadNode|ConstantTargetNode|ConstantWriteNode|DefNode|DefinedNode|ElseNode|EmbeddedStatementsNode|EmbeddedVariableNode|EnsureNode|FalseNode|FindPatternNode|FlipFlopNode|FloatNode|ForNode|ForwardingArgumentsNode|ForwardingParameterNode|ForwardingSuperNode|GlobalVariableAndWriteNode|GlobalVariableOperatorWriteNode|GlobalVariableOrWriteNode|GlobalVariableReadNode|GlobalVariableTargetNode|GlobalVariableWriteNode|HashNode|HashPatternNode|IfNode|ImaginaryNode|ImplicitNode|ImplicitRestNode|InNode|IndexAndWriteNode|IndexOperatorWriteNode|IndexOrWriteNode|IndexTargetNode|InstanceVariableAndWriteNode|InstanceVariableOperatorWriteNode|InstanceVariableOrWriteNode|InstanceVariableReadNode|InstanceVariableTargetNode|InstanceVariableWriteNode|IntegerNode|InterpolatedMatchLastLineNode|InterpolatedRegularExpressionNode|InterpolatedStringNode|InterpolatedSymbolNode|InterpolatedXStringNode|ItLocalVariableReadNode|ItParametersNode|KeywordHashNode|KeywordRestParameterNode|LambdaNode|LocalVariableAndWriteNode|LocalVariableOperatorWriteNode|LocalVariableOrWriteNode|LocalVariableReadNode|LocalVariableTargetNode|LocalVariableWriteNode|MatchLastLineNode|MatchPredicateNode|MatchRequiredNode|MatchWriteNode|MissingNode|ModuleNode|MultiTargetNode|MultiWriteNode|NextNode|NilNode|NoKeywordsParameterNode|NumberedParametersNode|NumberedReferenceReadNode|OptionalKeywordParameterNode|OptionalParameterNode|OrNode|ParametersNode|ParenthesesNode|PinnedExpressionNode|PinnedVariableNode|PostExecutionNode|PreExecutionNode|ProgramNode|RangeNode|RationalNode|RedoNode|RegularExpressionNode|RequiredKeywordParameterNode|RequiredParameterNode|RescueModifierNode|RescueNode|RestParameterNode|RetryNode|ReturnNode|SelfNode|ShareableConstantNode|SingletonClassNode|SourceEncodingNode|SourceFileNode|SourceLineNode|SplatNode|StatementsNode|StringNode|SuperNode|SymbolNode|TrueNode|UndefNode|UnlessNode|UntilNode|WhenNode|WhileNode|XStringNode|YieldNode)} Node
@@ -11466,7 +11472,7 @@ export class MatchLastLineNode {
   closingLoc;
 
   /**
-   * @type string
+   * @type RubyString
    */
   unescaped;
 
@@ -11479,7 +11485,7 @@ export class MatchLastLineNode {
    * @param {Location} openingLoc
    * @param {Location} contentLoc
    * @param {Location} closingLoc
-   * @param {string} unescaped
+   * @param {RubyString} unescaped
    */
   constructor(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped) {
     this.nodeID = nodeID;
@@ -14301,7 +14307,7 @@ export class RegularExpressionNode {
   closingLoc;
 
   /**
-   * @type string
+   * @type RubyString
    */
   unescaped;
 
@@ -14314,7 +14320,7 @@ export class RegularExpressionNode {
    * @param {Location} openingLoc
    * @param {Location} contentLoc
    * @param {Location} closingLoc
-   * @param {string} unescaped
+   * @param {RubyString} unescaped
    */
   constructor(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped) {
     this.nodeID = nodeID;
@@ -15611,7 +15617,7 @@ export class SourceFileNode {
   #flags;
 
   /**
-   * @type string
+   * @type RubyString
    */
   filepath;
 
@@ -15621,7 +15627,7 @@ export class SourceFileNode {
    * @param {number} nodeID
    * @param {Location} location
    * @param {number} flags
-   * @param {string} filepath
+   * @param {RubyString} filepath
    */
   constructor(nodeID, location, flags, filepath) {
     this.nodeID = nodeID;
@@ -16010,7 +16016,7 @@ export class StringNode {
   closingLoc;
 
   /**
-   * @type string
+   * @type RubyString
    */
   unescaped;
 
@@ -16023,7 +16029,7 @@ export class StringNode {
    * @param {Location | null} openingLoc
    * @param {Location} contentLoc
    * @param {Location | null} closingLoc
-   * @param {string} unescaped
+   * @param {RubyString} unescaped
    */
   constructor(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped) {
     this.nodeID = nodeID;
@@ -16285,7 +16291,7 @@ export class SymbolNode {
   closingLoc;
 
   /**
-   * @type string
+   * @type RubyString
    */
   unescaped;
 
@@ -16298,7 +16304,7 @@ export class SymbolNode {
    * @param {Location | null} openingLoc
    * @param {Location | null} valueLoc
    * @param {Location | null} closingLoc
-   * @param {string} unescaped
+   * @param {RubyString} unescaped
    */
   constructor(nodeID, location, flags, openingLoc, valueLoc, closingLoc, unescaped) {
     this.nodeID = nodeID;
@@ -17099,7 +17105,7 @@ export class XStringNode {
   closingLoc;
 
   /**
-   * @type string
+   * @type RubyString
    */
   unescaped;
 
@@ -17112,7 +17118,7 @@ export class XStringNode {
    * @param {Location} openingLoc
    * @param {Location} contentLoc
    * @param {Location} closingLoc
-   * @param {string} unescaped
+   * @param {RubyString} unescaped
    */
   constructor(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped) {
     this.nodeID = nodeID;
