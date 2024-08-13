@@ -274,11 +274,13 @@ module Prism
     #     alias $foo $bar
     #           ^^^^
     attr_reader :new_name
+
     # Represents the old name of the global variable that could be used before aliasing. This can be either a global variable, a back reference, or a numbered reference.
     #
     #     alias $foo $bar
     #                ^^^^
     attr_reader :old_name
+
     # The location of the `alias` keyword.
     #
     #     alias $foo $bar
@@ -370,8 +372,10 @@ module Prism
 
     # attr_reader new_name: Prism::node
     attr_reader :new_name
+
     # attr_reader old_name: Prism::node
     attr_reader :old_name
+
     # attr_reader keyword_loc: Location
     def keyword_loc
       location = @keyword_loc
@@ -460,8 +464,10 @@ module Prism
 
     # attr_reader left: Prism::node
     attr_reader :left
+
     # attr_reader right: Prism::node
     attr_reader :right
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -556,6 +562,7 @@ module Prism
     #     1 && 2
     #     ^
     attr_reader :left
+
     # Represents the right side of the expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     left && right
@@ -564,6 +571,7 @@ module Prism
     #     1 and 2
     #           ^
     attr_reader :right
+
     # The location of the `and` keyword or the `&&` operator.
     #
     #     left and right
@@ -663,6 +671,7 @@ module Prism
 
     # attr_reader arguments: Array[Prism::node]
     attr_reader :arguments
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -744,6 +753,7 @@ module Prism
 
     # Represent the list of zero or more [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression) within the array.
     attr_reader :elements
+
     # Represents the optional source location for the opening token.
     #
     #     [1,2,3]                 # "["
@@ -888,12 +898,16 @@ module Prism
 
     # attr_reader constant: Prism::node?
     attr_reader :constant
+
     # attr_reader requireds: Array[Prism::node]
     attr_reader :requireds
+
     # attr_reader rest: Prism::node?
     attr_reader :rest
+
     # attr_reader posts: Array[Prism::node]
     attr_reader :posts
+
     # attr_reader opening_loc: Location?
     def opening_loc
       location = @opening_loc
@@ -1020,6 +1034,7 @@ module Prism
     #     { def a; end => 1 }
     #       ^^^^^^^^^^
     attr_reader :key
+
     # The value of the association, if present. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     { foo => bar }
@@ -1028,6 +1043,7 @@ module Prism
     #     { x: 1 }
     #          ^
     attr_reader :value
+
     # The location of the `=>` operator, if present.
     #
     #     { foo => bar }
@@ -1129,6 +1145,7 @@ module Prism
     #     { **foo }
     #         ^^^
     attr_reader :value
+
     # The location of the `**` operator.
     #
     #     { **x }
@@ -1221,6 +1238,7 @@ module Prism
     #
     #     $+ # name `:$+`
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -1318,12 +1336,16 @@ module Prism
 
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # attr_reader rescue_clause: RescueNode?
     attr_reader :rescue_clause
+
     # attr_reader else_clause: ElseNode?
     attr_reader :else_clause
+
     # attr_reader ensure_clause: EnsureNode?
     attr_reader :ensure_clause
+
     # attr_reader end_keyword_loc: Location?
     def end_keyword_loc
       location = @end_keyword_loc
@@ -1427,6 +1449,7 @@ module Prism
 
     # attr_reader expression: Prism::node?
     attr_reader :expression
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -1517,6 +1540,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -1597,10 +1621,13 @@ module Prism
 
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
+
     # attr_reader parameters: Prism::node?
     attr_reader :parameters
+
     # attr_reader body: Prism::node?
     attr_reader :body
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
@@ -1710,6 +1737,7 @@ module Prism
 
     # attr_reader name: Symbol?
     attr_reader :name
+
     # attr_reader name_loc: Location?
     def name_loc
       location = @name_loc
@@ -1820,8 +1848,10 @@ module Prism
 
     # attr_reader parameters: ParametersNode?
     attr_reader :parameters
+
     # attr_reader locals: Array[BlockLocalVariableNode]
     attr_reader :locals
+
     # attr_reader opening_loc: Location?
     def opening_loc
       location = @opening_loc
@@ -1940,6 +1970,7 @@ module Prism
     #     break foo
     #           ^^^
     attr_reader :arguments
+
     # The location of the `break` keyword.
     #
     #     break foo
@@ -2057,6 +2088,7 @@ module Prism
 
     # attr_reader receiver: Prism::node?
     attr_reader :receiver
+
     # attr_reader call_operator_loc: Location?
     def call_operator_loc
       location = @call_operator_loc
@@ -2085,8 +2117,10 @@ module Prism
 
     # attr_reader read_name: Symbol
     attr_reader :read_name
+
     # attr_reader write_name: Symbol
     attr_reader :write_name
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -2096,6 +2130,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def call_operator: () -> String?
     def call_operator
       call_operator_loc&.slice
@@ -2245,6 +2280,7 @@ module Prism
     #     foo + bar
     #     ^^^
     attr_reader :receiver
+
     # attr_reader call_operator_loc: Location?
     def call_operator_loc
       location = @call_operator_loc
@@ -2260,6 +2296,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader message_loc: Location?
     def message_loc
       location = @message_loc
@@ -2288,6 +2325,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -2303,6 +2341,7 @@ module Prism
 
     # attr_reader block: Prism::node?
     attr_reader :block
+
     # def call_operator: () -> String?
     def call_operator
       call_operator_loc&.slice
@@ -2433,6 +2472,7 @@ module Prism
 
     # attr_reader receiver: Prism::node?
     attr_reader :receiver
+
     # attr_reader call_operator_loc: Location?
     def call_operator_loc
       location = @call_operator_loc
@@ -2461,10 +2501,13 @@ module Prism
 
     # attr_reader read_name: Symbol
     attr_reader :read_name
+
     # attr_reader write_name: Symbol
     attr_reader :write_name
+
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
+
     # attr_reader binary_operator_loc: Location
     def binary_operator_loc
       location = @binary_operator_loc
@@ -2474,6 +2517,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def call_operator: () -> String?
     def call_operator
       call_operator_loc&.slice
@@ -2593,6 +2637,7 @@ module Prism
 
     # attr_reader receiver: Prism::node?
     attr_reader :receiver
+
     # attr_reader call_operator_loc: Location?
     def call_operator_loc
       location = @call_operator_loc
@@ -2621,8 +2666,10 @@ module Prism
 
     # attr_reader read_name: Symbol
     attr_reader :read_name
+
     # attr_reader write_name: Symbol
     attr_reader :write_name
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -2632,6 +2679,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def call_operator: () -> String?
     def call_operator
       call_operator_loc&.slice
@@ -2757,6 +2805,7 @@ module Prism
 
     # attr_reader receiver: Prism::node
     attr_reader :receiver
+
     # attr_reader call_operator_loc: Location
     def call_operator_loc
       location = @call_operator_loc
@@ -2766,6 +2815,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader message_loc: Location
     def message_loc
       location = @message_loc
@@ -2861,8 +2911,10 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader target: Prism::node
     attr_reader :target
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -2959,10 +3011,13 @@ module Prism
 
     # attr_reader predicate: Prism::node?
     attr_reader :predicate
+
     # attr_reader conditions: Array[Prism::node]
     attr_reader :conditions
+
     # attr_reader consequent: ElseNode?
     attr_reader :consequent
+
     # attr_reader case_keyword_loc: Location
     def case_keyword_loc
       location = @case_keyword_loc
@@ -3074,10 +3129,13 @@ module Prism
 
     # attr_reader predicate: Prism::node?
     attr_reader :predicate
+
     # attr_reader conditions: Array[Prism::node]
     attr_reader :conditions
+
     # attr_reader consequent: ElseNode?
     attr_reader :consequent
+
     # attr_reader case_keyword_loc: Location
     def case_keyword_loc
       location = @case_keyword_loc
@@ -3190,6 +3248,7 @@ module Prism
 
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
+
     # attr_reader class_keyword_loc: Location
     def class_keyword_loc
       location = @class_keyword_loc
@@ -3199,6 +3258,7 @@ module Prism
 
     # attr_reader constant_path: Prism::node
     attr_reader :constant_path
+
     # attr_reader inheritance_operator_loc: Location?
     def inheritance_operator_loc
       location = @inheritance_operator_loc
@@ -3214,8 +3274,10 @@ module Prism
 
     # attr_reader superclass: Prism::node?
     attr_reader :superclass
+
     # attr_reader body: Prism::node?
     attr_reader :body
+
     # attr_reader end_keyword_loc: Location
     def end_keyword_loc
       location = @end_keyword_loc
@@ -3225,6 +3287,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # def class_keyword: () -> String
     def class_keyword
       class_keyword_loc.slice
@@ -3323,6 +3386,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -3339,6 +3403,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -3423,6 +3488,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -3439,8 +3505,10 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -3520,6 +3588,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -3536,6 +3605,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -3620,6 +3690,7 @@ module Prism
     #
     #     @@_test # name `:@@_test`
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -3692,6 +3763,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -3771,6 +3843,7 @@ module Prism
     #
     #     @@_test = :test # name `@@_test`
     attr_reader :name
+
     # The location of the variable name.
     #
     #     @@foo = :bar
@@ -3789,6 +3862,7 @@ module Prism
     #     @@_xyz = 123
     #              ^^^
     attr_reader :value
+
     # The location of the `=` operator.
     #
     #     @@foo = :bar
@@ -3882,6 +3956,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -3898,6 +3973,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -3982,6 +4058,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -3998,8 +4075,10 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -4079,6 +4158,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -4095,6 +4175,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -4177,6 +4258,7 @@ module Prism
 
     # attr_reader target: ConstantPathNode
     attr_reader :target
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -4186,6 +4268,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -4279,8 +4362,10 @@ module Prism
     #     a.b::C
     #     ^^^
     attr_reader :parent
+
     # The name of the constant being accessed. This could be `nil` in the event of a syntax error.
     attr_reader :name
+
     # The location of the `::` delimiter.
     #
     #     ::Foo
@@ -4390,6 +4475,7 @@ module Prism
 
     # attr_reader target: ConstantPathNode
     attr_reader :target
+
     # attr_reader binary_operator_loc: Location
     def binary_operator_loc
       location = @binary_operator_loc
@@ -4399,8 +4485,10 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -4478,6 +4566,7 @@ module Prism
 
     # attr_reader target: ConstantPathNode
     attr_reader :target
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -4487,6 +4576,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -4571,8 +4661,10 @@ module Prism
 
     # attr_reader parent: Prism::node?
     attr_reader :parent
+
     # attr_reader name: Symbol?
     attr_reader :name
+
     # attr_reader delimiter_loc: Location
     def delimiter_loc
       location = @delimiter_loc
@@ -4681,6 +4773,7 @@ module Prism
     #     ::Foo = :abc
     #     ^^^^^
     attr_reader :target
+
     # The location of the `=` operator.
     #
     #     ::ABC = 123
@@ -4696,6 +4789,7 @@ module Prism
     #     FOO::BAR = :abc
     #                ^^^^
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -4779,6 +4873,7 @@ module Prism
     #
     #     SOME_CONSTANT  # name `:SOME_CONSTANT`
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -4851,6 +4946,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -4930,6 +5026,7 @@ module Prism
     #
     #     XYZ = 1    # name `:XYZ`
     attr_reader :name
+
     # The location of the constant name.
     #
     #     FOO = 1
@@ -4948,6 +5045,7 @@ module Prism
     #     MyClass = Class.new
     #               ^^^^^^^^^
     attr_reader :value
+
     # The location of the `=` operator.
     #
     #     FOO = :bar
@@ -5054,6 +5152,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -5063,12 +5162,16 @@ module Prism
 
     # attr_reader receiver: Prism::node?
     attr_reader :receiver
+
     # attr_reader parameters: ParametersNode?
     attr_reader :parameters
+
     # attr_reader body: Prism::node?
     attr_reader :body
+
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
+
     # attr_reader def_keyword_loc: Location
     def def_keyword_loc
       location = @def_keyword_loc
@@ -5271,6 +5374,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader rparen_loc: Location?
     def rparen_loc
       location = @rparen_loc
@@ -5392,6 +5496,7 @@ module Prism
 
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # attr_reader end_keyword_loc: Location?
     def end_keyword_loc
       location = @end_keyword_loc
@@ -5500,6 +5605,7 @@ module Prism
 
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
@@ -5599,6 +5705,7 @@ module Prism
 
     # attr_reader variable: Prism::node
     attr_reader :variable
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -5692,6 +5799,7 @@ module Prism
 
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # attr_reader end_keyword_loc: Location
     def end_keyword_loc
       location = @end_keyword_loc
@@ -5867,12 +5975,16 @@ module Prism
 
     # attr_reader constant: Prism::node?
     attr_reader :constant
+
     # attr_reader left: Prism::node
     attr_reader :left
+
     # attr_reader requireds: Array[Prism::node]
     attr_reader :requireds
+
     # attr_reader right: Prism::node
     attr_reader :right
+
     # attr_reader opening_loc: Location?
     def opening_loc
       location = @opening_loc
@@ -5997,8 +6109,10 @@ module Prism
 
     # attr_reader left: Prism::node?
     attr_reader :left
+
     # attr_reader right: Prism::node?
     attr_reader :right
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -6086,6 +6200,7 @@ module Prism
 
     # The value of the floating point number as a Float.
     attr_reader :value
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -6171,11 +6286,13 @@ module Prism
     #     for i in a end
     #         ^
     attr_reader :index
+
     # The collection to iterate over.
     #
     #     for i in a end
     #              ^
     attr_reader :collection
+
     # Represents the body of statements to execute for each iteration of the loop.
     #
     #     for i in a
@@ -6183,6 +6300,7 @@ module Prism
     #       ^^^^^^
     #     end
     attr_reader :statements
+
     # The location of the `for` keyword.
     #
     #     for i in a end
@@ -6468,6 +6586,7 @@ module Prism
 
     # attr_reader block: BlockNode?
     attr_reader :block
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -6543,6 +6662,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -6559,6 +6679,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -6643,6 +6764,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -6659,8 +6781,10 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -6740,6 +6864,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -6756,6 +6881,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -6840,6 +6966,7 @@ module Prism
     #
     #     $_Test # name `:$_Test`
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -6912,6 +7039,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -6991,6 +7119,7 @@ module Prism
     #
     #     $_Test = 123 # name `:$_Test`
     attr_reader :name
+
     # The location of the global variable's name.
     #
     #     $foo = :bar
@@ -7009,6 +7138,7 @@ module Prism
     #     $-xyz = 123
     #             ^^^
     attr_reader :value
+
     # The location of the `=` operator.
     #
     #     $foo = :bar
@@ -7117,6 +7247,7 @@ module Prism
     #     { **foo }
     #       ^^^^^
     attr_reader :elements
+
     # The location of the closing brace.
     #
     #     { a => b }
@@ -7223,10 +7354,13 @@ module Prism
 
     # attr_reader constant: Prism::node?
     attr_reader :constant
+
     # attr_reader elements: Array[AssocNode]
     attr_reader :elements
+
     # attr_reader rest: AssocSplatNode | NoKeywordsParameterNode | nil
     attr_reader :rest
+
     # attr_reader opening_loc: Location?
     def opening_loc
       location = @opening_loc
@@ -7384,6 +7518,7 @@ module Prism
     #     foo ? bar : baz
     #     ^^^
     attr_reader :predicate
+
     # The location of the `then` keyword (if present) or the `?` in a ternary expression, `nil` otherwise.
     #
     #     if foo then bar end
@@ -7412,6 +7547,7 @@ module Prism
     #       ^^^
     #     end
     attr_reader :statements
+
     # Represents an `ElseNode` or an `IfNode` when there is an `else` or an `elsif` in the `if` statement.
     #
     #     if foo
@@ -7426,6 +7562,7 @@ module Prism
     #     if foo then bar else baz end
     #                     ^^^^^^^^^^^^
     attr_reader :consequent
+
     # The location of the `end` keyword if present, `nil` otherwise.
     #
     #     if foo
@@ -7536,6 +7673,7 @@ module Prism
 
     # attr_reader numeric: FloatNode | IntegerNode | RationalNode
     attr_reader :numeric
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -7614,6 +7752,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -7769,8 +7908,10 @@ module Prism
 
     # attr_reader pattern: Prism::node
     attr_reader :pattern
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # attr_reader in_loc: Location
     def in_loc
       location = @in_loc
@@ -7908,6 +8049,7 @@ module Prism
 
     # attr_reader receiver: Prism::node?
     attr_reader :receiver
+
     # attr_reader call_operator_loc: Location?
     def call_operator_loc
       location = @call_operator_loc
@@ -7930,6 +8072,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
@@ -7939,6 +8082,7 @@ module Prism
 
     # attr_reader block: Prism::node?
     attr_reader :block
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -7948,6 +8092,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def call_operator: () -> String?
     def call_operator
       call_operator_loc&.slice
@@ -8081,6 +8226,7 @@ module Prism
 
     # attr_reader receiver: Prism::node?
     attr_reader :receiver
+
     # attr_reader call_operator_loc: Location?
     def call_operator_loc
       location = @call_operator_loc
@@ -8103,6 +8249,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
@@ -8112,8 +8259,10 @@ module Prism
 
     # attr_reader block: Prism::node?
     attr_reader :block
+
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
+
     # attr_reader binary_operator_loc: Location
     def binary_operator_loc
       location = @binary_operator_loc
@@ -8123,6 +8272,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def call_operator: () -> String?
     def call_operator
       call_operator_loc&.slice
@@ -8251,6 +8401,7 @@ module Prism
 
     # attr_reader receiver: Prism::node?
     attr_reader :receiver
+
     # attr_reader call_operator_loc: Location?
     def call_operator_loc
       location = @call_operator_loc
@@ -8273,6 +8424,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
@@ -8282,6 +8434,7 @@ module Prism
 
     # attr_reader block: Prism::node?
     attr_reader :block
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -8291,6 +8444,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def call_operator: () -> String?
     def call_operator
       call_operator_loc&.slice
@@ -8427,6 +8581,7 @@ module Prism
 
     # attr_reader receiver: Prism::node
     attr_reader :receiver
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
@@ -8436,6 +8591,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
@@ -8445,6 +8601,7 @@ module Prism
 
     # attr_reader block: Prism::node?
     attr_reader :block
+
     # def opening: () -> String
     def opening
       opening_loc.slice
@@ -8535,6 +8692,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -8551,6 +8709,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -8635,6 +8794,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -8651,8 +8811,10 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -8732,6 +8894,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -8748,6 +8911,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -8832,6 +8996,7 @@ module Prism
     #
     #     @_test # name `:@_test`
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -8904,6 +9069,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -8983,6 +9149,7 @@ module Prism
     #
     #     @_foo = "bar" # name `@_foo`
     attr_reader :name
+
     # The location of the variable name.
     #
     #     @_x = 1
@@ -9001,6 +9168,7 @@ module Prism
     #     @_x = 1234
     #           ^^^^
     attr_reader :value
+
     # The location of the `=` operator.
     #
     #     @x = y
@@ -9111,6 +9279,7 @@ module Prism
 
     # The value of the integer literal as a number.
     attr_reader :value
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -9248,6 +9417,7 @@ module Prism
 
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
     attr_reader :parts
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
@@ -9405,6 +9575,7 @@ module Prism
 
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
     attr_reader :parts
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
@@ -9523,6 +9694,7 @@ module Prism
 
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode]
     attr_reader :parts
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -9637,6 +9809,7 @@ module Prism
 
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
     attr_reader :parts
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -9744,6 +9917,7 @@ module Prism
 
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
     attr_reader :parts
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
@@ -9977,6 +10151,7 @@ module Prism
 
     # attr_reader elements: Array[AssocNode | AssocSplatNode]
     attr_reader :elements
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -10059,6 +10234,7 @@ module Prism
 
     # attr_reader name: Symbol?
     attr_reader :name
+
     # attr_reader name_loc: Location?
     def name_loc
       location = @name_loc
@@ -10167,6 +10343,7 @@ module Prism
 
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -10190,8 +10367,10 @@ module Prism
 
     # attr_reader parameters: Prism::node?
     attr_reader :parameters
+
     # attr_reader body: Prism::node?
     attr_reader :body
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -10303,10 +10482,13 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader depth: Integer
     attr_reader :depth
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -10407,12 +10589,16 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
+
     # attr_reader depth: Integer
     attr_reader :depth
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -10508,10 +10694,13 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader depth: Integer
     attr_reader :depth
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -10602,6 +10791,7 @@ module Prism
     #
     #     _1     # name `:_1`
     attr_reader :name
+
     # The number of visible scopes that should be searched to find the origin of this local variable.
     #
     #     foo = 1; foo # depth 0
@@ -10610,6 +10800,7 @@ module Prism
     #
     # The specific rules for calculating the depth may differ from individual Ruby implementations, as they are not specified by the language. For more information, see [the Prism documentation](https://github.com/ruby/prism/blob/main/docs/local_variable_depth.md).
     attr_reader :depth
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -10684,8 +10875,10 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader depth: Integer
     attr_reader :depth
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -10767,6 +10960,7 @@ module Prism
     #
     #     abc = 123  # name `:abc`
     attr_reader :name
+
     # The number of semantic scopes we have to traverse to find the declaration of this variable.
     #
     #     foo = 1         # depth 0
@@ -10775,6 +10969,7 @@ module Prism
     #
     # The specific rules for calculating the depth may differ from individual Ruby implementations, as they are not specified by the language. For more information, see [the Prism documentation](https://github.com/ruby/prism/blob/main/docs/local_variable_depth.md).
     attr_reader :depth
+
     # The location of the variable name.
     #
     #     foo = :bar
@@ -10797,6 +10992,7 @@ module Prism
     #
     #     foo = foo
     attr_reader :value
+
     # The location of the `=` operator.
     #
     #     x = :y
@@ -10967,6 +11163,7 @@ module Prism
 
     # attr_reader unescaped: String
     attr_reader :unescaped
+
     # def opening: () -> String
     def opening
       opening_loc.slice
@@ -11060,8 +11257,10 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader pattern: Prism::node
     attr_reader :pattern
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -11150,8 +11349,10 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # attr_reader pattern: Prism::node
     attr_reader :pattern
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -11239,8 +11440,10 @@ module Prism
 
     # attr_reader call: CallNode
     attr_reader :call
+
     # attr_reader targets: Array[LocalVariableTargetNode]
     attr_reader :targets
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -11388,6 +11591,7 @@ module Prism
 
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
+
     # attr_reader module_keyword_loc: Location
     def module_keyword_loc
       location = @module_keyword_loc
@@ -11397,8 +11601,10 @@ module Prism
 
     # attr_reader constant_path: Prism::node
     attr_reader :constant_path
+
     # attr_reader body: Prism::node?
     attr_reader :body
+
     # attr_reader end_keyword_loc: Location
     def end_keyword_loc
       location = @end_keyword_loc
@@ -11408,6 +11614,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # def module_keyword: () -> String
     def module_keyword
       module_keyword_loc.slice
@@ -11517,6 +11724,7 @@ module Prism
     #     a, (b, c) = 1, 2, 3, 4, 5
     #         ^^^^
     attr_reader :lefts
+
     # Represents a splat node in the target expression.
     #
     #     a, (b, *c) = 1, 2, 3, 4
@@ -11532,11 +11740,13 @@ module Prism
     #     a, (b,) = 1, 2, 3, 4
     #          ^
     attr_reader :rest
+
     # Represents the targets expressions after a splat node.
     #
     #     a, (*, b, c) = 1, 2, 3, 4, 5
     #            ^^^^
     attr_reader :rights
+
     # The location of the opening parenthesis.
     #
     #     a, (b, c) = 1, 2, 3
@@ -11676,6 +11886,7 @@ module Prism
     #     a, b, c = 1, 2, 3, 4, 5
     #     ^^^^^^^
     attr_reader :lefts
+
     # Represents a splat node in the target expression.
     #
     #     a, b, *c = 1, 2, 3, 4
@@ -11691,11 +11902,13 @@ module Prism
     #     a, b, = 1, 2, 3, 4
     #         ^
     attr_reader :rest
+
     # Represents the targets expressions after a splat node.
     #
     #     a, *, b, c = 1, 2, 3, 4, 5
     #           ^^^^
     attr_reader :rights
+
     # The location of the opening parenthesis.
     #
     #     (a, b, c) = 1, 2, 3
@@ -11743,6 +11956,7 @@ module Prism
     #     a, b, c = 1, 2, 3
     #               ^^^^^^^
     attr_reader :value
+
     # def lparen: () -> String?
     def lparen
       lparen_loc&.slice
@@ -11841,6 +12055,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # attr_reader keyword_loc: Location
     def keyword_loc
       location = @keyword_loc
@@ -12091,6 +12306,7 @@ module Prism
 
     # attr_reader maximum: Integer
     attr_reader :maximum
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -12169,6 +12385,7 @@ module Prism
     #
     #     $4294967296 # number `0`
     attr_reader :number
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -12249,6 +12466,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -12258,6 +12476,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -12342,6 +12561,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -12358,6 +12578,7 @@ module Prism
 
     # attr_reader value: Prism::node
     attr_reader :value
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -12447,6 +12668,7 @@ module Prism
     #     1 || 2
     #     ^
     attr_reader :left
+
     # Represents the right side of the expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     left || right
@@ -12455,6 +12677,7 @@ module Prism
     #     1 or 2
     #          ^
     attr_reader :right
+
     # The location of the `or` keyword or the `||` operator.
     #
     #     left or right
@@ -12559,18 +12782,25 @@ module Prism
 
     # attr_reader requireds: Array[RequiredParameterNode | MultiTargetNode]
     attr_reader :requireds
+
     # attr_reader optionals: Array[OptionalParameterNode]
     attr_reader :optionals
+
     # attr_reader rest: RestParameterNode | ImplicitRestNode | nil
     attr_reader :rest
+
     # attr_reader posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode]
     attr_reader :posts
+
     # attr_reader keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode]
     attr_reader :keywords
+
     # attr_reader keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil
     attr_reader :keyword_rest
+
     # attr_reader block: BlockParameterNode?
     attr_reader :block
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -12657,6 +12887,7 @@ module Prism
 
     # attr_reader body: Prism::node?
     attr_reader :body
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
@@ -12758,6 +12989,7 @@ module Prism
 
     # attr_reader expression: Prism::node
     attr_reader :expression
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -12870,6 +13102,7 @@ module Prism
 
     # attr_reader variable: Prism::node
     attr_reader :variable
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
@@ -12960,6 +13193,7 @@ module Prism
 
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # attr_reader keyword_loc: Location
     def keyword_loc
       location = @keyword_loc
@@ -13076,6 +13310,7 @@ module Prism
 
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # attr_reader keyword_loc: Location
     def keyword_loc
       location = @keyword_loc
@@ -13185,8 +13420,10 @@ module Prism
 
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
+
     # attr_reader statements: StatementsNode
     attr_reader :statements
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -13280,6 +13517,7 @@ module Prism
     #     hello...goodbye
     #     ^^^^^
     attr_reader :left
+
     # The right-hand side of the range, if present. It can be either `nil` or any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     ..5
@@ -13289,6 +13527,7 @@ module Prism
     #         ^^^
     # If neither right-hand or left-hand side was included, this will be a MissingNode.
     attr_reader :right
+
     # The location of the `..` or `...` operator.
     def operator_loc
       location = @operator_loc
@@ -13399,10 +13638,12 @@ module Prism
     #
     #     1.5r # numerator 3
     attr_reader :numerator
+
     # The denominator of the rational number.
     #
     #     1.5r # denominator 2
     attr_reader :denominator
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -13624,6 +13865,7 @@ module Prism
 
     # attr_reader unescaped: String
     attr_reader :unescaped
+
     # def opening: () -> String
     def opening
       opening_loc.slice
@@ -13722,6 +13964,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
@@ -13809,6 +14052,7 @@ module Prism
 
     # attr_reader name: Symbol
     attr_reader :name
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -13884,6 +14128,7 @@ module Prism
 
     # attr_reader expression: Prism::node
     attr_reader :expression
+
     # attr_reader keyword_loc: Location
     def keyword_loc
       location = @keyword_loc
@@ -13893,6 +14138,7 @@ module Prism
 
     # attr_reader rescue_expression: Prism::node
     attr_reader :rescue_expression
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -13994,6 +14240,7 @@ module Prism
 
     # attr_reader exceptions: Array[Prism::node]
     attr_reader :exceptions
+
     # attr_reader operator_loc: Location?
     def operator_loc
       location = @operator_loc
@@ -14009,10 +14256,13 @@ module Prism
 
     # attr_reader reference: Prism::node?
     attr_reader :reference
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # attr_reader consequent: RescueNode?
     attr_reader :consequent
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -14109,6 +14359,7 @@ module Prism
 
     # attr_reader name: Symbol?
     attr_reader :name
+
     # attr_reader name_loc: Location?
     def name_loc
       location = @name_loc
@@ -14287,6 +14538,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -14449,6 +14701,7 @@ module Prism
 
     # The constant write that should be modified with the shareability state.
     attr_reader :write
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -14530,6 +14783,7 @@ module Prism
 
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
+
     # attr_reader class_keyword_loc: Location
     def class_keyword_loc
       location = @class_keyword_loc
@@ -14546,8 +14800,10 @@ module Prism
 
     # attr_reader expression: Prism::node
     attr_reader :expression
+
     # attr_reader body: Prism::node?
     attr_reader :body
+
     # attr_reader end_keyword_loc: Location
     def end_keyword_loc
       location = @end_keyword_loc
@@ -14736,6 +14992,7 @@ module Prism
 
     # Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism::parse*` APIs.
     attr_reader :filepath
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -14887,6 +15144,7 @@ module Prism
 
     # attr_reader expression: Prism::node?
     attr_reader :expression
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -14965,6 +15223,7 @@ module Prism
 
     # attr_reader body: Array[Prism::node]
     attr_reader :body
+
     # def inspect -> String
     def inspect
       InspectVisitor.compose(self)
@@ -15100,6 +15359,7 @@ module Prism
 
     # attr_reader unescaped: String
     attr_reader :unescaped
+
     # def opening: () -> String?
     def opening
       opening_loc&.slice
@@ -15221,6 +15481,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # attr_reader rparen_loc: Location?
     def rparen_loc
       location = @rparen_loc
@@ -15236,6 +15497,7 @@ module Prism
 
     # attr_reader block: Prism::node?
     attr_reader :block
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -15387,6 +15649,7 @@ module Prism
 
     # attr_reader unescaped: String
     attr_reader :unescaped
+
     # def opening: () -> String?
     def opening
       opening_loc&.slice
@@ -15547,6 +15810,7 @@ module Prism
 
     # attr_reader names: Array[SymbolNode | InterpolatedSymbolNode]
     attr_reader :names
+
     # attr_reader keyword_loc: Location
     def keyword_loc
       location = @keyword_loc
@@ -15664,6 +15928,7 @@ module Prism
     #     bar unless cond
     #                ^^^^
     attr_reader :predicate
+
     # The location of the `then` keyword, if present.
     #
     #     unless cond then bar end
@@ -15686,11 +15951,13 @@ module Prism
     #     unless cond then bar end
     #                      ^^^
     attr_reader :statements
+
     # The else clause of the unless expression, if present.
     #
     #     unless cond then bar else baz end
     #                          ^^^^^^^^
     attr_reader :consequent
+
     # The location of the `end` keyword, if present.
     #
     #     unless cond then bar end
@@ -15833,8 +16100,10 @@ module Prism
 
     # attr_reader predicate: Prism::node
     attr_reader :predicate
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -15936,6 +16205,7 @@ module Prism
 
     # attr_reader conditions: Array[Prism::node]
     attr_reader :conditions
+
     # attr_reader then_keyword_loc: Location?
     def then_keyword_loc
       location = @then_keyword_loc
@@ -15951,6 +16221,7 @@ module Prism
 
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -16071,8 +16342,10 @@ module Prism
 
     # attr_reader predicate: Prism::node
     attr_reader :predicate
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -16193,6 +16466,7 @@ module Prism
 
     # attr_reader unescaped: String
     attr_reader :unescaped
+
     # def opening: () -> String
     def opening
       opening_loc.slice
@@ -16309,6 +16583,7 @@ module Prism
 
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
+
     # attr_reader rparen_loc: Location?
     def rparen_loc
       location = @rparen_loc
