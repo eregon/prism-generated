@@ -1095,6 +1095,11 @@ typedef struct pm_node {
 /**
  * AliasGlobalVariableNode
  *
+ * Represents the use of the `alias` keyword to alias a global variable.
+ *
+ *     alias $foo $bar
+ *     ^^^^^^^^^^^^^^^
+ *
  * Type: PM_ALIAS_GLOBAL_VARIABLE_NODE
  *
  * @extends pm_node_t
@@ -1137,6 +1142,11 @@ typedef struct pm_alias_global_variable_node {
 /**
  * AliasMethodNode
  *
+ * Represents the use of the `alias` keyword to alias a method.
+ *
+ *     alias foo bar
+ *     ^^^^^^^^^^^^^
+ *
  * Type: PM_ALIAS_METHOD_NODE
  *
  * @extends pm_node_t
@@ -1164,6 +1174,11 @@ typedef struct pm_alias_method_node {
 /**
  * AlternationPatternNode
  *
+ * Represents an alternation pattern in pattern matching.
+ *
+ *     foo => bar | baz
+ *            ^^^^^^^^^
+ *
  * Type: PM_ALTERNATION_PATTERN_NODE
  *
  * @extends pm_node_t
@@ -1190,6 +1205,11 @@ typedef struct pm_alternation_pattern_node {
 
 /**
  * AndNode
+ *
+ * Represents the use of the `&&` operator or the `and` keyword.
+ *
+ *     left and right
+ *     ^^^^^^^^^^^^^^
  *
  * Type: PM_AND_NODE
  *
@@ -1239,6 +1259,11 @@ typedef struct pm_and_node {
 /**
  * ArgumentsNode
  *
+ * Represents a set of arguments to a method or a keyword.
+ *
+ *     return foo, bar, baz
+ *            ^^^^^^^^^^^^^
+ *
  * Type: PM_ARGUMENTS_NODE
  * Flags:
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORDS
@@ -1258,6 +1283,11 @@ typedef struct pm_arguments_node {
 
 /**
  * ArrayNode
+ *
+ * Represents an array literal. This can be a regular array using brackets or a special array using % like %w or %i.
+ *
+ *     [1, 2, 3]
+ *     ^^^^^^^^^
  *
  * Type: PM_ARRAY_NODE
  * Flags:
@@ -1304,6 +1334,23 @@ typedef struct pm_array_node {
 /**
  * ArrayPatternNode
  *
+ * Represents an array pattern in pattern matching.
+ *
+ *     foo in 1, 2
+ *     ^^^^^^^^^^^
+ *
+ *     foo in [1, 2]
+ *     ^^^^^^^^^^^^^
+ *
+ *     foo in *1
+ *     ^^^^^^^^^
+ *
+ *     foo in Bar[]
+ *     ^^^^^^^^^^^^
+ *
+ *     foo in Bar[1, 2, 3]
+ *     ^^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_ARRAY_PATTERN_NODE
  *
  * @extends pm_node_t
@@ -1345,6 +1392,11 @@ typedef struct pm_array_pattern_node {
 
 /**
  * AssocNode
+ *
+ * Represents a hash key/value pair.
+ *
+ *     { a => b }
+ *       ^^^^^^
  *
  * Type: PM_ASSOC_NODE
  *
@@ -1397,6 +1449,11 @@ typedef struct pm_assoc_node {
 /**
  * AssocSplatNode
  *
+ * Represents a splat in a hash literal.
+ *
+ *     { **foo }
+ *       ^^^^^
+ *
  * Type: PM_ASSOC_SPLAT_NODE
  *
  * @extends pm_node_t
@@ -1429,6 +1486,11 @@ typedef struct pm_assoc_splat_node {
 /**
  * BackReferenceReadNode
  *
+ * Represents reading a reference to a field in the previous match.
+ *
+ *     $'
+ *     ^^
+ *
  * Type: PM_BACK_REFERENCE_READ_NODE
  *
  * @extends pm_node_t
@@ -1451,6 +1513,13 @@ typedef struct pm_back_reference_read_node {
 
 /**
  * BeginNode
+ *
+ * Represents a begin statement.
+ *
+ *     begin
+ *       foo
+ *     end
+ *     ^^^^^
  *
  * Type: PM_BEGIN_NODE
  *
@@ -1494,6 +1563,11 @@ typedef struct pm_begin_node {
 /**
  * BlockArgumentNode
  *
+ * Represents block method arguments.
+ *
+ *     bar(&args)
+ *     ^^^^^^^^^^
+ *
  * Type: PM_BLOCK_ARGUMENT_NODE
  *
  * @extends pm_node_t
@@ -1516,6 +1590,11 @@ typedef struct pm_block_argument_node {
 /**
  * BlockLocalVariableNode
  *
+ * Represents a block local variable.
+ *
+ *     a { |; b| }
+ *            ^
+ *
  * Type: PM_BLOCK_LOCAL_VARIABLE_NODE
  * Flags:
  *    PM_PARAMETER_FLAGS_REPEATED_PARAMETER
@@ -1534,6 +1613,11 @@ typedef struct pm_block_local_variable_node {
 
 /**
  * BlockNode
+ *
+ * Represents a block of ruby code.
+ *
+ *     [1, 2, 3].each { |i| puts x }
+ *                    ^^^^^^^^^^^^^^
  *
  * Type: PM_BLOCK_NODE
  *
@@ -1572,6 +1656,12 @@ typedef struct pm_block_node {
 /**
  * BlockParameterNode
  *
+ * Represents a block parameter to a method, block, or lambda definition.
+ *
+ *     def a(&b)
+ *           ^^
+ *     end
+ *
  * Type: PM_BLOCK_PARAMETER_NODE
  * Flags:
  *    PM_PARAMETER_FLAGS_REPEATED_PARAMETER
@@ -1600,6 +1690,15 @@ typedef struct pm_block_parameter_node {
 
 /**
  * BlockParametersNode
+ *
+ * Represents a block's parameters declaration.
+ *
+ *     -> (a, b = 1; local) { }
+ *        ^^^^^^^^^^^^^^^^^
+ *
+ *     foo do |a, b = 1; local|
+ *            ^^^^^^^^^^^^^^^^^
+ *     end
  *
  * Type: PM_BLOCK_PARAMETERS_NODE
  *
@@ -1633,6 +1732,11 @@ typedef struct pm_block_parameters_node {
 /**
  * BreakNode
  *
+ * Represents the use of the `break` keyword.
+ *
+ *     break foo
+ *     ^^^^^^^^^
+ *
  * Type: PM_BREAK_NODE
  *
  * @extends pm_node_t
@@ -1664,6 +1768,11 @@ typedef struct pm_break_node {
 
 /**
  * CallAndWriteNode
+ *
+ * Represents the use of the `&&=` operator on a call.
+ *
+ *     foo.bar &&= value
+ *     ^^^^^^^^^^^^^^^^^
  *
  * Type: PM_CALL_AND_WRITE_NODE
  * Flags:
@@ -1716,6 +1825,26 @@ typedef struct pm_call_and_write_node {
 
 /**
  * CallNode
+ *
+ * Represents a method call, in all of the various forms that can take.
+ *
+ *     foo
+ *     ^^^
+ *
+ *     foo()
+ *     ^^^^^
+ *
+ *     +foo
+ *     ^^^^
+ *
+ *     foo + bar
+ *     ^^^^^^^^^
+ *
+ *     foo.bar
+ *     ^^^^^^^
+ *
+ *     foo&.bar
+ *     ^^^^^^^^
  *
  * Type: PM_CALL_NODE
  * Flags:
@@ -1785,6 +1914,11 @@ typedef struct pm_call_node {
 /**
  * CallOperatorWriteNode
  *
+ * Represents the use of an assignment operator on a call.
+ *
+ *     foo.bar += baz
+ *     ^^^^^^^^^^^^^^
+ *
  * Type: PM_CALL_OPERATOR_WRITE_NODE
  * Flags:
  *    PM_CALL_NODE_FLAGS_SAFE_NAVIGATION
@@ -1842,6 +1976,11 @@ typedef struct pm_call_operator_write_node {
 /**
  * CallOrWriteNode
  *
+ * Represents the use of the `||=` operator on a call.
+ *
+ *     foo.bar ||= value
+ *     ^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_CALL_OR_WRITE_NODE
  * Flags:
  *    PM_CALL_NODE_FLAGS_SAFE_NAVIGATION
@@ -1894,6 +2033,19 @@ typedef struct pm_call_or_write_node {
 /**
  * CallTargetNode
  *
+ * Represents assigning to a method call.
+ *
+ *     foo.bar, = 1
+ *     ^^^^^^^
+ *
+ *     begin
+ *     rescue => foo.bar
+ *               ^^^^^^^
+ *     end
+ *
+ *     for foo.bar in baz do end
+ *         ^^^^^^^
+ *
  * Type: PM_CALL_TARGET_NODE
  * Flags:
  *    PM_CALL_NODE_FLAGS_SAFE_NAVIGATION
@@ -1931,6 +2083,11 @@ typedef struct pm_call_target_node {
 /**
  * CapturePatternNode
  *
+ * Represents assigning to a local variable in pattern matching.
+ *
+ *     foo => [bar => baz]
+ *            ^^^^^^^^^^^^
+ *
  * Type: PM_CAPTURE_PATTERN_NODE
  *
  * @extends pm_node_t
@@ -1957,6 +2114,13 @@ typedef struct pm_capture_pattern_node {
 
 /**
  * CaseMatchNode
+ *
+ * Represents the use of a case statement for pattern matching.
+ *
+ *     case true
+ *     in false
+ *     end
+ *     ^^^^^^^^^
  *
  * Type: PM_CASE_MATCH_NODE
  *
@@ -1995,6 +2159,13 @@ typedef struct pm_case_match_node {
 /**
  * CaseNode
  *
+ * Represents the use of a case statement.
+ *
+ *     case true
+ *     when false
+ *     end
+ *     ^^^^^^^^^^
+ *
  * Type: PM_CASE_NODE
  *
  * @extends pm_node_t
@@ -2031,6 +2202,11 @@ typedef struct pm_case_node {
 
 /**
  * ClassNode
+ *
+ * Represents a class declaration involving the `class` keyword.
+ *
+ *     class Foo end
+ *     ^^^^^^^^^^^^^
  *
  * Type: PM_CLASS_NODE
  *
@@ -2084,6 +2260,11 @@ typedef struct pm_class_node {
 /**
  * ClassVariableAndWriteNode
  *
+ * Represents the use of the `&&=` operator for assignment to a class variable.
+ *
+ *     @@target &&= value
+ *     ^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_CLASS_VARIABLE_AND_WRITE_NODE
  *
  * @extends pm_node_t
@@ -2115,6 +2296,11 @@ typedef struct pm_class_variable_and_write_node {
 
 /**
  * ClassVariableOperatorWriteNode
+ *
+ * Represents assigning to a class variable using an operator that isn't `=`.
+ *
+ *     @@target += value
+ *     ^^^^^^^^^^^^^^^^^
  *
  * Type: PM_CLASS_VARIABLE_OPERATOR_WRITE_NODE
  *
@@ -2153,6 +2339,11 @@ typedef struct pm_class_variable_operator_write_node {
 /**
  * ClassVariableOrWriteNode
  *
+ * Represents the use of the `||=` operator for assignment to a class variable.
+ *
+ *     @@target ||= value
+ *     ^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_CLASS_VARIABLE_OR_WRITE_NODE
  *
  * @extends pm_node_t
@@ -2185,6 +2376,11 @@ typedef struct pm_class_variable_or_write_node {
 /**
  * ClassVariableReadNode
  *
+ * Represents referencing a class variable.
+ *
+ *     @@foo
+ *     ^^^^^
+ *
  * Type: PM_CLASS_VARIABLE_READ_NODE
  *
  * @extends pm_node_t
@@ -2208,6 +2404,11 @@ typedef struct pm_class_variable_read_node {
 /**
  * ClassVariableTargetNode
  *
+ * Represents writing to a class variable in a context that doesn't have an explicit value.
+ *
+ *     @@foo, @@bar = baz
+ *     ^^^^^  ^^^^^
+ *
  * Type: PM_CLASS_VARIABLE_TARGET_NODE
  *
  * @extends pm_node_t
@@ -2224,6 +2425,11 @@ typedef struct pm_class_variable_target_node {
 
 /**
  * ClassVariableWriteNode
+ *
+ * Represents writing to a class variable.
+ *
+ *     @@foo = 1
+ *     ^^^^^^^^^
  *
  * Type: PM_CLASS_VARIABLE_WRITE_NODE
  *
@@ -2281,6 +2487,11 @@ typedef struct pm_class_variable_write_node {
 /**
  * ConstantAndWriteNode
  *
+ * Represents the use of the `&&=` operator for assignment to a constant.
+ *
+ *     Target &&= value
+ *     ^^^^^^^^^^^^^^^^
+ *
  * Type: PM_CONSTANT_AND_WRITE_NODE
  *
  * @extends pm_node_t
@@ -2312,6 +2523,11 @@ typedef struct pm_constant_and_write_node {
 
 /**
  * ConstantOperatorWriteNode
+ *
+ * Represents assigning to a constant using an operator that isn't `=`.
+ *
+ *     Target += value
+ *     ^^^^^^^^^^^^^^^
  *
  * Type: PM_CONSTANT_OPERATOR_WRITE_NODE
  *
@@ -2350,6 +2566,11 @@ typedef struct pm_constant_operator_write_node {
 /**
  * ConstantOrWriteNode
  *
+ * Represents the use of the `||=` operator for assignment to a constant.
+ *
+ *     Target ||= value
+ *     ^^^^^^^^^^^^^^^^
+ *
  * Type: PM_CONSTANT_OR_WRITE_NODE
  *
  * @extends pm_node_t
@@ -2382,6 +2603,11 @@ typedef struct pm_constant_or_write_node {
 /**
  * ConstantPathAndWriteNode
  *
+ * Represents the use of the `&&=` operator for assignment to a constant path.
+ *
+ *     Parent::Child &&= value
+ *     ^^^^^^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_CONSTANT_PATH_AND_WRITE_NODE
  *
  * @extends pm_node_t
@@ -2408,6 +2634,11 @@ typedef struct pm_constant_path_and_write_node {
 
 /**
  * ConstantPathNode
+ *
+ * Represents accessing a constant through a path of `::` operators.
+ *
+ *     Foo::Bar
+ *     ^^^^^^^^
  *
  * Type: PM_CONSTANT_PATH_NODE
  *
@@ -2470,6 +2701,11 @@ typedef struct pm_constant_path_node {
 /**
  * ConstantPathOperatorWriteNode
  *
+ * Represents assigning to a constant path using an operator that isn't `=`.
+ *
+ *     Parent::Child += value
+ *     ^^^^^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_CONSTANT_PATH_OPERATOR_WRITE_NODE
  *
  * @extends pm_node_t
@@ -2502,6 +2738,11 @@ typedef struct pm_constant_path_operator_write_node {
 /**
  * ConstantPathOrWriteNode
  *
+ * Represents the use of the `||=` operator for assignment to a constant path.
+ *
+ *     Parent::Child ||= value
+ *     ^^^^^^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_CONSTANT_PATH_OR_WRITE_NODE
  *
  * @extends pm_node_t
@@ -2528,6 +2769,11 @@ typedef struct pm_constant_path_or_write_node {
 
 /**
  * ConstantPathTargetNode
+ *
+ * Represents writing to a constant path in a context that doesn't have an explicit value.
+ *
+ *     Foo::Foo, Bar::Bar = baz
+ *     ^^^^^^^^  ^^^^^^^^
  *
  * Type: PM_CONSTANT_PATH_TARGET_NODE
  *
@@ -2560,6 +2806,17 @@ typedef struct pm_constant_path_target_node {
 
 /**
  * ConstantPathWriteNode
+ *
+ * Represents writing to a constant path.
+ *
+ *     ::Foo = 1
+ *     ^^^^^^^^^
+ *
+ *     Foo::Bar = 1
+ *     ^^^^^^^^^^^^
+ *
+ *     ::Foo::Bar = 1
+ *     ^^^^^^^^^^^^^^
  *
  * Type: PM_CONSTANT_PATH_WRITE_NODE
  *
@@ -2606,6 +2863,11 @@ typedef struct pm_constant_path_write_node {
 /**
  * ConstantReadNode
  *
+ * Represents referencing a constant.
+ *
+ *     Foo
+ *     ^^^
+ *
  * Type: PM_CONSTANT_READ_NODE
  *
  * @extends pm_node_t
@@ -2629,6 +2891,11 @@ typedef struct pm_constant_read_node {
 /**
  * ConstantTargetNode
  *
+ * Represents writing to a constant in a context that doesn't have an explicit value.
+ *
+ *     Foo, Bar = baz
+ *     ^^^  ^^^
+ *
  * Type: PM_CONSTANT_TARGET_NODE
  *
  * @extends pm_node_t
@@ -2645,6 +2912,11 @@ typedef struct pm_constant_target_node {
 
 /**
  * ConstantWriteNode
+ *
+ * Represents writing to a constant.
+ *
+ *     Foo = 1
+ *     ^^^^^^^
  *
  * Type: PM_CONSTANT_WRITE_NODE
  *
@@ -2701,6 +2973,12 @@ typedef struct pm_constant_write_node {
 
 /**
  * DefNode
+ *
+ * Represents a method definition.
+ *
+ *     def method
+ *     end
+ *     ^^^^^^^^^^
  *
  * Type: PM_DEF_NODE
  *
@@ -2774,6 +3052,11 @@ typedef struct pm_def_node {
 /**
  * DefinedNode
  *
+ * Represents the use of the `defined?` keyword.
+ *
+ *     defined?(a)
+ *     ^^^^^^^^^^^
+ *
  * Type: PM_DEFINED_NODE
  *
  * @extends pm_node_t
@@ -2806,6 +3089,11 @@ typedef struct pm_defined_node {
 /**
  * ElseNode
  *
+ * Represents an `else` clause in a `case`, `if`, or `unless` statement.
+ *
+ *     if a then b else c end
+ *                 ^^^^^^^^^^
+ *
  * Type: PM_ELSE_NODE
  *
  * @extends pm_node_t
@@ -2832,6 +3120,11 @@ typedef struct pm_else_node {
 
 /**
  * EmbeddedStatementsNode
+ *
+ * Represents an interpolated set of statements.
+ *
+ *     "foo #{bar}"
+ *          ^^^^^^
  *
  * Type: PM_EMBEDDED_STATEMENTS_NODE
  *
@@ -2860,6 +3153,11 @@ typedef struct pm_embedded_statements_node {
 /**
  * EmbeddedVariableNode
  *
+ * Represents an interpolated variable.
+ *
+ *     "foo #@bar"
+ *          ^^^^^
+ *
  * Type: PM_EMBEDDED_VARIABLE_NODE
  *
  * @extends pm_node_t
@@ -2881,6 +3179,15 @@ typedef struct pm_embedded_variable_node {
 
 /**
  * EnsureNode
+ *
+ * Represents an `ensure` clause in a `begin` statement.
+ *
+ *     begin
+ *       foo
+ *     ensure
+ *     ^^^^^^
+ *       bar
+ *     end
  *
  * Type: PM_ENSURE_NODE
  *
@@ -2909,6 +3216,11 @@ typedef struct pm_ensure_node {
 /**
  * FalseNode
  *
+ * Represents the use of the literal `false` keyword.
+ *
+ *     false
+ *     ^^^^^
+ *
  * Type: PM_FALSE_NODE
  *
  * @extends pm_node_t
@@ -2920,6 +3232,17 @@ typedef struct pm_false_node {
 
 /**
  * FindPatternNode
+ *
+ * Represents a find pattern in pattern matching.
+ *
+ *     foo in *bar, baz, *qux
+ *            ^^^^^^^^^^^^^^^
+ *
+ *     foo in [*bar, baz, *qux]
+ *            ^^^^^^^^^^^^^^^^^
+ *
+ *     foo in Foo(*bar, baz, *qux)
+ *            ^^^^^^^^^^^^^^^^^^^^
  *
  * Type: PM_FIND_PATTERN_NODE
  *
@@ -2963,6 +3286,11 @@ typedef struct pm_find_pattern_node {
 /**
  * FlipFlopNode
  *
+ * Represents the use of the `..` or `...` operators to create flip flops.
+ *
+ *     baz if foo .. bar
+ *            ^^^^^^^^^^
+ *
  * Type: PM_FLIP_FLOP_NODE
  * Flags:
  *    PM_RANGE_FLAGS_EXCLUDE_END
@@ -2992,6 +3320,11 @@ typedef struct pm_flip_flop_node {
 /**
  * FloatNode
  *
+ * Represents a floating point number literal.
+ *
+ *     1.0
+ *     ^^^
+ *
  * Type: PM_FLOAT_NODE
  *
  * @extends pm_node_t
@@ -3010,6 +3343,11 @@ typedef struct pm_float_node {
 
 /**
  * ForNode
+ *
+ * Represents the use of the `for` keyword.
+ *
+ *     for i in a end
+ *     ^^^^^^^^^^^^^^
  *
  * Type: PM_FOR_NODE
  *
@@ -3095,6 +3433,13 @@ typedef struct pm_for_node {
 /**
  * ForwardingArgumentsNode
  *
+ * Represents forwarding all arguments to this method to another method.
+ *
+ *     def foo(...)
+ *       bar(...)
+ *           ^^^
+ *     end
+ *
  * Type: PM_FORWARDING_ARGUMENTS_NODE
  *
  * @extends pm_node_t
@@ -3107,6 +3452,12 @@ typedef struct pm_forwarding_arguments_node {
 /**
  * ForwardingParameterNode
  *
+ * Represents the use of the forwarding parameter in a method, block, or lambda declaration.
+ *
+ *     def foo(...)
+ *             ^^^
+ *     end
+ *
  * Type: PM_FORWARDING_PARAMETER_NODE
  *
  * @extends pm_node_t
@@ -3118,6 +3469,11 @@ typedef struct pm_forwarding_parameter_node {
 
 /**
  * ForwardingSuperNode
+ *
+ * Represents the use of the `super` keyword without parentheses or arguments.
+ *
+ *     super
+ *     ^^^^^
  *
  * Type: PM_FORWARDING_SUPER_NODE
  *
@@ -3135,6 +3491,11 @@ typedef struct pm_forwarding_super_node {
 
 /**
  * GlobalVariableAndWriteNode
+ *
+ * Represents the use of the `&&=` operator for assignment to a global variable.
+ *
+ *     $target &&= value
+ *     ^^^^^^^^^^^^^^^^^
  *
  * Type: PM_GLOBAL_VARIABLE_AND_WRITE_NODE
  *
@@ -3167,6 +3528,11 @@ typedef struct pm_global_variable_and_write_node {
 
 /**
  * GlobalVariableOperatorWriteNode
+ *
+ * Represents assigning to a global variable using an operator that isn't `=`.
+ *
+ *     $target += value
+ *     ^^^^^^^^^^^^^^^^
  *
  * Type: PM_GLOBAL_VARIABLE_OPERATOR_WRITE_NODE
  *
@@ -3205,6 +3571,11 @@ typedef struct pm_global_variable_operator_write_node {
 /**
  * GlobalVariableOrWriteNode
  *
+ * Represents the use of the `||=` operator for assignment to a global variable.
+ *
+ *     $target ||= value
+ *     ^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_GLOBAL_VARIABLE_OR_WRITE_NODE
  *
  * @extends pm_node_t
@@ -3237,6 +3608,11 @@ typedef struct pm_global_variable_or_write_node {
 /**
  * GlobalVariableReadNode
  *
+ * Represents referencing a global variable.
+ *
+ *     $foo
+ *     ^^^^
+ *
  * Type: PM_GLOBAL_VARIABLE_READ_NODE
  *
  * @extends pm_node_t
@@ -3260,6 +3636,11 @@ typedef struct pm_global_variable_read_node {
 /**
  * GlobalVariableTargetNode
  *
+ * Represents writing to a global variable in a context that doesn't have an explicit value.
+ *
+ *     $foo, $bar = baz
+ *     ^^^^  ^^^^
+ *
  * Type: PM_GLOBAL_VARIABLE_TARGET_NODE
  *
  * @extends pm_node_t
@@ -3276,6 +3657,11 @@ typedef struct pm_global_variable_target_node {
 
 /**
  * GlobalVariableWriteNode
+ *
+ * Represents writing to a global variable.
+ *
+ *     $foo = 1
+ *     ^^^^^^^^
  *
  * Type: PM_GLOBAL_VARIABLE_WRITE_NODE
  *
@@ -3333,6 +3719,11 @@ typedef struct pm_global_variable_write_node {
 /**
  * HashNode
  *
+ * Represents a hash literal.
+ *
+ *     { a => b }
+ *     ^^^^^^^^^^
+ *
  * Type: PM_HASH_NODE
  *
  * @extends pm_node_t
@@ -3378,6 +3769,14 @@ typedef struct pm_hash_node {
 /**
  * HashPatternNode
  *
+ * Represents a hash pattern in pattern matching.
+ *
+ *     foo => { a: 1, b: 2 }
+ *            ^^^^^^^^^^^^^^
+ *
+ *     foo => { a: 1, b: 2, **c }
+ *            ^^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_HASH_PATTERN_NODE
  *
  * @extends pm_node_t
@@ -3414,6 +3813,17 @@ typedef struct pm_hash_pattern_node {
 
 /**
  * IfNode
+ *
+ * Represents the use of the `if` keyword, either in the block form or the modifier form, or a ternary expression.
+ *
+ *     bar if foo
+ *     ^^^^^^^^^^
+ *
+ *     if foo then bar end
+ *     ^^^^^^^^^^^^^^^^^^^
+ *
+ *     foo ? bar : baz
+ *     ^^^^^^^^^^^^^^^
  *
  * Type: PM_IF_NODE
  *
@@ -3515,6 +3925,11 @@ typedef struct pm_if_node {
 /**
  * ImaginaryNode
  *
+ * Represents an imaginary number literal.
+ *
+ *     1.0i
+ *     ^^^^
+ *
  * Type: PM_IMAGINARY_NODE
  *
  * @extends pm_node_t
@@ -3531,6 +3946,17 @@ typedef struct pm_imaginary_node {
 
 /**
  * ImplicitNode
+ *
+ * Represents a node that is implicitly being added to the tree but doesn't correspond directly to a node in the source.
+ *
+ *     { foo: }
+ *       ^^^^
+ *
+ *     { Foo: }
+ *       ^^^^
+ *
+ *     foo in { bar: }
+ *              ^^^^
  *
  * Type: PM_IMPLICIT_NODE
  *
@@ -3549,6 +3975,20 @@ typedef struct pm_implicit_node {
 /**
  * ImplicitRestNode
  *
+ * Represents using a trailing comma to indicate an implicit rest parameter.
+ *
+ *     foo { |bar,| }
+ *               ^
+ *
+ *     foo in [bar,]
+ *                ^
+ *
+ *     for foo, in bar do end
+ *            ^
+ *
+ *     foo, = bar
+ *        ^
+ *
  * Type: PM_IMPLICIT_REST_NODE
  *
  * @extends pm_node_t
@@ -3560,6 +4000,11 @@ typedef struct pm_implicit_rest_node {
 
 /**
  * InNode
+ *
+ * Represents the use of the `in` keyword in a case statement.
+ *
+ *     case a; in b then c end
+ *             ^^^^^^^^^^^
  *
  * Type: PM_IN_NODE
  *
@@ -3592,6 +4037,11 @@ typedef struct pm_in_node {
 
 /**
  * IndexAndWriteNode
+ *
+ * Represents the use of the `&&=` operator on a call to the `[]` method.
+ *
+ *     foo.bar[baz] &&= value
+ *     ^^^^^^^^^^^^^^^^^^^^^^
  *
  * Type: PM_INDEX_AND_WRITE_NODE
  * Flags:
@@ -3649,6 +4099,11 @@ typedef struct pm_index_and_write_node {
 
 /**
  * IndexOperatorWriteNode
+ *
+ * Represents the use of an assignment operator on a call to `[]`.
+ *
+ *     foo.bar[baz] += value
+ *     ^^^^^^^^^^^^^^^^^^^^^
  *
  * Type: PM_INDEX_OPERATOR_WRITE_NODE
  * Flags:
@@ -3712,6 +4167,11 @@ typedef struct pm_index_operator_write_node {
 /**
  * IndexOrWriteNode
  *
+ * Represents the use of the `||=` operator on a call to `[]`.
+ *
+ *     foo.bar[baz] ||= value
+ *     ^^^^^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_INDEX_OR_WRITE_NODE
  * Flags:
  *    PM_CALL_NODE_FLAGS_SAFE_NAVIGATION
@@ -3769,6 +4229,19 @@ typedef struct pm_index_or_write_node {
 /**
  * IndexTargetNode
  *
+ * Represents assigning to an index.
+ *
+ *     foo[bar], = 1
+ *     ^^^^^^^^
+ *
+ *     begin
+ *     rescue => foo[bar]
+ *               ^^^^^^^^
+ *     end
+ *
+ *     for foo[bar] in baz do end
+ *         ^^^^^^^^
+ *
  * Type: PM_INDEX_TARGET_NODE
  * Flags:
  *    PM_CALL_NODE_FLAGS_SAFE_NAVIGATION
@@ -3811,6 +4284,11 @@ typedef struct pm_index_target_node {
 /**
  * InstanceVariableAndWriteNode
  *
+ * Represents the use of the `&&=` operator for assignment to an instance variable.
+ *
+ *     @target &&= value
+ *     ^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_INSTANCE_VARIABLE_AND_WRITE_NODE
  *
  * @extends pm_node_t
@@ -3842,6 +4320,11 @@ typedef struct pm_instance_variable_and_write_node {
 
 /**
  * InstanceVariableOperatorWriteNode
+ *
+ * Represents assigning to an instance variable using an operator that isn't `=`.
+ *
+ *     @target += value
+ *     ^^^^^^^^^^^^^^^^
  *
  * Type: PM_INSTANCE_VARIABLE_OPERATOR_WRITE_NODE
  *
@@ -3880,6 +4363,11 @@ typedef struct pm_instance_variable_operator_write_node {
 /**
  * InstanceVariableOrWriteNode
  *
+ * Represents the use of the `||=` operator for assignment to an instance variable.
+ *
+ *     @target ||= value
+ *     ^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_INSTANCE_VARIABLE_OR_WRITE_NODE
  *
  * @extends pm_node_t
@@ -3912,6 +4400,11 @@ typedef struct pm_instance_variable_or_write_node {
 /**
  * InstanceVariableReadNode
  *
+ * Represents referencing an instance variable.
+ *
+ *     @foo
+ *     ^^^^
+ *
  * Type: PM_INSTANCE_VARIABLE_READ_NODE
  *
  * @extends pm_node_t
@@ -3935,6 +4428,11 @@ typedef struct pm_instance_variable_read_node {
 /**
  * InstanceVariableTargetNode
  *
+ * Represents writing to an instance variable in a context that doesn't have an explicit value.
+ *
+ *     @foo, @bar = baz
+ *     ^^^^  ^^^^
+ *
  * Type: PM_INSTANCE_VARIABLE_TARGET_NODE
  *
  * @extends pm_node_t
@@ -3951,6 +4449,11 @@ typedef struct pm_instance_variable_target_node {
 
 /**
  * InstanceVariableWriteNode
+ *
+ * Represents writing to an instance variable.
+ *
+ *     @foo = 1
+ *     ^^^^^^^^
  *
  * Type: PM_INSTANCE_VARIABLE_WRITE_NODE
  *
@@ -4008,6 +4511,11 @@ typedef struct pm_instance_variable_write_node {
 /**
  * IntegerNode
  *
+ * Represents an integer number literal.
+ *
+ *     1
+ *     ^
+ *
  * Type: PM_INTEGER_NODE
  * Flags:
  *    PM_INTEGER_BASE_FLAGS_BINARY
@@ -4031,6 +4539,11 @@ typedef struct pm_integer_node {
 
 /**
  * InterpolatedMatchLastLineNode
+ *
+ * Represents a regular expression literal that contains interpolation that is being used in the predicate of a conditional to implicitly match against the last line read by an IO object.
+ *
+ *     if /foo #{bar} baz/ then end
+ *        ^^^^^^^^^^^^^^^^
  *
  * Type: PM_INTERPOLATED_MATCH_LAST_LINE_NODE
  * Flags:
@@ -4071,6 +4584,11 @@ typedef struct pm_interpolated_match_last_line_node {
 /**
  * InterpolatedRegularExpressionNode
  *
+ * Represents a regular expression literal that contains interpolation.
+ *
+ *     /foo #{bar} baz/
+ *     ^^^^^^^^^^^^^^^^
+ *
  * Type: PM_INTERPOLATED_REGULAR_EXPRESSION_NODE
  * Flags:
  *    PM_REGULAR_EXPRESSION_FLAGS_IGNORE_CASE
@@ -4110,6 +4628,11 @@ typedef struct pm_interpolated_regular_expression_node {
 /**
  * InterpolatedStringNode
  *
+ * Represents a string literal that contains interpolation.
+ *
+ *     "foo #{bar} baz"
+ *     ^^^^^^^^^^^^^^^^
+ *
  * Type: PM_INTERPOLATED_STRING_NODE
  * Flags:
  *    PM_INTERPOLATED_STRING_NODE_FLAGS_FROZEN
@@ -4140,6 +4663,11 @@ typedef struct pm_interpolated_string_node {
 /**
  * InterpolatedSymbolNode
  *
+ * Represents a symbol literal that contains interpolation.
+ *
+ *     :"foo #{bar} baz"
+ *     ^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_INTERPOLATED_SYMBOL_NODE
  *
  * @extends pm_node_t
@@ -4166,6 +4694,11 @@ typedef struct pm_interpolated_symbol_node {
 
 /**
  * InterpolatedXStringNode
+ *
+ * Represents an xstring literal that contains interpolation.
+ *
+ *     `foo #{bar} baz`
+ *     ^^^^^^^^^^^^^^^^
  *
  * Type: PM_INTERPOLATED_X_STRING_NODE
  *
@@ -4194,6 +4727,11 @@ typedef struct pm_interpolated_x_string_node {
 /**
  * ItLocalVariableReadNode
  *
+ * Represents reading from the implicit `it` local variable.
+ *
+ *     -> { it }
+ *          ^^
+ *
  * Type: PM_IT_LOCAL_VARIABLE_READ_NODE
  *
  * @extends pm_node_t
@@ -4206,6 +4744,11 @@ typedef struct pm_it_local_variable_read_node {
 /**
  * ItParametersNode
  *
+ * Represents an implicit set of parameters through the use of the `it` keyword within a block or lambda.
+ *
+ *     -> { it + it }
+ *     ^^^^^^^^^^^^^^
+ *
  * Type: PM_IT_PARAMETERS_NODE
  *
  * @extends pm_node_t
@@ -4217,6 +4760,11 @@ typedef struct pm_it_parameters_node {
 
 /**
  * KeywordHashNode
+ *
+ * Represents a hash literal without opening and closing braces.
+ *
+ *     foo(a: b)
+ *         ^^^^
  *
  * Type: PM_KEYWORD_HASH_NODE
  * Flags:
@@ -4236,6 +4784,12 @@ typedef struct pm_keyword_hash_node {
 
 /**
  * KeywordRestParameterNode
+ *
+ * Represents a keyword rest parameter to a method, block, or lambda definition.
+ *
+ *     def a(**b)
+ *           ^^^
+ *     end
  *
  * Type: PM_KEYWORD_REST_PARAMETER_NODE
  * Flags:
@@ -4265,6 +4819,11 @@ typedef struct pm_keyword_rest_parameter_node {
 
 /**
  * LambdaNode
+ *
+ * Represents using a lambda literal (not the lambda method call).
+ *
+ *     ->(value) { value * 2 }
+ *     ^^^^^^^^^^^^^^^^^^^^^^^
  *
  * Type: PM_LAMBDA_NODE
  *
@@ -4308,6 +4867,11 @@ typedef struct pm_lambda_node {
 /**
  * LocalVariableAndWriteNode
  *
+ * Represents the use of the `&&=` operator for assignment to a local variable.
+ *
+ *     target &&= value
+ *     ^^^^^^^^^^^^^^^^
+ *
  * Type: PM_LOCAL_VARIABLE_AND_WRITE_NODE
  *
  * @extends pm_node_t
@@ -4344,6 +4908,11 @@ typedef struct pm_local_variable_and_write_node {
 
 /**
  * LocalVariableOperatorWriteNode
+ *
+ * Represents assigning to a local variable using an operator that isn't `=`.
+ *
+ *     target += value
+ *     ^^^^^^^^^^^^^^^
  *
  * Type: PM_LOCAL_VARIABLE_OPERATOR_WRITE_NODE
  *
@@ -4387,6 +4956,11 @@ typedef struct pm_local_variable_operator_write_node {
 /**
  * LocalVariableOrWriteNode
  *
+ * Represents the use of the `||=` operator for assignment to a local variable.
+ *
+ *     target ||= value
+ *     ^^^^^^^^^^^^^^^^
+ *
  * Type: PM_LOCAL_VARIABLE_OR_WRITE_NODE
  *
  * @extends pm_node_t
@@ -4423,6 +4997,11 @@ typedef struct pm_local_variable_or_write_node {
 
 /**
  * LocalVariableReadNode
+ *
+ * Represents reading a local variable. Note that this requires that a local variable of the same name has already been written to in the same scope, otherwise it is parsed as a method call.
+ *
+ *     foo
+ *     ^^^
  *
  * Type: PM_LOCAL_VARIABLE_READ_NODE
  *
@@ -4464,6 +5043,11 @@ typedef struct pm_local_variable_read_node {
 /**
  * LocalVariableTargetNode
  *
+ * Represents writing to a local variable in a context that doesn't have an explicit value.
+ *
+ *     foo, bar = baz
+ *     ^^^  ^^^
+ *
  * Type: PM_LOCAL_VARIABLE_TARGET_NODE
  *
  * @extends pm_node_t
@@ -4485,6 +5069,11 @@ typedef struct pm_local_variable_target_node {
 
 /**
  * LocalVariableWriteNode
+ *
+ * Represents writing to a local variable.
+ *
+ *     foo = 1
+ *     ^^^^^^^
  *
  * Type: PM_LOCAL_VARIABLE_WRITE_NODE
  *
@@ -4559,6 +5148,11 @@ typedef struct pm_local_variable_write_node {
 /**
  * MatchLastLineNode
  *
+ * Represents a regular expression literal used in the predicate of a conditional to implicitly match against the last line read by an IO object.
+ *
+ *     if /foo/i then end
+ *        ^^^^^^
+ *
  * Type: PM_MATCH_LAST_LINE_NODE
  * Flags:
  *    PM_REGULAR_EXPRESSION_FLAGS_IGNORE_CASE
@@ -4603,6 +5197,11 @@ typedef struct pm_match_last_line_node {
 /**
  * MatchPredicateNode
  *
+ * Represents the use of the modifier `in` operator.
+ *
+ *     foo in bar
+ *     ^^^^^^^^^^
+ *
  * Type: PM_MATCH_PREDICATE_NODE
  *
  * @extends pm_node_t
@@ -4629,6 +5228,11 @@ typedef struct pm_match_predicate_node {
 
 /**
  * MatchRequiredNode
+ *
+ * Represents the use of the `=>` operator.
+ *
+ *     foo => bar
+ *     ^^^^^^^^^^
  *
  * Type: PM_MATCH_REQUIRED_NODE
  *
@@ -4657,6 +5261,11 @@ typedef struct pm_match_required_node {
 /**
  * MatchWriteNode
  *
+ * Represents writing local variables using a regular expression match with named capture groups.
+ *
+ *     /(?<foo>bar)/ =~ baz
+ *     ^^^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_MATCH_WRITE_NODE
  *
  * @extends pm_node_t
@@ -4679,6 +5288,8 @@ typedef struct pm_match_write_node {
 /**
  * MissingNode
  *
+ * Represents a node that is missing from the source and results in a syntax error.
+ *
  * Type: PM_MISSING_NODE
  *
  * @extends pm_node_t
@@ -4690,6 +5301,11 @@ typedef struct pm_missing_node {
 
 /**
  * ModuleNode
+ *
+ * Represents a module declaration involving the `module` keyword.
+ *
+ *     module Foo end
+ *     ^^^^^^^^^^^^^^
  *
  * Type: PM_MODULE_NODE
  *
@@ -4732,6 +5348,16 @@ typedef struct pm_module_node {
 
 /**
  * MultiTargetNode
+ *
+ * Represents a multi-target expression.
+ *
+ *     a, (b, c) = 1, 2, 3
+ *        ^^^^^^
+ *
+ * This can be a part of `MultiWriteNode` as above, or the target of a `for` loop
+ *
+ *     for a, b in [[1, 2], [3, 4]]
+ *         ^^^^
  *
  * Type: PM_MULTI_TARGET_NODE
  *
@@ -4809,6 +5435,11 @@ typedef struct pm_multi_target_node {
 
 /**
  * MultiWriteNode
+ *
+ * Represents a write to a multi-target expression.
+ *
+ *     a, b, c = 1, 2, 3
+ *     ^^^^^^^^^^^^^^^^^
  *
  * Type: PM_MULTI_WRITE_NODE
  *
@@ -4907,6 +5538,11 @@ typedef struct pm_multi_write_node {
 /**
  * NextNode
  *
+ * Represents the use of the `next` keyword.
+ *
+ *     next 1
+ *     ^^^^^^
+ *
  * Type: PM_NEXT_NODE
  *
  * @extends pm_node_t
@@ -4929,6 +5565,11 @@ typedef struct pm_next_node {
 /**
  * NilNode
  *
+ * Represents the use of the `nil` keyword.
+ *
+ *     nil
+ *     ^^^
+ *
  * Type: PM_NIL_NODE
  *
  * @extends pm_node_t
@@ -4940,6 +5581,12 @@ typedef struct pm_nil_node {
 
 /**
  * NoKeywordsParameterNode
+ *
+ * Represents the use of `**nil` inside method arguments.
+ *
+ *     def a(**nil)
+ *           ^^^^^
+ *     end
  *
  * Type: PM_NO_KEYWORDS_PARAMETER_NODE
  *
@@ -4963,6 +5610,11 @@ typedef struct pm_no_keywords_parameter_node {
 /**
  * NumberedParametersNode
  *
+ * Represents an implicit set of parameters through the use of numbered parameters within a block or lambda.
+ *
+ *     -> { _1 + _2 }
+ *     ^^^^^^^^^^^^^^
+ *
  * Type: PM_NUMBERED_PARAMETERS_NODE
  *
  * @extends pm_node_t
@@ -4979,6 +5631,11 @@ typedef struct pm_numbered_parameters_node {
 
 /**
  * NumberedReferenceReadNode
+ *
+ * Represents reading a numbered reference to a capture in the previous match.
+ *
+ *     $1
+ *     ^^
  *
  * Type: PM_NUMBERED_REFERENCE_READ_NODE
  *
@@ -5004,6 +5661,12 @@ typedef struct pm_numbered_reference_read_node {
 
 /**
  * OptionalKeywordParameterNode
+ *
+ * Represents an optional keyword parameter to a method, block, or lambda definition.
+ *
+ *     def a(b: 1)
+ *           ^^^^
+ *     end
  *
  * Type: PM_OPTIONAL_KEYWORD_PARAMETER_NODE
  * Flags:
@@ -5033,6 +5696,12 @@ typedef struct pm_optional_keyword_parameter_node {
 
 /**
  * OptionalParameterNode
+ *
+ * Represents an optional parameter to a method, block, or lambda definition.
+ *
+ *     def a(b = 1)
+ *           ^^^^^
+ *     end
  *
  * Type: PM_OPTIONAL_PARAMETER_NODE
  * Flags:
@@ -5067,6 +5736,11 @@ typedef struct pm_optional_parameter_node {
 
 /**
  * OrNode
+ *
+ * Represents the use of the `||` operator or the `or` keyword.
+ *
+ *     left or right
+ *     ^^^^^^^^^^^^^
  *
  * Type: PM_OR_NODE
  *
@@ -5116,6 +5790,12 @@ typedef struct pm_or_node {
 /**
  * ParametersNode
  *
+ * Represents the list of parameters on a method, block, or lambda definition.
+ *
+ *     def a(b, c, d)
+ *           ^^^^^^^
+ *     end
+ *
  * Type: PM_PARAMETERS_NODE
  *
  * @extends pm_node_t
@@ -5163,6 +5843,11 @@ typedef struct pm_parameters_node {
 /**
  * ParenthesesNode
  *
+ * Represents a parenthesized expression
+ *
+ *     (10 + 34)
+ *     ^^^^^^^^^
+ *
  * Type: PM_PARENTHESES_NODE
  *
  * @extends pm_node_t
@@ -5189,6 +5874,11 @@ typedef struct pm_parentheses_node {
 
 /**
  * PinnedExpressionNode
+ *
+ * Represents the use of the `^` operator for pinning an expression in a pattern matching expression.
+ *
+ *     foo in ^(bar)
+ *            ^^^^^^
  *
  * Type: PM_PINNED_EXPRESSION_NODE
  *
@@ -5222,6 +5912,11 @@ typedef struct pm_pinned_expression_node {
 /**
  * PinnedVariableNode
  *
+ * Represents the use of the `^` operator for pinning a variable in a pattern matching expression.
+ *
+ *     foo in ^bar
+ *            ^^^^
+ *
  * Type: PM_PINNED_VARIABLE_NODE
  *
  * @extends pm_node_t
@@ -5243,6 +5938,11 @@ typedef struct pm_pinned_variable_node {
 
 /**
  * PostExecutionNode
+ *
+ * Represents the use of the `END` keyword.
+ *
+ *     END { foo }
+ *     ^^^^^^^^^^^
  *
  * Type: PM_POST_EXECUTION_NODE
  *
@@ -5276,6 +5976,11 @@ typedef struct pm_post_execution_node {
 /**
  * PreExecutionNode
  *
+ * Represents the use of the `BEGIN` keyword.
+ *
+ *     BEGIN { foo }
+ *     ^^^^^^^^^^^^^
+ *
  * Type: PM_PRE_EXECUTION_NODE
  *
  * @extends pm_node_t
@@ -5308,6 +6013,8 @@ typedef struct pm_pre_execution_node {
 /**
  * ProgramNode
  *
+ * The top level node of any parse tree.
+ *
  * Type: PM_PROGRAM_NODE
  *
  * @extends pm_node_t
@@ -5329,6 +6036,14 @@ typedef struct pm_program_node {
 
 /**
  * RangeNode
+ *
+ * Represents the use of the `..` or `...` operators.
+ *
+ *     1..2
+ *     ^^^^
+ *
+ *     c if a =~ /left/ ... b =~ /right/
+ *          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  *
  * Type: PM_RANGE_NODE
  * Flags:
@@ -5378,6 +6093,11 @@ typedef struct pm_range_node {
 /**
  * RationalNode
  *
+ * Represents a rational number literal.
+ *
+ *     1.0r
+ *     ^^^^
+ *
  * Type: PM_RATIONAL_NODE
  * Flags:
  *    PM_INTEGER_BASE_FLAGS_BINARY
@@ -5413,6 +6133,11 @@ typedef struct pm_rational_node {
 /**
  * RedoNode
  *
+ * Represents the use of the `redo` keyword.
+ *
+ *     redo
+ *     ^^^^
+ *
  * Type: PM_REDO_NODE
  *
  * @extends pm_node_t
@@ -5424,6 +6149,11 @@ typedef struct pm_redo_node {
 
 /**
  * RegularExpressionNode
+ *
+ * Represents a regular expression literal with no interpolation.
+ *
+ *     /foo/i
+ *     ^^^^^^
  *
  * Type: PM_REGULAR_EXPRESSION_NODE
  * Flags:
@@ -5469,6 +6199,12 @@ typedef struct pm_regular_expression_node {
 /**
  * RequiredKeywordParameterNode
  *
+ * Represents a required keyword parameter to a method, block, or lambda definition.
+ *
+ *     def a(b: )
+ *           ^^
+ *     end
+ *
  * Type: PM_REQUIRED_KEYWORD_PARAMETER_NODE
  * Flags:
  *    PM_PARAMETER_FLAGS_REPEATED_PARAMETER
@@ -5493,6 +6229,12 @@ typedef struct pm_required_keyword_parameter_node {
 /**
  * RequiredParameterNode
  *
+ * Represents a required parameter to a method, block, or lambda definition.
+ *
+ *     def a(b)
+ *           ^
+ *     end
+ *
  * Type: PM_REQUIRED_PARAMETER_NODE
  * Flags:
  *    PM_PARAMETER_FLAGS_REPEATED_PARAMETER
@@ -5511,6 +6253,11 @@ typedef struct pm_required_parameter_node {
 
 /**
  * RescueModifierNode
+ *
+ * Represents an expression modified with a rescue.
+ *
+ *     foo rescue nil
+ *     ^^^^^^^^^^^^^^
  *
  * Type: PM_RESCUE_MODIFIER_NODE
  *
@@ -5538,6 +6285,16 @@ typedef struct pm_rescue_modifier_node {
 
 /**
  * RescueNode
+ *
+ * Represents a rescue statement.
+ *
+ *     begin
+ *     rescue Foo, *splat, Bar => ex
+ *       foo
+ *     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ *     end
+ *
+ * `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `exception` field.
  *
  * Type: PM_RESCUE_NODE
  *
@@ -5581,6 +6338,12 @@ typedef struct pm_rescue_node {
 /**
  * RestParameterNode
  *
+ * Represents a rest parameter to a method, block, or lambda definition.
+ *
+ *     def a(*b)
+ *           ^^
+ *     end
+ *
  * Type: PM_REST_PARAMETER_NODE
  * Flags:
  *    PM_PARAMETER_FLAGS_REPEATED_PARAMETER
@@ -5610,6 +6373,11 @@ typedef struct pm_rest_parameter_node {
 /**
  * RetryNode
  *
+ * Represents the use of the `retry` keyword.
+ *
+ *     retry
+ *     ^^^^^
+ *
  * Type: PM_RETRY_NODE
  *
  * @extends pm_node_t
@@ -5621,6 +6389,11 @@ typedef struct pm_retry_node {
 
 /**
  * ReturnNode
+ *
+ * Represents the use of the `return` keyword.
+ *
+ *     return 1
+ *     ^^^^^^^^
  *
  * Type: PM_RETURN_NODE
  *
@@ -5644,6 +6417,11 @@ typedef struct pm_return_node {
 /**
  * SelfNode
  *
+ * Represents the `self` keyword.
+ *
+ *     self
+ *     ^^^^
+ *
  * Type: PM_SELF_NODE
  *
  * @extends pm_node_t
@@ -5655,6 +6433,12 @@ typedef struct pm_self_node {
 
 /**
  * ShareableConstantNode
+ *
+ * This node wraps a constant write to indicate that when the value is written, it should have its shareability state modified.
+ *
+ *     # shareable_constant_value: literal
+ *     C = { a: 1 }
+ *     ^^^^^^^^^^^^
  *
  * Type: PM_SHAREABLE_CONSTANT_NODE
  * Flags:
@@ -5678,6 +6462,11 @@ typedef struct pm_shareable_constant_node {
 
 /**
  * SingletonClassNode
+ *
+ * Represents a singleton class declaration involving the `class` keyword.
+ *
+ *     class << self end
+ *     ^^^^^^^^^^^^^^^^^
  *
  * Type: PM_SINGLETON_CLASS_NODE
  *
@@ -5721,6 +6510,11 @@ typedef struct pm_singleton_class_node {
 /**
  * SourceEncodingNode
  *
+ * Represents the use of the `__ENCODING__` keyword.
+ *
+ *     __ENCODING__
+ *     ^^^^^^^^^^^^
+ *
  * Type: PM_SOURCE_ENCODING_NODE
  *
  * @extends pm_node_t
@@ -5732,6 +6526,11 @@ typedef struct pm_source_encoding_node {
 
 /**
  * SourceFileNode
+ *
+ * Represents the use of the `__FILE__` keyword.
+ *
+ *     __FILE__
+ *     ^^^^^^^^
  *
  * Type: PM_SOURCE_FILE_NODE
  * Flags:
@@ -5757,6 +6556,11 @@ typedef struct pm_source_file_node {
 /**
  * SourceLineNode
  *
+ * Represents the use of the `__LINE__` keyword.
+ *
+ *     __LINE__
+ *     ^^^^^^^^
+ *
  * Type: PM_SOURCE_LINE_NODE
  *
  * @extends pm_node_t
@@ -5768,6 +6572,11 @@ typedef struct pm_source_line_node {
 
 /**
  * SplatNode
+ *
+ * Represents the use of the splat operator.
+ *
+ *     [*a]
+ *      ^^
  *
  * Type: PM_SPLAT_NODE
  *
@@ -5791,6 +6600,11 @@ typedef struct pm_splat_node {
 /**
  * StatementsNode
  *
+ * Represents a set of statements contained within some scope.
+ *
+ *     foo; bar; baz
+ *     ^^^^^^^^^^^^^
+ *
  * Type: PM_STATEMENTS_NODE
  *
  * @extends pm_node_t
@@ -5807,6 +6621,17 @@ typedef struct pm_statements_node {
 
 /**
  * StringNode
+ *
+ * Represents a string literal, a string contained within a `%w` list, or plain string content within an interpolated string.
+ *
+ *     "foo"
+ *     ^^^^^
+ *
+ *     %w[foo]
+ *        ^^^
+ *
+ *     "foo #{bar} baz"
+ *      ^^^^      ^^^^
  *
  * Type: PM_STRING_NODE
  * Flags:
@@ -5845,6 +6670,14 @@ typedef struct pm_string_node {
 /**
  * SuperNode
  *
+ * Represents the use of the `super` keyword with parentheses or arguments.
+ *
+ *     super()
+ *     ^^^^^^^
+ *
+ *     super foo, bar
+ *     ^^^^^^^^^^^^^^
+ *
  * Type: PM_SUPER_NODE
  *
  * @extends pm_node_t
@@ -5882,6 +6715,14 @@ typedef struct pm_super_node {
 /**
  * SymbolNode
  *
+ * Represents a symbol literal or a symbol contained within a `%i` list.
+ *
+ *     :foo
+ *     ^^^^
+ *
+ *     %i[foo]
+ *        ^^^
+ *
  * Type: PM_SYMBOL_NODE
  * Flags:
  *    PM_SYMBOL_FLAGS_FORCED_UTF8_ENCODING
@@ -5918,6 +6759,11 @@ typedef struct pm_symbol_node {
 /**
  * TrueNode
  *
+ * Represents the use of the literal `true` keyword.
+ *
+ *     true
+ *     ^^^^
+ *
  * Type: PM_TRUE_NODE
  *
  * @extends pm_node_t
@@ -5929,6 +6775,11 @@ typedef struct pm_true_node {
 
 /**
  * UndefNode
+ *
+ * Represents the use of the `undef` keyword.
+ *
+ *     undef :foo, :bar, :baz
+ *     ^^^^^^^^^^^^^^^^^^^^^^
  *
  * Type: PM_UNDEF_NODE
  *
@@ -5951,6 +6802,14 @@ typedef struct pm_undef_node {
 
 /**
  * UnlessNode
+ *
+ * Represents the use of the `unless` keyword, either in the block form or the modifier form.
+ *
+ *     bar unless foo
+ *     ^^^^^^^^^^^^^^
+ *
+ *     unless foo then bar end
+ *     ^^^^^^^^^^^^^^^^^^^^^^^
  *
  * Type: PM_UNLESS_NODE
  *
@@ -6031,6 +6890,14 @@ typedef struct pm_unless_node {
 /**
  * UntilNode
  *
+ * Represents the use of the `until` keyword, either in the block form or the modifier form.
+ *
+ *     bar until foo
+ *     ^^^^^^^^^^^^^
+ *
+ *     until foo do bar end
+ *     ^^^^^^^^^^^^^^^^^^^^
+ *
  * Type: PM_UNTIL_NODE
  * Flags:
  *    PM_LOOP_FLAGS_BEGIN_MODIFIER
@@ -6065,6 +6932,13 @@ typedef struct pm_until_node {
 /**
  * WhenNode
  *
+ * Represents the use of the `when` keyword within a case statement.
+ *
+ *     case true
+ *     when true
+ *     ^^^^^^^^^
+ *     end
+ *
  * Type: PM_WHEN_NODE
  *
  * @extends pm_node_t
@@ -6096,6 +6970,14 @@ typedef struct pm_when_node {
 
 /**
  * WhileNode
+ *
+ * Represents the use of the `while` keyword, either in the block form or the modifier form.
+ *
+ *     bar while foo
+ *     ^^^^^^^^^^^^^
+ *
+ *     while foo do bar end
+ *     ^^^^^^^^^^^^^^^^^^^^
  *
  * Type: PM_WHILE_NODE
  * Flags:
@@ -6131,6 +7013,11 @@ typedef struct pm_while_node {
 /**
  * XStringNode
  *
+ * Represents an xstring literal with no interpolation.
+ *
+ *     `foo`
+ *     ^^^^^
+ *
  * Type: PM_X_STRING_NODE
  * Flags:
  *    PM_ENCODING_FLAGS_FORCED_UTF8_ENCODING
@@ -6165,6 +7052,11 @@ typedef struct pm_x_string_node {
 
 /**
  * YieldNode
+ *
+ * Represents the use of the `yield` keyword.
+ *
+ *     yield 1
+ *     ^^^^^^^
  *
  * Type: PM_YIELD_NODE
  *
