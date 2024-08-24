@@ -211,7 +211,7 @@ public class Loader {
 
         // warning messages only contain ASCII characters
         for (int i = 0; i < count; i++) {
-            Nodes.WarningType type = Nodes.WARNING_TYPES[loadVarUInt() - 283];
+            Nodes.WarningType type = Nodes.WARNING_TYPES[loadVarUInt() - 284];
             byte[] bytes = loadEmbeddedString();
             String message = new String(bytes, StandardCharsets.US_ASCII);
             Nodes.Location location = loadLocation();

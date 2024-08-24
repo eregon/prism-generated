@@ -8,7 +8,7 @@
 
 #include "prism/diagnostic.h"
 
-#define PM_DIAGNOSTIC_ID_MAX 313
+#define PM_DIAGNOSTIC_ID_MAX 314
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -173,6 +173,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_ESCAPE_INVALID_META_REPEAT]         = { "invalid meta escape sequence; meta cannot be repeated", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ESCAPE_INVALID_UNICODE]             = { "invalid Unicode escape sequence", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ESCAPE_INVALID_UNICODE_CM_FLAGS]    = { "invalid Unicode escape sequence; Unicode cannot be combined with control or meta flags", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_ESCAPE_INVALID_UNICODE_LIST]        = { "invalid Unicode list: %.*s", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ESCAPE_INVALID_UNICODE_LITERAL]     = { "invalid Unicode escape sequence; Multiple codepoints at single character literal are disallowed", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ESCAPE_INVALID_UNICODE_LONG]        = { "invalid Unicode escape sequence; maximum length is 6 digits", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ESCAPE_INVALID_UNICODE_SHORT]       = { "too short escape sequence: %.*s", PM_ERROR_LEVEL_SYNTAX },
@@ -493,6 +494,7 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_ESCAPE_INVALID_META_REPEAT: return "escape_invalid_meta_repeat";
         case PM_ERR_ESCAPE_INVALID_UNICODE: return "escape_invalid_unicode";
         case PM_ERR_ESCAPE_INVALID_UNICODE_CM_FLAGS: return "escape_invalid_unicode_cm_flags";
+        case PM_ERR_ESCAPE_INVALID_UNICODE_LIST: return "escape_invalid_unicode_list";
         case PM_ERR_ESCAPE_INVALID_UNICODE_LITERAL: return "escape_invalid_unicode_literal";
         case PM_ERR_ESCAPE_INVALID_UNICODE_LONG: return "escape_invalid_unicode_long";
         case PM_ERR_ESCAPE_INVALID_UNICODE_SHORT: return "escape_invalid_unicode_short";

@@ -367,6 +367,7 @@ const errorTypes = [
   "escape_invalid_meta_repeat",
   "escape_invalid_unicode",
   "escape_invalid_unicode_cm_flags",
+  "escape_invalid_unicode_list",
   "escape_invalid_unicode_literal",
   "escape_invalid_unicode_long",
   "escape_invalid_unicode_short",
