@@ -833,6 +833,7 @@ module Prism
       case name
       when :contains_keywords then ArgumentsNodeFlags::CONTAINS_KEYWORDS
       when :contains_keyword_splat then ArgumentsNodeFlags::CONTAINS_KEYWORD_SPLAT
+      when :contains_splat then ArgumentsNodeFlags::CONTAINS_SPLAT
       else Kernel.raise ArgumentError, "invalid ArgumentsNodeFlags flag: #{name.inspect}"
       end
     end

@@ -1268,6 +1268,7 @@ typedef struct pm_and_node {
  * Flags:
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORDS
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORD_SPLAT
+ *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_SPLAT
  *
  * @extends pm_node_t
  */
@@ -7096,6 +7097,9 @@ typedef enum pm_arguments_node_flags {
 
     /** if arguments contain keyword splat */
     PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORD_SPLAT = 8,
+
+    /** if arguments contain splat */
+    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_SPLAT = 16,
 } pm_arguments_node_flags_t;
 
 /**

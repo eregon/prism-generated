@@ -158,6 +158,9 @@ class Prism::ArgumentsNode < Prism::Node
   sig { returns(T::Boolean) }
   def contains_keyword_splat?; end
 
+  sig { returns(T::Boolean) }
+  def contains_splat?; end
+
   sig { returns(T::Array[Prism::Node]) }
   def arguments; end
 
@@ -4462,6 +4465,8 @@ module Prism::ArgumentsNodeFlags
   CONTAINS_KEYWORDS = T.let(1 << 0, Integer)
   # if arguments contain keyword splat
   CONTAINS_KEYWORD_SPLAT = T.let(1 << 1, Integer)
+  # if arguments contain splat
+  CONTAINS_SPLAT = T.let(1 << 2, Integer)
 end
 
 # Flags for array nodes.

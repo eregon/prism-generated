@@ -669,6 +669,11 @@ module Prism
       flags.anybits?(ArgumentsNodeFlags::CONTAINS_KEYWORD_SPLAT)
     end
 
+    # def contains_splat?: () -> bool
+    def contains_splat?
+      flags.anybits?(ArgumentsNodeFlags::CONTAINS_SPLAT)
+    end
+
     # attr_reader arguments: Array[Prism::node]
     attr_reader :arguments
 
@@ -16645,6 +16650,9 @@ module Prism
 
     # if arguments contain keyword splat
     CONTAINS_KEYWORD_SPLAT = 1 << 3
+
+    # if arguments contain splat
+    CONTAINS_SPLAT = 1 << 4
   end
 
   # Flags for array nodes.

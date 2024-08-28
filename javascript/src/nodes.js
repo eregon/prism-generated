@@ -15,6 +15,7 @@ import * as visitors from "./visitor.js"
 const ArgumentsNodeFlags = {
   CONTAINS_KEYWORDS: 1 << 2,
   CONTAINS_KEYWORD_SPLAT: 1 << 3,
+  CONTAINS_SPLAT: 1 << 4,
 };
 
 /**
@@ -609,6 +610,15 @@ export class ArgumentsNode {
    */
   isContainsKeywordSplat() {
     return (this.#flags & ArgumentsNodeFlags.CONTAINS_KEYWORD_SPLAT) !== 0;
+  }
+
+  /**
+   * True if this node has the CONTAINS_SPLAT flag.
+   *
+   * @returns {boolean}
+   */
+  isContainsSplat() {
+    return (this.#flags & ArgumentsNodeFlags.CONTAINS_SPLAT) !== 0;
   }
 
   /**

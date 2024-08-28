@@ -4594,6 +4594,7 @@ module Prism
       flags = [] #: Array[String]
       flags << "contains_keywords" if node.contains_keywords?
       flags << "contains_keyword_splat" if node.contains_keyword_splat?
+      flags << "contains_splat" if node.contains_splat?
       flags.join(", ")
     end
 

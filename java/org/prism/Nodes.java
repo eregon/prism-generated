@@ -153,12 +153,19 @@ public abstract class Nodes {
         // if arguments contain keyword splat
         public static final short CONTAINS_KEYWORD_SPLAT = 1 << 1;
 
+        // if arguments contain splat
+        public static final short CONTAINS_SPLAT = 1 << 2;
+
         public static boolean isContainsKeywords(short flags) {
             return (flags & CONTAINS_KEYWORDS) != 0;
         }
 
         public static boolean isContainsKeywordSplat(short flags) {
             return (flags & CONTAINS_KEYWORD_SPLAT) != 0;
+        }
+
+        public static boolean isContainsSplat(short flags) {
+            return (flags & CONTAINS_SPLAT) != 0;
         }
 
         private final short flags;
@@ -192,6 +199,10 @@ public abstract class Nodes {
 
         public boolean isContainsKeywordSplat() {
             return (flags & CONTAINS_KEYWORD_SPLAT) != 0;
+        }
+
+        public boolean isContainsSplat() {
+            return (flags & CONTAINS_SPLAT) != 0;
         }
 
     }
@@ -1292,6 +1303,10 @@ public abstract class Nodes {
 
         public boolean isContainsKeywordSplat() {
             return ArgumentsNodeFlags.isContainsKeywordSplat(flags);
+        }
+
+        public boolean isContainsSplat() {
+            return ArgumentsNodeFlags.isContainsSplat(flags);
         }
         
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
