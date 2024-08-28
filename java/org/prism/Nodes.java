@@ -1052,21 +1052,23 @@ public abstract class Nodes {
     public static final class AliasGlobalVariableNode extends Node {
         /**
          * <pre>
-         * Represents the new name of the global variable that can be used after aliasing. This can be either a global variable, a back reference, or a numbered reference.
+         * Represents the new name of the global variable that can be used after aliasing.
          *
          *     alias $foo $bar
          *           ^^^^
          * </pre>
          */
+        @UnionType({ GlobalVariableReadNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class })
         public final Node new_name;
         /**
          * <pre>
-         * Represents the old name of the global variable that could be used before aliasing. This can be either a global variable, a back reference, or a numbered reference.
+         * Represents the old name of the global variable that can be used before aliasing.
          *
          *     alias $foo $bar
          *                ^^^^
          * </pre>
          */
+        @UnionType({ GlobalVariableReadNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class, SymbolNode.class, MissingNode.class })
         public final Node old_name;
 
         public AliasGlobalVariableNode(int startOffset, int length, Node new_name, Node old_name) {
@@ -1116,7 +1118,9 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class AliasMethodNode extends Node {
+        @UnionType({ SymbolNode.class, InterpolatedSymbolNode.class })
         public final Node new_name;
+        @UnionType({ SymbolNode.class, InterpolatedSymbolNode.class, GlobalVariableReadNode.class, MissingNode.class })
         public final Node old_name;
 
         public AliasMethodNode(int startOffset, int length, Node new_name, Node old_name) {
@@ -1778,7 +1782,7 @@ public abstract class Nodes {
 
     /**
      * <pre>
-     * Represents block method arguments.
+     * Represents a block argument using `&amp;`.
      *
      *     bar(&amp;args)
      *     ^^^^^^^^^^
@@ -1888,8 +1892,10 @@ public abstract class Nodes {
     public static final class BlockNode extends Node {
         public final String[] locals;
         @Nullable
+        @UnionType({ BlockParametersNode.class, NumberedParametersNode.class, ItParametersNode.class })
         public final Node parameters;
         @Nullable
+        @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
         public BlockNode(int startOffset, int length, String[] locals, Node parameters, Node body) {
@@ -1944,7 +1950,7 @@ public abstract class Nodes {
 
     /**
      * <pre>
-     * Represents a block parameter to a method, block, or lambda definition.
+     * Represents a block parameter of a method, block, or lambda definition.
      *
      *     def a(&amp;b)
      *           ^^
@@ -2653,13 +2659,13 @@ public abstract class Nodes {
         public final Node predicate;
         public final Node[] conditions;
         @Nullable
-        public final ElseNode consequent;
+        public final ElseNode else_clause;
 
-        public CaseMatchNode(int startOffset, int length, Node predicate, Node[] conditions, ElseNode consequent) {
+        public CaseMatchNode(int startOffset, int length, Node predicate, Node[] conditions, ElseNode else_clause) {
             super(startOffset, length);
             this.predicate = predicate;
             this.conditions = conditions;
-            this.consequent = consequent;
+            this.else_clause = else_clause;
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -2669,8 +2675,8 @@ public abstract class Nodes {
             for (Nodes.Node child : this.conditions) {
                 child.accept(visitor);
             }
-            if (this.consequent != null) {
-                this.consequent.accept(visitor);
+            if (this.else_clause != null) {
+                this.else_clause.accept(visitor);
             }
         }
 
@@ -2678,7 +2684,7 @@ public abstract class Nodes {
             ArrayList<Node> childNodes = new ArrayList<>();
             childNodes.add(this.predicate);
             childNodes.addAll(Arrays.asList(this.conditions));
-            childNodes.add(this.consequent);
+            childNodes.add(this.else_clause);
             return childNodes.toArray(EMPTY_ARRAY);
         }
 
@@ -2706,8 +2712,8 @@ public abstract class Nodes {
                 builder.append(nextNextIndent).append(child.toString(nextNextIndent));
             }
             builder.append(nextIndent);
-            builder.append("consequent: ");
-            builder.append(this.consequent == null ? "null\n" : this.consequent.toString(nextIndent));
+            builder.append("else_clause: ");
+            builder.append(this.else_clause == null ? "null\n" : this.else_clause.toString(nextIndent));
             return builder.toString();
         }
     }
@@ -2727,13 +2733,13 @@ public abstract class Nodes {
         public final Node predicate;
         public final Node[] conditions;
         @Nullable
-        public final ElseNode consequent;
+        public final ElseNode else_clause;
 
-        public CaseNode(int startOffset, int length, Node predicate, Node[] conditions, ElseNode consequent) {
+        public CaseNode(int startOffset, int length, Node predicate, Node[] conditions, ElseNode else_clause) {
             super(startOffset, length);
             this.predicate = predicate;
             this.conditions = conditions;
-            this.consequent = consequent;
+            this.else_clause = else_clause;
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -2743,8 +2749,8 @@ public abstract class Nodes {
             for (Nodes.Node child : this.conditions) {
                 child.accept(visitor);
             }
-            if (this.consequent != null) {
-                this.consequent.accept(visitor);
+            if (this.else_clause != null) {
+                this.else_clause.accept(visitor);
             }
         }
 
@@ -2752,7 +2758,7 @@ public abstract class Nodes {
             ArrayList<Node> childNodes = new ArrayList<>();
             childNodes.add(this.predicate);
             childNodes.addAll(Arrays.asList(this.conditions));
-            childNodes.add(this.consequent);
+            childNodes.add(this.else_clause);
             return childNodes.toArray(EMPTY_ARRAY);
         }
 
@@ -2780,8 +2786,8 @@ public abstract class Nodes {
                 builder.append(nextNextIndent).append(child.toString(nextNextIndent));
             }
             builder.append(nextIndent);
-            builder.append("consequent: ");
-            builder.append(this.consequent == null ? "null\n" : this.consequent.toString(nextIndent));
+            builder.append("else_clause: ");
+            builder.append(this.else_clause == null ? "null\n" : this.else_clause.toString(nextIndent));
             return builder.toString();
         }
     }
@@ -5156,13 +5162,14 @@ public abstract class Nodes {
          * </pre>
          */
         @Nullable
-        public final Node consequent;
+        @UnionType({ ElseNode.class, IfNode.class })
+        public final Node subsequent;
 
-        public IfNode(int startOffset, int length, Node predicate, StatementsNode statements, Node consequent) {
+        public IfNode(int startOffset, int length, Node predicate, StatementsNode statements, Node subsequent) {
             super(startOffset, length);
             this.predicate = predicate;
             this.statements = statements;
-            this.consequent = consequent;
+            this.subsequent = subsequent;
         }
                 
         @Override
@@ -5175,13 +5182,13 @@ public abstract class Nodes {
             if (this.statements != null) {
                 this.statements.accept(visitor);
             }
-            if (this.consequent != null) {
-                this.consequent.accept(visitor);
+            if (this.subsequent != null) {
+                this.subsequent.accept(visitor);
             }
         }
 
         public Node[] childNodes() {
-            return new Node[] { this.predicate, this.statements, this.consequent };
+            return new Node[] { this.predicate, this.statements, this.subsequent };
         }
 
         public <T> T accept(AbstractNodeVisitor<T> visitor) {
@@ -5204,8 +5211,8 @@ public abstract class Nodes {
             builder.append("statements: ");
             builder.append(this.statements == null ? "null\n" : this.statements.toString(nextIndent));
             builder.append(nextIndent);
-            builder.append("consequent: ");
-            builder.append(this.consequent == null ? "null\n" : this.consequent.toString(nextIndent));
+            builder.append("subsequent: ");
+            builder.append(this.subsequent == null ? "null\n" : this.subsequent.toString(nextIndent));
             return builder.toString();
         }
     }
@@ -9172,14 +9179,14 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
         @Nullable
-        public final RescueNode consequent;
+        public final RescueNode subsequent;
 
-        public RescueNode(int startOffset, int length, Node[] exceptions, Node reference, StatementsNode statements, RescueNode consequent) {
+        public RescueNode(int startOffset, int length, Node[] exceptions, Node reference, StatementsNode statements, RescueNode subsequent) {
             super(startOffset, length);
             this.exceptions = exceptions;
             this.reference = reference;
             this.statements = statements;
-            this.consequent = consequent;
+            this.subsequent = subsequent;
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -9192,8 +9199,8 @@ public abstract class Nodes {
             if (this.statements != null) {
                 this.statements.accept(visitor);
             }
-            if (this.consequent != null) {
-                this.consequent.accept(visitor);
+            if (this.subsequent != null) {
+                this.subsequent.accept(visitor);
             }
         }
 
@@ -9202,7 +9209,7 @@ public abstract class Nodes {
             childNodes.addAll(Arrays.asList(this.exceptions));
             childNodes.add(this.reference);
             childNodes.add(this.statements);
-            childNodes.add(this.consequent);
+            childNodes.add(this.subsequent);
             return childNodes.toArray(EMPTY_ARRAY);
         }
 
@@ -9233,8 +9240,8 @@ public abstract class Nodes {
             builder.append("statements: ");
             builder.append(this.statements == null ? "null\n" : this.statements.toString(nextIndent));
             builder.append(nextIndent);
-            builder.append("consequent: ");
-            builder.append(this.consequent == null ? "null\n" : this.consequent.toString(nextIndent));
+            builder.append("subsequent: ");
+            builder.append(this.subsequent == null ? "null\n" : this.subsequent.toString(nextIndent));
             return builder.toString();
         }
     }
@@ -10126,13 +10133,13 @@ public abstract class Nodes {
          * </pre>
          */
         @Nullable
-        public final ElseNode consequent;
+        public final ElseNode else_clause;
 
-        public UnlessNode(int startOffset, int length, Node predicate, StatementsNode statements, ElseNode consequent) {
+        public UnlessNode(int startOffset, int length, Node predicate, StatementsNode statements, ElseNode else_clause) {
             super(startOffset, length);
             this.predicate = predicate;
             this.statements = statements;
-            this.consequent = consequent;
+            this.else_clause = else_clause;
         }
                 
         @Override
@@ -10145,13 +10152,13 @@ public abstract class Nodes {
             if (this.statements != null) {
                 this.statements.accept(visitor);
             }
-            if (this.consequent != null) {
-                this.consequent.accept(visitor);
+            if (this.else_clause != null) {
+                this.else_clause.accept(visitor);
             }
         }
 
         public Node[] childNodes() {
-            return new Node[] { this.predicate, this.statements, this.consequent };
+            return new Node[] { this.predicate, this.statements, this.else_clause };
         }
 
         public <T> T accept(AbstractNodeVisitor<T> visitor) {
@@ -10174,8 +10181,8 @@ public abstract class Nodes {
             builder.append("statements: ");
             builder.append(this.statements == null ? "null\n" : this.statements.toString(nextIndent));
             builder.append(nextIndent);
-            builder.append("consequent: ");
-            builder.append(this.consequent == null ? "null\n" : this.consequent.toString(nextIndent));
+            builder.append("else_clause: ");
+            builder.append(this.else_clause == null ? "null\n" : this.else_clause.toString(nextIndent));
             return builder.toString();
         }
     }

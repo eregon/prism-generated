@@ -308,8 +308,8 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
                 pm_node_destroy(parser, (pm_node_t *)cast->predicate);
             }
             pm_node_list_destroy(parser, &cast->conditions);
-            if (cast->consequent != NULL) {
-                pm_node_destroy(parser, (pm_node_t *)cast->consequent);
+            if (cast->else_clause != NULL) {
+                pm_node_destroy(parser, (pm_node_t *)cast->else_clause);
             }
             break;
         }
@@ -320,8 +320,8 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
                 pm_node_destroy(parser, (pm_node_t *)cast->predicate);
             }
             pm_node_list_destroy(parser, &cast->conditions);
-            if (cast->consequent != NULL) {
-                pm_node_destroy(parser, (pm_node_t *)cast->consequent);
+            if (cast->else_clause != NULL) {
+                pm_node_destroy(parser, (pm_node_t *)cast->else_clause);
             }
             break;
         }
@@ -610,8 +610,8 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
-            if (cast->consequent != NULL) {
-                pm_node_destroy(parser, (pm_node_t *)cast->consequent);
+            if (cast->subsequent != NULL) {
+                pm_node_destroy(parser, (pm_node_t *)cast->subsequent);
             }
             break;
         }
@@ -1046,8 +1046,8 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
-            if (cast->consequent != NULL) {
-                pm_node_destroy(parser, (pm_node_t *)cast->consequent);
+            if (cast->subsequent != NULL) {
+                pm_node_destroy(parser, (pm_node_t *)cast->subsequent);
             }
             break;
         }
@@ -1155,8 +1155,8 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
-            if (cast->consequent != NULL) {
-                pm_node_destroy(parser, (pm_node_t *)cast->consequent);
+            if (cast->else_clause != NULL) {
+                pm_node_destroy(parser, (pm_node_t *)cast->else_clause);
             }
             break;
         }
@@ -1831,9 +1831,9 @@ pm_visit_child_nodes(const pm_node_t *node, bool (*visitor)(const pm_node_t *nod
                 pm_visit_node(conditions->nodes[index], visitor, data);
             }
 
-            // Visit the consequent field
-            if (cast->consequent != NULL) {
-                pm_visit_node((const pm_node_t *) cast->consequent, visitor, data);
+            // Visit the else_clause field
+            if (cast->else_clause != NULL) {
+                pm_visit_node((const pm_node_t *) cast->else_clause, visitor, data);
             }
 
             break;
@@ -1852,9 +1852,9 @@ pm_visit_child_nodes(const pm_node_t *node, bool (*visitor)(const pm_node_t *nod
                 pm_visit_node(conditions->nodes[index], visitor, data);
             }
 
-            // Visit the consequent field
-            if (cast->consequent != NULL) {
-                pm_visit_node((const pm_node_t *) cast->consequent, visitor, data);
+            // Visit the else_clause field
+            if (cast->else_clause != NULL) {
+                pm_visit_node((const pm_node_t *) cast->else_clause, visitor, data);
             }
 
             break;
@@ -2229,9 +2229,9 @@ pm_visit_child_nodes(const pm_node_t *node, bool (*visitor)(const pm_node_t *nod
                 pm_visit_node((const pm_node_t *) cast->statements, visitor, data);
             }
 
-            // Visit the consequent field
-            if (cast->consequent != NULL) {
-                pm_visit_node((const pm_node_t *) cast->consequent, visitor, data);
+            // Visit the subsequent field
+            if (cast->subsequent != NULL) {
+                pm_visit_node((const pm_node_t *) cast->subsequent, visitor, data);
             }
 
             break;
@@ -2813,9 +2813,9 @@ pm_visit_child_nodes(const pm_node_t *node, bool (*visitor)(const pm_node_t *nod
                 pm_visit_node((const pm_node_t *) cast->statements, visitor, data);
             }
 
-            // Visit the consequent field
-            if (cast->consequent != NULL) {
-                pm_visit_node((const pm_node_t *) cast->consequent, visitor, data);
+            // Visit the subsequent field
+            if (cast->subsequent != NULL) {
+                pm_visit_node((const pm_node_t *) cast->subsequent, visitor, data);
             }
 
             break;
@@ -2927,9 +2927,9 @@ pm_visit_child_nodes(const pm_node_t *node, bool (*visitor)(const pm_node_t *nod
                 pm_visit_node((const pm_node_t *) cast->statements, visitor, data);
             }
 
-            // Visit the consequent field
-            if (cast->consequent != NULL) {
-                pm_visit_node((const pm_node_t *) cast->consequent, visitor, data);
+            // Visit the else_clause field
+            if (cast->else_clause != NULL) {
+                pm_visit_node((const pm_node_t *) cast->else_clause, visitor, data);
             }
 
             break;
@@ -4083,11 +4083,11 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             }
             pm_buffer_append_byte(buffer, ']');
 
-            // Dump the consequent field
+            // Dump the else_clause field
             pm_buffer_append_byte(buffer, ',');
-            pm_buffer_append_string(buffer, "\"consequent\":", 13);
-            if (cast->consequent != NULL) {
-                pm_dump_json(buffer, parser, (const pm_node_t *) cast->consequent);
+            pm_buffer_append_string(buffer, "\"else_clause\":", 14);
+            if (cast->else_clause != NULL) {
+                pm_dump_json(buffer, parser, (const pm_node_t *) cast->else_clause);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4132,11 +4132,11 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             }
             pm_buffer_append_byte(buffer, ']');
 
-            // Dump the consequent field
+            // Dump the else_clause field
             pm_buffer_append_byte(buffer, ',');
-            pm_buffer_append_string(buffer, "\"consequent\":", 13);
-            if (cast->consequent != NULL) {
-                pm_dump_json(buffer, parser, (const pm_node_t *) cast->consequent);
+            pm_buffer_append_string(buffer, "\"else_clause\":", 14);
+            if (cast->else_clause != NULL) {
+                pm_dump_json(buffer, parser, (const pm_node_t *) cast->else_clause);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5435,11 +5435,11 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
                 pm_buffer_append_string(buffer, "null", 4);
             }
 
-            // Dump the consequent field
+            // Dump the subsequent field
             pm_buffer_append_byte(buffer, ',');
-            pm_buffer_append_string(buffer, "\"consequent\":", 13);
-            if (cast->consequent != NULL) {
-                pm_dump_json(buffer, parser, (const pm_node_t *) cast->consequent);
+            pm_buffer_append_string(buffer, "\"subsequent\":", 13);
+            if (cast->subsequent != NULL) {
+                pm_dump_json(buffer, parser, (const pm_node_t *) cast->subsequent);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -7823,11 +7823,11 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
                 pm_buffer_append_string(buffer, "null", 4);
             }
 
-            // Dump the consequent field
+            // Dump the subsequent field
             pm_buffer_append_byte(buffer, ',');
-            pm_buffer_append_string(buffer, "\"consequent\":", 13);
-            if (cast->consequent != NULL) {
-                pm_dump_json(buffer, parser, (const pm_node_t *) cast->consequent);
+            pm_buffer_append_string(buffer, "\"subsequent\":", 13);
+            if (cast->subsequent != NULL) {
+                pm_dump_json(buffer, parser, (const pm_node_t *) cast->subsequent);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8364,11 +8364,11 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
                 pm_buffer_append_string(buffer, "null", 4);
             }
 
-            // Dump the consequent field
+            // Dump the else_clause field
             pm_buffer_append_byte(buffer, ',');
-            pm_buffer_append_string(buffer, "\"consequent\":", 13);
-            if (cast->consequent != NULL) {
-                pm_dump_json(buffer, parser, (const pm_node_t *) cast->consequent);
+            pm_buffer_append_string(buffer, "\"else_clause\":", 14);
+            if (cast->else_clause != NULL) {
+                pm_dump_json(buffer, parser, (const pm_node_t *) cast->else_clause);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }

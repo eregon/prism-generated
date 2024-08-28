@@ -1343,7 +1343,7 @@ export class BeginNode {
 }
 
 /**
- * Represents block method arguments.
+ * Represents a block argument using `&`.
  *
  *     bar(&args)
  *     ^^^^^^^^^^
@@ -1659,7 +1659,7 @@ export class BlockNode {
 }
 
 /**
- * Represents a block parameter to a method, block, or lambda definition.
+ * Represents a block parameter of a method, block, or lambda definition.
  *
  *     def a(&b)
  *           ^^
@@ -3013,7 +3013,7 @@ export class CaseMatchNode {
   /**
    * @type ElseNode | null
    */
-  consequent;
+  elseClause;
 
   /**
    * @type Location
@@ -3033,17 +3033,17 @@ export class CaseMatchNode {
    * @param {number} flags
    * @param {Node | null} predicate
    * @param {Node[]} conditions
-   * @param {ElseNode | null} consequent
+   * @param {ElseNode | null} elseClause
    * @param {Location} caseKeywordLoc
    * @param {Location} endKeywordLoc
    */
-  constructor(nodeID, location, flags, predicate, conditions, consequent, caseKeywordLoc, endKeywordLoc) {
+  constructor(nodeID, location, flags, predicate, conditions, elseClause, caseKeywordLoc, endKeywordLoc) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
     this.predicate = predicate;
     this.conditions = conditions;
-    this.consequent = consequent;
+    this.elseClause = elseClause;
     this.caseKeywordLoc = caseKeywordLoc;
     this.endKeywordLoc = endKeywordLoc;
   }
@@ -3063,7 +3063,7 @@ export class CaseMatchNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, ...this.conditions, this.consequent]
+    return [this.predicate, ...this.conditions, this.elseClause]
   }
 
   /**
@@ -3078,8 +3078,8 @@ export class CaseMatchNode {
       compact.push(this.predicate);
     }
     compact.concat(this.conditions);
-    if (this.consequent) {
-      compact.push(this.consequent);
+    if (this.elseClause) {
+      compact.push(this.elseClause);
     }
 
     return compact;
@@ -3097,7 +3097,7 @@ export class CaseMatchNode {
       flags: this.#flags,
       predicate: this.predicate,
       conditions: this.conditions,
-      consequent: this.consequent,
+      elseClause: this.elseClause,
       caseKeywordLoc: this.caseKeywordLoc,
       endKeywordLoc: this.endKeywordLoc,
     };
@@ -3141,7 +3141,7 @@ export class CaseNode {
   /**
    * @type ElseNode | null
    */
-  consequent;
+  elseClause;
 
   /**
    * @type Location
@@ -3161,17 +3161,17 @@ export class CaseNode {
    * @param {number} flags
    * @param {Node | null} predicate
    * @param {Node[]} conditions
-   * @param {ElseNode | null} consequent
+   * @param {ElseNode | null} elseClause
    * @param {Location} caseKeywordLoc
    * @param {Location} endKeywordLoc
    */
-  constructor(nodeID, location, flags, predicate, conditions, consequent, caseKeywordLoc, endKeywordLoc) {
+  constructor(nodeID, location, flags, predicate, conditions, elseClause, caseKeywordLoc, endKeywordLoc) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
     this.predicate = predicate;
     this.conditions = conditions;
-    this.consequent = consequent;
+    this.elseClause = elseClause;
     this.caseKeywordLoc = caseKeywordLoc;
     this.endKeywordLoc = endKeywordLoc;
   }
@@ -3191,7 +3191,7 @@ export class CaseNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, ...this.conditions, this.consequent]
+    return [this.predicate, ...this.conditions, this.elseClause]
   }
 
   /**
@@ -3206,8 +3206,8 @@ export class CaseNode {
       compact.push(this.predicate);
     }
     compact.concat(this.conditions);
-    if (this.consequent) {
-      compact.push(this.consequent);
+    if (this.elseClause) {
+      compact.push(this.elseClause);
     }
 
     return compact;
@@ -3225,7 +3225,7 @@ export class CaseNode {
       flags: this.#flags,
       predicate: this.predicate,
       conditions: this.conditions,
-      consequent: this.consequent,
+      elseClause: this.elseClause,
       caseKeywordLoc: this.caseKeywordLoc,
       endKeywordLoc: this.endKeywordLoc,
     };
@@ -7642,7 +7642,7 @@ export class IfNode {
   /**
    * @type Node | null
    */
-  consequent;
+  subsequent;
 
   /**
    * @type Location | null
@@ -7659,10 +7659,10 @@ export class IfNode {
    * @param {Node} predicate
    * @param {Location | null} thenKeywordLoc
    * @param {StatementsNode | null} statements
-   * @param {Node | null} consequent
+   * @param {Node | null} subsequent
    * @param {Location | null} endKeywordLoc
    */
-  constructor(nodeID, location, flags, ifKeywordLoc, predicate, thenKeywordLoc, statements, consequent, endKeywordLoc) {
+  constructor(nodeID, location, flags, ifKeywordLoc, predicate, thenKeywordLoc, statements, subsequent, endKeywordLoc) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
@@ -7670,7 +7670,7 @@ export class IfNode {
     this.predicate = predicate;
     this.thenKeywordLoc = thenKeywordLoc;
     this.statements = statements;
-    this.consequent = consequent;
+    this.subsequent = subsequent;
     this.endKeywordLoc = endKeywordLoc;
   }
 
@@ -7689,7 +7689,7 @@ export class IfNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, this.statements, this.consequent]
+    return [this.predicate, this.statements, this.subsequent]
   }
 
   /**
@@ -7705,8 +7705,8 @@ export class IfNode {
     if (this.statements) {
       compact.push(this.statements);
     }
-    if (this.consequent) {
-      compact.push(this.consequent);
+    if (this.subsequent) {
+      compact.push(this.subsequent);
     }
 
     return compact;
@@ -7726,7 +7726,7 @@ export class IfNode {
       predicate: this.predicate,
       thenKeywordLoc: this.thenKeywordLoc,
       statements: this.statements,
-      consequent: this.consequent,
+      subsequent: this.subsequent,
       endKeywordLoc: this.endKeywordLoc,
     };
   }
@@ -14837,7 +14837,7 @@ export class RescueNode {
   /**
    * @type RescueNode | null
    */
-  consequent;
+  subsequent;
 
   /**
    * Construct a new RescueNode.
@@ -14850,9 +14850,9 @@ export class RescueNode {
    * @param {Location | null} operatorLoc
    * @param {Node | null} reference
    * @param {StatementsNode | null} statements
-   * @param {RescueNode | null} consequent
+   * @param {RescueNode | null} subsequent
    */
-  constructor(nodeID, location, flags, keywordLoc, exceptions, operatorLoc, reference, statements, consequent) {
+  constructor(nodeID, location, flags, keywordLoc, exceptions, operatorLoc, reference, statements, subsequent) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
@@ -14861,7 +14861,7 @@ export class RescueNode {
     this.operatorLoc = operatorLoc;
     this.reference = reference;
     this.statements = statements;
-    this.consequent = consequent;
+    this.subsequent = subsequent;
   }
 
   /**
@@ -14879,7 +14879,7 @@ export class RescueNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.exceptions, this.reference, this.statements, this.consequent]
+    return [...this.exceptions, this.reference, this.statements, this.subsequent]
   }
 
   /**
@@ -14897,8 +14897,8 @@ export class RescueNode {
     if (this.statements) {
       compact.push(this.statements);
     }
-    if (this.consequent) {
-      compact.push(this.consequent);
+    if (this.subsequent) {
+      compact.push(this.subsequent);
     }
 
     return compact;
@@ -14919,7 +14919,7 @@ export class RescueNode {
       operatorLoc: this.operatorLoc,
       reference: this.reference,
       statements: this.statements,
-      consequent: this.consequent,
+      subsequent: this.subsequent,
     };
   }
 }
@@ -16614,7 +16614,7 @@ export class UnlessNode {
   /**
    * @type ElseNode | null
    */
-  consequent;
+  elseClause;
 
   /**
    * @type Location | null
@@ -16631,10 +16631,10 @@ export class UnlessNode {
    * @param {Node} predicate
    * @param {Location | null} thenKeywordLoc
    * @param {StatementsNode | null} statements
-   * @param {ElseNode | null} consequent
+   * @param {ElseNode | null} elseClause
    * @param {Location | null} endKeywordLoc
    */
-  constructor(nodeID, location, flags, keywordLoc, predicate, thenKeywordLoc, statements, consequent, endKeywordLoc) {
+  constructor(nodeID, location, flags, keywordLoc, predicate, thenKeywordLoc, statements, elseClause, endKeywordLoc) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
@@ -16642,7 +16642,7 @@ export class UnlessNode {
     this.predicate = predicate;
     this.thenKeywordLoc = thenKeywordLoc;
     this.statements = statements;
-    this.consequent = consequent;
+    this.elseClause = elseClause;
     this.endKeywordLoc = endKeywordLoc;
   }
 
@@ -16661,7 +16661,7 @@ export class UnlessNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, this.statements, this.consequent]
+    return [this.predicate, this.statements, this.elseClause]
   }
 
   /**
@@ -16677,8 +16677,8 @@ export class UnlessNode {
     if (this.statements) {
       compact.push(this.statements);
     }
-    if (this.consequent) {
-      compact.push(this.consequent);
+    if (this.elseClause) {
+      compact.push(this.elseClause);
     }
 
     return compact;
@@ -16698,7 +16698,7 @@ export class UnlessNode {
       predicate: this.predicate,
       thenKeywordLoc: this.thenKeywordLoc,
       statements: this.statements,
-      consequent: this.consequent,
+      elseClause: this.elseClause,
       endKeywordLoc: this.endKeywordLoc,
     };
   }

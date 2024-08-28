@@ -8,9 +8,9 @@ module Prism
 
     def location: (?source: Source, ?start_offset: Integer, ?length: Integer) -> Location
 
-    def alias_global_variable_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: Prism::node, ?old_name: Prism::node, ?keyword_loc: Location) -> AliasGlobalVariableNode
+    def alias_global_variable_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode, ?old_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode, ?keyword_loc: Location) -> AliasGlobalVariableNode
 
-    def alias_method_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: Prism::node, ?old_name: Prism::node, ?keyword_loc: Location) -> AliasMethodNode
+    def alias_method_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: SymbolNode | InterpolatedSymbolNode, ?old_name: SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode, ?keyword_loc: Location) -> AliasMethodNode
 
     def alternation_pattern_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?left: Prism::node, ?right: Prism::node, ?operator_loc: Location) -> AlternationPatternNode
 
@@ -34,7 +34,7 @@ module Prism
 
     def block_local_variable_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> BlockLocalVariableNode
 
-    def block_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?parameters: Prism::node?, ?body: Prism::node?, ?opening_loc: Location, ?closing_loc: Location) -> BlockNode
+    def block_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, ?body: StatementsNode | BeginNode | nil, ?opening_loc: Location, ?closing_loc: Location) -> BlockNode
 
     def block_parameter_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol?, ?name_loc: Location?, ?operator_loc: Location) -> BlockParameterNode
 
@@ -54,9 +54,9 @@ module Prism
 
     def capture_pattern_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node, ?target: Prism::node, ?operator_loc: Location) -> CapturePatternNode
 
-    def case_match_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?consequent: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseMatchNode
+    def case_match_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseMatchNode
 
-    def case_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?consequent: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseNode
+    def case_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseNode
 
     def class_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?class_keyword_loc: Location, ?constant_path: Prism::node, ?inheritance_operator_loc: Location?, ?superclass: Prism::node?, ?body: Prism::node?, ?end_keyword_loc: Location, ?name: Symbol) -> ClassNode
 
@@ -140,7 +140,7 @@ module Prism
 
     def hash_pattern_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: Prism::node?, ?elements: Array[AssocNode], ?rest: AssocSplatNode | NoKeywordsParameterNode | nil, ?opening_loc: Location?, ?closing_loc: Location?) -> HashPatternNode
 
-    def if_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?if_keyword_loc: Location?, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?consequent: Prism::node?, ?end_keyword_loc: Location?) -> IfNode
+    def if_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?if_keyword_loc: Location?, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?subsequent: ElseNode | IfNode | nil, ?end_keyword_loc: Location?) -> IfNode
 
     def imaginary_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?numeric: FloatNode | IntegerNode | RationalNode) -> ImaginaryNode
 
@@ -264,7 +264,7 @@ module Prism
 
     def rescue_modifier_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?expression: Prism::node, ?keyword_loc: Location, ?rescue_expression: Prism::node) -> RescueModifierNode
 
-    def rescue_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: Prism::node?, ?statements: StatementsNode?, ?consequent: RescueNode?) -> RescueNode
+    def rescue_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: Prism::node?, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
 
     def rest_parameter_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol?, ?name_loc: Location?, ?operator_loc: Location) -> RestParameterNode
 
@@ -298,7 +298,7 @@ module Prism
 
     def undef_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?names: Array[SymbolNode | InterpolatedSymbolNode], ?keyword_loc: Location) -> UndefNode
 
-    def unless_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?consequent: ElseNode?, ?end_keyword_loc: Location?) -> UnlessNode
+    def unless_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?else_clause: ElseNode?, ?end_keyword_loc: Location?) -> UnlessNode
 
     def until_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> UntilNode
 

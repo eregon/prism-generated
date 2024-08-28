@@ -350,7 +350,7 @@ class Prism::BeginNode < Prism::Node
   def type; end
 end
 
-# Represents block method arguments.
+# Represents a block argument using `&`.
 #
 #     bar(&args)
 #     ^^^^^^^^^^
@@ -428,7 +428,7 @@ class Prism::BlockNode < Prism::Node
   def type; end
 end
 
-# Represents a block parameter to a method, block, or lambda definition.
+# Represents a block parameter of a method, block, or lambda definition.
 #
 #     def a(&b)
 #           ^^

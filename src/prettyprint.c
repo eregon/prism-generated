@@ -1712,11 +1712,11 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                 }
             }
 
-            // consequent
+            // else_clause
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
-                pm_buffer_append_string(output_buffer, "+-- consequent:", 15);
-                if (cast->consequent == NULL) {
+                pm_buffer_append_string(output_buffer, "+-- else_clause:", 16);
+                if (cast->else_clause == NULL) {
                     pm_buffer_append_string(output_buffer, " nil\n", 5);
                 } else {
                     pm_buffer_append_byte(output_buffer, '\n');
@@ -1724,7 +1724,7 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                     size_t prefix_length = prefix_buffer->length;
                     pm_buffer_append_string(prefix_buffer, "|   ", 4);
                     pm_buffer_concat(output_buffer, prefix_buffer);
-                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->consequent, prefix_buffer);
+                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->else_clause, prefix_buffer);
                     prefix_buffer->length = prefix_length;
                 }
             }
@@ -1796,11 +1796,11 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                 }
             }
 
-            // consequent
+            // else_clause
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
-                pm_buffer_append_string(output_buffer, "+-- consequent:", 15);
-                if (cast->consequent == NULL) {
+                pm_buffer_append_string(output_buffer, "+-- else_clause:", 16);
+                if (cast->else_clause == NULL) {
                     pm_buffer_append_string(output_buffer, " nil\n", 5);
                 } else {
                     pm_buffer_append_byte(output_buffer, '\n');
@@ -1808,7 +1808,7 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                     size_t prefix_length = prefix_buffer->length;
                     pm_buffer_append_string(prefix_buffer, "|   ", 4);
                     pm_buffer_concat(output_buffer, prefix_buffer);
-                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->consequent, prefix_buffer);
+                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->else_clause, prefix_buffer);
                     prefix_buffer->length = prefix_length;
                 }
             }
@@ -4025,11 +4025,11 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                 }
             }
 
-            // consequent
+            // subsequent
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
-                pm_buffer_append_string(output_buffer, "+-- consequent:", 15);
-                if (cast->consequent == NULL) {
+                pm_buffer_append_string(output_buffer, "+-- subsequent:", 15);
+                if (cast->subsequent == NULL) {
                     pm_buffer_append_string(output_buffer, " nil\n", 5);
                 } else {
                     pm_buffer_append_byte(output_buffer, '\n');
@@ -4037,7 +4037,7 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                     size_t prefix_length = prefix_buffer->length;
                     pm_buffer_append_string(prefix_buffer, "|   ", 4);
                     pm_buffer_concat(output_buffer, prefix_buffer);
-                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->consequent, prefix_buffer);
+                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->subsequent, prefix_buffer);
                     prefix_buffer->length = prefix_length;
                 }
             }
@@ -7683,11 +7683,11 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                 }
             }
 
-            // consequent
+            // subsequent
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
-                pm_buffer_append_string(output_buffer, "+-- consequent:", 15);
-                if (cast->consequent == NULL) {
+                pm_buffer_append_string(output_buffer, "+-- subsequent:", 15);
+                if (cast->subsequent == NULL) {
                     pm_buffer_append_string(output_buffer, " nil\n", 5);
                 } else {
                     pm_buffer_append_byte(output_buffer, '\n');
@@ -7695,7 +7695,7 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                     size_t prefix_length = prefix_buffer->length;
                     pm_buffer_append_string(prefix_buffer, "    ", 4);
                     pm_buffer_concat(output_buffer, prefix_buffer);
-                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->consequent, prefix_buffer);
+                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->subsequent, prefix_buffer);
                     prefix_buffer->length = prefix_length;
                 }
             }
@@ -8444,11 +8444,11 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                 }
             }
 
-            // consequent
+            // else_clause
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
-                pm_buffer_append_string(output_buffer, "+-- consequent:", 15);
-                if (cast->consequent == NULL) {
+                pm_buffer_append_string(output_buffer, "+-- else_clause:", 16);
+                if (cast->else_clause == NULL) {
                     pm_buffer_append_string(output_buffer, " nil\n", 5);
                 } else {
                     pm_buffer_append_byte(output_buffer, '\n');
@@ -8456,7 +8456,7 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                     size_t prefix_length = prefix_buffer->length;
                     pm_buffer_append_string(prefix_buffer, "|   ", 4);
                     pm_buffer_concat(output_buffer, prefix_buffer);
-                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->consequent, prefix_buffer);
+                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->else_clause, prefix_buffer);
                     prefix_buffer->length = prefix_length;
                 }
             }

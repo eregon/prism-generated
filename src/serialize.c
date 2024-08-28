@@ -478,10 +478,10 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             for (uint32_t index = 0; index < conditions_size; index++) {
                 pm_serialize_node(parser, (pm_node_t *) ((pm_case_match_node_t *)node)->conditions.nodes[index], buffer);
             }
-            if (((pm_case_match_node_t *)node)->consequent == NULL) {
+            if (((pm_case_match_node_t *)node)->else_clause == NULL) {
                 pm_buffer_append_byte(buffer, 0);
             } else {
-                pm_serialize_node(parser, (pm_node_t *)((pm_case_match_node_t *)node)->consequent, buffer);
+                pm_serialize_node(parser, (pm_node_t *)((pm_case_match_node_t *)node)->else_clause, buffer);
             }
             pm_serialize_location(parser, &((pm_case_match_node_t *)node)->case_keyword_loc, buffer);
             pm_serialize_location(parser, &((pm_case_match_node_t *)node)->end_keyword_loc, buffer);
@@ -499,10 +499,10 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             for (uint32_t index = 0; index < conditions_size; index++) {
                 pm_serialize_node(parser, (pm_node_t *) ((pm_case_node_t *)node)->conditions.nodes[index], buffer);
             }
-            if (((pm_case_node_t *)node)->consequent == NULL) {
+            if (((pm_case_node_t *)node)->else_clause == NULL) {
                 pm_buffer_append_byte(buffer, 0);
             } else {
-                pm_serialize_node(parser, (pm_node_t *)((pm_case_node_t *)node)->consequent, buffer);
+                pm_serialize_node(parser, (pm_node_t *)((pm_case_node_t *)node)->else_clause, buffer);
             }
             pm_serialize_location(parser, &((pm_case_node_t *)node)->case_keyword_loc, buffer);
             pm_serialize_location(parser, &((pm_case_node_t *)node)->end_keyword_loc, buffer);
@@ -996,10 +996,10 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             } else {
                 pm_serialize_node(parser, (pm_node_t *)((pm_if_node_t *)node)->statements, buffer);
             }
-            if (((pm_if_node_t *)node)->consequent == NULL) {
+            if (((pm_if_node_t *)node)->subsequent == NULL) {
                 pm_buffer_append_byte(buffer, 0);
             } else {
-                pm_serialize_node(parser, (pm_node_t *)((pm_if_node_t *)node)->consequent, buffer);
+                pm_serialize_node(parser, (pm_node_t *)((pm_if_node_t *)node)->subsequent, buffer);
             }
             if (((pm_if_node_t *)node)->end_keyword_loc.start == NULL) {
                 pm_buffer_append_byte(buffer, 0);
@@ -1711,10 +1711,10 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             } else {
                 pm_serialize_node(parser, (pm_node_t *)((pm_rescue_node_t *)node)->statements, buffer);
             }
-            if (((pm_rescue_node_t *)node)->consequent == NULL) {
+            if (((pm_rescue_node_t *)node)->subsequent == NULL) {
                 pm_buffer_append_byte(buffer, 0);
             } else {
-                pm_serialize_node(parser, (pm_node_t *)((pm_rescue_node_t *)node)->consequent, buffer);
+                pm_serialize_node(parser, (pm_node_t *)((pm_rescue_node_t *)node)->subsequent, buffer);
             }
             break;
         }
@@ -1900,10 +1900,10 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             } else {
                 pm_serialize_node(parser, (pm_node_t *)((pm_unless_node_t *)node)->statements, buffer);
             }
-            if (((pm_unless_node_t *)node)->consequent == NULL) {
+            if (((pm_unless_node_t *)node)->else_clause == NULL) {
                 pm_buffer_append_byte(buffer, 0);
             } else {
-                pm_serialize_node(parser, (pm_node_t *)((pm_unless_node_t *)node)->consequent, buffer);
+                pm_serialize_node(parser, (pm_node_t *)((pm_unless_node_t *)node)->else_clause, buffer);
             }
             if (((pm_unless_node_t *)node)->end_keyword_loc.start == NULL) {
                 pm_buffer_append_byte(buffer, 0);

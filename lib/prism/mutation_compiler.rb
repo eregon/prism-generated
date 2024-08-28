@@ -128,12 +128,12 @@ module Prism
 
     # Copy a CaseMatchNode node
     def visit_case_match_node(node)
-      node.copy(predicate: visit(node.predicate), conditions: visit_all(node.conditions), consequent: visit(node.consequent))
+      node.copy(predicate: visit(node.predicate), conditions: visit_all(node.conditions), else_clause: visit(node.else_clause))
     end
 
     # Copy a CaseNode node
     def visit_case_node(node)
-      node.copy(predicate: visit(node.predicate), conditions: visit_all(node.conditions), consequent: visit(node.consequent))
+      node.copy(predicate: visit(node.predicate), conditions: visit_all(node.conditions), else_clause: visit(node.else_clause))
     end
 
     # Copy a ClassNode node
@@ -343,7 +343,7 @@ module Prism
 
     # Copy a IfNode node
     def visit_if_node(node)
-      node.copy(predicate: visit(node.predicate), statements: visit(node.statements), consequent: visit(node.consequent))
+      node.copy(predicate: visit(node.predicate), statements: visit(node.statements), subsequent: visit(node.subsequent))
     end
 
     # Copy a ImaginaryNode node
@@ -653,7 +653,7 @@ module Prism
 
     # Copy a RescueNode node
     def visit_rescue_node(node)
-      node.copy(exceptions: visit_all(node.exceptions), reference: visit(node.reference), statements: visit(node.statements), consequent: visit(node.consequent))
+      node.copy(exceptions: visit_all(node.exceptions), reference: visit(node.reference), statements: visit(node.statements), subsequent: visit(node.subsequent))
     end
 
     # Copy a RestParameterNode node
@@ -738,7 +738,7 @@ module Prism
 
     # Copy a UnlessNode node
     def visit_unless_node(node)
-      node.copy(predicate: visit(node.predicate), statements: visit(node.statements), consequent: visit(node.consequent))
+      node.copy(predicate: visit(node.predicate), statements: visit(node.statements), else_clause: visit(node.else_clause))
     end
 
     # Copy a UntilNode node

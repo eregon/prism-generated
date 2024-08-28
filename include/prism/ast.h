@@ -1111,7 +1111,7 @@ typedef struct pm_alias_global_variable_node {
     /**
      * AliasGlobalVariableNode#new_name
      *
-     * Represents the new name of the global variable that can be used after aliasing. This can be either a global variable, a back reference, or a numbered reference.
+     * Represents the new name of the global variable that can be used after aliasing.
      *
      *     alias $foo $bar
      *           ^^^^
@@ -1121,7 +1121,7 @@ typedef struct pm_alias_global_variable_node {
     /**
      * AliasGlobalVariableNode#old_name
      *
-     * Represents the old name of the global variable that could be used before aliasing. This can be either a global variable, a back reference, or a numbered reference.
+     * Represents the old name of the global variable that can be used before aliasing.
      *
      *     alias $foo $bar
      *                ^^^^
@@ -1564,7 +1564,7 @@ typedef struct pm_begin_node {
 /**
  * BlockArgumentNode
  *
- * Represents block method arguments.
+ * Represents a block argument using `&`.
  *
  *     bar(&args)
  *     ^^^^^^^^^^
@@ -1657,7 +1657,7 @@ typedef struct pm_block_node {
 /**
  * BlockParameterNode
  *
- * Represents a block parameter to a method, block, or lambda definition.
+ * Represents a block parameter of a method, block, or lambda definition.
  *
  *     def a(&b)
  *           ^^
@@ -2142,9 +2142,9 @@ typedef struct pm_case_match_node {
     struct pm_node_list conditions;
 
     /**
-     * CaseMatchNode#consequent
+     * CaseMatchNode#else_clause
      */
-    struct pm_else_node *consequent;
+    struct pm_else_node *else_clause;
 
     /**
      * CaseMatchNode#case_keyword_loc
@@ -2186,9 +2186,9 @@ typedef struct pm_case_node {
     struct pm_node_list conditions;
 
     /**
-     * CaseNode#consequent
+     * CaseNode#else_clause
      */
-    struct pm_else_node *consequent;
+    struct pm_else_node *else_clause;
 
     /**
      * CaseNode#case_keyword_loc
@@ -3892,7 +3892,7 @@ typedef struct pm_if_node {
     struct pm_statements_node *statements;
 
     /**
-     * IfNode#consequent
+     * IfNode#subsequent
      *
      * Represents an `ElseNode` or an `IfNode` when there is an `else` or an `elsif` in the `if` statement.
      *
@@ -3908,7 +3908,7 @@ typedef struct pm_if_node {
      *     if foo then bar else baz end
      *                     ^^^^^^^^^^^^
      */
-    struct pm_node *consequent;
+    struct pm_node *subsequent;
 
     /**
      * IfNode#end_keyword_loc
@@ -6331,9 +6331,9 @@ typedef struct pm_rescue_node {
     struct pm_statements_node *statements;
 
     /**
-     * RescueNode#consequent
+     * RescueNode#subsequent
      */
-    struct pm_rescue_node *consequent;
+    struct pm_rescue_node *subsequent;
 } pm_rescue_node_t;
 
 /**
@@ -6868,14 +6868,14 @@ typedef struct pm_unless_node {
     struct pm_statements_node *statements;
 
     /**
-     * UnlessNode#consequent
+     * UnlessNode#else_clause
      *
      * The else clause of the unless expression, if present.
      *
      *     unless cond then bar else baz end
      *                          ^^^^^^^^
      */
-    struct pm_else_node *consequent;
+    struct pm_else_node *else_clause;
 
     /**
      * UnlessNode#end_keyword_loc

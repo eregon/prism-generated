@@ -13,11 +13,11 @@ module Prism::DSL
   sig { params(source: Prism::Source, start_offset: Integer, length: Integer).returns(Prism::Location) }
   def location(source: default_source, start_offset: 0, length: 0); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, new_name: Prism::Node, old_name: Prism::Node, keyword_loc: Prism::Location).returns(Prism::AliasGlobalVariableNode) }
-  def alias_global_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, new_name: default_node(source, location), old_name: default_node(source, location), keyword_loc: location); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, new_name: T.any(Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode), old_name: T.any(Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::SymbolNode, Prism::MissingNode), keyword_loc: Prism::Location).returns(Prism::AliasGlobalVariableNode) }
+  def alias_global_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, new_name: global_variable_read_node(source: source), old_name: global_variable_read_node(source: source), keyword_loc: location); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, new_name: Prism::Node, old_name: Prism::Node, keyword_loc: Prism::Location).returns(Prism::AliasMethodNode) }
-  def alias_method_node(source: default_source, node_id: 0, location: default_location, flags: 0, new_name: default_node(source, location), old_name: default_node(source, location), keyword_loc: location); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, new_name: T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode), old_name: T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode, Prism::GlobalVariableReadNode, Prism::MissingNode), keyword_loc: Prism::Location).returns(Prism::AliasMethodNode) }
+  def alias_method_node(source: default_source, node_id: 0, location: default_location, flags: 0, new_name: symbol_node(source: source), old_name: symbol_node(source: source), keyword_loc: location); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, left: Prism::Node, right: Prism::Node, operator_loc: Prism::Location).returns(Prism::AlternationPatternNode) }
   def alternation_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, left: default_node(source, location), right: default_node(source, location), operator_loc: location); end
@@ -52,7 +52,7 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::BlockLocalVariableNode) }
   def block_local_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, name: :""); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], parameters: T.nilable(Prism::Node), body: T.nilable(Prism::Node), opening_loc: Prism::Location, closing_loc: Prism::Location).returns(Prism::BlockNode) }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], parameters: T.nilable(T.any(Prism::BlockParametersNode, Prism::NumberedParametersNode, Prism::ItParametersNode)), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), opening_loc: Prism::Location, closing_loc: Prism::Location).returns(Prism::BlockNode) }
   def block_node(source: default_source, node_id: 0, location: default_location, flags: 0, locals: [], parameters: nil, body: nil, opening_loc: location, closing_loc: location); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: T.nilable(Symbol), name_loc: T.nilable(Prism::Location), operator_loc: Prism::Location).returns(Prism::BlockParameterNode) }
@@ -82,11 +82,11 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, value: Prism::Node, target: Prism::Node, operator_loc: Prism::Location).returns(Prism::CapturePatternNode) }
   def capture_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, value: default_node(source, location), target: default_node(source, location), operator_loc: location); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, predicate: T.nilable(Prism::Node), conditions: T::Array[Prism::Node], consequent: T.nilable(Prism::ElseNode), case_keyword_loc: Prism::Location, end_keyword_loc: Prism::Location).returns(Prism::CaseMatchNode) }
-  def case_match_node(source: default_source, node_id: 0, location: default_location, flags: 0, predicate: nil, conditions: [], consequent: nil, case_keyword_loc: location, end_keyword_loc: location); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, predicate: T.nilable(Prism::Node), conditions: T::Array[Prism::Node], else_clause: T.nilable(Prism::ElseNode), case_keyword_loc: Prism::Location, end_keyword_loc: Prism::Location).returns(Prism::CaseMatchNode) }
+  def case_match_node(source: default_source, node_id: 0, location: default_location, flags: 0, predicate: nil, conditions: [], else_clause: nil, case_keyword_loc: location, end_keyword_loc: location); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, predicate: T.nilable(Prism::Node), conditions: T::Array[Prism::Node], consequent: T.nilable(Prism::ElseNode), case_keyword_loc: Prism::Location, end_keyword_loc: Prism::Location).returns(Prism::CaseNode) }
-  def case_node(source: default_source, node_id: 0, location: default_location, flags: 0, predicate: nil, conditions: [], consequent: nil, case_keyword_loc: location, end_keyword_loc: location); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, predicate: T.nilable(Prism::Node), conditions: T::Array[Prism::Node], else_clause: T.nilable(Prism::ElseNode), case_keyword_loc: Prism::Location, end_keyword_loc: Prism::Location).returns(Prism::CaseNode) }
+  def case_node(source: default_source, node_id: 0, location: default_location, flags: 0, predicate: nil, conditions: [], else_clause: nil, case_keyword_loc: location, end_keyword_loc: location); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], class_keyword_loc: Prism::Location, constant_path: Prism::Node, inheritance_operator_loc: T.nilable(Prism::Location), superclass: T.nilable(Prism::Node), body: T.nilable(Prism::Node), end_keyword_loc: Prism::Location, name: Symbol).returns(Prism::ClassNode) }
   def class_node(source: default_source, node_id: 0, location: default_location, flags: 0, locals: [], class_keyword_loc: location, constant_path: default_node(source, location), inheritance_operator_loc: nil, superclass: nil, body: nil, end_keyword_loc: location, name: :""); end
@@ -211,8 +211,8 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(Prism::Node), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::HashPatternNode) }
   def hash_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, constant: nil, elements: [], rest: nil, opening_loc: nil, closing_loc: nil); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, if_keyword_loc: T.nilable(Prism::Location), predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), consequent: T.nilable(Prism::Node), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::IfNode) }
-  def if_node(source: default_source, node_id: 0, location: default_location, flags: 0, if_keyword_loc: nil, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, consequent: nil, end_keyword_loc: nil); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, if_keyword_loc: T.nilable(Prism::Location), predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(T.any(Prism::ElseNode, Prism::IfNode)), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::IfNode) }
+  def if_node(source: default_source, node_id: 0, location: default_location, flags: 0, if_keyword_loc: nil, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, subsequent: nil, end_keyword_loc: nil); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, numeric: T.any(Prism::FloatNode, Prism::IntegerNode, Prism::RationalNode)).returns(Prism::ImaginaryNode) }
   def imaginary_node(source: default_source, node_id: 0, location: default_location, flags: 0, numeric: float_node(source: source)); end
@@ -397,8 +397,8 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, expression: Prism::Node, keyword_loc: Prism::Location, rescue_expression: Prism::Node).returns(Prism::RescueModifierNode) }
   def rescue_modifier_node(source: default_source, node_id: 0, location: default_location, flags: 0, expression: default_node(source, location), keyword_loc: location, rescue_expression: default_node(source, location)); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, exceptions: T::Array[Prism::Node], operator_loc: T.nilable(Prism::Location), reference: T.nilable(Prism::Node), statements: T.nilable(Prism::StatementsNode), consequent: T.nilable(Prism::RescueNode)).returns(Prism::RescueNode) }
-  def rescue_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, exceptions: [], operator_loc: nil, reference: nil, statements: nil, consequent: nil); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, exceptions: T::Array[Prism::Node], operator_loc: T.nilable(Prism::Location), reference: T.nilable(Prism::Node), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(Prism::RescueNode)).returns(Prism::RescueNode) }
+  def rescue_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, exceptions: [], operator_loc: nil, reference: nil, statements: nil, subsequent: nil); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: T.nilable(Symbol), name_loc: T.nilable(Prism::Location), operator_loc: Prism::Location).returns(Prism::RestParameterNode) }
   def rest_parameter_node(source: default_source, node_id: 0, location: default_location, flags: 0, name: nil, name_loc: nil, operator_loc: location); end
@@ -448,8 +448,8 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, names: T::Array[T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode)], keyword_loc: Prism::Location).returns(Prism::UndefNode) }
   def undef_node(source: default_source, node_id: 0, location: default_location, flags: 0, names: [], keyword_loc: location); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), consequent: T.nilable(Prism::ElseNode), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::UnlessNode) }
-  def unless_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, consequent: nil, end_keyword_loc: nil); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), else_clause: T.nilable(Prism::ElseNode), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::UnlessNode) }
+  def unless_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, else_clause: nil, end_keyword_loc: nil); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::UntilNode) }
   def until_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, closing_loc: nil, predicate: default_node(source, location), statements: nil); end

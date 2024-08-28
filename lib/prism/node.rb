@@ -256,7 +256,7 @@ module Prism
       [new_name, old_name, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: Prism::node, ?old_name: Prism::node, ?keyword_loc: Location) -> AliasGlobalVariableNode
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode, ?old_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode, ?keyword_loc: Location) -> AliasGlobalVariableNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, new_name: self.new_name, old_name: self.old_name, keyword_loc: self.keyword_loc)
       AliasGlobalVariableNode.new(source, node_id, location, flags, new_name, old_name, keyword_loc)
     end
@@ -264,18 +264,18 @@ module Prism
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, new_name: Prism::node, old_name: Prism::node, keyword_loc: Location }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, new_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode, old_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode, keyword_loc: Location }
     def deconstruct_keys(keys)
       { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
     end
 
-    # Represents the new name of the global variable that can be used after aliasing. This can be either a global variable, a back reference, or a numbered reference.
+    # Represents the new name of the global variable that can be used after aliasing.
     #
     #     alias $foo $bar
     #           ^^^^
     attr_reader :new_name
 
-    # Represents the old name of the global variable that could be used before aliasing. This can be either a global variable, a back reference, or a numbered reference.
+    # Represents the old name of the global variable that can be used before aliasing.
     #
     #     alias $foo $bar
     #                ^^^^
@@ -357,7 +357,7 @@ module Prism
       [new_name, old_name, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: Prism::node, ?old_name: Prism::node, ?keyword_loc: Location) -> AliasMethodNode
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: SymbolNode | InterpolatedSymbolNode, ?old_name: SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode, ?keyword_loc: Location) -> AliasMethodNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, new_name: self.new_name, old_name: self.old_name, keyword_loc: self.keyword_loc)
       AliasMethodNode.new(source, node_id, location, flags, new_name, old_name, keyword_loc)
     end
@@ -365,15 +365,15 @@ module Prism
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, new_name: Prism::node, old_name: Prism::node, keyword_loc: Location }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, new_name: SymbolNode | InterpolatedSymbolNode, old_name: SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode, keyword_loc: Location }
     def deconstruct_keys(keys)
       { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
     end
 
-    # attr_reader new_name: Prism::node
+    # attr_reader new_name: SymbolNode | InterpolatedSymbolNode
     attr_reader :new_name
 
-    # attr_reader old_name: Prism::node
+    # attr_reader old_name: SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode
     attr_reader :old_name
 
     # attr_reader keyword_loc: Location
@@ -1402,7 +1402,7 @@ module Prism
     end
   end
 
-  # Represents block method arguments.
+  # Represents a block argument using `&`.
   #
   #     bar(&args)
   #     ^^^^^^^^^^
@@ -1611,7 +1611,7 @@ module Prism
       [*parameters, *body, opening_loc, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?parameters: Prism::node?, ?body: Prism::node?, ?opening_loc: Location, ?closing_loc: Location) -> BlockNode
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, ?body: StatementsNode | BeginNode | nil, ?opening_loc: Location, ?closing_loc: Location) -> BlockNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, parameters: self.parameters, body: self.body, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       BlockNode.new(source, node_id, location, flags, locals, parameters, body, opening_loc, closing_loc)
     end
@@ -1619,7 +1619,7 @@ module Prism
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], parameters: Prism::node?, body: Prism::node?, opening_loc: Location, closing_loc: Location }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, body: StatementsNode | BeginNode | nil, opening_loc: Location, closing_loc: Location }
     def deconstruct_keys(keys)
       { node_id: node_id, location: location, locals: locals, parameters: parameters, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
     end
@@ -1627,10 +1627,10 @@ module Prism
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
 
-    # attr_reader parameters: Prism::node?
+    # attr_reader parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil
     attr_reader :parameters
 
-    # attr_reader body: Prism::node?
+    # attr_reader body: StatementsNode | BeginNode | nil
     attr_reader :body
 
     # attr_reader opening_loc: Location
@@ -1685,7 +1685,7 @@ module Prism
     end
   end
 
-  # Represents a block parameter to a method, block, or lambda definition.
+  # Represents a block parameter of a method, block, or lambda definition.
   #
   #     def a(&b)
   #           ^^
@@ -2965,14 +2965,14 @@ module Prism
   #     ^^^^^^^^^
   class CaseMatchNode < Node
     # Initialize a new CaseMatchNode node.
-    def initialize(source, node_id, location, flags, predicate, conditions, consequent, case_keyword_loc, end_keyword_loc)
+    def initialize(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
       @source = source
       @node_id = node_id
       @location = location
       @flags = flags
       @predicate = predicate
       @conditions = conditions
-      @consequent = consequent
+      @else_clause = else_clause
       @case_keyword_loc = case_keyword_loc
       @end_keyword_loc = end_keyword_loc
     end
@@ -2984,7 +2984,7 @@ module Prism
 
     # def child_nodes: () -> Array[nil | Node]
     def child_nodes
-      [predicate, *conditions, consequent]
+      [predicate, *conditions, else_clause]
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -2992,26 +2992,26 @@ module Prism
       compact = [] #: Array[Prism::node]
       compact << predicate if predicate
       compact.concat(conditions)
-      compact << consequent if consequent
+      compact << else_clause if else_clause
       compact
     end
 
     # def comment_targets: () -> Array[Node | Location]
     def comment_targets
-      [*predicate, *conditions, *consequent, case_keyword_loc, end_keyword_loc] #: Array[Prism::node | Location]
+      [*predicate, *conditions, *else_clause, case_keyword_loc, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?consequent: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseMatchNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, predicate: self.predicate, conditions: self.conditions, consequent: self.consequent, case_keyword_loc: self.case_keyword_loc, end_keyword_loc: self.end_keyword_loc)
-      CaseMatchNode.new(source, node_id, location, flags, predicate, conditions, consequent, case_keyword_loc, end_keyword_loc)
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseMatchNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, predicate: self.predicate, conditions: self.conditions, else_clause: self.else_clause, case_keyword_loc: self.case_keyword_loc, end_keyword_loc: self.end_keyword_loc)
+      CaseMatchNode.new(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
     end
 
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[Prism::node], consequent: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[Prism::node], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
     def deconstruct_keys(keys)
-      { node_id: node_id, location: location, predicate: predicate, conditions: conditions, consequent: consequent, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
+      { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
     # attr_reader predicate: Prism::node?
@@ -3020,8 +3020,8 @@ module Prism
     # attr_reader conditions: Array[Prism::node]
     attr_reader :conditions
 
-    # attr_reader consequent: ElseNode?
-    attr_reader :consequent
+    # attr_reader else_clause: ElseNode?
+    attr_reader :else_clause
 
     # attr_reader case_keyword_loc: Location
     def case_keyword_loc
@@ -3069,7 +3069,7 @@ module Prism
         (predicate === other.predicate) &&
         (conditions.length == other.conditions.length) &&
         conditions.zip(other.conditions).all? { |left, right| left === right } &&
-        (consequent === other.consequent) &&
+        (else_clause === other.else_clause) &&
         (case_keyword_loc.nil? == other.case_keyword_loc.nil?) &&
         (end_keyword_loc.nil? == other.end_keyword_loc.nil?)
     end
@@ -3083,14 +3083,14 @@ module Prism
   #     ^^^^^^^^^^
   class CaseNode < Node
     # Initialize a new CaseNode node.
-    def initialize(source, node_id, location, flags, predicate, conditions, consequent, case_keyword_loc, end_keyword_loc)
+    def initialize(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
       @source = source
       @node_id = node_id
       @location = location
       @flags = flags
       @predicate = predicate
       @conditions = conditions
-      @consequent = consequent
+      @else_clause = else_clause
       @case_keyword_loc = case_keyword_loc
       @end_keyword_loc = end_keyword_loc
     end
@@ -3102,7 +3102,7 @@ module Prism
 
     # def child_nodes: () -> Array[nil | Node]
     def child_nodes
-      [predicate, *conditions, consequent]
+      [predicate, *conditions, else_clause]
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -3110,26 +3110,26 @@ module Prism
       compact = [] #: Array[Prism::node]
       compact << predicate if predicate
       compact.concat(conditions)
-      compact << consequent if consequent
+      compact << else_clause if else_clause
       compact
     end
 
     # def comment_targets: () -> Array[Node | Location]
     def comment_targets
-      [*predicate, *conditions, *consequent, case_keyword_loc, end_keyword_loc] #: Array[Prism::node | Location]
+      [*predicate, *conditions, *else_clause, case_keyword_loc, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?consequent: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, predicate: self.predicate, conditions: self.conditions, consequent: self.consequent, case_keyword_loc: self.case_keyword_loc, end_keyword_loc: self.end_keyword_loc)
-      CaseNode.new(source, node_id, location, flags, predicate, conditions, consequent, case_keyword_loc, end_keyword_loc)
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, predicate: self.predicate, conditions: self.conditions, else_clause: self.else_clause, case_keyword_loc: self.case_keyword_loc, end_keyword_loc: self.end_keyword_loc)
+      CaseNode.new(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
     end
 
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[Prism::node], consequent: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[Prism::node], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
     def deconstruct_keys(keys)
-      { node_id: node_id, location: location, predicate: predicate, conditions: conditions, consequent: consequent, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
+      { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
     # attr_reader predicate: Prism::node?
@@ -3138,8 +3138,8 @@ module Prism
     # attr_reader conditions: Array[Prism::node]
     attr_reader :conditions
 
-    # attr_reader consequent: ElseNode?
-    attr_reader :consequent
+    # attr_reader else_clause: ElseNode?
+    attr_reader :else_clause
 
     # attr_reader case_keyword_loc: Location
     def case_keyword_loc
@@ -3187,7 +3187,7 @@ module Prism
         (predicate === other.predicate) &&
         (conditions.length == other.conditions.length) &&
         conditions.zip(other.conditions).all? { |left, right| left === right } &&
-        (consequent === other.consequent) &&
+        (else_clause === other.else_clause) &&
         (case_keyword_loc.nil? == other.case_keyword_loc.nil?) &&
         (end_keyword_loc.nil? == other.end_keyword_loc.nil?)
     end
@@ -7442,7 +7442,7 @@ module Prism
   #     ^^^^^^^^^^^^^^^
   class IfNode < Node
     # Initialize a new IfNode node.
-    def initialize(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, consequent, end_keyword_loc)
+    def initialize(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, subsequent, end_keyword_loc)
       @source = source
       @node_id = node_id
       @location = location
@@ -7451,7 +7451,7 @@ module Prism
       @predicate = predicate
       @then_keyword_loc = then_keyword_loc
       @statements = statements
-      @consequent = consequent
+      @subsequent = subsequent
       @end_keyword_loc = end_keyword_loc
     end
 
@@ -7462,7 +7462,7 @@ module Prism
 
     # def child_nodes: () -> Array[nil | Node]
     def child_nodes
-      [predicate, statements, consequent]
+      [predicate, statements, subsequent]
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -7470,26 +7470,26 @@ module Prism
       compact = [] #: Array[Prism::node]
       compact << predicate
       compact << statements if statements
-      compact << consequent if consequent
+      compact << subsequent if subsequent
       compact
     end
 
     # def comment_targets: () -> Array[Node | Location]
     def comment_targets
-      [*if_keyword_loc, predicate, *then_keyword_loc, *statements, *consequent, *end_keyword_loc] #: Array[Prism::node | Location]
+      [*if_keyword_loc, predicate, *then_keyword_loc, *statements, *subsequent, *end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?if_keyword_loc: Location?, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?consequent: Prism::node?, ?end_keyword_loc: Location?) -> IfNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, if_keyword_loc: self.if_keyword_loc, predicate: self.predicate, then_keyword_loc: self.then_keyword_loc, statements: self.statements, consequent: self.consequent, end_keyword_loc: self.end_keyword_loc)
-      IfNode.new(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, consequent, end_keyword_loc)
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?if_keyword_loc: Location?, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?subsequent: ElseNode | IfNode | nil, ?end_keyword_loc: Location?) -> IfNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, if_keyword_loc: self.if_keyword_loc, predicate: self.predicate, then_keyword_loc: self.then_keyword_loc, statements: self.statements, subsequent: self.subsequent, end_keyword_loc: self.end_keyword_loc)
+      IfNode.new(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, subsequent, end_keyword_loc)
     end
 
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, if_keyword_loc: Location?, predicate: Prism::node, then_keyword_loc: Location?, statements: StatementsNode?, consequent: Prism::node?, end_keyword_loc: Location? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, if_keyword_loc: Location?, predicate: Prism::node, then_keyword_loc: Location?, statements: StatementsNode?, subsequent: ElseNode | IfNode | nil, end_keyword_loc: Location? }
     def deconstruct_keys(keys)
-      { node_id: node_id, location: location, if_keyword_loc: if_keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, consequent: consequent, end_keyword_loc: end_keyword_loc }
+      { node_id: node_id, location: location, if_keyword_loc: if_keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, subsequent: subsequent, end_keyword_loc: end_keyword_loc }
     end
 
     # The location of the `if` keyword if present.
@@ -7566,7 +7566,7 @@ module Prism
     #
     #     if foo then bar else baz end
     #                     ^^^^^^^^^^^^
-    attr_reader :consequent
+    attr_reader :subsequent
 
     # The location of the `end` keyword if present, `nil` otherwise.
     #
@@ -7624,7 +7624,7 @@ module Prism
         (predicate === other.predicate) &&
         (then_keyword_loc.nil? == other.then_keyword_loc.nil?) &&
         (statements === other.statements) &&
-        (consequent === other.consequent) &&
+        (subsequent === other.subsequent) &&
         (end_keyword_loc.nil? == other.end_keyword_loc.nil?)
     end
   end
@@ -14185,7 +14185,7 @@ module Prism
   # `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `exception` field.
   class RescueNode < Node
     # Initialize a new RescueNode node.
-    def initialize(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, consequent)
+    def initialize(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent)
       @source = source
       @node_id = node_id
       @location = location
@@ -14195,7 +14195,7 @@ module Prism
       @operator_loc = operator_loc
       @reference = reference
       @statements = statements
-      @consequent = consequent
+      @subsequent = subsequent
     end
 
     # def accept: (Visitor visitor) -> void
@@ -14205,7 +14205,7 @@ module Prism
 
     # def child_nodes: () -> Array[nil | Node]
     def child_nodes
-      [*exceptions, reference, statements, consequent]
+      [*exceptions, reference, statements, subsequent]
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -14214,26 +14214,26 @@ module Prism
       compact.concat(exceptions)
       compact << reference if reference
       compact << statements if statements
-      compact << consequent if consequent
+      compact << subsequent if subsequent
       compact
     end
 
     # def comment_targets: () -> Array[Node | Location]
     def comment_targets
-      [keyword_loc, *exceptions, *operator_loc, *reference, *statements, *consequent] #: Array[Prism::node | Location]
+      [keyword_loc, *exceptions, *operator_loc, *reference, *statements, *subsequent] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: Prism::node?, ?statements: StatementsNode?, ?consequent: RescueNode?) -> RescueNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, exceptions: self.exceptions, operator_loc: self.operator_loc, reference: self.reference, statements: self.statements, consequent: self.consequent)
-      RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, consequent)
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: Prism::node?, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, exceptions: self.exceptions, operator_loc: self.operator_loc, reference: self.reference, statements: self.statements, subsequent: self.subsequent)
+      RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent)
     end
 
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: Prism::node?, statements: StatementsNode?, consequent: RescueNode? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: Prism::node?, statements: StatementsNode?, subsequent: RescueNode? }
     def deconstruct_keys(keys)
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, exceptions: exceptions, operator_loc: operator_loc, reference: reference, statements: statements, consequent: consequent }
+      { node_id: node_id, location: location, keyword_loc: keyword_loc, exceptions: exceptions, operator_loc: operator_loc, reference: reference, statements: statements, subsequent: subsequent }
     end
 
     # attr_reader keyword_loc: Location
@@ -14265,8 +14265,8 @@ module Prism
     # attr_reader statements: StatementsNode?
     attr_reader :statements
 
-    # attr_reader consequent: RescueNode?
-    attr_reader :consequent
+    # attr_reader subsequent: RescueNode?
+    attr_reader :subsequent
 
     # def keyword: () -> String
     def keyword
@@ -14303,7 +14303,7 @@ module Prism
         (operator_loc.nil? == other.operator_loc.nil?) &&
         (reference === other.reference) &&
         (statements === other.statements) &&
-        (consequent === other.consequent)
+        (subsequent === other.subsequent)
     end
   end
 
@@ -15862,7 +15862,7 @@ module Prism
   #     ^^^^^^^^^^^^^^^^^^^^^^^
   class UnlessNode < Node
     # Initialize a new UnlessNode node.
-    def initialize(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, consequent, end_keyword_loc)
+    def initialize(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, else_clause, end_keyword_loc)
       @source = source
       @node_id = node_id
       @location = location
@@ -15871,7 +15871,7 @@ module Prism
       @predicate = predicate
       @then_keyword_loc = then_keyword_loc
       @statements = statements
-      @consequent = consequent
+      @else_clause = else_clause
       @end_keyword_loc = end_keyword_loc
     end
 
@@ -15882,7 +15882,7 @@ module Prism
 
     # def child_nodes: () -> Array[nil | Node]
     def child_nodes
-      [predicate, statements, consequent]
+      [predicate, statements, else_clause]
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -15890,26 +15890,26 @@ module Prism
       compact = [] #: Array[Prism::node]
       compact << predicate
       compact << statements if statements
-      compact << consequent if consequent
+      compact << else_clause if else_clause
       compact
     end
 
     # def comment_targets: () -> Array[Node | Location]
     def comment_targets
-      [keyword_loc, predicate, *then_keyword_loc, *statements, *consequent, *end_keyword_loc] #: Array[Prism::node | Location]
+      [keyword_loc, predicate, *then_keyword_loc, *statements, *else_clause, *end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?consequent: ElseNode?, ?end_keyword_loc: Location?) -> UnlessNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, predicate: self.predicate, then_keyword_loc: self.then_keyword_loc, statements: self.statements, consequent: self.consequent, end_keyword_loc: self.end_keyword_loc)
-      UnlessNode.new(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, consequent, end_keyword_loc)
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?else_clause: ElseNode?, ?end_keyword_loc: Location?) -> UnlessNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, predicate: self.predicate, then_keyword_loc: self.then_keyword_loc, statements: self.statements, else_clause: self.else_clause, end_keyword_loc: self.end_keyword_loc)
+      UnlessNode.new(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, else_clause, end_keyword_loc)
     end
 
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, predicate: Prism::node, then_keyword_loc: Location?, statements: StatementsNode?, consequent: ElseNode?, end_keyword_loc: Location? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, predicate: Prism::node, then_keyword_loc: Location?, statements: StatementsNode?, else_clause: ElseNode?, end_keyword_loc: Location? }
     def deconstruct_keys(keys)
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, consequent: consequent, end_keyword_loc: end_keyword_loc }
+      { node_id: node_id, location: location, keyword_loc: keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, else_clause: else_clause, end_keyword_loc: end_keyword_loc }
     end
 
     # The location of the `unless` keyword.
@@ -15961,7 +15961,7 @@ module Prism
     #
     #     unless cond then bar else baz end
     #                          ^^^^^^^^
-    attr_reader :consequent
+    attr_reader :else_clause
 
     # The location of the `end` keyword, if present.
     #
@@ -16017,7 +16017,7 @@ module Prism
         (predicate === other.predicate) &&
         (then_keyword_loc.nil? == other.then_keyword_loc.nil?) &&
         (statements === other.statements) &&
-        (consequent === other.consequent) &&
+        (else_clause === other.else_clause) &&
         (end_keyword_loc.nil? == other.end_keyword_loc.nil?)
     end
   end

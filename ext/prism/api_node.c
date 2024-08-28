@@ -452,7 +452,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     for (size_t index = 0; index < cast->conditions.size; index++) {
                         pm_node_stack_push(&node_stack, (pm_node_t *) cast->conditions.nodes[index]);
                     }
-                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->consequent);
+                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->else_clause);
                     break;
                 }
 #line 146 "prism/templates/ext/prism/api_node.c.erb"
@@ -462,7 +462,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     for (size_t index = 0; index < cast->conditions.size; index++) {
                         pm_node_stack_push(&node_stack, (pm_node_t *) cast->conditions.nodes[index]);
                     }
-                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->consequent);
+                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->else_clause);
                     break;
                 }
 #line 146 "prism/templates/ext/prism/api_node.c.erb"
@@ -678,7 +678,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_if_node_t *cast = (pm_if_node_t *) node;
                     pm_node_stack_push(&node_stack, (pm_node_t *) cast->predicate);
                     pm_node_stack_push(&node_stack, (pm_node_t *) cast->statements);
-                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->consequent);
+                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->subsequent);
                     break;
                 }
 #line 146 "prism/templates/ext/prism/api_node.c.erb"
@@ -996,7 +996,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     pm_node_stack_push(&node_stack, (pm_node_t *) cast->reference);
                     pm_node_stack_push(&node_stack, (pm_node_t *) cast->statements);
-                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->consequent);
+                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->subsequent);
                     break;
                 }
 #line 146 "prism/templates/ext/prism/api_node.c.erb"
@@ -1052,7 +1052,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_unless_node_t *cast = (pm_unless_node_t *) node;
                     pm_node_stack_push(&node_stack, (pm_node_t *) cast->predicate);
                     pm_node_stack_push(&node_stack, (pm_node_t *) cast->statements);
-                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->consequent);
+                    pm_node_stack_push(&node_stack, (pm_node_t *) cast->else_clause);
                     break;
                 }
 #line 146 "prism/templates/ext/prism/api_node.c.erb"
@@ -1961,7 +1961,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
                     }
 
-                    // consequent
+                    // else_clause
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
@@ -2004,7 +2004,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
                     }
 
-                    // consequent
+                    // else_clause
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
@@ -3463,7 +3463,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
-                    // consequent
+                    // subsequent
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
@@ -5574,7 +5574,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
-                    // consequent
+                    // subsequent
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
@@ -6061,7 +6061,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
-                    // consequent
+                    // else_clause
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 

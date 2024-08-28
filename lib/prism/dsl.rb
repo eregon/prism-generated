@@ -74,12 +74,12 @@ module Prism
     end
 
     # Create a new AliasGlobalVariableNode node.
-    def alias_global_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, new_name: default_node(source, location), old_name: default_node(source, location), keyword_loc: location)
+    def alias_global_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, new_name: global_variable_read_node(source: source), old_name: global_variable_read_node(source: source), keyword_loc: location)
       AliasGlobalVariableNode.new(source, node_id, location, flags, new_name, old_name, keyword_loc)
     end
 
     # Create a new AliasMethodNode node.
-    def alias_method_node(source: default_source, node_id: 0, location: default_location, flags: 0, new_name: default_node(source, location), old_name: default_node(source, location), keyword_loc: location)
+    def alias_method_node(source: default_source, node_id: 0, location: default_location, flags: 0, new_name: symbol_node(source: source), old_name: symbol_node(source: source), keyword_loc: location)
       AliasMethodNode.new(source, node_id, location, flags, new_name, old_name, keyword_loc)
     end
 
@@ -189,13 +189,13 @@ module Prism
     end
 
     # Create a new CaseMatchNode node.
-    def case_match_node(source: default_source, node_id: 0, location: default_location, flags: 0, predicate: nil, conditions: [], consequent: nil, case_keyword_loc: location, end_keyword_loc: location)
-      CaseMatchNode.new(source, node_id, location, flags, predicate, conditions, consequent, case_keyword_loc, end_keyword_loc)
+    def case_match_node(source: default_source, node_id: 0, location: default_location, flags: 0, predicate: nil, conditions: [], else_clause: nil, case_keyword_loc: location, end_keyword_loc: location)
+      CaseMatchNode.new(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
     end
 
     # Create a new CaseNode node.
-    def case_node(source: default_source, node_id: 0, location: default_location, flags: 0, predicate: nil, conditions: [], consequent: nil, case_keyword_loc: location, end_keyword_loc: location)
-      CaseNode.new(source, node_id, location, flags, predicate, conditions, consequent, case_keyword_loc, end_keyword_loc)
+    def case_node(source: default_source, node_id: 0, location: default_location, flags: 0, predicate: nil, conditions: [], else_clause: nil, case_keyword_loc: location, end_keyword_loc: location)
+      CaseNode.new(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
     end
 
     # Create a new ClassNode node.
@@ -404,8 +404,8 @@ module Prism
     end
 
     # Create a new IfNode node.
-    def if_node(source: default_source, node_id: 0, location: default_location, flags: 0, if_keyword_loc: nil, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, consequent: nil, end_keyword_loc: nil)
-      IfNode.new(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, consequent, end_keyword_loc)
+    def if_node(source: default_source, node_id: 0, location: default_location, flags: 0, if_keyword_loc: nil, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, subsequent: nil, end_keyword_loc: nil)
+      IfNode.new(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, subsequent, end_keyword_loc)
     end
 
     # Create a new ImaginaryNode node.
@@ -714,8 +714,8 @@ module Prism
     end
 
     # Create a new RescueNode node.
-    def rescue_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, exceptions: [], operator_loc: nil, reference: nil, statements: nil, consequent: nil)
-      RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, consequent)
+    def rescue_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, exceptions: [], operator_loc: nil, reference: nil, statements: nil, subsequent: nil)
+      RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent)
     end
 
     # Create a new RestParameterNode node.
@@ -799,8 +799,8 @@ module Prism
     end
 
     # Create a new UnlessNode node.
-    def unless_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, consequent: nil, end_keyword_loc: nil)
-      UnlessNode.new(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, consequent, end_keyword_loc)
+    def unless_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, else_clause: nil, end_keyword_loc: nil)
+      UnlessNode.new(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, else_clause, end_keyword_loc)
     end
 
     # Create a new UntilNode node.

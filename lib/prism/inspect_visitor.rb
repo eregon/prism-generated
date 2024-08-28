@@ -492,11 +492,11 @@ module Prism
         commands << [Replace.new("#{indent}│   └── "), indent]
         commands << [conditions[-1], "#{indent}│       "]
       end
-      if (consequent = node.consequent).nil?
-        commands << ["├── consequent: ∅\n", indent]
+      if (else_clause = node.else_clause).nil?
+        commands << ["├── else_clause: ∅\n", indent]
       else
-        commands << ["├── consequent:\n", indent]
-        commands << [consequent, "#{indent}│   "]
+        commands << ["├── else_clause:\n", indent]
+        commands << [else_clause, "#{indent}│   "]
       end
       commands << ["├── case_keyword_loc: #{inspect_location(node.case_keyword_loc)}\n", indent]
       commands << ["└── end_keyword_loc: #{inspect_location(node.end_keyword_loc)}\n", indent]
@@ -522,11 +522,11 @@ module Prism
         commands << [Replace.new("#{indent}│   └── "), indent]
         commands << [conditions[-1], "#{indent}│       "]
       end
-      if (consequent = node.consequent).nil?
-        commands << ["├── consequent: ∅\n", indent]
+      if (else_clause = node.else_clause).nil?
+        commands << ["├── else_clause: ∅\n", indent]
       else
-        commands << ["├── consequent:\n", indent]
-        commands << [consequent, "#{indent}│   "]
+        commands << ["├── else_clause:\n", indent]
+        commands << [else_clause, "#{indent}│   "]
       end
       commands << ["├── case_keyword_loc: #{inspect_location(node.case_keyword_loc)}\n", indent]
       commands << ["└── end_keyword_loc: #{inspect_location(node.end_keyword_loc)}\n", indent]
@@ -1117,11 +1117,11 @@ module Prism
         commands << ["├── statements:\n", indent]
         commands << [statements, "#{indent}│   "]
       end
-      if (consequent = node.consequent).nil?
-        commands << ["├── consequent: ∅\n", indent]
+      if (subsequent = node.subsequent).nil?
+        commands << ["├── subsequent: ∅\n", indent]
       else
-        commands << ["├── consequent:\n", indent]
-        commands << [consequent, "#{indent}│   "]
+        commands << ["├── subsequent:\n", indent]
+        commands << [subsequent, "#{indent}│   "]
       end
       commands << ["└── end_keyword_loc: #{inspect_location(node.end_keyword_loc)}\n", indent]
     end
@@ -2059,11 +2059,11 @@ module Prism
         commands << ["├── statements:\n", indent]
         commands << [statements, "#{indent}│   "]
       end
-      if (consequent = node.consequent).nil?
-        commands << ["└── consequent: ∅\n", indent]
+      if (subsequent = node.subsequent).nil?
+        commands << ["└── subsequent: ∅\n", indent]
       else
-        commands << ["└── consequent:\n", indent]
-        commands << [consequent, "#{indent}    "]
+        commands << ["└── subsequent:\n", indent]
+        commands << [subsequent, "#{indent}    "]
       end
     end
 
@@ -2272,11 +2272,11 @@ module Prism
         commands << ["├── statements:\n", indent]
         commands << [statements, "#{indent}│   "]
       end
-      if (consequent = node.consequent).nil?
-        commands << ["├── consequent: ∅\n", indent]
+      if (else_clause = node.else_clause).nil?
+        commands << ["├── else_clause: ∅\n", indent]
       else
-        commands << ["├── consequent:\n", indent]
-        commands << [consequent, "#{indent}│   "]
+        commands << ["├── else_clause:\n", indent]
+        commands << [else_clause, "#{indent}│   "]
       end
       commands << ["└── end_keyword_loc: #{inspect_location(node.end_keyword_loc)}\n", indent]
     end

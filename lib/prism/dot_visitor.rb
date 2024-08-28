@@ -909,10 +909,10 @@ module Prism
         table.field("conditions", "[]")
       end
 
-      # consequent
-      unless (consequent = node.consequent).nil?
-        table.field("consequent", port: true)
-        digraph.edge("#{id}:consequent -> #{node_id(consequent)};")
+      # else_clause
+      unless (else_clause = node.else_clause).nil?
+        table.field("else_clause", port: true)
+        digraph.edge("#{id}:else_clause -> #{node_id(else_clause)};")
       end
 
       # case_keyword_loc
@@ -954,10 +954,10 @@ module Prism
         table.field("conditions", "[]")
       end
 
-      # consequent
-      unless (consequent = node.consequent).nil?
-        table.field("consequent", port: true)
-        digraph.edge("#{id}:consequent -> #{node_id(consequent)};")
+      # else_clause
+      unless (else_clause = node.else_clause).nil?
+        table.field("else_clause", port: true)
+        digraph.edge("#{id}:else_clause -> #{node_id(else_clause)};")
       end
 
       # case_keyword_loc
@@ -2130,10 +2130,10 @@ module Prism
         digraph.edge("#{id}:statements -> #{node_id(statements)};")
       end
 
-      # consequent
-      unless (consequent = node.consequent).nil?
-        table.field("consequent", port: true)
-        digraph.edge("#{id}:consequent -> #{node_id(consequent)};")
+      # subsequent
+      unless (subsequent = node.subsequent).nil?
+        table.field("subsequent", port: true)
+        digraph.edge("#{id}:subsequent -> #{node_id(subsequent)};")
       end
 
       # end_keyword_loc
@@ -3960,10 +3960,10 @@ module Prism
         digraph.edge("#{id}:statements -> #{node_id(statements)};")
       end
 
-      # consequent
-      unless (consequent = node.consequent).nil?
-        table.field("consequent", port: true)
-        digraph.edge("#{id}:consequent -> #{node_id(consequent)};")
+      # subsequent
+      unless (subsequent = node.subsequent).nil?
+        table.field("subsequent", port: true)
+        digraph.edge("#{id}:subsequent -> #{node_id(subsequent)};")
       end
 
       digraph.nodes << <<~DOT
@@ -4383,10 +4383,10 @@ module Prism
         digraph.edge("#{id}:statements -> #{node_id(statements)};")
       end
 
-      # consequent
-      unless (consequent = node.consequent).nil?
-        table.field("consequent", port: true)
-        digraph.edge("#{id}:consequent -> #{node_id(consequent)};")
+      # else_clause
+      unless (else_clause = node.else_clause).nil?
+        table.field("else_clause", port: true)
+        digraph.edge("#{id}:else_clause -> #{node_id(else_clause)};")
       end
 
       # end_keyword_loc

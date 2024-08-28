@@ -150,9 +150,9 @@ module Prism
       when :capture_pattern_node
         [NodeField.new(:value), NodeField.new(:target), LocationField.new(:operator_loc)]
       when :case_match_node
-        [OptionalNodeField.new(:predicate), NodeListField.new(:conditions), OptionalNodeField.new(:consequent), LocationField.new(:case_keyword_loc), LocationField.new(:end_keyword_loc)]
+        [OptionalNodeField.new(:predicate), NodeListField.new(:conditions), OptionalNodeField.new(:else_clause), LocationField.new(:case_keyword_loc), LocationField.new(:end_keyword_loc)]
       when :case_node
-        [OptionalNodeField.new(:predicate), NodeListField.new(:conditions), OptionalNodeField.new(:consequent), LocationField.new(:case_keyword_loc), LocationField.new(:end_keyword_loc)]
+        [OptionalNodeField.new(:predicate), NodeListField.new(:conditions), OptionalNodeField.new(:else_clause), LocationField.new(:case_keyword_loc), LocationField.new(:end_keyword_loc)]
       when :class_node
         [ConstantListField.new(:locals), LocationField.new(:class_keyword_loc), NodeField.new(:constant_path), OptionalLocationField.new(:inheritance_operator_loc), OptionalNodeField.new(:superclass), OptionalNodeField.new(:body), LocationField.new(:end_keyword_loc), ConstantField.new(:name)]
       when :class_variable_and_write_node
@@ -236,7 +236,7 @@ module Prism
       when :hash_pattern_node
         [OptionalNodeField.new(:constant), NodeListField.new(:elements), OptionalNodeField.new(:rest), OptionalLocationField.new(:opening_loc), OptionalLocationField.new(:closing_loc)]
       when :if_node
-        [OptionalLocationField.new(:if_keyword_loc), NodeField.new(:predicate), OptionalLocationField.new(:then_keyword_loc), OptionalNodeField.new(:statements), OptionalNodeField.new(:consequent), OptionalLocationField.new(:end_keyword_loc)]
+        [OptionalLocationField.new(:if_keyword_loc), NodeField.new(:predicate), OptionalLocationField.new(:then_keyword_loc), OptionalNodeField.new(:statements), OptionalNodeField.new(:subsequent), OptionalLocationField.new(:end_keyword_loc)]
       when :imaginary_node
         [NodeField.new(:numeric)]
       when :implicit_node
@@ -360,7 +360,7 @@ module Prism
       when :rescue_modifier_node
         [NodeField.new(:expression), LocationField.new(:keyword_loc), NodeField.new(:rescue_expression)]
       when :rescue_node
-        [LocationField.new(:keyword_loc), NodeListField.new(:exceptions), OptionalLocationField.new(:operator_loc), OptionalNodeField.new(:reference), OptionalNodeField.new(:statements), OptionalNodeField.new(:consequent)]
+        [LocationField.new(:keyword_loc), NodeListField.new(:exceptions), OptionalLocationField.new(:operator_loc), OptionalNodeField.new(:reference), OptionalNodeField.new(:statements), OptionalNodeField.new(:subsequent)]
       when :rest_parameter_node
         [FlagsField.new(:flags, [:repeated_parameter?]), OptionalConstantField.new(:name), OptionalLocationField.new(:name_loc), LocationField.new(:operator_loc)]
       when :retry_node
@@ -394,7 +394,7 @@ module Prism
       when :undef_node
         [NodeListField.new(:names), LocationField.new(:keyword_loc)]
       when :unless_node
-        [LocationField.new(:keyword_loc), NodeField.new(:predicate), OptionalLocationField.new(:then_keyword_loc), OptionalNodeField.new(:statements), OptionalNodeField.new(:consequent), OptionalLocationField.new(:end_keyword_loc)]
+        [LocationField.new(:keyword_loc), NodeField.new(:predicate), OptionalLocationField.new(:then_keyword_loc), OptionalNodeField.new(:statements), OptionalNodeField.new(:else_clause), OptionalLocationField.new(:end_keyword_loc)]
       when :until_node
         [FlagsField.new(:flags, [:begin_modifier?]), LocationField.new(:keyword_loc), OptionalLocationField.new(:closing_loc), NodeField.new(:predicate), OptionalNodeField.new(:statements)]
       when :when_node
