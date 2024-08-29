@@ -246,6 +246,11 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                     pm_buffer_append_string(output_buffer, " contains_splat", 15);
                     found = true;
                 }
+                if (cast->base.flags & PM_ARGUMENTS_NODE_FLAGS_CONTAINS_MULTIPLE_SPLATS) {
+                    if (found) pm_buffer_append_byte(output_buffer, ',');
+                    pm_buffer_append_string(output_buffer, " contains_multiple_splats", 25);
+                    found = true;
+                }
                 if (!found) pm_buffer_append_string(output_buffer, " nil", 4);
                 pm_buffer_append_byte(output_buffer, '\n');
             }

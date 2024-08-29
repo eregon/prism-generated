@@ -834,6 +834,7 @@ module Prism
       when :contains_keywords then ArgumentsNodeFlags::CONTAINS_KEYWORDS
       when :contains_keyword_splat then ArgumentsNodeFlags::CONTAINS_KEYWORD_SPLAT
       when :contains_splat then ArgumentsNodeFlags::CONTAINS_SPLAT
+      when :contains_multiple_splats then ArgumentsNodeFlags::CONTAINS_MULTIPLE_SPLATS
       else Kernel.raise ArgumentError, "invalid ArgumentsNodeFlags flag: #{name.inspect}"
       end
     end

@@ -4595,6 +4595,7 @@ module Prism
       flags << "contains_keywords" if node.contains_keywords?
       flags << "contains_keyword_splat" if node.contains_keyword_splat?
       flags << "contains_splat" if node.contains_splat?
+      flags << "contains_multiple_splats" if node.contains_multiple_splats?
       flags.join(", ")
     end
 

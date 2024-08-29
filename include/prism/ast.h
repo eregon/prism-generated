@@ -1269,6 +1269,7 @@ typedef struct pm_and_node {
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORDS
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORD_SPLAT
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_SPLAT
+ *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_MULTIPLE_SPLATS
  *
  * @extends pm_node_t
  */
@@ -7100,6 +7101,9 @@ typedef enum pm_arguments_node_flags {
 
     /** if arguments contain splat */
     PM_ARGUMENTS_NODE_FLAGS_CONTAINS_SPLAT = 16,
+
+    /** if arguments contain multiple splats */
+    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_MULTIPLE_SPLATS = 32,
 } pm_arguments_node_flags_t;
 
 /**

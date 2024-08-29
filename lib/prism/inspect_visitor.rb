@@ -124,7 +124,7 @@ module Prism
     # Inspect a ArgumentsNode node.
     def visit_arguments_node(node)
       commands << [inspect_node("ArgumentsNode", node), indent]
-      flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ("contains_keywords" if node.contains_keywords?), ("contains_keyword_splat" if node.contains_keyword_splat?), ("contains_splat" if node.contains_splat?)].compact
+      flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ("contains_keywords" if node.contains_keywords?), ("contains_keyword_splat" if node.contains_keyword_splat?), ("contains_splat" if node.contains_splat?), ("contains_multiple_splats" if node.contains_multiple_splats?)].compact
       commands << ["├── flags: #{flags.empty? ? "∅" : flags.join(", ")}\n", indent]
       commands << ["└── arguments: (length: #{(arguments = node.arguments).length})\n", indent]
       if arguments.any?

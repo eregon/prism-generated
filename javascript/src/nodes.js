@@ -16,6 +16,7 @@ const ArgumentsNodeFlags = {
   CONTAINS_KEYWORDS: 1 << 2,
   CONTAINS_KEYWORD_SPLAT: 1 << 3,
   CONTAINS_SPLAT: 1 << 4,
+  CONTAINS_MULTIPLE_SPLATS: 1 << 5,
 };
 
 /**
@@ -619,6 +620,15 @@ export class ArgumentsNode {
    */
   isContainsSplat() {
     return (this.#flags & ArgumentsNodeFlags.CONTAINS_SPLAT) !== 0;
+  }
+
+  /**
+   * True if this node has the CONTAINS_MULTIPLE_SPLATS flag.
+   *
+   * @returns {boolean}
+   */
+  isContainsMultipleSplats() {
+    return (this.#flags & ArgumentsNodeFlags.CONTAINS_MULTIPLE_SPLATS) !== 0;
   }
 
   /**

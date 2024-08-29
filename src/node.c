@@ -3140,6 +3140,11 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
                 pm_buffer_append_string(buffer, "\"CONTAINS_SPLAT\"", 16);
                 flags++;
             }
+            if (PM_NODE_FLAG_P(cast, PM_ARGUMENTS_NODE_FLAGS_CONTAINS_MULTIPLE_SPLATS)) {
+                if (flags != 0) pm_buffer_append_byte(buffer, ',');
+                pm_buffer_append_string(buffer, "\"CONTAINS_MULTIPLE_SPLATS\"", 26);
+                flags++;
+            }
             pm_buffer_append_byte(buffer, ']');
 
             // Dump the arguments field

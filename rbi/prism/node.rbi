@@ -161,6 +161,9 @@ class Prism::ArgumentsNode < Prism::Node
   sig { returns(T::Boolean) }
   def contains_splat?; end
 
+  sig { returns(T::Boolean) }
+  def contains_multiple_splats?; end
+
   sig { returns(T::Array[Prism::Node]) }
   def arguments; end
 
@@ -4467,6 +4470,8 @@ module Prism::ArgumentsNodeFlags
   CONTAINS_KEYWORD_SPLAT = T.let(1 << 1, Integer)
   # if arguments contain splat
   CONTAINS_SPLAT = T.let(1 << 2, Integer)
+  # if arguments contain multiple splats
+  CONTAINS_MULTIPLE_SPLATS = T.let(1 << 3, Integer)
 end
 
 # Flags for array nodes.

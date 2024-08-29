@@ -143,6 +143,8 @@ module Prism
 
     def contains_splat?: () -> bool
 
+    def contains_multiple_splats?: () -> bool
+
     attr_reader arguments: Array[Prism::node]
 
     def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Prism::node] arguments) -> void
@@ -3543,6 +3545,8 @@ module Prism
     CONTAINS_KEYWORD_SPLAT: Integer
     # if arguments contain splat
     CONTAINS_SPLAT: Integer
+    # if arguments contain multiple splats
+    CONTAINS_MULTIPLE_SPLATS: Integer
   end
 
   # Flags for array nodes.
