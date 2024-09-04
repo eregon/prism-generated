@@ -5397,7 +5397,7 @@ typedef struct pm_multi_target_node {
      *     a, (b, *) = 1, 2, 3, 4
      *            ^
      *
-     * If the `*` is omitted, the field will containt an `ImplicitRestNode`
+     * If the `*` is omitted, this field will contain an `ImplicitRestNode`
      *
      *     a, (b,) = 1, 2, 3, 4
      *          ^
@@ -5479,7 +5479,7 @@ typedef struct pm_multi_write_node {
      *     a, b, * = 1, 2, 3, 4
      *           ^
      *
-     * If the `*` is omitted, the field will containt an `ImplicitRestNode`
+     * If the `*` is omitted, this field will contain an `ImplicitRestNode`
      *
      *     a, b, = 1, 2, 3, 4
      *         ^
