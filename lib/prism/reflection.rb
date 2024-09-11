@@ -112,7 +112,7 @@ module Prism
       when :and_node
         [NodeField.new(:left), NodeField.new(:right), LocationField.new(:operator_loc)]
       when :arguments_node
-        [FlagsField.new(:flags, [:contains_keywords?, :contains_keyword_splat?, :contains_splat?, :contains_multiple_splats?]), NodeListField.new(:arguments)]
+        [FlagsField.new(:flags, [:contains_forwarding?, :contains_keywords?, :contains_keyword_splat?, :contains_splat?, :contains_multiple_splats?]), NodeListField.new(:arguments)]
       when :array_node
         [FlagsField.new(:flags, [:contains_splat?]), NodeListField.new(:elements), OptionalLocationField.new(:opening_loc), OptionalLocationField.new(:closing_loc)]
       when :array_pattern_node

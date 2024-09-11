@@ -1266,6 +1266,7 @@ typedef struct pm_and_node {
  *
  * Type: PM_ARGUMENTS_NODE
  * Flags:
+ *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_FORWARDING
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORDS
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORD_SPLAT
  *    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_SPLAT
@@ -7093,17 +7094,20 @@ typedef struct pm_yield_node {
  * Flags for arguments nodes.
  */
 typedef enum pm_arguments_node_flags {
-    /** if arguments contain keywords */
-    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORDS = 4,
+    /** if the arguments contain forwarding */
+    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_FORWARDING = 4,
 
-    /** if arguments contain keyword splat */
-    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORD_SPLAT = 8,
+    /** if the arguments contain keywords */
+    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORDS = 8,
 
-    /** if arguments contain splat */
-    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_SPLAT = 16,
+    /** if the arguments contain a keyword splat */
+    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORD_SPLAT = 16,
 
-    /** if arguments contain multiple splats */
-    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_MULTIPLE_SPLATS = 32,
+    /** if the arguments contain a splat */
+    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_SPLAT = 32,
+
+    /** if the arguments contain multiple splats */
+    PM_ARGUMENTS_NODE_FLAGS_CONTAINS_MULTIPLE_SPLATS = 64,
 } pm_arguments_node_flags_t;
 
 /**

@@ -13,10 +13,11 @@ import * as visitors from "./visitor.js"
  * Flags for arguments nodes.
  */
 const ArgumentsNodeFlags = {
-  CONTAINS_KEYWORDS: 1 << 2,
-  CONTAINS_KEYWORD_SPLAT: 1 << 3,
-  CONTAINS_SPLAT: 1 << 4,
-  CONTAINS_MULTIPLE_SPLATS: 1 << 5,
+  CONTAINS_FORWARDING: 1 << 2,
+  CONTAINS_KEYWORDS: 1 << 3,
+  CONTAINS_KEYWORD_SPLAT: 1 << 4,
+  CONTAINS_SPLAT: 1 << 5,
+  CONTAINS_MULTIPLE_SPLATS: 1 << 6,
 };
 
 /**
@@ -593,6 +594,15 @@ export class ArgumentsNode {
     this.location = location;
     this.#flags = flags;
     this.arguments_ = arguments_;
+  }
+
+  /**
+   * True if this node has the CONTAINS_FORWARDING flag.
+   *
+   * @returns {boolean}
+   */
+  isContainsForwarding() {
+    return (this.#flags & ArgumentsNodeFlags.CONTAINS_FORWARDING) !== 0;
   }
 
   /**

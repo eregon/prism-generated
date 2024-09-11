@@ -659,6 +659,11 @@ module Prism
       { node_id: node_id, location: location, arguments: arguments }
     end
 
+    # def contains_forwarding?: () -> bool
+    def contains_forwarding?
+      flags.anybits?(ArgumentsNodeFlags::CONTAINS_FORWARDING)
+    end
+
     # def contains_keywords?: () -> bool
     def contains_keywords?
       flags.anybits?(ArgumentsNodeFlags::CONTAINS_KEYWORDS)
@@ -16650,17 +16655,20 @@ module Prism
 
   # Flags for arguments nodes.
   module ArgumentsNodeFlags
-    # if arguments contain keywords
-    CONTAINS_KEYWORDS = 1 << 2
+    # if the arguments contain forwarding
+    CONTAINS_FORWARDING = 1 << 2
 
-    # if arguments contain keyword splat
-    CONTAINS_KEYWORD_SPLAT = 1 << 3
+    # if the arguments contain keywords
+    CONTAINS_KEYWORDS = 1 << 3
 
-    # if arguments contain splat
-    CONTAINS_SPLAT = 1 << 4
+    # if the arguments contain a keyword splat
+    CONTAINS_KEYWORD_SPLAT = 1 << 4
 
-    # if arguments contain multiple splats
-    CONTAINS_MULTIPLE_SPLATS = 1 << 5
+    # if the arguments contain a splat
+    CONTAINS_SPLAT = 1 << 5
+
+    # if the arguments contain multiple splats
+    CONTAINS_MULTIPLE_SPLATS = 1 << 6
   end
 
   # Flags for array nodes.

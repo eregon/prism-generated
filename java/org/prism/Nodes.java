@@ -147,17 +147,24 @@ public abstract class Nodes {
      */
     public static final class ArgumentsNodeFlags implements Comparable<ArgumentsNodeFlags> {
 
-        // if arguments contain keywords
-        public static final short CONTAINS_KEYWORDS = 1 << 0;
+        // if the arguments contain forwarding
+        public static final short CONTAINS_FORWARDING = 1 << 0;
 
-        // if arguments contain keyword splat
-        public static final short CONTAINS_KEYWORD_SPLAT = 1 << 1;
+        // if the arguments contain keywords
+        public static final short CONTAINS_KEYWORDS = 1 << 1;
 
-        // if arguments contain splat
-        public static final short CONTAINS_SPLAT = 1 << 2;
+        // if the arguments contain a keyword splat
+        public static final short CONTAINS_KEYWORD_SPLAT = 1 << 2;
 
-        // if arguments contain multiple splats
-        public static final short CONTAINS_MULTIPLE_SPLATS = 1 << 3;
+        // if the arguments contain a splat
+        public static final short CONTAINS_SPLAT = 1 << 3;
+
+        // if the arguments contain multiple splats
+        public static final short CONTAINS_MULTIPLE_SPLATS = 1 << 4;
+
+        public static boolean isContainsForwarding(short flags) {
+            return (flags & CONTAINS_FORWARDING) != 0;
+        }
 
         public static boolean isContainsKeywords(short flags) {
             return (flags & CONTAINS_KEYWORDS) != 0;
@@ -198,6 +205,10 @@ public abstract class Nodes {
         @Override
         public int compareTo(ArgumentsNodeFlags other) {
             return flags - other.flags;
+        }
+
+        public boolean isContainsForwarding() {
+            return (flags & CONTAINS_FORWARDING) != 0;
         }
 
         public boolean isContainsKeywords() {
@@ -1312,6 +1323,10 @@ public abstract class Nodes {
             this.arguments = arguments;
         }
         
+        public boolean isContainsForwarding() {
+            return ArgumentsNodeFlags.isContainsForwarding(flags);
+        }
+
         public boolean isContainsKeywords() {
             return ArgumentsNodeFlags.isContainsKeywords(flags);
         }

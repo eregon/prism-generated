@@ -831,6 +831,7 @@ module Prism
     # Retrieve the value of one of the ArgumentsNodeFlags flags.
     def arguments_node_flag(name)
       case name
+      when :contains_forwarding then ArgumentsNodeFlags::CONTAINS_FORWARDING
       when :contains_keywords then ArgumentsNodeFlags::CONTAINS_KEYWORDS
       when :contains_keyword_splat then ArgumentsNodeFlags::CONTAINS_KEYWORD_SPLAT
       when :contains_splat then ArgumentsNodeFlags::CONTAINS_SPLAT

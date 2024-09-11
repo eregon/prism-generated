@@ -4592,6 +4592,7 @@ module Prism
     # comma-separated list.
     def arguments_node_flags_inspect(node)
       flags = [] #: Array[String]
+      flags << "contains_forwarding" if node.contains_forwarding?
       flags << "contains_keywords" if node.contains_keywords?
       flags << "contains_keyword_splat" if node.contains_keyword_splat?
       flags << "contains_splat" if node.contains_splat?

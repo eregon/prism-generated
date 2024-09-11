@@ -153,6 +153,9 @@ end
 class Prism::ArgumentsNode < Prism::Node
 
   sig { returns(T::Boolean) }
+  def contains_forwarding?; end
+
+  sig { returns(T::Boolean) }
   def contains_keywords?; end
 
   sig { returns(T::Boolean) }
@@ -4464,14 +4467,16 @@ end
 
 # Flags for arguments nodes.
 module Prism::ArgumentsNodeFlags
-  # if arguments contain keywords
-  CONTAINS_KEYWORDS = T.let(1 << 0, Integer)
-  # if arguments contain keyword splat
-  CONTAINS_KEYWORD_SPLAT = T.let(1 << 1, Integer)
-  # if arguments contain splat
-  CONTAINS_SPLAT = T.let(1 << 2, Integer)
-  # if arguments contain multiple splats
-  CONTAINS_MULTIPLE_SPLATS = T.let(1 << 3, Integer)
+  # if the arguments contain forwarding
+  CONTAINS_FORWARDING = T.let(1 << 0, Integer)
+  # if the arguments contain keywords
+  CONTAINS_KEYWORDS = T.let(1 << 1, Integer)
+  # if the arguments contain a keyword splat
+  CONTAINS_KEYWORD_SPLAT = T.let(1 << 2, Integer)
+  # if the arguments contain a splat
+  CONTAINS_SPLAT = T.let(1 << 3, Integer)
+  # if the arguments contain multiple splats
+  CONTAINS_MULTIPLE_SPLATS = T.let(1 << 4, Integer)
 end
 
 # Flags for array nodes.

@@ -137,6 +137,8 @@ module Prism
   class ArgumentsNode < Node
     include _Node
 
+    def contains_forwarding?: () -> bool
+
     def contains_keywords?: () -> bool
 
     def contains_keyword_splat?: () -> bool
@@ -3539,13 +3541,15 @@ module Prism
 
   # Flags for arguments nodes.
   module ArgumentsNodeFlags
-    # if arguments contain keywords
+    # if the arguments contain forwarding
+    CONTAINS_FORWARDING: Integer
+    # if the arguments contain keywords
     CONTAINS_KEYWORDS: Integer
-    # if arguments contain keyword splat
+    # if the arguments contain a keyword splat
     CONTAINS_KEYWORD_SPLAT: Integer
-    # if arguments contain splat
+    # if the arguments contain a splat
     CONTAINS_SPLAT: Integer
-    # if arguments contain multiple splats
+    # if the arguments contain multiple splats
     CONTAINS_MULTIPLE_SPLATS: Integer
   end
 
