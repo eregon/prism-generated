@@ -4468,143 +4468,143 @@ end
 # Flags for arguments nodes.
 module Prism::ArgumentsNodeFlags
   # if the arguments contain forwarding
-  CONTAINS_FORWARDING = T.let(1 << 0, Integer)
+  CONTAINS_FORWARDING = T.let(1 << 2, Integer)
   # if the arguments contain keywords
-  CONTAINS_KEYWORDS = T.let(1 << 1, Integer)
+  CONTAINS_KEYWORDS = T.let(1 << 3, Integer)
   # if the arguments contain a keyword splat
-  CONTAINS_KEYWORD_SPLAT = T.let(1 << 2, Integer)
+  CONTAINS_KEYWORD_SPLAT = T.let(1 << 4, Integer)
   # if the arguments contain a splat
-  CONTAINS_SPLAT = T.let(1 << 3, Integer)
+  CONTAINS_SPLAT = T.let(1 << 5, Integer)
   # if the arguments contain multiple splats
-  CONTAINS_MULTIPLE_SPLATS = T.let(1 << 4, Integer)
+  CONTAINS_MULTIPLE_SPLATS = T.let(1 << 6, Integer)
 end
 
 # Flags for array nodes.
 module Prism::ArrayNodeFlags
   # if array contains splat nodes
-  CONTAINS_SPLAT = T.let(1 << 0, Integer)
+  CONTAINS_SPLAT = T.let(1 << 2, Integer)
 end
 
 # Flags for call nodes.
 module Prism::CallNodeFlags
   # &. operator
-  SAFE_NAVIGATION = T.let(1 << 0, Integer)
+  SAFE_NAVIGATION = T.let(1 << 2, Integer)
   # a call that could have been a local variable
-  VARIABLE_CALL = T.let(1 << 1, Integer)
+  VARIABLE_CALL = T.let(1 << 3, Integer)
   # a call that is an attribute write, so the value being written should be returned
-  ATTRIBUTE_WRITE = T.let(1 << 2, Integer)
+  ATTRIBUTE_WRITE = T.let(1 << 4, Integer)
   # a call that ignores method visibility
-  IGNORE_VISIBILITY = T.let(1 << 3, Integer)
+  IGNORE_VISIBILITY = T.let(1 << 5, Integer)
 end
 
 # Flags for nodes that have unescaped content.
 module Prism::EncodingFlags
   # internal bytes forced the encoding to UTF-8
-  FORCED_UTF8_ENCODING = T.let(1 << 0, Integer)
+  FORCED_UTF8_ENCODING = T.let(1 << 2, Integer)
   # internal bytes forced the encoding to binary
-  FORCED_BINARY_ENCODING = T.let(1 << 1, Integer)
+  FORCED_BINARY_ENCODING = T.let(1 << 3, Integer)
 end
 
 # Flags for integer nodes that correspond to the base of the integer.
 module Prism::IntegerBaseFlags
   # 0b prefix
-  BINARY = T.let(1 << 0, Integer)
+  BINARY = T.let(1 << 2, Integer)
   # 0d or no prefix
-  DECIMAL = T.let(1 << 1, Integer)
+  DECIMAL = T.let(1 << 3, Integer)
   # 0o or 0 prefix
-  OCTAL = T.let(1 << 2, Integer)
+  OCTAL = T.let(1 << 4, Integer)
   # 0x prefix
-  HEXADECIMAL = T.let(1 << 3, Integer)
+  HEXADECIMAL = T.let(1 << 5, Integer)
 end
 
 # Flags for interpolated string nodes that indicated mutability if they are also marked as literals.
 module Prism::InterpolatedStringNodeFlags
   # frozen by virtue of a `frozen_string_literal: true` comment or `--enable-frozen-string-literal`; only for adjacent string literals like `'a' 'b'`
-  FROZEN = T.let(1 << 0, Integer)
+  FROZEN = T.let(1 << 2, Integer)
   # mutable by virtue of a `frozen_string_literal: false` comment or `--disable-frozen-string-literal`; only for adjacent string literals like `'a' 'b'`
-  MUTABLE = T.let(1 << 1, Integer)
+  MUTABLE = T.let(1 << 3, Integer)
 end
 
 # Flags for keyword hash nodes.
 module Prism::KeywordHashNodeFlags
   # a keyword hash which only has `AssocNode` elements all with symbol keys, which means the elements can be treated as keyword arguments
-  SYMBOL_KEYS = T.let(1 << 0, Integer)
+  SYMBOL_KEYS = T.let(1 << 2, Integer)
 end
 
 # Flags for while and until loop nodes.
 module Prism::LoopFlags
   # a loop after a begin statement, so the body is executed first before the condition
-  BEGIN_MODIFIER = T.let(1 << 0, Integer)
+  BEGIN_MODIFIER = T.let(1 << 2, Integer)
 end
 
 # Flags for parameter nodes.
 module Prism::ParameterFlags
   # a parameter name that has been repeated in the method signature
-  REPEATED_PARAMETER = T.let(1 << 0, Integer)
+  REPEATED_PARAMETER = T.let(1 << 2, Integer)
 end
 
 # Flags for range and flip-flop nodes.
 module Prism::RangeFlags
   # ... operator
-  EXCLUDE_END = T.let(1 << 0, Integer)
+  EXCLUDE_END = T.let(1 << 2, Integer)
 end
 
 # Flags for regular expression and match last line nodes.
 module Prism::RegularExpressionFlags
   # i - ignores the case of characters when matching
-  IGNORE_CASE = T.let(1 << 0, Integer)
+  IGNORE_CASE = T.let(1 << 2, Integer)
   # x - ignores whitespace and allows comments in regular expressions
-  EXTENDED = T.let(1 << 1, Integer)
+  EXTENDED = T.let(1 << 3, Integer)
   # m - allows $ to match the end of lines within strings
-  MULTI_LINE = T.let(1 << 2, Integer)
+  MULTI_LINE = T.let(1 << 4, Integer)
   # o - only interpolates values into the regular expression once
-  ONCE = T.let(1 << 3, Integer)
+  ONCE = T.let(1 << 5, Integer)
   # e - forces the EUC-JP encoding
-  EUC_JP = T.let(1 << 4, Integer)
+  EUC_JP = T.let(1 << 6, Integer)
   # n - forces the ASCII-8BIT encoding
-  ASCII_8BIT = T.let(1 << 5, Integer)
+  ASCII_8BIT = T.let(1 << 7, Integer)
   # s - forces the Windows-31J encoding
-  WINDOWS_31J = T.let(1 << 6, Integer)
+  WINDOWS_31J = T.let(1 << 8, Integer)
   # u - forces the UTF-8 encoding
-  UTF_8 = T.let(1 << 7, Integer)
+  UTF_8 = T.let(1 << 9, Integer)
   # internal bytes forced the encoding to UTF-8
-  FORCED_UTF8_ENCODING = T.let(1 << 8, Integer)
+  FORCED_UTF8_ENCODING = T.let(1 << 10, Integer)
   # internal bytes forced the encoding to binary
-  FORCED_BINARY_ENCODING = T.let(1 << 9, Integer)
+  FORCED_BINARY_ENCODING = T.let(1 << 11, Integer)
   # internal bytes forced the encoding to US-ASCII
-  FORCED_US_ASCII_ENCODING = T.let(1 << 10, Integer)
+  FORCED_US_ASCII_ENCODING = T.let(1 << 12, Integer)
 end
 
 # Flags for shareable constant nodes.
 module Prism::ShareableConstantNodeFlags
   # constant writes that should be modified with shareable constant value literal
-  LITERAL = T.let(1 << 0, Integer)
+  LITERAL = T.let(1 << 2, Integer)
   # constant writes that should be modified with shareable constant value experimental everything
-  EXPERIMENTAL_EVERYTHING = T.let(1 << 1, Integer)
+  EXPERIMENTAL_EVERYTHING = T.let(1 << 3, Integer)
   # constant writes that should be modified with shareable constant value experimental copy
-  EXPERIMENTAL_COPY = T.let(1 << 2, Integer)
+  EXPERIMENTAL_COPY = T.let(1 << 4, Integer)
 end
 
 # Flags for string nodes.
 module Prism::StringFlags
   # internal bytes forced the encoding to UTF-8
-  FORCED_UTF8_ENCODING = T.let(1 << 0, Integer)
+  FORCED_UTF8_ENCODING = T.let(1 << 2, Integer)
   # internal bytes forced the encoding to binary
-  FORCED_BINARY_ENCODING = T.let(1 << 1, Integer)
+  FORCED_BINARY_ENCODING = T.let(1 << 3, Integer)
   # frozen by virtue of a `frozen_string_literal: true` comment or `--enable-frozen-string-literal`
-  FROZEN = T.let(1 << 2, Integer)
+  FROZEN = T.let(1 << 4, Integer)
   # mutable by virtue of a `frozen_string_literal: false` comment or `--disable-frozen-string-literal`
-  MUTABLE = T.let(1 << 3, Integer)
+  MUTABLE = T.let(1 << 5, Integer)
 end
 
 # Flags for symbol nodes.
 module Prism::SymbolFlags
   # internal bytes forced the encoding to UTF-8
-  FORCED_UTF8_ENCODING = T.let(1 << 0, Integer)
+  FORCED_UTF8_ENCODING = T.let(1 << 2, Integer)
   # internal bytes forced the encoding to binary
-  FORCED_BINARY_ENCODING = T.let(1 << 1, Integer)
+  FORCED_BINARY_ENCODING = T.let(1 << 3, Integer)
   # internal bytes forced the encoding to US-ASCII
-  FORCED_US_ASCII_ENCODING = T.let(1 << 2, Integer)
+  FORCED_US_ASCII_ENCODING = T.let(1 << 4, Integer)
 end
 
 # The flags that are common to all nodes.
