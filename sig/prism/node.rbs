@@ -199,16 +199,16 @@ module Prism
   class ArrayPatternNode < Node
     include _Node
 
-    attr_reader constant: Prism::node?
+    attr_reader constant: ConstantReadNode | ConstantPathNode | nil
     attr_reader requireds: Array[Prism::node]
     attr_reader rest: Prism::node?
     attr_reader posts: Array[Prism::node]
     attr_reader opening_loc: Location?
     attr_reader closing_loc: Location?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? constant, Array[Prism::node] requireds, Prism::node? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: Prism::node?, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: Prism::node?, requireds: Array[Prism::node], rest: Prism::node?, posts: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantReadNode | ConstantPathNode | nil constant, Array[Prism::node] requireds, Prism::node? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, requireds: Array[Prism::node], rest: Prism::node?, posts: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
     def opening: () -> String?
     def closing: () -> String?
     def type: () -> :array_pattern_node
@@ -498,11 +498,11 @@ module Prism
     attr_reader opening_loc: Location?
     attr_reader arguments: ArgumentsNode?
     attr_reader closing_loc: Location?
-    attr_reader block: Prism::node?
+    attr_reader block: BlockNode | BlockArgumentNode | nil
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Symbol name, Location? message_loc, Location? opening_loc, ArgumentsNode? arguments, Location? closing_loc, Prism::node? block) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?name: Symbol, ?message_loc: Location?, ?opening_loc: Location?, ?arguments: ArgumentsNode?, ?closing_loc: Location?, ?block: Prism::node?) -> CallNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, name: Symbol, message_loc: Location?, opening_loc: Location?, arguments: ArgumentsNode?, closing_loc: Location?, block: Prism::node? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Symbol name, Location? message_loc, Location? opening_loc, ArgumentsNode? arguments, Location? closing_loc, BlockNode | BlockArgumentNode | nil block) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?name: Symbol, ?message_loc: Location?, ?opening_loc: Location?, ?arguments: ArgumentsNode?, ?closing_loc: Location?, ?block: BlockNode | BlockArgumentNode | nil) -> CallNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, name: Symbol, message_loc: Location?, opening_loc: Location?, arguments: ArgumentsNode?, closing_loc: Location?, block: BlockNode | BlockArgumentNode | nil }
     def call_operator: () -> String?
     def message: () -> String?
     def opening: () -> String?
@@ -626,12 +626,12 @@ module Prism
     include _Node
 
     attr_reader value: Prism::node
-    attr_reader target: Prism::node
+    attr_reader target: LocalVariableTargetNode
     attr_reader operator_loc: Location
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node value, Prism::node target, Location operator_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node, ?target: Prism::node, ?operator_loc: Location) -> CapturePatternNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node, target: Prism::node, operator_loc: Location }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node value, LocalVariableTargetNode target, Location operator_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node, ?target: LocalVariableTargetNode, ?operator_loc: Location) -> CapturePatternNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node, target: LocalVariableTargetNode, operator_loc: Location }
     def operator: () -> String
     def type: () -> :capture_pattern_node
             | ...
@@ -648,14 +648,14 @@ module Prism
     include _Node
 
     attr_reader predicate: Prism::node?
-    attr_reader conditions: Array[Prism::node]
+    attr_reader conditions: Array[InNode]
     attr_reader else_clause: ElseNode?
     attr_reader case_keyword_loc: Location
     attr_reader end_keyword_loc: Location
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? predicate, Array[Prism::node] conditions, ElseNode? else_clause, Location case_keyword_loc, Location end_keyword_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseMatchNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[Prism::node], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? predicate, Array[InNode] conditions, ElseNode? else_clause, Location case_keyword_loc, Location end_keyword_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[InNode], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseMatchNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[InNode], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
     def case_keyword: () -> String
     def end_keyword: () -> String
     def type: () -> :case_match_node
@@ -673,14 +673,14 @@ module Prism
     include _Node
 
     attr_reader predicate: Prism::node?
-    attr_reader conditions: Array[Prism::node]
+    attr_reader conditions: Array[WhenNode]
     attr_reader else_clause: ElseNode?
     attr_reader case_keyword_loc: Location
     attr_reader end_keyword_loc: Location
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? predicate, Array[Prism::node] conditions, ElseNode? else_clause, Location case_keyword_loc, Location end_keyword_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[Prism::node], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[Prism::node], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? predicate, Array[WhenNode] conditions, ElseNode? else_clause, Location case_keyword_loc, Location end_keyword_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[WhenNode], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[WhenNode], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
     def case_keyword: () -> String
     def end_keyword: () -> String
     def type: () -> :case_node
@@ -697,16 +697,16 @@ module Prism
 
     attr_reader locals: Array[Symbol]
     attr_reader class_keyword_loc: Location
-    attr_reader constant_path: Prism::node
+    attr_reader constant_path: ConstantReadNode | ConstantPathNode | CallNode
     attr_reader inheritance_operator_loc: Location?
     attr_reader superclass: Prism::node?
-    attr_reader body: Prism::node?
+    attr_reader body: StatementsNode | BeginNode | nil
     attr_reader end_keyword_loc: Location
     attr_reader name: Symbol
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Symbol] locals, Location class_keyword_loc, Prism::node constant_path, Location? inheritance_operator_loc, Prism::node? superclass, Prism::node? body, Location end_keyword_loc, Symbol name) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?class_keyword_loc: Location, ?constant_path: Prism::node, ?inheritance_operator_loc: Location?, ?superclass: Prism::node?, ?body: Prism::node?, ?end_keyword_loc: Location, ?name: Symbol) -> ClassNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], class_keyword_loc: Location, constant_path: Prism::node, inheritance_operator_loc: Location?, superclass: Prism::node?, body: Prism::node?, end_keyword_loc: Location, name: Symbol }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Symbol] locals, Location class_keyword_loc, ConstantReadNode | ConstantPathNode | CallNode constant_path, Location? inheritance_operator_loc, Prism::node? superclass, StatementsNode | BeginNode | nil body, Location end_keyword_loc, Symbol name) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?class_keyword_loc: Location, ?constant_path: ConstantReadNode | ConstantPathNode | CallNode, ?inheritance_operator_loc: Location?, ?superclass: Prism::node?, ?body: StatementsNode | BeginNode | nil, ?end_keyword_loc: Location, ?name: Symbol) -> ClassNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], class_keyword_loc: Location, constant_path: ConstantReadNode | ConstantPathNode | CallNode, inheritance_operator_loc: Location?, superclass: Prism::node?, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location, name: Symbol }
     def class_keyword: () -> String
     def inheritance_operator: () -> String?
     def end_keyword: () -> String
@@ -1091,7 +1091,7 @@ module Prism
     attr_reader name_loc: Location
     attr_reader receiver: Prism::node?
     attr_reader parameters: ParametersNode?
-    attr_reader body: Prism::node?
+    attr_reader body: StatementsNode | BeginNode | nil
     attr_reader locals: Array[Symbol]
     attr_reader def_keyword_loc: Location
     attr_reader operator_loc: Location?
@@ -1100,9 +1100,9 @@ module Prism
     attr_reader equal_loc: Location?
     attr_reader end_keyword_loc: Location?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Symbol name, Location name_loc, Prism::node? receiver, ParametersNode? parameters, Prism::node? body, Array[Symbol] locals, Location def_keyword_loc, Location? operator_loc, Location? lparen_loc, Location? rparen_loc, Location? equal_loc, Location? end_keyword_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?receiver: Prism::node?, ?parameters: ParametersNode?, ?body: Prism::node?, ?locals: Array[Symbol], ?def_keyword_loc: Location, ?operator_loc: Location?, ?lparen_loc: Location?, ?rparen_loc: Location?, ?equal_loc: Location?, ?end_keyword_loc: Location?) -> DefNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, receiver: Prism::node?, parameters: ParametersNode?, body: Prism::node?, locals: Array[Symbol], def_keyword_loc: Location, operator_loc: Location?, lparen_loc: Location?, rparen_loc: Location?, equal_loc: Location?, end_keyword_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Symbol name, Location name_loc, Prism::node? receiver, ParametersNode? parameters, StatementsNode | BeginNode | nil body, Array[Symbol] locals, Location def_keyword_loc, Location? operator_loc, Location? lparen_loc, Location? rparen_loc, Location? equal_loc, Location? end_keyword_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?receiver: Prism::node?, ?parameters: ParametersNode?, ?body: StatementsNode | BeginNode | nil, ?locals: Array[Symbol], ?def_keyword_loc: Location, ?operator_loc: Location?, ?lparen_loc: Location?, ?rparen_loc: Location?, ?equal_loc: Location?, ?end_keyword_loc: Location?) -> DefNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, receiver: Prism::node?, parameters: ParametersNode?, body: StatementsNode | BeginNode | nil, locals: Array[Symbol], def_keyword_loc: Location, operator_loc: Location?, lparen_loc: Location?, rparen_loc: Location?, equal_loc: Location?, end_keyword_loc: Location? }
     def def_keyword: () -> String
     def operator: () -> String?
     def lparen: () -> String?
@@ -1187,11 +1187,11 @@ module Prism
     include _Node
 
     attr_reader operator_loc: Location
-    attr_reader variable: Prism::node
+    attr_reader variable: InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location operator_loc, Prism::node variable) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?operator_loc: Location, ?variable: Prism::node) -> EmbeddedVariableNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, variable: Prism::node }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location operator_loc, InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode variable) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?operator_loc: Location, ?variable: InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode) -> EmbeddedVariableNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, variable: InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode }
     def operator: () -> String
     def type: () -> :embedded_variable_node
             | ...
@@ -1252,16 +1252,16 @@ module Prism
   class FindPatternNode < Node
     include _Node
 
-    attr_reader constant: Prism::node?
-    attr_reader left: Prism::node
+    attr_reader constant: ConstantReadNode | ConstantPathNode | nil
+    attr_reader left: SplatNode
     attr_reader requireds: Array[Prism::node]
-    attr_reader right: Prism::node
+    attr_reader right: SplatNode | MissingNode
     attr_reader opening_loc: Location?
     attr_reader closing_loc: Location?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? constant, Prism::node left, Array[Prism::node] requireds, Prism::node right, Location? opening_loc, Location? closing_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: Prism::node?, ?left: Prism::node, ?requireds: Array[Prism::node], ?right: Prism::node, ?opening_loc: Location?, ?closing_loc: Location?) -> FindPatternNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: Prism::node?, left: Prism::node, requireds: Array[Prism::node], right: Prism::node, opening_loc: Location?, closing_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantReadNode | ConstantPathNode | nil constant, SplatNode left, Array[Prism::node] requireds, SplatNode | MissingNode right, Location? opening_loc, Location? closing_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?left: SplatNode, ?requireds: Array[Prism::node], ?right: SplatNode | MissingNode, ?opening_loc: Location?, ?closing_loc: Location?) -> FindPatternNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, left: SplatNode, requireds: Array[Prism::node], right: SplatNode | MissingNode, opening_loc: Location?, closing_loc: Location? }
     def opening: () -> String?
     def closing: () -> String?
     def type: () -> :find_pattern_node
@@ -1315,7 +1315,7 @@ module Prism
   class ForNode < Node
     include _Node
 
-    attr_reader index: Prism::node
+    attr_reader index: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode
     attr_reader collection: Prism::node
     attr_reader statements: StatementsNode?
     attr_reader for_keyword_loc: Location
@@ -1323,9 +1323,9 @@ module Prism
     attr_reader do_keyword_loc: Location?
     attr_reader end_keyword_loc: Location
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node index, Prism::node collection, StatementsNode? statements, Location for_keyword_loc, Location in_keyword_loc, Location? do_keyword_loc, Location end_keyword_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?index: Prism::node, ?collection: Prism::node, ?statements: StatementsNode?, ?for_keyword_loc: Location, ?in_keyword_loc: Location, ?do_keyword_loc: Location?, ?end_keyword_loc: Location) -> ForNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, index: Prism::node, collection: Prism::node, statements: StatementsNode?, for_keyword_loc: Location, in_keyword_loc: Location, do_keyword_loc: Location?, end_keyword_loc: Location }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode index, Prism::node collection, StatementsNode? statements, Location for_keyword_loc, Location in_keyword_loc, Location? do_keyword_loc, Location end_keyword_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?index: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode, ?collection: Prism::node, ?statements: StatementsNode?, ?for_keyword_loc: Location, ?in_keyword_loc: Location, ?do_keyword_loc: Location?, ?end_keyword_loc: Location) -> ForNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, index: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode, collection: Prism::node, statements: StatementsNode?, for_keyword_loc: Location, in_keyword_loc: Location, do_keyword_loc: Location?, end_keyword_loc: Location }
     def for_keyword: () -> String
     def in_keyword: () -> String
     def do_keyword: () -> String?
@@ -1536,15 +1536,15 @@ module Prism
   class HashPatternNode < Node
     include _Node
 
-    attr_reader constant: Prism::node?
+    attr_reader constant: ConstantReadNode | ConstantPathNode | nil
     attr_reader elements: Array[AssocNode]
     attr_reader rest: AssocSplatNode | NoKeywordsParameterNode | nil
     attr_reader opening_loc: Location?
     attr_reader closing_loc: Location?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? constant, Array[AssocNode] elements, AssocSplatNode | NoKeywordsParameterNode | nil rest, Location? opening_loc, Location? closing_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: Prism::node?, ?elements: Array[AssocNode], ?rest: AssocSplatNode | NoKeywordsParameterNode | nil, ?opening_loc: Location?, ?closing_loc: Location?) -> HashPatternNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: Prism::node?, elements: Array[AssocNode], rest: AssocSplatNode | NoKeywordsParameterNode | nil, opening_loc: Location?, closing_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantReadNode | ConstantPathNode | nil constant, Array[AssocNode] elements, AssocSplatNode | NoKeywordsParameterNode | nil rest, Location? opening_loc, Location? closing_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?elements: Array[AssocNode], ?rest: AssocSplatNode | NoKeywordsParameterNode | nil, ?opening_loc: Location?, ?closing_loc: Location?) -> HashPatternNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, elements: Array[AssocNode], rest: AssocSplatNode | NoKeywordsParameterNode | nil, opening_loc: Location?, closing_loc: Location? }
     def opening: () -> String?
     def closing: () -> String?
     def type: () -> :hash_pattern_node
@@ -1613,11 +1613,11 @@ module Prism
   class ImplicitNode < Node
     include _Node
 
-    attr_reader value: Prism::node
+    attr_reader value: LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node value) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node) -> ImplicitNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode value) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode) -> ImplicitNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode }
     def type: () -> :implicit_node
             | ...
     def self.type: () -> :implicit_node
@@ -1690,13 +1690,13 @@ module Prism
     attr_reader opening_loc: Location
     attr_reader arguments: ArgumentsNode?
     attr_reader closing_loc: Location
-    attr_reader block: Prism::node?
+    attr_reader block: BlockArgumentNode?
     attr_reader operator_loc: Location
     attr_reader value: Prism::node
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Location opening_loc, ArgumentsNode? arguments, Location closing_loc, Prism::node? block, Location operator_loc, Prism::node value) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: Prism::node?, ?operator_loc: Location, ?value: Prism::node) -> IndexAndWriteNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: Prism::node?, operator_loc: Location, value: Prism::node }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Location opening_loc, ArgumentsNode? arguments, Location closing_loc, BlockArgumentNode? block, Location operator_loc, Prism::node value) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: BlockArgumentNode?, ?operator_loc: Location, ?value: Prism::node) -> IndexAndWriteNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, operator_loc: Location, value: Prism::node }
     def call_operator: () -> String?
     def opening: () -> String
     def closing: () -> String
@@ -1726,14 +1726,14 @@ module Prism
     attr_reader opening_loc: Location
     attr_reader arguments: ArgumentsNode?
     attr_reader closing_loc: Location
-    attr_reader block: Prism::node?
+    attr_reader block: BlockArgumentNode?
     attr_reader binary_operator: Symbol
     attr_reader binary_operator_loc: Location
     attr_reader value: Prism::node
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Location opening_loc, ArgumentsNode? arguments, Location closing_loc, Prism::node? block, Symbol binary_operator, Location binary_operator_loc, Prism::node value) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: Prism::node?, ?binary_operator: Symbol, ?binary_operator_loc: Location, ?value: Prism::node) -> IndexOperatorWriteNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: Prism::node?, binary_operator: Symbol, binary_operator_loc: Location, value: Prism::node }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Location opening_loc, ArgumentsNode? arguments, Location closing_loc, BlockArgumentNode? block, Symbol binary_operator, Location binary_operator_loc, Prism::node value) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: BlockArgumentNode?, ?binary_operator: Symbol, ?binary_operator_loc: Location, ?value: Prism::node) -> IndexOperatorWriteNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, binary_operator: Symbol, binary_operator_loc: Location, value: Prism::node }
     def call_operator: () -> String?
     def opening: () -> String
     def closing: () -> String
@@ -1762,13 +1762,13 @@ module Prism
     attr_reader opening_loc: Location
     attr_reader arguments: ArgumentsNode?
     attr_reader closing_loc: Location
-    attr_reader block: Prism::node?
+    attr_reader block: BlockArgumentNode?
     attr_reader operator_loc: Location
     attr_reader value: Prism::node
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Location opening_loc, ArgumentsNode? arguments, Location closing_loc, Prism::node? block, Location operator_loc, Prism::node value) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: Prism::node?, ?operator_loc: Location, ?value: Prism::node) -> IndexOrWriteNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: Prism::node?, operator_loc: Location, value: Prism::node }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Location opening_loc, ArgumentsNode? arguments, Location closing_loc, BlockArgumentNode? block, Location operator_loc, Prism::node value) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: BlockArgumentNode?, ?operator_loc: Location, ?value: Prism::node) -> IndexOrWriteNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, operator_loc: Location, value: Prism::node }
     def call_operator: () -> String?
     def opening: () -> String
     def closing: () -> String
@@ -1805,11 +1805,11 @@ module Prism
     attr_reader opening_loc: Location
     attr_reader arguments: ArgumentsNode?
     attr_reader closing_loc: Location
-    attr_reader block: Prism::node?
+    attr_reader block: BlockArgumentNode?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node receiver, Location opening_loc, ArgumentsNode? arguments, Location closing_loc, Prism::node? block) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: Prism::node?) -> IndexTargetNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: Prism::node? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node receiver, Location opening_loc, ArgumentsNode? arguments, Location closing_loc, BlockArgumentNode? block) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: BlockArgumentNode?) -> IndexTargetNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode? }
     def opening: () -> String
     def closing: () -> String
     def type: () -> :index_target_node
@@ -2198,12 +2198,12 @@ module Prism
     attr_reader operator_loc: Location
     attr_reader opening_loc: Location
     attr_reader closing_loc: Location
-    attr_reader parameters: Prism::node?
-    attr_reader body: Prism::node?
+    attr_reader parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil
+    attr_reader body: StatementsNode | BeginNode | nil
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Symbol] locals, Location operator_loc, Location opening_loc, Location closing_loc, Prism::node? parameters, Prism::node? body) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?operator_loc: Location, ?opening_loc: Location, ?closing_loc: Location, ?parameters: Prism::node?, ?body: Prism::node?) -> LambdaNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], operator_loc: Location, opening_loc: Location, closing_loc: Location, parameters: Prism::node?, body: Prism::node? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Symbol] locals, Location operator_loc, Location opening_loc, Location closing_loc, BlockParametersNode | NumberedParametersNode | ItParametersNode | nil parameters, StatementsNode | BeginNode | nil body) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?operator_loc: Location, ?opening_loc: Location, ?closing_loc: Location, ?parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, ?body: StatementsNode | BeginNode | nil) -> LambdaNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], operator_loc: Location, opening_loc: Location, closing_loc: Location, parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, body: StatementsNode | BeginNode | nil }
     def operator: () -> String
     def opening: () -> String
     def closing: () -> String
@@ -2461,14 +2461,14 @@ module Prism
 
     attr_reader locals: Array[Symbol]
     attr_reader module_keyword_loc: Location
-    attr_reader constant_path: Prism::node
-    attr_reader body: Prism::node?
+    attr_reader constant_path: ConstantReadNode | ConstantPathNode | MissingNode
+    attr_reader body: StatementsNode | BeginNode | nil
     attr_reader end_keyword_loc: Location
     attr_reader name: Symbol
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Symbol] locals, Location module_keyword_loc, Prism::node constant_path, Prism::node? body, Location end_keyword_loc, Symbol name) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?module_keyword_loc: Location, ?constant_path: Prism::node, ?body: Prism::node?, ?end_keyword_loc: Location, ?name: Symbol) -> ModuleNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], module_keyword_loc: Location, constant_path: Prism::node, body: Prism::node?, end_keyword_loc: Location, name: Symbol }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Symbol] locals, Location module_keyword_loc, ConstantReadNode | ConstantPathNode | MissingNode constant_path, StatementsNode | BeginNode | nil body, Location end_keyword_loc, Symbol name) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?module_keyword_loc: Location, ?constant_path: ConstantReadNode | ConstantPathNode | MissingNode, ?body: StatementsNode | BeginNode | nil, ?end_keyword_loc: Location, ?name: Symbol) -> ModuleNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], module_keyword_loc: Location, constant_path: ConstantReadNode | ConstantPathNode | MissingNode, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location, name: Symbol }
     def module_keyword: () -> String
     def end_keyword: () -> String
     def type: () -> :module_node
@@ -2490,13 +2490,13 @@ module Prism
 
     attr_reader lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode]
     attr_reader rest: ImplicitRestNode | SplatNode | nil
-    attr_reader rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode]
+    attr_reader rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode]
     attr_reader lparen_loc: Location?
     attr_reader rparen_loc: Location?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode] lefts, ImplicitRestNode | SplatNode | nil rest, Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode] rights, Location? lparen_loc, Location? rparen_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], ?rest: ImplicitRestNode | SplatNode | nil, ?rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode], ?lparen_loc: Location?, ?rparen_loc: Location?) -> MultiTargetNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], rest: ImplicitRestNode | SplatNode | nil, rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode], lparen_loc: Location?, rparen_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode] lefts, ImplicitRestNode | SplatNode | nil rest, Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode] rights, Location? lparen_loc, Location? rparen_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], ?rest: ImplicitRestNode | SplatNode | nil, ?rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], ?lparen_loc: Location?, ?rparen_loc: Location?) -> MultiTargetNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], rest: ImplicitRestNode | SplatNode | nil, rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], lparen_loc: Location?, rparen_loc: Location? }
     def lparen: () -> String?
     def rparen: () -> String?
     def type: () -> :multi_target_node
@@ -2511,17 +2511,17 @@ module Prism
   class MultiWriteNode < Node
     include _Node
 
-    attr_reader lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode]
+    attr_reader lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode]
     attr_reader rest: ImplicitRestNode | SplatNode | nil
-    attr_reader rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode]
+    attr_reader rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode]
     attr_reader lparen_loc: Location?
     attr_reader rparen_loc: Location?
     attr_reader operator_loc: Location
     attr_reader value: Prism::node
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode] lefts, ImplicitRestNode | SplatNode | nil rest, Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode] rights, Location? lparen_loc, Location? rparen_loc, Location operator_loc, Prism::node value) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode], ?rest: ImplicitRestNode | SplatNode | nil, ?rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode], ?lparen_loc: Location?, ?rparen_loc: Location?, ?operator_loc: Location, ?value: Prism::node) -> MultiWriteNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode], rest: ImplicitRestNode | SplatNode | nil, rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode], lparen_loc: Location?, rparen_loc: Location?, operator_loc: Location, value: Prism::node }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode] lefts, ImplicitRestNode | SplatNode | nil rest, Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode] rights, Location? lparen_loc, Location? rparen_loc, Location operator_loc, Prism::node value) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], ?rest: ImplicitRestNode | SplatNode | nil, ?rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], ?lparen_loc: Location?, ?rparen_loc: Location?, ?operator_loc: Location, ?value: Prism::node) -> MultiWriteNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], rest: ImplicitRestNode | SplatNode | nil, rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], lparen_loc: Location?, rparen_loc: Location?, operator_loc: Location, value: Prism::node }
     def lparen: () -> String?
     def rparen: () -> String?
     def operator: () -> String
@@ -2761,12 +2761,12 @@ module Prism
   class PinnedVariableNode < Node
     include _Node
 
-    attr_reader variable: Prism::node
+    attr_reader variable: LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode
     attr_reader operator_loc: Location
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node variable, Location operator_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?variable: Prism::node, ?operator_loc: Location) -> PinnedVariableNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, variable: Prism::node, operator_loc: Location }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode variable, Location operator_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?variable: LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode, ?operator_loc: Location) -> PinnedVariableNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, variable: LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode, operator_loc: Location }
     def operator: () -> String
     def type: () -> :pinned_variable_node
             | ...
@@ -3022,13 +3022,13 @@ module Prism
     attr_reader keyword_loc: Location
     attr_reader exceptions: Array[Prism::node]
     attr_reader operator_loc: Location?
-    attr_reader reference: Prism::node?
+    attr_reader reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil
     attr_reader statements: StatementsNode?
     attr_reader subsequent: RescueNode?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Array[Prism::node] exceptions, Location? operator_loc, Prism::node? reference, StatementsNode? statements, RescueNode? subsequent) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: Prism::node?, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: Prism::node?, statements: StatementsNode?, subsequent: RescueNode? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Array[Prism::node] exceptions, Location? operator_loc, LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil reference, StatementsNode? statements, RescueNode? subsequent) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, statements: StatementsNode?, subsequent: RescueNode? }
     def keyword: () -> String
     def operator: () -> String?
     def type: () -> :rescue_node
@@ -3145,12 +3145,12 @@ module Prism
     attr_reader class_keyword_loc: Location
     attr_reader operator_loc: Location
     attr_reader expression: Prism::node
-    attr_reader body: Prism::node?
+    attr_reader body: StatementsNode | BeginNode | nil
     attr_reader end_keyword_loc: Location
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Symbol] locals, Location class_keyword_loc, Location operator_loc, Prism::node expression, Prism::node? body, Location end_keyword_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?class_keyword_loc: Location, ?operator_loc: Location, ?expression: Prism::node, ?body: Prism::node?, ?end_keyword_loc: Location) -> SingletonClassNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], class_keyword_loc: Location, operator_loc: Location, expression: Prism::node, body: Prism::node?, end_keyword_loc: Location }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[Symbol] locals, Location class_keyword_loc, Location operator_loc, Prism::node expression, StatementsNode | BeginNode | nil body, Location end_keyword_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?class_keyword_loc: Location, ?operator_loc: Location, ?expression: Prism::node, ?body: StatementsNode | BeginNode | nil, ?end_keyword_loc: Location) -> SingletonClassNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], class_keyword_loc: Location, operator_loc: Location, expression: Prism::node, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location }
     def class_keyword: () -> String
     def operator: () -> String
     def end_keyword: () -> String
@@ -3303,11 +3303,11 @@ module Prism
     attr_reader lparen_loc: Location?
     attr_reader arguments: ArgumentsNode?
     attr_reader rparen_loc: Location?
-    attr_reader block: Prism::node?
+    attr_reader block: BlockNode | BlockArgumentNode | nil
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Location? lparen_loc, ArgumentsNode? arguments, Location? rparen_loc, Prism::node? block) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?lparen_loc: Location?, ?arguments: ArgumentsNode?, ?rparen_loc: Location?, ?block: Prism::node?) -> SuperNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, lparen_loc: Location?, arguments: ArgumentsNode?, rparen_loc: Location?, block: Prism::node? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Location? lparen_loc, ArgumentsNode? arguments, Location? rparen_loc, BlockNode | BlockArgumentNode | nil block) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?lparen_loc: Location?, ?arguments: ArgumentsNode?, ?rparen_loc: Location?, ?block: BlockNode | BlockArgumentNode | nil) -> SuperNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, lparen_loc: Location?, arguments: ArgumentsNode?, rparen_loc: Location?, block: BlockNode | BlockArgumentNode | nil }
     def keyword: () -> String
     def lparen: () -> String?
     def rparen: () -> String?

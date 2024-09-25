@@ -1235,7 +1235,7 @@ typedef struct pm_and_node {
     /**
      * AndNode#right
      *
-     * Represents the right side of the expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+     * Represents the right side of the expression.
      *
      *     left && right
      *             ^^^^^
@@ -2107,7 +2107,7 @@ typedef struct pm_capture_pattern_node {
     /**
      * CapturePatternNode#target
      */
-    struct pm_node *target;
+    struct pm_local_variable_target_node *target;
 
     /**
      * CapturePatternNode#operator_loc
@@ -3263,7 +3263,7 @@ typedef struct pm_find_pattern_node {
     /**
      * FindPatternNode#left
      */
-    struct pm_node *left;
+    struct pm_splat_node *left;
 
     /**
      * FindPatternNode#requireds
@@ -4087,7 +4087,7 @@ typedef struct pm_index_and_write_node {
     /**
      * IndexAndWriteNode#block
      */
-    struct pm_node *block;
+    struct pm_block_argument_node *block;
 
     /**
      * IndexAndWriteNode#operator_loc
@@ -4149,7 +4149,7 @@ typedef struct pm_index_operator_write_node {
     /**
      * IndexOperatorWriteNode#block
      */
-    struct pm_node *block;
+    struct pm_block_argument_node *block;
 
     /**
      * IndexOperatorWriteNode#binary_operator
@@ -4216,7 +4216,7 @@ typedef struct pm_index_or_write_node {
     /**
      * IndexOrWriteNode#block
      */
-    struct pm_node *block;
+    struct pm_block_argument_node *block;
 
     /**
      * IndexOrWriteNode#operator_loc
@@ -4281,7 +4281,7 @@ typedef struct pm_index_target_node {
     /**
      * IndexTargetNode#block
      */
-    struct pm_node *block;
+    struct pm_block_argument_node *block;
 } pm_index_target_node_t;
 
 /**
@@ -5769,7 +5769,7 @@ typedef struct pm_or_node {
     /**
      * OrNode#right
      *
-     * Represents the right side of the expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+     * Represents the right side of the expression.
      *
      *     left || right
      *             ^^^^^
@@ -7295,6 +7295,6 @@ typedef enum pm_symbol_flags {
  * to specify that through the environment. It will never be true except for in
  * those build systems.
  */
-#define PRISM_SERIALIZE_ONLY_SEMANTICS_FIELDS false
+#define PRISM_SERIALIZE_ONLY_SEMANTICS_FIELDS 0
 
 #endif

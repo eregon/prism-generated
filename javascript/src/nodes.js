@@ -2924,7 +2924,7 @@ export class CapturePatternNode {
   value;
 
   /**
-   * @type Node
+   * @type LocalVariableTargetNode
    */
   target;
 
@@ -2940,7 +2940,7 @@ export class CapturePatternNode {
    * @param {Location} location
    * @param {number} flags
    * @param {Node} value
-   * @param {Node} target
+   * @param {LocalVariableTargetNode} target
    * @param {Location} operatorLoc
    */
   constructor(nodeID, location, flags, value, target, operatorLoc) {
@@ -6078,7 +6078,7 @@ export class FindPatternNode {
   constant;
 
   /**
-   * @type Node
+   * @type SplatNode
    */
   left;
 
@@ -6109,7 +6109,7 @@ export class FindPatternNode {
    * @param {Location} location
    * @param {number} flags
    * @param {Node | null} constant
-   * @param {Node} left
+   * @param {SplatNode} left
    * @param {Node[]} requireds
    * @param {Node} right
    * @param {Location | null} openingLoc
@@ -8175,7 +8175,7 @@ export class IndexAndWriteNode {
   closingLoc;
 
   /**
-   * @type Node | null
+   * @type BlockArgumentNode | null
    */
   block;
 
@@ -8200,7 +8200,7 @@ export class IndexAndWriteNode {
    * @param {Location} openingLoc
    * @param {ArgumentsNode | null} arguments_
    * @param {Location} closingLoc
-   * @param {Node | null} block
+   * @param {BlockArgumentNode | null} block
    * @param {Location} operatorLoc
    * @param {Node} value
    */
@@ -8365,7 +8365,7 @@ export class IndexOperatorWriteNode {
   closingLoc;
 
   /**
-   * @type Node | null
+   * @type BlockArgumentNode | null
    */
   block;
 
@@ -8395,7 +8395,7 @@ export class IndexOperatorWriteNode {
    * @param {Location} openingLoc
    * @param {ArgumentsNode | null} arguments_
    * @param {Location} closingLoc
-   * @param {Node | null} block
+   * @param {BlockArgumentNode | null} block
    * @param {string} binaryOperator
    * @param {Location} binaryOperatorLoc
    * @param {Node} value
@@ -8563,7 +8563,7 @@ export class IndexOrWriteNode {
   closingLoc;
 
   /**
-   * @type Node | null
+   * @type BlockArgumentNode | null
    */
   block;
 
@@ -8588,7 +8588,7 @@ export class IndexOrWriteNode {
    * @param {Location} openingLoc
    * @param {ArgumentsNode | null} arguments_
    * @param {Location} closingLoc
-   * @param {Node | null} block
+   * @param {BlockArgumentNode | null} block
    * @param {Location} operatorLoc
    * @param {Node} value
    */
@@ -8756,7 +8756,7 @@ export class IndexTargetNode {
   closingLoc;
 
   /**
-   * @type Node | null
+   * @type BlockArgumentNode | null
    */
   block;
 
@@ -8770,7 +8770,7 @@ export class IndexTargetNode {
    * @param {Location} openingLoc
    * @param {ArgumentsNode | null} arguments_
    * @param {Location} closingLoc
-   * @param {Node | null} block
+   * @param {BlockArgumentNode | null} block
    */
   constructor(nodeID, location, flags, receiver, openingLoc, arguments_, closingLoc, block) {
     this.nodeID = nodeID;

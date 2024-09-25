@@ -184,7 +184,7 @@ module Prism
     end
 
     # Create a new CapturePatternNode node.
-    def capture_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, value: default_node(source, location), target: default_node(source, location), operator_loc: location)
+    def capture_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, value: default_node(source, location), target: local_variable_target_node(source: source), operator_loc: location)
       CapturePatternNode.new(source, node_id, location, flags, value, target, operator_loc)
     end
 
@@ -199,7 +199,7 @@ module Prism
     end
 
     # Create a new ClassNode node.
-    def class_node(source: default_source, node_id: 0, location: default_location, flags: 0, locals: [], class_keyword_loc: location, constant_path: default_node(source, location), inheritance_operator_loc: nil, superclass: nil, body: nil, end_keyword_loc: location, name: :"")
+    def class_node(source: default_source, node_id: 0, location: default_location, flags: 0, locals: [], class_keyword_loc: location, constant_path: constant_read_node(source: source), inheritance_operator_loc: nil, superclass: nil, body: nil, end_keyword_loc: location, name: :"")
       ClassNode.new(source, node_id, location, flags, locals, class_keyword_loc, constant_path, inheritance_operator_loc, superclass, body, end_keyword_loc, name)
     end
 
@@ -314,7 +314,7 @@ module Prism
     end
 
     # Create a new EmbeddedVariableNode node.
-    def embedded_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, operator_loc: location, variable: default_node(source, location))
+    def embedded_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, operator_loc: location, variable: instance_variable_read_node(source: source))
       EmbeddedVariableNode.new(source, node_id, location, flags, operator_loc, variable)
     end
 
@@ -329,7 +329,7 @@ module Prism
     end
 
     # Create a new FindPatternNode node.
-    def find_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, constant: nil, left: default_node(source, location), requireds: [], right: default_node(source, location), opening_loc: nil, closing_loc: nil)
+    def find_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, constant: nil, left: splat_node(source: source), requireds: [], right: splat_node(source: source), opening_loc: nil, closing_loc: nil)
       FindPatternNode.new(source, node_id, location, flags, constant, left, requireds, right, opening_loc, closing_loc)
     end
 
@@ -344,7 +344,7 @@ module Prism
     end
 
     # Create a new ForNode node.
-    def for_node(source: default_source, node_id: 0, location: default_location, flags: 0, index: default_node(source, location), collection: default_node(source, location), statements: nil, for_keyword_loc: location, in_keyword_loc: location, do_keyword_loc: nil, end_keyword_loc: location)
+    def for_node(source: default_source, node_id: 0, location: default_location, flags: 0, index: local_variable_target_node(source: source), collection: default_node(source, location), statements: nil, for_keyword_loc: location, in_keyword_loc: location, do_keyword_loc: nil, end_keyword_loc: location)
       ForNode.new(source, node_id, location, flags, index, collection, statements, for_keyword_loc, in_keyword_loc, do_keyword_loc, end_keyword_loc)
     end
 
@@ -414,7 +414,7 @@ module Prism
     end
 
     # Create a new ImplicitNode node.
-    def implicit_node(source: default_source, node_id: 0, location: default_location, flags: 0, value: default_node(source, location))
+    def implicit_node(source: default_source, node_id: 0, location: default_location, flags: 0, value: local_variable_read_node(source: source))
       ImplicitNode.new(source, node_id, location, flags, value)
     end
 
@@ -589,7 +589,7 @@ module Prism
     end
 
     # Create a new ModuleNode node.
-    def module_node(source: default_source, node_id: 0, location: default_location, flags: 0, locals: [], module_keyword_loc: location, constant_path: default_node(source, location), body: nil, end_keyword_loc: location, name: :"")
+    def module_node(source: default_source, node_id: 0, location: default_location, flags: 0, locals: [], module_keyword_loc: location, constant_path: constant_read_node(source: source), body: nil, end_keyword_loc: location, name: :"")
       ModuleNode.new(source, node_id, location, flags, locals, module_keyword_loc, constant_path, body, end_keyword_loc, name)
     end
 
@@ -659,7 +659,7 @@ module Prism
     end
 
     # Create a new PinnedVariableNode node.
-    def pinned_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, variable: default_node(source, location), operator_loc: location)
+    def pinned_variable_node(source: default_source, node_id: 0, location: default_location, flags: 0, variable: local_variable_read_node(source: source), operator_loc: location)
       PinnedVariableNode.new(source, node_id, location, flags, variable, operator_loc)
     end
 

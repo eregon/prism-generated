@@ -1256,7 +1256,7 @@ public abstract class Nodes {
         public final Node left;
         /**
          * <pre>
-         * Represents the right side of the expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+         * Represents the right side of the expression.
          *
          *     left &amp;&amp; right
          *             ^^^^^
@@ -1472,6 +1472,7 @@ public abstract class Nodes {
      */
     public static final class ArrayPatternNode extends Node {
         @Nullable
+        @UnionType({ ConstantReadNode.class, ConstantPathNode.class })
         public final Node constant;
         public final Node[] requireds;
         @Nullable
@@ -2287,6 +2288,7 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
         @Nullable
+        @UnionType({ BlockNode.class, BlockArgumentNode.class })
         public final Node block;
 
         public CallNode(int startOffset, int length, short flags, Node receiver, String name, ArgumentsNode arguments, Node block) {
@@ -2634,9 +2636,9 @@ public abstract class Nodes {
      */
     public static final class CapturePatternNode extends Node {
         public final Node value;
-        public final Node target;
+        public final LocalVariableTargetNode target;
 
-        public CapturePatternNode(int startOffset, int length, Node value, Node target) {
+        public CapturePatternNode(int startOffset, int length, Node value, LocalVariableTargetNode target) {
             super(startOffset, length);
             this.value = value;
             this.target = target;
@@ -2687,11 +2689,11 @@ public abstract class Nodes {
     public static final class CaseMatchNode extends Node {
         @Nullable
         public final Node predicate;
-        public final Node[] conditions;
+        public final InNode[] conditions;
         @Nullable
         public final ElseNode else_clause;
 
-        public CaseMatchNode(int startOffset, int length, Node predicate, Node[] conditions, ElseNode else_clause) {
+        public CaseMatchNode(int startOffset, int length, Node predicate, InNode[] conditions, ElseNode else_clause) {
             super(startOffset, length);
             this.predicate = predicate;
             this.conditions = conditions;
@@ -2761,11 +2763,11 @@ public abstract class Nodes {
     public static final class CaseNode extends Node {
         @Nullable
         public final Node predicate;
-        public final Node[] conditions;
+        public final WhenNode[] conditions;
         @Nullable
         public final ElseNode else_clause;
 
-        public CaseNode(int startOffset, int length, Node predicate, Node[] conditions, ElseNode else_clause) {
+        public CaseNode(int startOffset, int length, Node predicate, WhenNode[] conditions, ElseNode else_clause) {
             super(startOffset, length);
             this.predicate = predicate;
             this.conditions = conditions;
@@ -2832,10 +2834,12 @@ public abstract class Nodes {
      */
     public static final class ClassNode extends Node {
         public final String[] locals;
+        @UnionType({ ConstantReadNode.class, ConstantPathNode.class, CallNode.class })
         public final Node constant_path;
         @Nullable
         public final Node superclass;
         @Nullable
+        @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
         public final String name;
 
@@ -3920,6 +3924,7 @@ public abstract class Nodes {
         @Nullable
         public final ParametersNode parameters;
         @Nullable
+        @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
         public final String[] locals;
 
@@ -4133,6 +4138,7 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class EmbeddedVariableNode extends Node {
+        @UnionType({ InstanceVariableReadNode.class, ClassVariableReadNode.class, GlobalVariableReadNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class })
         public final Node variable;
 
         public EmbeddedVariableNode(int startOffset, int length, Node variable) {
@@ -4273,12 +4279,14 @@ public abstract class Nodes {
      */
     public static final class FindPatternNode extends Node {
         @Nullable
+        @UnionType({ ConstantReadNode.class, ConstantPathNode.class })
         public final Node constant;
-        public final Node left;
+        public final SplatNode left;
         public final Node[] requireds;
+        @UnionType({ SplatNode.class, MissingNode.class })
         public final Node right;
 
-        public FindPatternNode(int startOffset, int length, Node constant, Node left, Node[] requireds, Node right) {
+        public FindPatternNode(int startOffset, int length, Node constant, SplatNode left, Node[] requireds, Node right) {
             super(startOffset, length);
             this.constant = constant;
             this.left = left;
@@ -4471,6 +4479,7 @@ public abstract class Nodes {
          *         ^
          * </pre>
          */
+        @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, MultiTargetNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class, MissingNode.class })
         public final Node index;
         /**
          * <pre>
@@ -5065,6 +5074,7 @@ public abstract class Nodes {
      */
     public static final class HashPatternNode extends Node {
         @Nullable
+        @UnionType({ ConstantReadNode.class, ConstantPathNode.class })
         public final Node constant;
         public final AssocNode[] elements;
         @Nullable
@@ -5307,6 +5317,7 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ImplicitNode extends Node {
+        @UnionType({ LocalVariableReadNode.class, CallNode.class, ConstantReadNode.class, LocalVariableTargetNode.class })
         public final Node value;
 
         public ImplicitNode(int startOffset, int length, Node value) {
@@ -5457,10 +5468,10 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
         @Nullable
-        public final Node block;
+        public final BlockArgumentNode block;
         public final Node value;
 
-        public IndexAndWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, Node block, Node value) {
+        public IndexAndWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, Node value) {
             super(startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -5550,11 +5561,11 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
         @Nullable
-        public final Node block;
+        public final BlockArgumentNode block;
         public final String binary_operator;
         public final Node value;
 
-        public IndexOperatorWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, Node block, String binary_operator, Node value) {
+        public IndexOperatorWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, String binary_operator, Node value) {
             super(startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -5649,10 +5660,10 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
         @Nullable
-        public final Node block;
+        public final BlockArgumentNode block;
         public final Node value;
 
-        public IndexOrWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, Node block, Node value) {
+        public IndexOrWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, Node value) {
             super(startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -5749,9 +5760,9 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
         @Nullable
-        public final Node block;
+        public final BlockArgumentNode block;
 
-        public IndexTargetNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, Node block) {
+        public IndexTargetNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block) {
             super(startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -6838,8 +6849,10 @@ public abstract class Nodes {
     public static final class LambdaNode extends Node {
         public final String[] locals;
         @Nullable
+        @UnionType({ BlockParametersNode.class, NumberedParametersNode.class, ItParametersNode.class })
         public final Node parameters;
         @Nullable
+        @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
         public LambdaNode(int startOffset, int length, String[] locals, Node parameters, Node body) {
@@ -7579,8 +7592,10 @@ public abstract class Nodes {
      */
     public static final class ModuleNode extends Node {
         public final String[] locals;
+        @UnionType({ ConstantReadNode.class, ConstantPathNode.class, MissingNode.class })
         public final Node constant_path;
         @Nullable
+        @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
         public final String name;
 
@@ -7695,7 +7710,7 @@ public abstract class Nodes {
          *            ^^^^
          * </pre>
          */
-        @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, MultiTargetNode.class, RequiredParameterNode.class, BackReferenceReadNode.class })
+        @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, MultiTargetNode.class, RequiredParameterNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class })
         public final Node[] rights;
 
         public MultiTargetNode(int startOffset, int length, Node[] lefts, Node rest, Node[] rights) {
@@ -7780,7 +7795,7 @@ public abstract class Nodes {
          *     ^^^^^^^
          * </pre>
          */
-        @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, MultiTargetNode.class })
+        @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, MultiTargetNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class })
         public final Node[] lefts;
         /**
          * <pre>
@@ -7811,7 +7826,7 @@ public abstract class Nodes {
          *           ^^^^
          * </pre>
          */
-        @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, MultiTargetNode.class })
+        @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, MultiTargetNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class })
         public final Node[] rights;
         /**
          * <pre>
@@ -8257,7 +8272,7 @@ public abstract class Nodes {
         public final Node left;
         /**
          * <pre>
-         * Represents the right side of the expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+         * Represents the right side of the expression.
          *
          *     left || right
          *             ^^^^^
@@ -8535,6 +8550,7 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class PinnedVariableNode extends Node {
+        @UnionType({ LocalVariableReadNode.class, InstanceVariableReadNode.class, ClassVariableReadNode.class, GlobalVariableReadNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class, ItLocalVariableReadNode.class, MissingNode.class })
         public final Node variable;
 
         public PinnedVariableNode(int startOffset, int length, Node variable) {
@@ -9205,6 +9221,7 @@ public abstract class Nodes {
     public static final class RescueNode extends Node {
         public final Node[] exceptions;
         @Nullable
+        @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class, MissingNode.class })
         public final Node reference;
         @Nullable
         public final StatementsNode statements;
@@ -9536,6 +9553,7 @@ public abstract class Nodes {
         public final String[] locals;
         public final Node expression;
         @Nullable
+        @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
         public SingletonClassNode(int startOffset, int length, String[] locals, Node expression, Node body) {
@@ -9919,6 +9937,7 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
         @Nullable
+        @UnionType({ BlockNode.class, BlockArgumentNode.class })
         public final Node block;
 
         public SuperNode(int startOffset, int length, ArgumentsNode arguments, Node block) {
@@ -10715,6 +10734,7 @@ public abstract class Nodes {
         MODULE_TERM,
         MULTI_ASSIGN_MULTI_SPLATS,
         MULTI_ASSIGN_UNEXPECTED_REST,
+        NESTING_TOO_DEEP,
         NO_LOCAL_VARIABLE,
         NOT_EXPRESSION,
         NUMBER_LITERAL_UNDERSCORE,
@@ -10801,6 +10821,7 @@ public abstract class Nodes {
         UNEXPECTED_BLOCK_ARGUMENT,
         UNEXPECTED_INDEX_BLOCK,
         UNEXPECTED_INDEX_KEYWORDS,
+        UNEXPECTED_LABEL,
         UNEXPECTED_MULTI_WRITE,
         UNEXPECTED_RANGE_OPERATOR,
         UNEXPECTED_SAFE_NAVIGATION,
