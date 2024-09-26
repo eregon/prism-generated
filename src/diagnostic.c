@@ -8,7 +8,7 @@
 
 #include "prism/diagnostic.h"
 
-#define PM_DIAGNOSTIC_ID_MAX 316
+#define PM_DIAGNOSTIC_ID_MAX 317
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -277,6 +277,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_MULTI_ASSIGN_UNEXPECTED_REST]       = { "unexpected '%.*s' resulting in multiple splats in multiple assignment", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_NESTING_TOO_DEEP]                   = { "nesting too deep", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_NO_LOCAL_VARIABLE]                  = { "%.*s: no such local variable", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_NON_ASSOCIATIVE_OPERATOR]           = { "unexpected %s; %s is a non-associative operator", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_NOT_EXPRESSION]                     = { "expected an expression after `not`", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_NUMBER_LITERAL_UNDERSCORE]          = { "number literal ending with a `_`", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_NUMBERED_PARAMETER_INNER_BLOCK]     = { "numbered parameter is already used in inner block", PM_ERROR_LEVEL_SYNTAX },
@@ -602,6 +603,7 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_MULTI_ASSIGN_UNEXPECTED_REST: return "multi_assign_unexpected_rest";
         case PM_ERR_NESTING_TOO_DEEP: return "nesting_too_deep";
         case PM_ERR_NO_LOCAL_VARIABLE: return "no_local_variable";
+        case PM_ERR_NON_ASSOCIATIVE_OPERATOR: return "non_associative_operator";
         case PM_ERR_NOT_EXPRESSION: return "not_expression";
         case PM_ERR_NUMBER_LITERAL_UNDERSCORE: return "number_literal_underscore";
         case PM_ERR_NUMBERED_PARAMETER_INNER_BLOCK: return "numbered_parameter_inner_block";

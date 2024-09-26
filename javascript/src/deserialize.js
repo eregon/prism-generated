@@ -473,6 +473,7 @@ const errorTypes = [
   "multi_assign_unexpected_rest",
   "nesting_too_deep",
   "no_local_variable",
+  "non_associative_operator",
   "not_expression",
   "number_literal_underscore",
   "numbered_parameter_inner_block",

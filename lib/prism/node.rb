@@ -370,10 +370,28 @@ module Prism
       { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
     end
 
-    # attr_reader new_name: SymbolNode | InterpolatedSymbolNode
+    # Represents the new name of the method that will be aliased.
+    #
+    #     alias foo bar
+    #           ^^^
+    #
+    #     alias :foo :bar
+    #           ^^^^
+    #
+    #     alias :"#{foo}" :"#{bar}"
+    #           ^^^^^^^^^
     attr_reader :new_name
 
-    # attr_reader old_name: SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode
+    # Represents the old name of the method that will be aliased.
+    #
+    #     alias foo bar
+    #               ^^^
+    #
+    #     alias :foo :bar
+    #                ^^^^
+    #
+    #     alias :"#{foo}" :"#{bar}"
+    #                     ^^^^^^^^^
     attr_reader :old_name
 
     # attr_reader keyword_loc: Location
@@ -462,13 +480,22 @@ module Prism
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
-    # attr_reader left: Prism::node
+    # Represents the left side of the expression.
+    #
+    #     foo => bar | baz
+    #            ^^^
     attr_reader :left
 
-    # attr_reader right: Prism::node
+    # Represents the right side of the expression.
+    #
+    #     foo => bar | baz
+    #                  ^^^
     attr_reader :right
 
-    # attr_reader operator_loc: Location
+    # Represents the alternation operator location.
+    #
+    #     foo => bar | baz
+    #                ^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)

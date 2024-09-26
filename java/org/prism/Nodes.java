@@ -1140,8 +1140,36 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class AliasMethodNode extends Node {
+        /**
+         * <pre>
+         * Represents the new name of the method that will be aliased.
+         *
+         *     alias foo bar
+         *           ^^^
+         *
+         *     alias :foo :bar
+         *           ^^^^
+         *
+         *     alias :&quot;#{foo}&quot; :&quot;#{bar}&quot;
+         *           ^^^^^^^^^
+         * </pre>
+         */
         @UnionType({ SymbolNode.class, InterpolatedSymbolNode.class })
         public final Node new_name;
+        /**
+         * <pre>
+         * Represents the old name of the method that will be aliased.
+         *
+         *     alias foo bar
+         *               ^^^
+         *
+         *     alias :foo :bar
+         *                ^^^^
+         *
+         *     alias :&quot;#{foo}&quot; :&quot;#{bar}&quot;
+         *                     ^^^^^^^^^
+         * </pre>
+         */
         @UnionType({ SymbolNode.class, InterpolatedSymbolNode.class, GlobalVariableReadNode.class, MissingNode.class })
         public final Node old_name;
 
@@ -1192,7 +1220,23 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class AlternationPatternNode extends Node {
+        /**
+         * <pre>
+         * Represents the left side of the expression.
+         *
+         *     foo =&gt; bar | baz
+         *            ^^^
+         * </pre>
+         */
         public final Node left;
+        /**
+         * <pre>
+         * Represents the right side of the expression.
+         *
+         *     foo =&gt; bar | baz
+         *                  ^^^
+         * </pre>
+         */
         public final Node right;
 
         public AlternationPatternNode(int startOffset, int length, Node left, Node right) {
@@ -10736,6 +10780,7 @@ public abstract class Nodes {
         MULTI_ASSIGN_UNEXPECTED_REST,
         NESTING_TOO_DEEP,
         NO_LOCAL_VARIABLE,
+        NON_ASSOCIATIVE_OPERATOR,
         NOT_EXPRESSION,
         NUMBER_LITERAL_UNDERSCORE,
         NUMBERED_PARAMETER_INNER_BLOCK,

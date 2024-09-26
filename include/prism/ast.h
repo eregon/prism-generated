@@ -1159,11 +1159,33 @@ typedef struct pm_alias_method_node {
 
     /**
      * AliasMethodNode#new_name
+     *
+     * Represents the new name of the method that will be aliased.
+     *
+     *     alias foo bar
+     *           ^^^
+     *
+     *     alias :foo :bar
+     *           ^^^^
+     *
+     *     alias :"#{foo}" :"#{bar}"
+     *           ^^^^^^^^^
      */
     struct pm_node *new_name;
 
     /**
      * AliasMethodNode#old_name
+     *
+     * Represents the old name of the method that will be aliased.
+     *
+     *     alias foo bar
+     *               ^^^
+     *
+     *     alias :foo :bar
+     *                ^^^^
+     *
+     *     alias :"#{foo}" :"#{bar}"
+     *                     ^^^^^^^^^
      */
     struct pm_node *old_name;
 
@@ -1192,16 +1214,31 @@ typedef struct pm_alternation_pattern_node {
 
     /**
      * AlternationPatternNode#left
+     *
+     * Represents the left side of the expression.
+     *
+     *     foo => bar | baz
+     *            ^^^
      */
     struct pm_node *left;
 
     /**
      * AlternationPatternNode#right
+     *
+     * Represents the right side of the expression.
+     *
+     *     foo => bar | baz
+     *                  ^^^
      */
     struct pm_node *right;
 
     /**
      * AlternationPatternNode#operator_loc
+     *
+     * Represents the alternation operator location.
+     *
+     *     foo => bar | baz
+     *                ^
      */
     pm_location_t operator_loc;
 } pm_alternation_pattern_node_t;
