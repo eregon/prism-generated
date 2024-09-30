@@ -8,7 +8,7 @@
 
 #include "prism/diagnostic.h"
 
-#define PM_DIAGNOSTIC_ID_MAX 317
+#define PM_DIAGNOSTIC_ID_MAX 318
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -108,7 +108,6 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_ARGUMENT_FORMAL_GLOBAL]             = { "invalid formal argument; formal argument cannot be a global variable", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ARGUMENT_FORMAL_IVAR]               = { "invalid formal argument; formal argument cannot be an instance variable", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ARGUMENT_FORWARDING_UNBOUND]        = { "unexpected `...` in an non-parenthesized call", PM_ERROR_LEVEL_SYNTAX },
-    [PM_ERR_ARGUMENT_IN]                        = { "unexpected `in` keyword in arguments", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ARGUMENT_NO_FORWARDING_AMPERSAND]   = { "unexpected `&`; no anonymous block parameter", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES]    = { "unexpected ... when the parent method is not forwarding", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_ARGUMENT_NO_FORWARDING_STAR]        = { "unexpected `*`; no anonymous rest parameter", PM_ERROR_LEVEL_SYNTAX },
@@ -190,6 +189,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT]      = { "expected an expression after `*` splat in an argument", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT_HASH] = { "expected an expression after `**` in a hash", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_EXPRESSION_AFTER_STAR]       = { "expected an expression after `*`", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_EXPECT_FOR_DELIMITER]               = { "unexpected %s; expected a 'do', newline, or ';' after the 'for' loop collection", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_IDENT_REQ_PARAMETER]         = { "expected an identifier for the required parameter", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_IN_DELIMITER]                = { "expected a delimiter after the patterns of an `in` clause", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_LPAREN_REQ_PARAMETER]        = { "expected a `(` to start a required parameter", PM_ERROR_LEVEL_SYNTAX },
@@ -198,6 +198,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_EXPECT_RPAREN]                      = { "expected a matching `)`", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_RPAREN_AFTER_MULTI]          = { "expected a `)` after multiple assignment", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_RPAREN_REQ_PARAMETER]        = { "expected a `)` to end a required parameter", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_EXPECT_SINGLETON_CLASS_DELIMITER]   = { "unexpected %s; expected a newline or a ';' after the singleton class", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_STRING_CONTENT]              = { "expected string content after opening string delimiter", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPECT_WHEN_DELIMITER]              = { "expected a delimiter after the predicates of a `when` clause", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPRESSION_BARE_HASH]               = { "unexpected bare hash in expression", PM_ERROR_LEVEL_SYNTAX },
@@ -431,7 +432,6 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_ARGUMENT_FORMAL_GLOBAL: return "argument_formal_global";
         case PM_ERR_ARGUMENT_FORMAL_IVAR: return "argument_formal_ivar";
         case PM_ERR_ARGUMENT_FORWARDING_UNBOUND: return "argument_forwarding_unbound";
-        case PM_ERR_ARGUMENT_IN: return "argument_in";
         case PM_ERR_ARGUMENT_NO_FORWARDING_AMPERSAND: return "argument_no_forwarding_ampersand";
         case PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES: return "argument_no_forwarding_ellipses";
         case PM_ERR_ARGUMENT_NO_FORWARDING_STAR: return "argument_no_forwarding_star";
@@ -515,6 +515,7 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT: return "expect_expression_after_splat";
         case PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT_HASH: return "expect_expression_after_splat_hash";
         case PM_ERR_EXPECT_EXPRESSION_AFTER_STAR: return "expect_expression_after_star";
+        case PM_ERR_EXPECT_FOR_DELIMITER: return "expect_for_delimiter";
         case PM_ERR_EXPECT_IDENT_REQ_PARAMETER: return "expect_ident_req_parameter";
         case PM_ERR_EXPECT_IN_DELIMITER: return "expect_in_delimiter";
         case PM_ERR_EXPECT_LPAREN_REQ_PARAMETER: return "expect_lparen_req_parameter";
@@ -523,6 +524,7 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_EXPECT_RPAREN: return "expect_rparen";
         case PM_ERR_EXPECT_RPAREN_AFTER_MULTI: return "expect_rparen_after_multi";
         case PM_ERR_EXPECT_RPAREN_REQ_PARAMETER: return "expect_rparen_req_parameter";
+        case PM_ERR_EXPECT_SINGLETON_CLASS_DELIMITER: return "expect_singleton_class_delimiter";
         case PM_ERR_EXPECT_STRING_CONTENT: return "expect_string_content";
         case PM_ERR_EXPECT_WHEN_DELIMITER: return "expect_when_delimiter";
         case PM_ERR_EXPRESSION_BARE_HASH: return "expression_bare_hash";
