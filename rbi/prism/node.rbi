@@ -87,6 +87,41 @@ end
 #     alias $foo $bar
 #     ^^^^^^^^^^^^^^^
 class Prism::AliasGlobalVariableNode < Prism::Node
+  sig { returns(T.any(Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)) }
+  def new_name; end
+
+  sig { returns(T.any(Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::SymbolNode, Prism::MissingNode)) }
+  def old_name; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, new_name: T.any(Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode), old_name: T.any(Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::SymbolNode, Prism::MissingNode), keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, new_name, old_name, keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, new_name: T.any(Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode), old_name: T.any(Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::SymbolNode, Prism::MissingNode), keyword_loc: Prism::Location).returns(Prism::AliasGlobalVariableNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, new_name: self.new_name, old_name: self.old_name, keyword_loc: self.keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -103,6 +138,41 @@ end
 #     alias foo bar
 #     ^^^^^^^^^^^^^
 class Prism::AliasMethodNode < Prism::Node
+  sig { returns(T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode)) }
+  def new_name; end
+
+  sig { returns(T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode, Prism::GlobalVariableReadNode, Prism::MissingNode)) }
+  def old_name; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, new_name: T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode), old_name: T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode, Prism::GlobalVariableReadNode, Prism::MissingNode), keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, new_name, old_name, keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, new_name: T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode), old_name: T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode, Prism::GlobalVariableReadNode, Prism::MissingNode), keyword_loc: Prism::Location).returns(Prism::AliasMethodNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, new_name: self.new_name, old_name: self.old_name, keyword_loc: self.keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -119,6 +189,41 @@ end
 #     foo => bar | baz
 #            ^^^^^^^^^
 class Prism::AlternationPatternNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def left; end
+
+  sig { returns(Prism::Node) }
+  def right; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, left: Prism::Node, right: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, left, right, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, left: Prism::Node, right: Prism::Node, operator_loc: Prism::Location).returns(Prism::AlternationPatternNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, left: self.left, right: self.right, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -135,6 +240,41 @@ end
 #     left and right
 #     ^^^^^^^^^^^^^^
 class Prism::AndNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def left; end
+
+  sig { returns(Prism::Node) }
+  def right; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, left: Prism::Node, right: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, left, right, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, left: Prism::Node, right: Prism::Node, operator_loc: Prism::Location).returns(Prism::AndNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, left: self.left, right: self.right, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -151,7 +291,6 @@ end
 #     return foo, bar, baz
 #            ^^^^^^^^^^^^^
 class Prism::ArgumentsNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def contains_forwarding?; end
 
@@ -209,7 +348,6 @@ end
 #     [1, 2, 3]
 #     ^^^^^^^^^
 class Prism::ArrayNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def contains_splat?; end
 
@@ -279,6 +417,53 @@ end
 #     foo in Bar[1, 2, 3]
 #     ^^^^^^^^^^^^^^^^^^^
 class Prism::ArrayPatternNode < Prism::Node
+  sig { returns(T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode))) }
+  def constant; end
+
+  sig { returns(T::Array[Prism::Node]) }
+  def requireds; end
+
+  sig { returns(T.nilable(Prism::Node)) }
+  def rest; end
+
+  sig { returns(T::Array[Prism::Node]) }
+  def posts; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def opening_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), requireds: T::Array[Prism::Node], rest: T.nilable(Prism::Node), posts: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), requireds: T::Array[Prism::Node], rest: T.nilable(Prism::Node), posts: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::ArrayPatternNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, requireds: self.requireds, rest: self.rest, posts: self.posts, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def opening; end
+
+  sig { returns(T.nilable(String)) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -295,6 +480,41 @@ end
 #     { a => b }
 #       ^^^^^^
 class Prism::AssocNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def key; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, key: Prism::Node, value: Prism::Node, operator_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, key, value, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, key: Prism::Node, value: Prism::Node, operator_loc: T.nilable(Prism::Location)).returns(Prism::AssocNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, key: self.key, value: self.value, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -311,6 +531,38 @@ end
 #     { **foo }
 #       ^^^^^
 class Prism::AssocSplatNode < Prism::Node
+  sig { returns(T.nilable(Prism::Node)) }
+  def value; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, value: T.nilable(Prism::Node), operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, value, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, value: T.nilable(Prism::Node), operator_loc: Prism::Location).returns(Prism::AssocSplatNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -327,6 +579,32 @@ end
 #     $'
 #     ^^
 class Prism::BackReferenceReadNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::BackReferenceReadNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -345,6 +623,53 @@ end
 #     end
 #     ^^^^^
 class Prism::BeginNode < Prism::Node
+  sig { returns(T.nilable(Prism::Location)) }
+  def begin_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(T.nilable(Prism::RescueNode)) }
+  def rescue_clause; end
+
+  sig { returns(T.nilable(Prism::ElseNode)) }
+  def else_clause; end
+
+  sig { returns(T.nilable(Prism::EnsureNode)) }
+  def ensure_clause; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, begin_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), rescue_clause: T.nilable(Prism::RescueNode), else_clause: T.nilable(Prism::ElseNode), ensure_clause: T.nilable(Prism::EnsureNode), end_keyword_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, begin_keyword_loc, statements, rescue_clause, else_clause, ensure_clause, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, begin_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), rescue_clause: T.nilable(Prism::RescueNode), else_clause: T.nilable(Prism::ElseNode), ensure_clause: T.nilable(Prism::EnsureNode), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::BeginNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, begin_keyword_loc: self.begin_keyword_loc, statements: self.statements, rescue_clause: self.rescue_clause, else_clause: self.else_clause, ensure_clause: self.ensure_clause, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def begin_keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -361,6 +686,38 @@ end
 #     bar(&args)
 #     ^^^^^^^^^^
 class Prism::BlockArgumentNode < Prism::Node
+  sig { returns(T.nilable(Prism::Node)) }
+  def expression; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, expression: T.nilable(Prism::Node), operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, expression, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, expression: T.nilable(Prism::Node), operator_loc: Prism::Location).returns(Prism::BlockArgumentNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, expression: self.expression, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -377,7 +734,6 @@ end
 #     a { |; b| }
 #            ^
 class Prism::BlockLocalVariableNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def repeated_parameter?; end
 
@@ -423,6 +779,50 @@ end
 #     [1, 2, 3].each { |i| puts x }
 #                    ^^^^^^^^^^^^^^
 class Prism::BlockNode < Prism::Node
+  sig { returns(T::Array[Symbol]) }
+  def locals; end
+
+  sig { returns(T.nilable(T.any(Prism::BlockParametersNode, Prism::NumberedParametersNode, Prism::ItParametersNode))) }
+  def parameters; end
+
+  sig { returns(T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode))) }
+  def body; end
+
+  sig { returns(Prism::Location) }
+  def opening_loc; end
+
+  sig { returns(Prism::Location) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], parameters: T.nilable(T.any(Prism::BlockParametersNode, Prism::NumberedParametersNode, Prism::ItParametersNode)), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), opening_loc: Prism::Location, closing_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, locals, parameters, body, opening_loc, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], parameters: T.nilable(T.any(Prism::BlockParametersNode, Prism::NumberedParametersNode, Prism::ItParametersNode)), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), opening_loc: Prism::Location, closing_loc: Prism::Location).returns(Prism::BlockNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, parameters: self.parameters, body: self.body, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def opening; end
+
+  sig { returns(String) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -440,7 +840,6 @@ end
 #           ^^
 #     end
 class Prism::BlockParameterNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def repeated_parameter?; end
 
@@ -499,6 +898,47 @@ end
 #            ^^^^^^^^^^^^^^^^^
 #     end
 class Prism::BlockParametersNode < Prism::Node
+  sig { returns(T.nilable(Prism::ParametersNode)) }
+  def parameters; end
+
+  sig { returns(T::Array[Prism::BlockLocalVariableNode]) }
+  def locals; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def opening_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, parameters: T.nilable(Prism::ParametersNode), locals: T::Array[Prism::BlockLocalVariableNode], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, parameters, locals, opening_loc, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, parameters: T.nilable(Prism::ParametersNode), locals: T::Array[Prism::BlockLocalVariableNode], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::BlockParametersNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, parameters: self.parameters, locals: self.locals, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def opening; end
+
+  sig { returns(T.nilable(String)) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -515,6 +955,38 @@ end
 #     break foo
 #     ^^^^^^^^^
 class Prism::BreakNode < Prism::Node
+  sig { returns(T.nilable(Prism::ArgumentsNode)) }
+  def arguments; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, arguments: T.nilable(Prism::ArgumentsNode), keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, arguments, keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, arguments: T.nilable(Prism::ArgumentsNode), keyword_loc: Prism::Location).returns(Prism::BreakNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, arguments: self.arguments, keyword_loc: self.keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -531,7 +1003,6 @@ end
 #     foo.bar &&= value
 #     ^^^^^^^^^^^^^^^^^
 class Prism::CallAndWriteNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -628,7 +1099,6 @@ end
 #     foo&.bar
 #     ^^^^^^^^
 class Prism::CallNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -716,7 +1186,6 @@ end
 #     foo.bar += baz
 #     ^^^^^^^^^^^^^^
 class Prism::CallOperatorWriteNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -798,7 +1267,6 @@ end
 #     foo.bar ||= value
 #     ^^^^^^^^^^^^^^^^^
 class Prism::CallOrWriteNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -888,7 +1356,6 @@ end
 #     for foo.bar in baz do end
 #         ^^^^^^^
 class Prism::CallTargetNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -958,6 +1425,41 @@ end
 #     foo => [bar => baz]
 #            ^^^^^^^^^^^^
 class Prism::CapturePatternNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Prism::LocalVariableTargetNode) }
+  def target; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, value: Prism::Node, target: Prism::LocalVariableTargetNode, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, value, target, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, value: Prism::Node, target: Prism::LocalVariableTargetNode, operator_loc: Prism::Location).returns(Prism::CapturePatternNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value, target: self.target, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -976,6 +1478,50 @@ end
 #     end
 #     ^^^^^^^^^
 class Prism::CaseMatchNode < Prism::Node
+  sig { returns(T.nilable(Prism::Node)) }
+  def predicate; end
+
+  sig { returns(T::Array[Prism::InNode]) }
+  def conditions; end
+
+  sig { returns(T.nilable(Prism::ElseNode)) }
+  def else_clause; end
+
+  sig { returns(Prism::Location) }
+  def case_keyword_loc; end
+
+  sig { returns(Prism::Location) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, predicate: T.nilable(Prism::Node), conditions: T::Array[Prism::InNode], else_clause: T.nilable(Prism::ElseNode), case_keyword_loc: Prism::Location, end_keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, predicate: T.nilable(Prism::Node), conditions: T::Array[Prism::InNode], else_clause: T.nilable(Prism::ElseNode), case_keyword_loc: Prism::Location, end_keyword_loc: Prism::Location).returns(Prism::CaseMatchNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, predicate: self.predicate, conditions: self.conditions, else_clause: self.else_clause, case_keyword_loc: self.case_keyword_loc, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def case_keyword; end
+
+  sig { returns(String) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -994,6 +1540,50 @@ end
 #     end
 #     ^^^^^^^^^^
 class Prism::CaseNode < Prism::Node
+  sig { returns(T.nilable(Prism::Node)) }
+  def predicate; end
+
+  sig { returns(T::Array[Prism::WhenNode]) }
+  def conditions; end
+
+  sig { returns(T.nilable(Prism::ElseNode)) }
+  def else_clause; end
+
+  sig { returns(Prism::Location) }
+  def case_keyword_loc; end
+
+  sig { returns(Prism::Location) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, predicate: T.nilable(Prism::Node), conditions: T::Array[Prism::WhenNode], else_clause: T.nilable(Prism::ElseNode), case_keyword_loc: Prism::Location, end_keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, predicate: T.nilable(Prism::Node), conditions: T::Array[Prism::WhenNode], else_clause: T.nilable(Prism::ElseNode), case_keyword_loc: Prism::Location, end_keyword_loc: Prism::Location).returns(Prism::CaseNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, predicate: self.predicate, conditions: self.conditions, else_clause: self.else_clause, case_keyword_loc: self.case_keyword_loc, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def case_keyword; end
+
+  sig { returns(String) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1010,6 +1600,62 @@ end
 #     class Foo end
 #     ^^^^^^^^^^^^^
 class Prism::ClassNode < Prism::Node
+  sig { returns(T::Array[Symbol]) }
+  def locals; end
+
+  sig { returns(Prism::Location) }
+  def class_keyword_loc; end
+
+  sig { returns(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode, Prism::CallNode)) }
+  def constant_path; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def inheritance_operator_loc; end
+
+  sig { returns(T.nilable(Prism::Node)) }
+  def superclass; end
+
+  sig { returns(T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode))) }
+  def body; end
+
+  sig { returns(Prism::Location) }
+  def end_keyword_loc; end
+
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], class_keyword_loc: Prism::Location, constant_path: T.any(Prism::ConstantReadNode, Prism::ConstantPathNode, Prism::CallNode), inheritance_operator_loc: T.nilable(Prism::Location), superclass: T.nilable(Prism::Node), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), end_keyword_loc: Prism::Location, name: Symbol).void }
+  def initialize(source, node_id, location, flags, locals, class_keyword_loc, constant_path, inheritance_operator_loc, superclass, body, end_keyword_loc, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], class_keyword_loc: Prism::Location, constant_path: T.any(Prism::ConstantReadNode, Prism::ConstantPathNode, Prism::CallNode), inheritance_operator_loc: T.nilable(Prism::Location), superclass: T.nilable(Prism::Node), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), end_keyword_loc: Prism::Location, name: Symbol).returns(Prism::ClassNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, class_keyword_loc: self.class_keyword_loc, constant_path: self.constant_path, inheritance_operator_loc: self.inheritance_operator_loc, superclass: self.superclass, body: self.body, end_keyword_loc: self.end_keyword_loc, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def class_keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def inheritance_operator; end
+
+  sig { returns(String) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1026,6 +1672,44 @@ end
 #     @@target &&= value
 #     ^^^^^^^^^^^^^^^^^^
 class Prism::ClassVariableAndWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, name, name_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::ClassVariableAndWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1042,6 +1726,44 @@ end
 #     @@target += value
 #     ^^^^^^^^^^^^^^^^^
 class Prism::ClassVariableOperatorWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def binary_operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Symbol) }
+  def binary_operator; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).void }
+  def initialize(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).returns(Prism::ClassVariableOperatorWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1058,6 +1780,44 @@ end
 #     @@target ||= value
 #     ^^^^^^^^^^^^^^^^^^
 class Prism::ClassVariableOrWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, name, name_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::ClassVariableOrWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1074,6 +1834,32 @@ end
 #     @@foo
 #     ^^^^^
 class Prism::ClassVariableReadNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::ClassVariableReadNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1090,6 +1876,32 @@ end
 #     @@foo, @@bar = baz
 #     ^^^^^  ^^^^^
 class Prism::ClassVariableTargetNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::ClassVariableTargetNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1106,6 +1918,44 @@ end
 #     @@foo = 1
 #     ^^^^^^^^^
 class Prism::ClassVariableWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, name, name_loc, value, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).returns(Prism::ClassVariableWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1122,6 +1972,44 @@ end
 #     Target &&= value
 #     ^^^^^^^^^^^^^^^^
 class Prism::ConstantAndWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, name, name_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::ConstantAndWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1138,6 +2026,44 @@ end
 #     Target += value
 #     ^^^^^^^^^^^^^^^
 class Prism::ConstantOperatorWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def binary_operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Symbol) }
+  def binary_operator; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).void }
+  def initialize(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).returns(Prism::ConstantOperatorWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1154,6 +2080,44 @@ end
 #     Target ||= value
 #     ^^^^^^^^^^^^^^^^
 class Prism::ConstantOrWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, name, name_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::ConstantOrWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1170,6 +2134,41 @@ end
 #     Parent::Child &&= value
 #     ^^^^^^^^^^^^^^^^^^^^^^^
 class Prism::ConstantPathAndWriteNode < Prism::Node
+  sig { returns(Prism::ConstantPathNode) }
+  def target; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, target: Prism::ConstantPathNode, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, target, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, target: Prism::ConstantPathNode, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::ConstantPathAndWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, target: self.target, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1186,6 +2185,44 @@ end
 #     Foo::Bar
 #     ^^^^^^^^
 class Prism::ConstantPathNode < Prism::Node
+  sig { returns(T.nilable(Prism::Node)) }
+  def parent; end
+
+  sig { returns(T.nilable(Symbol)) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def delimiter_loc; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, parent: T.nilable(Prism::Node), name: T.nilable(Symbol), delimiter_loc: Prism::Location, name_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, parent, name, delimiter_loc, name_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, parent: T.nilable(Prism::Node), name: T.nilable(Symbol), delimiter_loc: Prism::Location, name_loc: Prism::Location).returns(Prism::ConstantPathNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, parent: self.parent, name: self.name, delimiter_loc: self.delimiter_loc, name_loc: self.name_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def delimiter; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1202,6 +2239,41 @@ end
 #     Parent::Child += value
 #     ^^^^^^^^^^^^^^^^^^^^^^
 class Prism::ConstantPathOperatorWriteNode < Prism::Node
+  sig { returns(Prism::ConstantPathNode) }
+  def target; end
+
+  sig { returns(Prism::Location) }
+  def binary_operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Symbol) }
+  def binary_operator; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, target: Prism::ConstantPathNode, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).void }
+  def initialize(source, node_id, location, flags, target, binary_operator_loc, value, binary_operator); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, target: Prism::ConstantPathNode, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).returns(Prism::ConstantPathOperatorWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, target: self.target, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1218,6 +2290,41 @@ end
 #     Parent::Child ||= value
 #     ^^^^^^^^^^^^^^^^^^^^^^^
 class Prism::ConstantPathOrWriteNode < Prism::Node
+  sig { returns(Prism::ConstantPathNode) }
+  def target; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, target: Prism::ConstantPathNode, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, target, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, target: Prism::ConstantPathNode, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::ConstantPathOrWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, target: self.target, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1234,6 +2341,44 @@ end
 #     Foo::Foo, Bar::Bar = baz
 #     ^^^^^^^^  ^^^^^^^^
 class Prism::ConstantPathTargetNode < Prism::Node
+  sig { returns(T.nilable(Prism::Node)) }
+  def parent; end
+
+  sig { returns(T.nilable(Symbol)) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def delimiter_loc; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, parent: T.nilable(Prism::Node), name: T.nilable(Symbol), delimiter_loc: Prism::Location, name_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, parent, name, delimiter_loc, name_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, parent: T.nilable(Prism::Node), name: T.nilable(Symbol), delimiter_loc: Prism::Location, name_loc: Prism::Location).returns(Prism::ConstantPathTargetNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, parent: self.parent, name: self.name, delimiter_loc: self.delimiter_loc, name_loc: self.name_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def delimiter; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1256,6 +2401,41 @@ end
 #     ::Foo::Bar = 1
 #     ^^^^^^^^^^^^^^
 class Prism::ConstantPathWriteNode < Prism::Node
+  sig { returns(Prism::ConstantPathNode) }
+  def target; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, target: Prism::ConstantPathNode, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, target, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, target: Prism::ConstantPathNode, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::ConstantPathWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, target: self.target, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1272,6 +2452,32 @@ end
 #     Foo
 #     ^^^
 class Prism::ConstantReadNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::ConstantReadNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1288,6 +2494,32 @@ end
 #     Foo, Bar = baz
 #     ^^^  ^^^
 class Prism::ConstantTargetNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::ConstantTargetNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1304,6 +2536,44 @@ end
 #     Foo = 1
 #     ^^^^^^^
 class Prism::ConstantWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, name, name_loc, value, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).returns(Prism::ConstantWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1321,6 +2591,83 @@ end
 #     end
 #     ^^^^^^^^^^
 class Prism::DefNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(T.nilable(Prism::Node)) }
+  def receiver; end
+
+  sig { returns(T.nilable(Prism::ParametersNode)) }
+  def parameters; end
+
+  sig { returns(T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode))) }
+  def body; end
+
+  sig { returns(T::Array[Symbol]) }
+  def locals; end
+
+  sig { returns(Prism::Location) }
+  def def_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def operator_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def lparen_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def rparen_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def equal_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, receiver: T.nilable(Prism::Node), parameters: T.nilable(Prism::ParametersNode), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), locals: T::Array[Symbol], def_keyword_loc: Prism::Location, operator_loc: T.nilable(Prism::Location), lparen_loc: T.nilable(Prism::Location), rparen_loc: T.nilable(Prism::Location), equal_loc: T.nilable(Prism::Location), end_keyword_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, name, name_loc, receiver, parameters, body, locals, def_keyword_loc, operator_loc, lparen_loc, rparen_loc, equal_loc, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, receiver: T.nilable(Prism::Node), parameters: T.nilable(Prism::ParametersNode), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), locals: T::Array[Symbol], def_keyword_loc: Prism::Location, operator_loc: T.nilable(Prism::Location), lparen_loc: T.nilable(Prism::Location), rparen_loc: T.nilable(Prism::Location), equal_loc: T.nilable(Prism::Location), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::DefNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, receiver: self.receiver, parameters: self.parameters, body: self.body, locals: self.locals, def_keyword_loc: self.def_keyword_loc, operator_loc: self.operator_loc, lparen_loc: self.lparen_loc, rparen_loc: self.rparen_loc, equal_loc: self.equal_loc, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def def_keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def operator; end
+
+  sig { returns(T.nilable(String)) }
+  def lparen; end
+
+  sig { returns(T.nilable(String)) }
+  def rparen; end
+
+  sig { returns(T.nilable(String)) }
+  def equal; end
+
+  sig { returns(T.nilable(String)) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1337,6 +2684,50 @@ end
 #     defined?(a)
 #     ^^^^^^^^^^^
 class Prism::DefinedNode < Prism::Node
+  sig { returns(T.nilable(Prism::Location)) }
+  def lparen_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def rparen_loc; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, lparen_loc: T.nilable(Prism::Location), value: Prism::Node, rparen_loc: T.nilable(Prism::Location), keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, lparen_loc, value, rparen_loc, keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, lparen_loc: T.nilable(Prism::Location), value: Prism::Node, rparen_loc: T.nilable(Prism::Location), keyword_loc: Prism::Location).returns(Prism::DefinedNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, lparen_loc: self.lparen_loc, value: self.value, rparen_loc: self.rparen_loc, keyword_loc: self.keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def lparen; end
+
+  sig { returns(T.nilable(String)) }
+  def rparen; end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1353,6 +2744,44 @@ end
 #     if a then b else c end
 #                 ^^^^^^^^^^
 class Prism::ElseNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def else_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, else_keyword_loc: Prism::Location, statements: T.nilable(Prism::StatementsNode), end_keyword_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, else_keyword_loc, statements, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, else_keyword_loc: Prism::Location, statements: T.nilable(Prism::StatementsNode), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::ElseNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, else_keyword_loc: self.else_keyword_loc, statements: self.statements, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def else_keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1369,6 +2798,44 @@ end
 #     "foo #{bar}"
 #          ^^^^^^
 class Prism::EmbeddedStatementsNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def opening_loc; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(Prism::Location) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: Prism::Location, statements: T.nilable(Prism::StatementsNode), closing_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, opening_loc, statements, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: Prism::Location, statements: T.nilable(Prism::StatementsNode), closing_loc: Prism::Location).returns(Prism::EmbeddedStatementsNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, statements: self.statements, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def opening; end
+
+  sig { returns(String) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1385,6 +2852,38 @@ end
 #     "foo #@bar"
 #          ^^^^^
 class Prism::EmbeddedVariableNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(T.any(Prism::InstanceVariableReadNode, Prism::ClassVariableReadNode, Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)) }
+  def variable; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, operator_loc: Prism::Location, variable: T.any(Prism::InstanceVariableReadNode, Prism::ClassVariableReadNode, Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)).void }
+  def initialize(source, node_id, location, flags, operator_loc, variable); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, operator_loc: Prism::Location, variable: T.any(Prism::InstanceVariableReadNode, Prism::ClassVariableReadNode, Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)).returns(Prism::EmbeddedVariableNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, operator_loc: self.operator_loc, variable: self.variable); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1405,6 +2904,44 @@ end
 #       bar
 #     end
 class Prism::EnsureNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def ensure_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(Prism::Location) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, ensure_keyword_loc: Prism::Location, statements: T.nilable(Prism::StatementsNode), end_keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, ensure_keyword_loc, statements, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, ensure_keyword_loc: Prism::Location, statements: T.nilable(Prism::StatementsNode), end_keyword_loc: Prism::Location).returns(Prism::EnsureNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, ensure_keyword_loc: self.ensure_keyword_loc, statements: self.statements, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def ensure_keyword; end
+
+  sig { returns(String) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1421,6 +2958,29 @@ end
 #     false
 #     ^^^^^
 class Prism::FalseNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::FalseNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1443,6 +3003,53 @@ end
 #     foo in Foo(*bar, baz, *qux)
 #            ^^^^^^^^^^^^^^^^^^^^
 class Prism::FindPatternNode < Prism::Node
+  sig { returns(T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode))) }
+  def constant; end
+
+  sig { returns(Prism::SplatNode) }
+  def left; end
+
+  sig { returns(T::Array[Prism::Node]) }
+  def requireds; end
+
+  sig { returns(T.any(Prism::SplatNode, Prism::MissingNode)) }
+  def right; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def opening_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), left: Prism::SplatNode, requireds: T::Array[Prism::Node], right: T.any(Prism::SplatNode, Prism::MissingNode), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, constant, left, requireds, right, opening_loc, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), left: Prism::SplatNode, requireds: T::Array[Prism::Node], right: T.any(Prism::SplatNode, Prism::MissingNode), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::FindPatternNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, left: self.left, requireds: self.requireds, right: self.right, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def opening; end
+
+  sig { returns(T.nilable(String)) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1459,7 +3066,6 @@ end
 #     baz if foo .. bar
 #            ^^^^^^^^^^
 class Prism::FlipFlopNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def exclude_end?; end
 
@@ -1514,6 +3120,32 @@ end
 #     1.0
 #     ^^^
 class Prism::FloatNode < Prism::Node
+  sig { returns(Float) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, value: Float).void }
+  def initialize(source, node_id, location, flags, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, value: Float).returns(Prism::FloatNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1530,6 +3162,62 @@ end
 #     for i in a end
 #     ^^^^^^^^^^^^^^
 class Prism::ForNode < Prism::Node
+  sig { returns(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode)) }
+  def index; end
+
+  sig { returns(Prism::Node) }
+  def collection; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(Prism::Location) }
+  def for_keyword_loc; end
+
+  sig { returns(Prism::Location) }
+  def in_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def do_keyword_loc; end
+
+  sig { returns(Prism::Location) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, index: T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode), collection: Prism::Node, statements: T.nilable(Prism::StatementsNode), for_keyword_loc: Prism::Location, in_keyword_loc: Prism::Location, do_keyword_loc: T.nilable(Prism::Location), end_keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, index, collection, statements, for_keyword_loc, in_keyword_loc, do_keyword_loc, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, index: T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode), collection: Prism::Node, statements: T.nilable(Prism::StatementsNode), for_keyword_loc: Prism::Location, in_keyword_loc: Prism::Location, do_keyword_loc: T.nilable(Prism::Location), end_keyword_loc: Prism::Location).returns(Prism::ForNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, index: self.index, collection: self.collection, statements: self.statements, for_keyword_loc: self.for_keyword_loc, in_keyword_loc: self.in_keyword_loc, do_keyword_loc: self.do_keyword_loc, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def for_keyword; end
+
+  sig { returns(String) }
+  def in_keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def do_keyword; end
+
+  sig { returns(String) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1548,6 +3236,29 @@ end
 #           ^^^
 #     end
 class Prism::ForwardingArgumentsNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::ForwardingArgumentsNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1565,6 +3276,29 @@ end
 #             ^^^
 #     end
 class Prism::ForwardingParameterNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::ForwardingParameterNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1581,6 +3315,32 @@ end
 #     super
 #     ^^^^^
 class Prism::ForwardingSuperNode < Prism::Node
+  sig { returns(T.nilable(Prism::BlockNode)) }
+  def block; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, block: T.nilable(Prism::BlockNode)).void }
+  def initialize(source, node_id, location, flags, block); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, block: T.nilable(Prism::BlockNode)).returns(Prism::ForwardingSuperNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, block: self.block); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1597,6 +3357,44 @@ end
 #     $target &&= value
 #     ^^^^^^^^^^^^^^^^^
 class Prism::GlobalVariableAndWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, name, name_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::GlobalVariableAndWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1613,6 +3411,44 @@ end
 #     $target += value
 #     ^^^^^^^^^^^^^^^^
 class Prism::GlobalVariableOperatorWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def binary_operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Symbol) }
+  def binary_operator; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).void }
+  def initialize(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).returns(Prism::GlobalVariableOperatorWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1629,6 +3465,44 @@ end
 #     $target ||= value
 #     ^^^^^^^^^^^^^^^^^
 class Prism::GlobalVariableOrWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, name, name_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::GlobalVariableOrWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1645,6 +3519,32 @@ end
 #     $foo
 #     ^^^^
 class Prism::GlobalVariableReadNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::GlobalVariableReadNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1661,6 +3561,32 @@ end
 #     $foo, $bar = baz
 #     ^^^^  ^^^^
 class Prism::GlobalVariableTargetNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::GlobalVariableTargetNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1677,6 +3603,44 @@ end
 #     $foo = 1
 #     ^^^^^^^^
 class Prism::GlobalVariableWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, name, name_loc, value, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).returns(Prism::GlobalVariableWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1693,6 +3657,44 @@ end
 #     { a => b }
 #     ^^^^^^^^^^
 class Prism::HashNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def opening_loc; end
+
+  sig { returns(T::Array[T.any(Prism::AssocNode, Prism::AssocSplatNode)]) }
+  def elements; end
+
+  sig { returns(Prism::Location) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: Prism::Location, elements: T::Array[T.any(Prism::AssocNode, Prism::AssocSplatNode)], closing_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, opening_loc, elements, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: Prism::Location, elements: T::Array[T.any(Prism::AssocNode, Prism::AssocSplatNode)], closing_loc: Prism::Location).returns(Prism::HashNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, elements: self.elements, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def opening; end
+
+  sig { returns(String) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1712,6 +3714,50 @@ end
 #     foo => { a: 1, b: 2, **c }
 #            ^^^^^^^^^^^^^^^^^^^
 class Prism::HashPatternNode < Prism::Node
+  sig { returns(T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode))) }
+  def constant; end
+
+  sig { returns(T::Array[Prism::AssocNode]) }
+  def elements; end
+
+  sig { returns(T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode))) }
+  def rest; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def opening_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, constant, elements, rest, opening_loc, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::HashPatternNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, elements: self.elements, rest: self.rest, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def opening; end
+
+  sig { returns(T.nilable(String)) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1734,6 +3780,56 @@ end
 #     foo ? bar : baz
 #     ^^^^^^^^^^^^^^^
 class Prism::IfNode < Prism::Node
+  sig { returns(T.nilable(Prism::Location)) }
+  def if_keyword_loc; end
+
+  sig { returns(Prism::Node) }
+  def predicate; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def then_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(T.nilable(T.any(Prism::ElseNode, Prism::IfNode))) }
+  def subsequent; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, if_keyword_loc: T.nilable(Prism::Location), predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(T.any(Prism::ElseNode, Prism::IfNode)), end_keyword_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, subsequent, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, if_keyword_loc: T.nilable(Prism::Location), predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(T.any(Prism::ElseNode, Prism::IfNode)), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::IfNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, if_keyword_loc: self.if_keyword_loc, predicate: self.predicate, then_keyword_loc: self.then_keyword_loc, statements: self.statements, subsequent: self.subsequent, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def if_keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def then_keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1750,6 +3846,32 @@ end
 #     1.0i
 #     ^^^^
 class Prism::ImaginaryNode < Prism::Node
+  sig { returns(T.any(Prism::FloatNode, Prism::IntegerNode, Prism::RationalNode)) }
+  def numeric; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, numeric: T.any(Prism::FloatNode, Prism::IntegerNode, Prism::RationalNode)).void }
+  def initialize(source, node_id, location, flags, numeric); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, numeric: T.any(Prism::FloatNode, Prism::IntegerNode, Prism::RationalNode)).returns(Prism::ImaginaryNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, numeric: self.numeric); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1772,6 +3894,32 @@ end
 #     foo in { bar: }
 #              ^^^^
 class Prism::ImplicitNode < Prism::Node
+  sig { returns(T.any(Prism::LocalVariableReadNode, Prism::CallNode, Prism::ConstantReadNode, Prism::LocalVariableTargetNode)) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, value: T.any(Prism::LocalVariableReadNode, Prism::CallNode, Prism::ConstantReadNode, Prism::LocalVariableTargetNode)).void }
+  def initialize(source, node_id, location, flags, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, value: T.any(Prism::LocalVariableReadNode, Prism::CallNode, Prism::ConstantReadNode, Prism::LocalVariableTargetNode)).returns(Prism::ImplicitNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1797,6 +3945,29 @@ end
 #     foo, = bar
 #        ^
 class Prism::ImplicitRestNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::ImplicitRestNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1813,6 +3984,47 @@ end
 #     case a; in b then c end
 #             ^^^^^^^^^^^
 class Prism::InNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def pattern; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(Prism::Location) }
+  def in_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def then_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, pattern: Prism::Node, statements: T.nilable(Prism::StatementsNode), in_loc: Prism::Location, then_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, pattern, statements, in_loc, then_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, pattern: Prism::Node, statements: T.nilable(Prism::StatementsNode), in_loc: Prism::Location, then_loc: T.nilable(Prism::Location)).returns(Prism::InNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, pattern: self.pattern, statements: self.statements, in_loc: self.in_loc, then_loc: self.then_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def in; end
+
+  sig { returns(T.nilable(String)) }
+  def then; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -1829,7 +4041,6 @@ end
 #     foo.bar[baz] &&= value
 #     ^^^^^^^^^^^^^^^^^^^^^^
 class Prism::IndexAndWriteNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -1917,7 +4128,6 @@ end
 #     foo.bar[baz] += value
 #     ^^^^^^^^^^^^^^^^^^^^^
 class Prism::IndexOperatorWriteNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -2005,7 +4215,6 @@ end
 #     foo.bar[baz] ||= value
 #     ^^^^^^^^^^^^^^^^^^^^^^
 class Prism::IndexOrWriteNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -2101,7 +4310,6 @@ end
 #     for foo[bar] in baz do end
 #         ^^^^^^^^
 class Prism::IndexTargetNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def safe_navigation?; end
 
@@ -2174,6 +4382,44 @@ end
 #     @target &&= value
 #     ^^^^^^^^^^^^^^^^^
 class Prism::InstanceVariableAndWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, name, name_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::InstanceVariableAndWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2190,6 +4436,44 @@ end
 #     @target += value
 #     ^^^^^^^^^^^^^^^^
 class Prism::InstanceVariableOperatorWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def binary_operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Symbol) }
+  def binary_operator; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).void }
+  def initialize(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, binary_operator: Symbol).returns(Prism::InstanceVariableOperatorWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2206,6 +4490,44 @@ end
 #     @target ||= value
 #     ^^^^^^^^^^^^^^^^^
 class Prism::InstanceVariableOrWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, name, name_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node).returns(Prism::InstanceVariableOrWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2222,6 +4544,32 @@ end
 #     @foo
 #     ^^^^
 class Prism::InstanceVariableReadNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::InstanceVariableReadNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2238,6 +4586,32 @@ end
 #     @foo, @bar = baz
 #     ^^^^  ^^^^
 class Prism::InstanceVariableTargetNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).void }
+  def initialize(source, node_id, location, flags, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol).returns(Prism::InstanceVariableTargetNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2254,6 +4628,44 @@ end
 #     @foo = 1
 #     ^^^^^^^^
 class Prism::InstanceVariableWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, name, name_loc, value, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).returns(Prism::InstanceVariableWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2270,7 +4682,6 @@ end
 #     1
 #     ^
 class Prism::IntegerNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def binary?; end
 
@@ -2325,7 +4736,6 @@ end
 #     if /foo #{bar} baz/ then end
 #        ^^^^^^^^^^^^^^^^
 class Prism::InterpolatedMatchLastLineNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def ignore_case?; end
 
@@ -2413,7 +4823,6 @@ end
 #     /foo #{bar} baz/
 #     ^^^^^^^^^^^^^^^^
 class Prism::InterpolatedRegularExpressionNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def ignore_case?; end
 
@@ -2501,7 +4910,6 @@ end
 #     "foo #{bar} baz"
 #     ^^^^^^^^^^^^^^^^
 class Prism::InterpolatedStringNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def frozen?; end
 
@@ -2562,6 +4970,44 @@ end
 #     :"foo #{bar} baz"
 #     ^^^^^^^^^^^^^^^^^
 class Prism::InterpolatedSymbolNode < Prism::Node
+  sig { returns(T.nilable(Prism::Location)) }
+  def opening_loc; end
+
+  sig { returns(T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode)]) }
+  def parts; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: T.nilable(Prism::Location), parts: T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode)], closing_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, opening_loc, parts, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: T.nilable(Prism::Location), parts: T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode)], closing_loc: T.nilable(Prism::Location)).returns(Prism::InterpolatedSymbolNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def opening; end
+
+  sig { returns(T.nilable(String)) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2578,6 +5024,44 @@ end
 #     `foo #{bar} baz`
 #     ^^^^^^^^^^^^^^^^
 class Prism::InterpolatedXStringNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def opening_loc; end
+
+  sig { returns(T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode)]) }
+  def parts; end
+
+  sig { returns(Prism::Location) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: Prism::Location, parts: T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode)], closing_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, opening_loc, parts, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: Prism::Location, parts: T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode)], closing_loc: Prism::Location).returns(Prism::InterpolatedXStringNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def opening; end
+
+  sig { returns(String) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2594,6 +5078,29 @@ end
 #     -> { it }
 #          ^^
 class Prism::ItLocalVariableReadNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::ItLocalVariableReadNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2610,6 +5117,29 @@ end
 #     -> { it + it }
 #     ^^^^^^^^^^^^^^
 class Prism::ItParametersNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::ItParametersNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2626,7 +5156,6 @@ end
 #     foo(a: b)
 #         ^^^^
 class Prism::KeywordHashNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def symbol_keys?; end
 
@@ -2673,7 +5202,6 @@ end
 #           ^^^
 #     end
 class Prism::KeywordRestParameterNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def repeated_parameter?; end
 
@@ -2728,6 +5256,56 @@ end
 #     ->(value) { value * 2 }
 #     ^^^^^^^^^^^^^^^^^^^^^^^
 class Prism::LambdaNode < Prism::Node
+  sig { returns(T::Array[Symbol]) }
+  def locals; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Location) }
+  def opening_loc; end
+
+  sig { returns(Prism::Location) }
+  def closing_loc; end
+
+  sig { returns(T.nilable(T.any(Prism::BlockParametersNode, Prism::NumberedParametersNode, Prism::ItParametersNode))) }
+  def parameters; end
+
+  sig { returns(T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode))) }
+  def body; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], operator_loc: Prism::Location, opening_loc: Prism::Location, closing_loc: Prism::Location, parameters: T.nilable(T.any(Prism::BlockParametersNode, Prism::NumberedParametersNode, Prism::ItParametersNode)), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode))).void }
+  def initialize(source, node_id, location, flags, locals, operator_loc, opening_loc, closing_loc, parameters, body); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], operator_loc: Prism::Location, opening_loc: Prism::Location, closing_loc: Prism::Location, parameters: T.nilable(T.any(Prism::BlockParametersNode, Prism::NumberedParametersNode, Prism::ItParametersNode)), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode))).returns(Prism::LambdaNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, operator_loc: self.operator_loc, opening_loc: self.opening_loc, closing_loc: self.closing_loc, parameters: self.parameters, body: self.body); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
+
+  sig { returns(String) }
+  def opening; end
+
+  sig { returns(String) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2744,6 +5322,47 @@ end
 #     target &&= value
 #     ^^^^^^^^^^^^^^^^
 class Prism::LocalVariableAndWriteNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Integer) }
+  def depth; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node, name: Symbol, depth: Integer).void }
+  def initialize(source, node_id, location, flags, name_loc, operator_loc, value, name, depth); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node, name: Symbol, depth: Integer).returns(Prism::LocalVariableAndWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value, name: self.name, depth: self.depth); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2760,6 +5379,47 @@ end
 #     target += value
 #     ^^^^^^^^^^^^^^^
 class Prism::LocalVariableOperatorWriteNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def binary_operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Symbol) }
+  def binary_operator; end
+
+  sig { returns(Integer) }
+  def depth; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, name: Symbol, binary_operator: Symbol, depth: Integer).void }
+  def initialize(source, node_id, location, flags, name_loc, binary_operator_loc, value, name, binary_operator, depth); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name_loc: Prism::Location, binary_operator_loc: Prism::Location, value: Prism::Node, name: Symbol, binary_operator: Symbol, depth: Integer).returns(Prism::LocalVariableOperatorWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, name: self.name, binary_operator: self.binary_operator, depth: self.depth); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2776,6 +5436,47 @@ end
 #     target ||= value
 #     ^^^^^^^^^^^^^^^^
 class Prism::LocalVariableOrWriteNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Integer) }
+  def depth; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node, name: Symbol, depth: Integer).void }
+  def initialize(source, node_id, location, flags, name_loc, operator_loc, value, name, depth); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name_loc: Prism::Location, operator_loc: Prism::Location, value: Prism::Node, name: Symbol, depth: Integer).returns(Prism::LocalVariableOrWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value, name: self.name, depth: self.depth); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2792,6 +5493,35 @@ end
 #     foo
 #     ^^^
 class Prism::LocalVariableReadNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Integer) }
+  def depth; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, depth: Integer).void }
+  def initialize(source, node_id, location, flags, name, depth); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, depth: Integer).returns(Prism::LocalVariableReadNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, depth: self.depth); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2808,6 +5538,35 @@ end
 #     foo, bar = baz
 #     ^^^  ^^^
 class Prism::LocalVariableTargetNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Integer) }
+  def depth; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, depth: Integer).void }
+  def initialize(source, node_id, location, flags, name, depth); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, depth: Integer).returns(Prism::LocalVariableTargetNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, depth: self.depth); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2824,6 +5583,47 @@ end
 #     foo = 1
 #     ^^^^^^^
 class Prism::LocalVariableWriteNode < Prism::Node
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { returns(Integer) }
+  def depth; end
+
+  sig { returns(Prism::Location) }
+  def name_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, depth: Integer, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, name, depth, name_loc, value, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, name: Symbol, depth: Integer, name_loc: Prism::Location, value: Prism::Node, operator_loc: Prism::Location).returns(Prism::LocalVariableWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, depth: self.depth, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2840,7 +5640,6 @@ end
 #     if /foo/i then end
 #        ^^^^^^
 class Prism::MatchLastLineNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def ignore_case?; end
 
@@ -2934,6 +5733,41 @@ end
 #     foo in bar
 #     ^^^^^^^^^^
 class Prism::MatchPredicateNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Prism::Node) }
+  def pattern; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, value: Prism::Node, pattern: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, value, pattern, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, value: Prism::Node, pattern: Prism::Node, operator_loc: Prism::Location).returns(Prism::MatchPredicateNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value, pattern: self.pattern, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2950,6 +5784,41 @@ end
 #     foo => bar
 #     ^^^^^^^^^^
 class Prism::MatchRequiredNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { returns(Prism::Node) }
+  def pattern; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, value: Prism::Node, pattern: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, value, pattern, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, value: Prism::Node, pattern: Prism::Node, operator_loc: Prism::Location).returns(Prism::MatchRequiredNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value, pattern: self.pattern, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2966,6 +5835,35 @@ end
 #     /(?<foo>bar)/ =~ baz
 #     ^^^^^^^^^^^^^^^^^^^^
 class Prism::MatchWriteNode < Prism::Node
+  sig { returns(Prism::CallNode) }
+  def call; end
+
+  sig { returns(T::Array[Prism::LocalVariableTargetNode]) }
+  def targets; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, call: Prism::CallNode, targets: T::Array[Prism::LocalVariableTargetNode]).void }
+  def initialize(source, node_id, location, flags, call, targets); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, call: Prism::CallNode, targets: T::Array[Prism::LocalVariableTargetNode]).returns(Prism::MatchWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, call: self.call, targets: self.targets); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2979,6 +5877,29 @@ end
 
 # Represents a node that is missing from the source and results in a syntax error.
 class Prism::MissingNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::MissingNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -2995,6 +5916,53 @@ end
 #     module Foo end
 #     ^^^^^^^^^^^^^^
 class Prism::ModuleNode < Prism::Node
+  sig { returns(T::Array[Symbol]) }
+  def locals; end
+
+  sig { returns(Prism::Location) }
+  def module_keyword_loc; end
+
+  sig { returns(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode, Prism::MissingNode)) }
+  def constant_path; end
+
+  sig { returns(T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode))) }
+  def body; end
+
+  sig { returns(Prism::Location) }
+  def end_keyword_loc; end
+
+  sig { returns(Symbol) }
+  def name; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], module_keyword_loc: Prism::Location, constant_path: T.any(Prism::ConstantReadNode, Prism::ConstantPathNode, Prism::MissingNode), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), end_keyword_loc: Prism::Location, name: Symbol).void }
+  def initialize(source, node_id, location, flags, locals, module_keyword_loc, constant_path, body, end_keyword_loc, name); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], module_keyword_loc: Prism::Location, constant_path: T.any(Prism::ConstantReadNode, Prism::ConstantPathNode, Prism::MissingNode), body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), end_keyword_loc: Prism::Location, name: Symbol).returns(Prism::ModuleNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, module_keyword_loc: self.module_keyword_loc, constant_path: self.constant_path, body: self.body, end_keyword_loc: self.end_keyword_loc, name: self.name); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def module_keyword; end
+
+  sig { returns(String) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3016,6 +5984,50 @@ end
 #     for a, b in [[1, 2], [3, 4]]
 #         ^^^^
 class Prism::MultiTargetNode < Prism::Node
+  sig { returns(T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::RequiredParameterNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)]) }
+  def lefts; end
+
+  sig { returns(T.nilable(T.any(Prism::ImplicitRestNode, Prism::SplatNode))) }
+  def rest; end
+
+  sig { returns(T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::RequiredParameterNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)]) }
+  def rights; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def lparen_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def rparen_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, lefts: T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::RequiredParameterNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)], rest: T.nilable(T.any(Prism::ImplicitRestNode, Prism::SplatNode)), rights: T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::RequiredParameterNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)], lparen_loc: T.nilable(Prism::Location), rparen_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, lefts, rest, rights, lparen_loc, rparen_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, lefts: T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::RequiredParameterNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)], rest: T.nilable(T.any(Prism::ImplicitRestNode, Prism::SplatNode)), rights: T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::RequiredParameterNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)], lparen_loc: T.nilable(Prism::Location), rparen_loc: T.nilable(Prism::Location)).returns(Prism::MultiTargetNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, lefts: self.lefts, rest: self.rest, rights: self.rights, lparen_loc: self.lparen_loc, rparen_loc: self.rparen_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def lparen; end
+
+  sig { returns(T.nilable(String)) }
+  def rparen; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3032,6 +6044,59 @@ end
 #     a, b, c = 1, 2, 3
 #     ^^^^^^^^^^^^^^^^^
 class Prism::MultiWriteNode < Prism::Node
+  sig { returns(T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)]) }
+  def lefts; end
+
+  sig { returns(T.nilable(T.any(Prism::ImplicitRestNode, Prism::SplatNode))) }
+  def rest; end
+
+  sig { returns(T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)]) }
+  def rights; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def lparen_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def rparen_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def value; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, lefts: T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)], rest: T.nilable(T.any(Prism::ImplicitRestNode, Prism::SplatNode)), rights: T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)], lparen_loc: T.nilable(Prism::Location), rparen_loc: T.nilable(Prism::Location), operator_loc: Prism::Location, value: Prism::Node).void }
+  def initialize(source, node_id, location, flags, lefts, rest, rights, lparen_loc, rparen_loc, operator_loc, value); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, lefts: T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)], rest: T.nilable(T.any(Prism::ImplicitRestNode, Prism::SplatNode)), rights: T::Array[T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::MultiTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode)], lparen_loc: T.nilable(Prism::Location), rparen_loc: T.nilable(Prism::Location), operator_loc: Prism::Location, value: Prism::Node).returns(Prism::MultiWriteNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, lefts: self.lefts, rest: self.rest, rights: self.rights, lparen_loc: self.lparen_loc, rparen_loc: self.rparen_loc, operator_loc: self.operator_loc, value: self.value); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(T.nilable(String)) }
+  def lparen; end
+
+  sig { returns(T.nilable(String)) }
+  def rparen; end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3048,6 +6113,38 @@ end
 #     next 1
 #     ^^^^^^
 class Prism::NextNode < Prism::Node
+  sig { returns(T.nilable(Prism::ArgumentsNode)) }
+  def arguments; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, arguments: T.nilable(Prism::ArgumentsNode), keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, arguments, keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, arguments: T.nilable(Prism::ArgumentsNode), keyword_loc: Prism::Location).returns(Prism::NextNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, arguments: self.arguments, keyword_loc: self.keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3064,6 +6161,29 @@ end
 #     nil
 #     ^^^
 class Prism::NilNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::NilNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3081,6 +6201,41 @@ end
 #           ^^^^^
 #     end
 class Prism::NoKeywordsParameterNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, operator_loc: Prism::Location, keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, operator_loc, keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, operator_loc: Prism::Location, keyword_loc: Prism::Location).returns(Prism::NoKeywordsParameterNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, operator_loc: self.operator_loc, keyword_loc: self.keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3097,6 +6252,32 @@ end
 #     -> { _1 + _2 }
 #     ^^^^^^^^^^^^^^
 class Prism::NumberedParametersNode < Prism::Node
+  sig { returns(Integer) }
+  def maximum; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, maximum: Integer).void }
+  def initialize(source, node_id, location, flags, maximum); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, maximum: Integer).returns(Prism::NumberedParametersNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, maximum: self.maximum); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3113,6 +6294,32 @@ end
 #     $1
 #     ^^
 class Prism::NumberedReferenceReadNode < Prism::Node
+  sig { returns(Integer) }
+  def number; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, number: Integer).void }
+  def initialize(source, node_id, location, flags, number); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, number: Integer).returns(Prism::NumberedReferenceReadNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, number: self.number); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3130,7 +6337,6 @@ end
 #           ^^^^
 #     end
 class Prism::OptionalKeywordParameterNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def repeated_parameter?; end
 
@@ -3183,7 +6389,6 @@ end
 #           ^^^^^
 #     end
 class Prism::OptionalParameterNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def repeated_parameter?; end
 
@@ -3241,6 +6446,41 @@ end
 #     left or right
 #     ^^^^^^^^^^^^^
 class Prism::OrNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def left; end
+
+  sig { returns(Prism::Node) }
+  def right; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, left: Prism::Node, right: Prism::Node, operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, left, right, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, left: Prism::Node, right: Prism::Node, operator_loc: Prism::Location).returns(Prism::OrNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, left: self.left, right: self.right, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3258,6 +6498,50 @@ end
 #           ^^^^^^^
 #     end
 class Prism::ParametersNode < Prism::Node
+  sig { returns(T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)]) }
+  def requireds; end
+
+  sig { returns(T::Array[Prism::OptionalParameterNode]) }
+  def optionals; end
+
+  sig { returns(T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode))) }
+  def rest; end
+
+  sig { returns(T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)]) }
+  def posts; end
+
+  sig { returns(T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)]) }
+  def keywords; end
+
+  sig { returns(T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode))) }
+  def keyword_rest; end
+
+  sig { returns(T.nilable(Prism::BlockParameterNode)) }
+  def block; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(Prism::BlockParameterNode)).void }
+  def initialize(source, node_id, location, flags, requireds, optionals, rest, posts, keywords, keyword_rest, block); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(Prism::BlockParameterNode)).returns(Prism::ParametersNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, requireds: self.requireds, optionals: self.optionals, rest: self.rest, posts: self.posts, keywords: self.keywords, keyword_rest: self.keyword_rest, block: self.block); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3274,6 +6558,44 @@ end
 #     (10 + 34)
 #     ^^^^^^^^^
 class Prism::ParenthesesNode < Prism::Node
+  sig { returns(T.nilable(Prism::Node)) }
+  def body; end
+
+  sig { returns(Prism::Location) }
+  def opening_loc; end
+
+  sig { returns(Prism::Location) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, body: T.nilable(Prism::Node), opening_loc: Prism::Location, closing_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, body, opening_loc, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, body: T.nilable(Prism::Node), opening_loc: Prism::Location, closing_loc: Prism::Location).returns(Prism::ParenthesesNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, body: self.body, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def opening; end
+
+  sig { returns(String) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3290,6 +6612,50 @@ end
 #     foo in ^(bar)
 #            ^^^^^^
 class Prism::PinnedExpressionNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def expression; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Location) }
+  def lparen_loc; end
+
+  sig { returns(Prism::Location) }
+  def rparen_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, expression: Prism::Node, operator_loc: Prism::Location, lparen_loc: Prism::Location, rparen_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, expression, operator_loc, lparen_loc, rparen_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, expression: Prism::Node, operator_loc: Prism::Location, lparen_loc: Prism::Location, rparen_loc: Prism::Location).returns(Prism::PinnedExpressionNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, expression: self.expression, operator_loc: self.operator_loc, lparen_loc: self.lparen_loc, rparen_loc: self.rparen_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
+
+  sig { returns(String) }
+  def lparen; end
+
+  sig { returns(String) }
+  def rparen; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3306,6 +6672,38 @@ end
 #     foo in ^bar
 #            ^^^^
 class Prism::PinnedVariableNode < Prism::Node
+  sig { returns(T.any(Prism::LocalVariableReadNode, Prism::InstanceVariableReadNode, Prism::ClassVariableReadNode, Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::ItLocalVariableReadNode, Prism::MissingNode)) }
+  def variable; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, variable: T.any(Prism::LocalVariableReadNode, Prism::InstanceVariableReadNode, Prism::ClassVariableReadNode, Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::ItLocalVariableReadNode, Prism::MissingNode), operator_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, variable, operator_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, variable: T.any(Prism::LocalVariableReadNode, Prism::InstanceVariableReadNode, Prism::ClassVariableReadNode, Prism::GlobalVariableReadNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::ItLocalVariableReadNode, Prism::MissingNode), operator_loc: Prism::Location).returns(Prism::PinnedVariableNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, variable: self.variable, operator_loc: self.operator_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3322,6 +6720,50 @@ end
 #     END { foo }
 #     ^^^^^^^^^^^
 class Prism::PostExecutionNode < Prism::Node
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(Prism::Location) }
+  def opening_loc; end
+
+  sig { returns(Prism::Location) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, statements: T.nilable(Prism::StatementsNode), keyword_loc: Prism::Location, opening_loc: Prism::Location, closing_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, statements, keyword_loc, opening_loc, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, statements: T.nilable(Prism::StatementsNode), keyword_loc: Prism::Location, opening_loc: Prism::Location, closing_loc: Prism::Location).returns(Prism::PostExecutionNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, statements: self.statements, keyword_loc: self.keyword_loc, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
+
+  sig { returns(String) }
+  def opening; end
+
+  sig { returns(String) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3338,6 +6780,50 @@ end
 #     BEGIN { foo }
 #     ^^^^^^^^^^^^^
 class Prism::PreExecutionNode < Prism::Node
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(Prism::Location) }
+  def opening_loc; end
+
+  sig { returns(Prism::Location) }
+  def closing_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, statements: T.nilable(Prism::StatementsNode), keyword_loc: Prism::Location, opening_loc: Prism::Location, closing_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, statements, keyword_loc, opening_loc, closing_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, statements: T.nilable(Prism::StatementsNode), keyword_loc: Prism::Location, opening_loc: Prism::Location, closing_loc: Prism::Location).returns(Prism::PreExecutionNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, statements: self.statements, keyword_loc: self.keyword_loc, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
+
+  sig { returns(String) }
+  def opening; end
+
+  sig { returns(String) }
+  def closing; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3351,6 +6837,35 @@ end
 
 # The top level node of any parse tree.
 class Prism::ProgramNode < Prism::Node
+  sig { returns(T::Array[Symbol]) }
+  def locals; end
+
+  sig { returns(Prism::StatementsNode) }
+  def statements; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], statements: Prism::StatementsNode).void }
+  def initialize(source, node_id, location, flags, locals, statements); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], statements: Prism::StatementsNode).returns(Prism::ProgramNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, statements: self.statements); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3370,7 +6885,6 @@ end
 #     c if a =~ /left/ ... b =~ /right/
 #          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 class Prism::RangeNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def exclude_end?; end
 
@@ -3425,7 +6939,6 @@ end
 #     1.0r
 #     ^^^^
 class Prism::RationalNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def binary?; end
 
@@ -3483,6 +6996,29 @@ end
 #     redo
 #     ^^^^
 class Prism::RedoNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::RedoNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3499,7 +7035,6 @@ end
 #     /foo/i
 #     ^^^^^^
 class Prism::RegularExpressionNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def ignore_case?; end
 
@@ -3594,7 +7129,6 @@ end
 #           ^^
 #     end
 class Prism::RequiredKeywordParameterNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def repeated_parameter?; end
 
@@ -3644,7 +7178,6 @@ end
 #           ^
 #     end
 class Prism::RequiredParameterNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def repeated_parameter?; end
 
@@ -3690,6 +7223,41 @@ end
 #     foo rescue nil
 #     ^^^^^^^^^^^^^^
 class Prism::RescueModifierNode < Prism::Node
+  sig { returns(Prism::Node) }
+  def expression; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(Prism::Node) }
+  def rescue_expression; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, expression: Prism::Node, keyword_loc: Prism::Location, rescue_expression: Prism::Node).void }
+  def initialize(source, node_id, location, flags, expression, keyword_loc, rescue_expression); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, expression: Prism::Node, keyword_loc: Prism::Location, rescue_expression: Prism::Node).returns(Prism::RescueModifierNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, expression: self.expression, keyword_loc: self.keyword_loc, rescue_expression: self.rescue_expression); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3711,6 +7279,53 @@ end
 #
 # `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `exception` field.
 class Prism::RescueNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(T::Array[Prism::Node]) }
+  def exceptions; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def operator_loc; end
+
+  sig { returns(T.nilable(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode))) }
+  def reference; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(T.nilable(Prism::RescueNode)) }
+  def subsequent; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, exceptions: T::Array[Prism::Node], operator_loc: T.nilable(Prism::Location), reference: T.nilable(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode)), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(Prism::RescueNode)).void }
+  def initialize(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, exceptions: T::Array[Prism::Node], operator_loc: T.nilable(Prism::Location), reference: T.nilable(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode)), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(Prism::RescueNode)).returns(Prism::RescueNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, exceptions: self.exceptions, operator_loc: self.operator_loc, reference: self.reference, statements: self.statements, subsequent: self.subsequent); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3728,7 +7343,6 @@ end
 #           ^^
 #     end
 class Prism::RestParameterNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def repeated_parameter?; end
 
@@ -3783,6 +7397,29 @@ end
 #     retry
 #     ^^^^^
 class Prism::RetryNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::RetryNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3799,6 +7436,38 @@ end
 #     return 1
 #     ^^^^^^^^
 class Prism::ReturnNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(T.nilable(Prism::ArgumentsNode)) }
+  def arguments; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, arguments: T.nilable(Prism::ArgumentsNode)).void }
+  def initialize(source, node_id, location, flags, keyword_loc, arguments); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, arguments: T.nilable(Prism::ArgumentsNode)).returns(Prism::ReturnNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, arguments: self.arguments); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3815,6 +7484,29 @@ end
 #     self
 #     ^^^^
 class Prism::SelfNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::SelfNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3832,7 +7524,6 @@ end
 #     C = { a: 1 }
 #     ^^^^^^^^^^^^
 class Prism::ShareableConstantNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def literal?; end
 
@@ -3884,6 +7575,56 @@ end
 #     class << self end
 #     ^^^^^^^^^^^^^^^^^
 class Prism::SingletonClassNode < Prism::Node
+  sig { returns(T::Array[Symbol]) }
+  def locals; end
+
+  sig { returns(Prism::Location) }
+  def class_keyword_loc; end
+
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Node) }
+  def expression; end
+
+  sig { returns(T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode))) }
+  def body; end
+
+  sig { returns(Prism::Location) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], class_keyword_loc: Prism::Location, operator_loc: Prism::Location, expression: Prism::Node, body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), end_keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, locals, class_keyword_loc, operator_loc, expression, body, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, locals: T::Array[Symbol], class_keyword_loc: Prism::Location, operator_loc: Prism::Location, expression: Prism::Node, body: T.nilable(T.any(Prism::StatementsNode, Prism::BeginNode)), end_keyword_loc: Prism::Location).returns(Prism::SingletonClassNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, class_keyword_loc: self.class_keyword_loc, operator_loc: self.operator_loc, expression: self.expression, body: self.body, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def class_keyword; end
+
+  sig { returns(String) }
+  def operator; end
+
+  sig { returns(String) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3900,6 +7641,29 @@ end
 #     __ENCODING__
 #     ^^^^^^^^^^^^
 class Prism::SourceEncodingNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::SourceEncodingNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3916,7 +7680,6 @@ end
 #     __FILE__
 #     ^^^^^^^^
 class Prism::SourceFileNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def forced_utf8_encoding?; end
 
@@ -3971,6 +7734,29 @@ end
 #     __LINE__
 #     ^^^^^^^^
 class Prism::SourceLineNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::SourceLineNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -3987,6 +7773,38 @@ end
 #     [*a]
 #      ^^
 class Prism::SplatNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(T.nilable(Prism::Node)) }
+  def expression; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, operator_loc: Prism::Location, expression: T.nilable(Prism::Node)).void }
+  def initialize(source, node_id, location, flags, operator_loc, expression); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, operator_loc: Prism::Location, expression: T.nilable(Prism::Node)).returns(Prism::SplatNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, operator_loc: self.operator_loc, expression: self.expression); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -4003,6 +7821,32 @@ end
 #     foo; bar; baz
 #     ^^^^^^^^^^^^^
 class Prism::StatementsNode < Prism::Node
+  sig { returns(T::Array[Prism::Node]) }
+  def body; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, body: T::Array[Prism::Node]).void }
+  def initialize(source, node_id, location, flags, body); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, body: T::Array[Prism::Node]).returns(Prism::StatementsNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, body: self.body); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -4025,7 +7869,6 @@ end
 #     "foo #{bar} baz"
 #      ^^^^      ^^^^
 class Prism::StringNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def forced_utf8_encoding?; end
 
@@ -4101,6 +7944,53 @@ end
 #     super foo, bar
 #     ^^^^^^^^^^^^^^
 class Prism::SuperNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def lparen_loc; end
+
+  sig { returns(T.nilable(Prism::ArgumentsNode)) }
+  def arguments; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def rparen_loc; end
+
+  sig { returns(T.nilable(T.any(Prism::BlockNode, Prism::BlockArgumentNode))) }
+  def block; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, lparen_loc: T.nilable(Prism::Location), arguments: T.nilable(Prism::ArgumentsNode), rparen_loc: T.nilable(Prism::Location), block: T.nilable(T.any(Prism::BlockNode, Prism::BlockArgumentNode))).void }
+  def initialize(source, node_id, location, flags, keyword_loc, lparen_loc, arguments, rparen_loc, block); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, lparen_loc: T.nilable(Prism::Location), arguments: T.nilable(Prism::ArgumentsNode), rparen_loc: T.nilable(Prism::Location), block: T.nilable(T.any(Prism::BlockNode, Prism::BlockArgumentNode))).returns(Prism::SuperNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, lparen_loc: self.lparen_loc, arguments: self.arguments, rparen_loc: self.rparen_loc, block: self.block); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def lparen; end
+
+  sig { returns(T.nilable(String)) }
+  def rparen; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -4120,7 +8010,6 @@ end
 #     %i[foo]
 #        ^^^
 class Prism::SymbolNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def forced_utf8_encoding?; end
 
@@ -4190,6 +8079,29 @@ end
 #     true
 #     ^^^^
 class Prism::TrueNode < Prism::Node
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).void }
+  def initialize(source, node_id, location, flags); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::TrueNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -4206,6 +8118,38 @@ end
 #     undef :foo, :bar, :baz
 #     ^^^^^^^^^^^^^^^^^^^^^^
 class Prism::UndefNode < Prism::Node
+  sig { returns(T::Array[T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode)]) }
+  def names; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, names: T::Array[T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode)], keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, names, keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, names: T::Array[T.any(Prism::SymbolNode, Prism::InterpolatedSymbolNode)], keyword_loc: Prism::Location).returns(Prism::UndefNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, names: self.names, keyword_loc: self.keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -4225,6 +8169,56 @@ end
 #     unless foo then bar end
 #     ^^^^^^^^^^^^^^^^^^^^^^^
 class Prism::UnlessNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(Prism::Node) }
+  def predicate; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def then_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { returns(T.nilable(Prism::ElseNode)) }
+  def else_clause; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def end_keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), else_clause: T.nilable(Prism::ElseNode), end_keyword_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, else_clause, end_keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), else_clause: T.nilable(Prism::ElseNode), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::UnlessNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, predicate: self.predicate, then_keyword_loc: self.then_keyword_loc, statements: self.statements, else_clause: self.else_clause, end_keyword_loc: self.end_keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def then_keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def end_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -4244,7 +8238,6 @@ end
 #     until foo do bar end
 #     ^^^^^^^^^^^^^^^^^^^^
 class Prism::UntilNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def begin_modifier?; end
 
@@ -4307,6 +8300,47 @@ end
 #     ^^^^^^^^^
 #     end
 class Prism::WhenNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(T::Array[Prism::Node]) }
+  def conditions; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def then_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::StatementsNode)) }
+  def statements; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, conditions: T::Array[Prism::Node], then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode)).void }
+  def initialize(source, node_id, location, flags, keyword_loc, conditions, then_keyword_loc, statements); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, conditions: T::Array[Prism::Node], then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode)).returns(Prism::WhenNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, conditions: self.conditions, then_keyword_loc: self.then_keyword_loc, statements: self.statements); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def then_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end
@@ -4326,7 +8360,6 @@ end
 #     while foo do bar end
 #     ^^^^^^^^^^^^^^^^^^^^
 class Prism::WhileNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def begin_modifier?; end
 
@@ -4387,7 +8420,6 @@ end
 #     `foo`
 #     ^^^^^
 class Prism::XStringNode < Prism::Node
-
   sig { returns(T::Boolean) }
   def forced_utf8_encoding?; end
 
@@ -4454,6 +8486,50 @@ end
 #     yield 1
 #     ^^^^^^^
 class Prism::YieldNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def lparen_loc; end
+
+  sig { returns(T.nilable(Prism::ArgumentsNode)) }
+  def arguments; end
+
+  sig { returns(T.nilable(Prism::Location)) }
+  def rparen_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, lparen_loc: T.nilable(Prism::Location), arguments: T.nilable(Prism::ArgumentsNode), rparen_loc: T.nilable(Prism::Location)).void }
+  def initialize(source, node_id, location, flags, keyword_loc, lparen_loc, arguments, rparen_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, lparen_loc: T.nilable(Prism::Location), arguments: T.nilable(Prism::ArgumentsNode), rparen_loc: T.nilable(Prism::Location)).returns(Prism::YieldNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, lparen_loc: self.lparen_loc, arguments: self.arguments, rparen_loc: self.rparen_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def lparen; end
+
+  sig { returns(T.nilable(String)) }
+  def rparen; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end

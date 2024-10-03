@@ -138,13 +138,9 @@ module Prism
     include _Node
 
     def contains_forwarding?: () -> bool
-
     def contains_keywords?: () -> bool
-
     def contains_keyword_splat?: () -> bool
-
     def contains_splat?: () -> bool
-
     def contains_multiple_splats?: () -> bool
 
     attr_reader arguments: Array[Prism::node]
@@ -435,11 +431,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node?
@@ -484,11 +477,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node?
@@ -520,11 +510,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node?
@@ -554,11 +541,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node?
@@ -596,11 +580,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node
@@ -1678,11 +1659,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node?
@@ -1714,11 +1692,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node?
@@ -1750,11 +1725,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node?
@@ -1794,11 +1766,8 @@ module Prism
     include _Node
 
     def safe_navigation?: () -> bool
-
     def variable_call?: () -> bool
-
     def attribute_write?: () -> bool
-
     def ignore_visibility?: () -> bool
 
     attr_reader receiver: Prism::node
@@ -1943,11 +1912,8 @@ module Prism
     include _Node
 
     def binary?: () -> bool
-
     def decimal?: () -> bool
-
     def octal?: () -> bool
-
     def hexadecimal?: () -> bool
 
     attr_reader value: Integer
@@ -1968,25 +1934,15 @@ module Prism
     include _Node
 
     def ignore_case?: () -> bool
-
     def extended?: () -> bool
-
     def multi_line?: () -> bool
-
     def once?: () -> bool
-
     def euc_jp?: () -> bool
-
     def ascii_8bit?: () -> bool
-
     def windows_31j?: () -> bool
-
     def utf_8?: () -> bool
-
     def forced_utf8_encoding?: () -> bool
-
     def forced_binary_encoding?: () -> bool
-
     def forced_us_ascii_encoding?: () -> bool
 
     attr_reader opening_loc: Location
@@ -2011,25 +1967,15 @@ module Prism
     include _Node
 
     def ignore_case?: () -> bool
-
     def extended?: () -> bool
-
     def multi_line?: () -> bool
-
     def once?: () -> bool
-
     def euc_jp?: () -> bool
-
     def ascii_8bit?: () -> bool
-
     def windows_31j?: () -> bool
-
     def utf_8?: () -> bool
-
     def forced_utf8_encoding?: () -> bool
-
     def forced_binary_encoding?: () -> bool
-
     def forced_us_ascii_encoding?: () -> bool
 
     attr_reader opening_loc: Location
@@ -2054,7 +2000,6 @@ module Prism
     include _Node
 
     def frozen?: () -> bool
-
     def mutable?: () -> bool
 
     attr_reader opening_loc: Location?
@@ -2344,25 +2289,15 @@ module Prism
     include _Node
 
     def ignore_case?: () -> bool
-
     def extended?: () -> bool
-
     def multi_line?: () -> bool
-
     def once?: () -> bool
-
     def euc_jp?: () -> bool
-
     def ascii_8bit?: () -> bool
-
     def windows_31j?: () -> bool
-
     def utf_8?: () -> bool
-
     def forced_utf8_encoding?: () -> bool
-
     def forced_binary_encoding?: () -> bool
-
     def forced_us_ascii_encoding?: () -> bool
 
     attr_reader opening_loc: Location
@@ -2867,11 +2802,8 @@ module Prism
     include _Node
 
     def binary?: () -> bool
-
     def decimal?: () -> bool
-
     def octal?: () -> bool
-
     def hexadecimal?: () -> bool
 
     attr_reader numerator: Integer
@@ -2909,25 +2841,15 @@ module Prism
     include _Node
 
     def ignore_case?: () -> bool
-
     def extended?: () -> bool
-
     def multi_line?: () -> bool
-
     def once?: () -> bool
-
     def euc_jp?: () -> bool
-
     def ascii_8bit?: () -> bool
-
     def windows_31j?: () -> bool
-
     def utf_8?: () -> bool
-
     def forced_utf8_encoding?: () -> bool
-
     def forced_binary_encoding?: () -> bool
-
     def forced_us_ascii_encoding?: () -> bool
 
     attr_reader opening_loc: Location
@@ -3119,9 +3041,7 @@ module Prism
     include _Node
 
     def literal?: () -> bool
-
     def experimental_everything?: () -> bool
-
     def experimental_copy?: () -> bool
 
     attr_reader write: ConstantWriteNode | ConstantAndWriteNode | ConstantOrWriteNode | ConstantOperatorWriteNode | ConstantPathWriteNode | ConstantPathAndWriteNode | ConstantPathOrWriteNode | ConstantPathOperatorWriteNode
@@ -3183,11 +3103,8 @@ module Prism
     include _Node
 
     def forced_utf8_encoding?: () -> bool
-
     def forced_binary_encoding?: () -> bool
-
     def frozen?: () -> bool
-
     def mutable?: () -> bool
 
     attr_reader filepath: String
@@ -3266,11 +3183,8 @@ module Prism
     include _Node
 
     def forced_utf8_encoding?: () -> bool
-
     def forced_binary_encoding?: () -> bool
-
     def frozen?: () -> bool
-
     def mutable?: () -> bool
 
     attr_reader opening_loc: Location?
@@ -3327,9 +3241,7 @@ module Prism
     include _Node
 
     def forced_utf8_encoding?: () -> bool
-
     def forced_binary_encoding?: () -> bool
-
     def forced_us_ascii_encoding?: () -> bool
 
     attr_reader opening_loc: Location?
@@ -3497,7 +3409,6 @@ module Prism
     include _Node
 
     def forced_utf8_encoding?: () -> bool
-
     def forced_binary_encoding?: () -> bool
 
     attr_reader opening_loc: Location
