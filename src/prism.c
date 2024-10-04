@@ -8570,6 +8570,7 @@ context_terminator(pm_context_t context, pm_token_t *token) {
         case PM_CONTEXT_MAIN:
         case PM_CONTEXT_DEF_PARAMS:
         case PM_CONTEXT_DEFINED:
+        case PM_CONTEXT_MULTI_TARGET:
         case PM_CONTEXT_TERNARY:
         case PM_CONTEXT_RESCUE_MODIFIER:
             return token->type == PM_TOKEN_EOF;
@@ -8774,6 +8775,7 @@ context_human(pm_context_t context) {
         case PM_CONTEXT_LOOP_PREDICATE: return "loop predicate";
         case PM_CONTEXT_MAIN: return "top level context";
         case PM_CONTEXT_MODULE: return "module definition";
+        case PM_CONTEXT_MULTI_TARGET: return "multiple targets";
         case PM_CONTEXT_PARENS: return "parentheses";
         case PM_CONTEXT_POSTEXE: return "'END' block";
         case PM_CONTEXT_PREDICATE: return "predicate";
@@ -13799,6 +13801,13 @@ parse_targets(pm_parser_t *parser, pm_node_t *first_target, pm_binding_power_t b
             pm_node_t *splat = (pm_node_t *) pm_splat_node_create(parser, &star_operator, name);
             pm_multi_target_node_targets_append(parser, result, splat);
             has_rest = true;
+        } else if (match1(parser, PM_TOKEN_PARENTHESIS_LEFT)) {
+            context_push(parser, PM_CONTEXT_MULTI_TARGET);
+            pm_node_t *target = parse_expression(parser, binding_power, false, false, PM_ERR_EXPECT_EXPRESSION_AFTER_COMMA, (uint16_t) (depth + 1));
+            target = parse_target(parser, target, true, false);
+
+            pm_multi_target_node_targets_append(parser, result, target);
+            context_pop(parser);
         } else if (token_begins_expression_p(parser->current.type)) {
             pm_node_t *target = parse_expression(parser, binding_power, false, false, PM_ERR_EXPECT_EXPRESSION_AFTER_COMMA, (uint16_t) (depth + 1));
             target = parse_target(parser, target, true, false);
@@ -15502,6 +15511,7 @@ parse_return(pm_parser_t *parser, pm_node_t *node) {
             case PM_CONTEXT_IF:
             case PM_CONTEXT_LOOP_PREDICATE:
             case PM_CONTEXT_MAIN:
+            case PM_CONTEXT_MULTI_TARGET:
             case PM_CONTEXT_PARENS:
             case PM_CONTEXT_POSTEXE:
             case PM_CONTEXT_PREDICATE:
@@ -15630,6 +15640,7 @@ parse_block_exit(pm_parser_t *parser, pm_node_t *node) {
             case PM_CONTEXT_MODULE_ENSURE:
             case PM_CONTEXT_MODULE_RESCUE:
             case PM_CONTEXT_MODULE:
+            case PM_CONTEXT_MULTI_TARGET:
             case PM_CONTEXT_PARENS:
             case PM_CONTEXT_PREDICATE:
             case PM_CONTEXT_RESCUE_MODIFIER:
@@ -17047,7 +17058,7 @@ parse_pattern_hash(pm_parser_t *parser, pm_constant_id_list_t *captures, pm_node
                 parse_pattern_hash_key(parser, &keys, first_node);
                 pm_node_t *value;
 
-                if (match7(parser, PM_TOKEN_COMMA, PM_TOKEN_KEYWORD_THEN, PM_TOKEN_BRACE_RIGHT, PM_TOKEN_BRACKET_RIGHT, PM_TOKEN_PARENTHESIS_RIGHT, PM_TOKEN_NEWLINE, PM_TOKEN_SEMICOLON)) {
+                if (match8(parser, PM_TOKEN_COMMA, PM_TOKEN_KEYWORD_THEN, PM_TOKEN_BRACE_RIGHT, PM_TOKEN_BRACKET_RIGHT, PM_TOKEN_PARENTHESIS_RIGHT, PM_TOKEN_NEWLINE, PM_TOKEN_SEMICOLON, PM_TOKEN_EOF)) {
                     // Otherwise, we will create an implicit local variable
                     // target for the value.
                     value = parse_pattern_hash_implicit_value(parser, captures, (pm_symbol_node_t *) first_node);
@@ -17084,7 +17095,12 @@ parse_pattern_hash(pm_parser_t *parser, pm_constant_id_list_t *captures, pm_node
     // If there are any other assocs, then we'll parse them now.
     while (accept1(parser, PM_TOKEN_COMMA)) {
         // Here we need to break to support trailing commas.
-        if (match6(parser, PM_TOKEN_KEYWORD_THEN, PM_TOKEN_BRACE_RIGHT, PM_TOKEN_BRACKET_RIGHT, PM_TOKEN_PARENTHESIS_RIGHT, PM_TOKEN_NEWLINE, PM_TOKEN_SEMICOLON)) {
+        if (match7(parser, PM_TOKEN_KEYWORD_THEN, PM_TOKEN_BRACE_RIGHT, PM_TOKEN_BRACKET_RIGHT, PM_TOKEN_PARENTHESIS_RIGHT, PM_TOKEN_NEWLINE, PM_TOKEN_SEMICOLON, PM_TOKEN_EOF)) {
+            // Trailing commas are not allowed to follow a rest pattern.
+            if (rest != NULL) {
+                pm_parser_err_token(parser, &parser->current, PM_ERR_PATTERN_EXPRESSION_AFTER_REST);
+            }
+
             break;
         }
 
@@ -17577,9 +17593,10 @@ parse_pattern(pm_parser_t *parser, pm_constant_id_list_t *captures, uint8_t flag
         // Gather up all of the patterns into the list.
         while (accept1(parser, PM_TOKEN_COMMA)) {
             // Break early here in case we have a trailing comma.
-            if (match4(parser, PM_TOKEN_KEYWORD_THEN, PM_TOKEN_BRACE_RIGHT, PM_TOKEN_BRACKET_RIGHT, PM_TOKEN_SEMICOLON)) {
+            if (match6(parser, PM_TOKEN_KEYWORD_THEN, PM_TOKEN_BRACE_RIGHT, PM_TOKEN_BRACKET_RIGHT, PM_TOKEN_SEMICOLON, PM_TOKEN_NEWLINE, PM_TOKEN_EOF)) {
                 node = (pm_node_t *) pm_implicit_rest_node_create(parser, &parser->previous);
                 pm_node_list_append(&nodes, node);
+                trailing_rest = true;
                 break;
             }
 
@@ -17781,6 +17798,7 @@ parse_retry(pm_parser_t *parser, const pm_node_t *node) {
             case PM_CONTEXT_LAMBDA_BRACES:
             case PM_CONTEXT_LAMBDA_DO_END:
             case PM_CONTEXT_LOOP_PREDICATE:
+            case PM_CONTEXT_MULTI_TARGET:
             case PM_CONTEXT_PARENS:
             case PM_CONTEXT_POSTEXE:
             case PM_CONTEXT_PREDICATE:
@@ -17864,6 +17882,7 @@ parse_yield(pm_parser_t *parser, const pm_node_t *node) {
             case PM_CONTEXT_LAMBDA_ENSURE:
             case PM_CONTEXT_LAMBDA_RESCUE:
             case PM_CONTEXT_LOOP_PREDICATE:
+            case PM_CONTEXT_MULTI_TARGET:
             case PM_CONTEXT_PARENS:
             case PM_CONTEXT_POSTEXE:
             case PM_CONTEXT_PREDICATE:
@@ -18121,14 +18140,32 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, b
                     multi_target->base.location.start = lparen_loc.start;
                     multi_target->base.location.end = rparen_loc.end;
 
-                    if (match1(parser, PM_TOKEN_COMMA)) {
-                        if (binding_power == PM_BINDING_POWER_STATEMENT) {
-                            return parse_targets_validate(parser, (pm_node_t *) multi_target, PM_BINDING_POWER_INDEX, (uint16_t) (depth + 1));
-                        }
-                        return (pm_node_t *) multi_target;
+                    pm_node_t *result;
+                    if (match1(parser, PM_TOKEN_COMMA) && (binding_power == PM_BINDING_POWER_STATEMENT)) {
+                        result = parse_targets(parser, (pm_node_t *) multi_target, PM_BINDING_POWER_INDEX, (uint16_t) (depth + 1));
+                        accept1(parser, PM_TOKEN_NEWLINE);
+                    } else {
+                        result = (pm_node_t *) multi_target;
                     }
 
-                    return parse_target_validate(parser, (pm_node_t *) multi_target, false);
+                    if (context_p(parser, PM_CONTEXT_MULTI_TARGET)) {
+                        // All set, this is explicitly allowed by the parent
+                        // context.
+                    } else if (context_p(parser, PM_CONTEXT_FOR_INDEX) && match1(parser, PM_TOKEN_KEYWORD_IN)) {
+                        // All set, we're inside a for loop and we're parsing
+                        // multiple targets.
+                    } else if (binding_power != PM_BINDING_POWER_STATEMENT) {
+                        // Multi targets are not allowed when it's not a
+                        // statement level.
+                        pm_parser_err_node(parser, result, PM_ERR_WRITE_TARGET_UNEXPECTED);
+                    } else if (!match2(parser, PM_TOKEN_EQUAL, PM_TOKEN_PARENTHESIS_RIGHT)) {
+                        // Multi targets must be followed by an equal sign in
+                        // order to be valid (or a right parenthesis if they are
+                        // nested).
+                        pm_parser_err_node(parser, result, PM_ERR_WRITE_TARGET_UNEXPECTED);
+                    }
+
+                    return result;
                 }
 
                 // If we have a single statement and are ending on a right parenthesis
@@ -18182,6 +18219,17 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, b
                     // If we're at the end of the file, then we're going to add
                     // an error after this for the ) anyway.
                     PM_PARSER_ERR_TOKEN_FORMAT(parser, parser->current, PM_ERR_EXPECT_EOL_AFTER_STATEMENT, pm_token_type_human(parser->current.type));
+                }
+            }
+
+            // When we're parsing multi targets, we allow them to be followed by
+            // a right parenthesis if they are at the statement level. This is
+            // only possible if they are the final statement in a parentheses.
+            // We need to explicitly reject that here.
+            {
+                const pm_node_t *statement = statements->body.nodes[statements->body.size - 1];
+                if (PM_NODE_TYPE_P(statement, PM_MULTI_TARGET_NODE)) {
+                    pm_parser_err_node(parser, statement, PM_ERR_WRITE_TARGET_UNEXPECTED);
                 }
             }
 
