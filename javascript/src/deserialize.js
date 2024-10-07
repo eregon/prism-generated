@@ -427,6 +427,7 @@ const errorTypes = [
   "instance_variable_bare",
   "invalid_block_exit",
   "invalid_character",
+  "invalid_comma",
   "invalid_encoding_magic_comment",
   "invalid_escape_character",
   "invalid_float_exponent",

@@ -8,7 +8,7 @@
 
 #include "prism/diagnostic.h"
 
-#define PM_DIAGNOSTIC_ID_MAX 318
+#define PM_DIAGNOSTIC_ID_MAX 319
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -231,6 +231,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_INCOMPLETE_VARIABLE_INSTANCE]       = { "'%.*s' is not allowed as an instance variable name", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INSTANCE_VARIABLE_BARE]             = { "'@' without identifiers is not allowed as an instance variable name", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_BLOCK_EXIT]                 = { "Invalid %s", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_INVALID_COMMA]                      = { "invalid comma", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_ESCAPE_CHARACTER]           = { "Invalid escape character syntax", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_FLOAT_EXPONENT]             = { "invalid exponent", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_LOCAL_VARIABLE_READ]        = { "identifier %.*s is not valid to get", PM_ERROR_LEVEL_SYNTAX },
@@ -558,6 +559,7 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_INSTANCE_VARIABLE_BARE: return "instance_variable_bare";
         case PM_ERR_INVALID_BLOCK_EXIT: return "invalid_block_exit";
         case PM_ERR_INVALID_CHARACTER: return "invalid_character";
+        case PM_ERR_INVALID_COMMA: return "invalid_comma";
         case PM_ERR_INVALID_ENCODING_MAGIC_COMMENT: return "invalid_encoding_magic_comment";
         case PM_ERR_INVALID_ESCAPE_CHARACTER: return "invalid_escape_character";
         case PM_ERR_INVALID_FLOAT_EXPONENT: return "invalid_float_exponent";

@@ -2108,14 +2108,6 @@ pm_array_node_create(pm_parser_t *parser, const pm_token_t *opening) {
 }
 
 /**
- * Return the size of the given array node.
- */
-static inline size_t
-pm_array_node_size(pm_array_node_t *node) {
-    return node->elements.size;
-}
-
-/**
  * Append an argument to an array node.
  */
 static inline void
@@ -9885,6 +9877,10 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
         }
         case 'c': {
             parser->current.end++;
+            if (flags & PM_ESCAPE_FLAG_CONTROL) {
+                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT);
+            }
+
             if (parser->current.end == parser->end) {
                 pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL);
                 return;
@@ -9898,10 +9894,6 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
                     return;
                 }
                 case '\\':
-                    if (flags & PM_ESCAPE_FLAG_CONTROL) {
-                        pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT);
-                        return;
-                    }
                     parser->current.end++;
 
                     if (match(parser, 'u') || match(parser, 'U')) {
@@ -9935,6 +9927,10 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
         }
         case 'C': {
             parser->current.end++;
+            if (flags & PM_ESCAPE_FLAG_CONTROL) {
+                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT);
+            }
+
             if (peek(parser) != '-') {
                 size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
                 pm_parser_err(parser, parser->current.start, parser->current.end + width, PM_ERR_ESCAPE_INVALID_CONTROL);
@@ -9955,10 +9951,6 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
                     return;
                 }
                 case '\\':
-                    if (flags & PM_ESCAPE_FLAG_CONTROL) {
-                        pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT);
-                        return;
-                    }
                     parser->current.end++;
 
                     if (match(parser, 'u') || match(parser, 'U')) {
@@ -9993,6 +9985,10 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
         }
         case 'M': {
             parser->current.end++;
+            if (flags & PM_ESCAPE_FLAG_META) {
+                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_META_REPEAT);
+            }
+
             if (peek(parser) != '-') {
                 size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
                 pm_parser_err(parser, parser->current.start, parser->current.end + width, PM_ERR_ESCAPE_INVALID_META);
@@ -10008,10 +10004,6 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
             uint8_t peeked = peek(parser);
             switch (peeked) {
                 case '\\':
-                    if (flags & PM_ESCAPE_FLAG_META) {
-                        pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_META_REPEAT);
-                        return;
-                    }
                     parser->current.end++;
 
                     if (match(parser, 'u') || match(parser, 'U')) {
@@ -10054,6 +10046,8 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
         default: {
             if (parser->current.end < parser->end) {
                 escape_write_escape_encoded(parser, buffer);
+            } else {
+                pm_parser_err_current(parser, PM_ERR_INVALID_ESCAPE_CHARACTER);
             }
             return;
         }
@@ -12989,7 +12983,7 @@ pm_binding_powers_t pm_binding_powers[PM_TOKEN_MAXIMUM] = {
     [PM_TOKEN_PERCENT] = LEFT_ASSOCIATIVE(PM_BINDING_POWER_FACTOR),
     [PM_TOKEN_SLASH] = LEFT_ASSOCIATIVE(PM_BINDING_POWER_FACTOR),
     [PM_TOKEN_STAR] = LEFT_ASSOCIATIVE(PM_BINDING_POWER_FACTOR),
-    [PM_TOKEN_USTAR] = LEFT_ASSOCIATIVE(PM_BINDING_POWER_FACTOR),
+    [PM_TOKEN_USTAR] = RIGHT_ASSOCIATIVE_UNARY(PM_BINDING_POWER_FACTOR),
 
     // -@
     [PM_TOKEN_UMINUS] = RIGHT_ASSOCIATIVE_UNARY(PM_BINDING_POWER_UMINUS),
@@ -14119,8 +14113,8 @@ static void
 parse_arguments(pm_parser_t *parser, pm_arguments_t *arguments, bool accepts_forwarding, pm_token_type_t terminator, uint16_t depth) {
     pm_binding_power_t binding_power = pm_binding_powers[parser->current.type].left;
 
-    // First we need to check if the next token is one that could be the start of
-    // an argument. If it's not, then we can just return.
+    // First we need to check if the next token is one that could be the start
+    // of an argument. If it's not, then we can just return.
     if (
         match2(parser, terminator, PM_TOKEN_EOF) ||
         (binding_power != PM_BINDING_POWER_UNSET && binding_power < PM_BINDING_POWER_RANGE) ||
@@ -14308,23 +14302,32 @@ parse_arguments(pm_parser_t *parser, pm_arguments_t *arguments, bool accepts_for
         // If parsing the argument failed, we need to stop parsing arguments.
         if (PM_NODE_TYPE_P(argument, PM_MISSING_NODE) || parser->recovering) break;
 
-        // If the terminator of these arguments is not EOF, then we have a specific
-        // token we're looking for. In that case we can accept a newline here
-        // because it is not functioning as a statement terminator.
-        if (terminator != PM_TOKEN_EOF) accept1(parser, PM_TOKEN_NEWLINE);
-
-        if (parser->previous.type == PM_TOKEN_COMMA && parsed_bare_hash) {
-            // If we previously were on a comma and we just parsed a bare hash, then
-            // we want to continue parsing arguments. This is because the comma was
-            // grabbed up by the hash parser.
-        } else {
-            // If there is no comma at the end of the argument list then we're done
-            // parsing arguments and can break out of this loop.
-            if (!accept1(parser, PM_TOKEN_COMMA)) break;
+        // If the terminator of these arguments is not EOF, then we have a
+        // specific token we're looking for. In that case we can accept a
+        // newline here because it is not functioning as a statement terminator.
+        bool accepted_newline = false;
+        if (terminator != PM_TOKEN_EOF) {
+            accepted_newline = accept1(parser, PM_TOKEN_NEWLINE);
         }
 
-        // If we hit the terminator, then that means we have a trailing comma so we
-        // can accept that output as well.
+        if (parser->previous.type == PM_TOKEN_COMMA && parsed_bare_hash) {
+            // If we previously were on a comma and we just parsed a bare hash,
+            // then we want to continue parsing arguments. This is because the
+            // comma was grabbed up by the hash parser.
+        } else if (accept1(parser, PM_TOKEN_COMMA)) {
+            // If there was a comma, then we need to check if we also accepted a
+            // newline. If we did, then this is a syntax error.
+            if (accepted_newline) {
+                pm_parser_err_previous(parser, PM_ERR_INVALID_COMMA);
+            }
+        } else {
+            // If there is no comma at the end of the argument list then we're
+            // done parsing arguments and can break out of this loop.
+            break;
+        }
+
+        // If we hit the terminator, then that means we have a trailing comma so
+        // we can accept that output as well.
         if (match1(parser, terminator)) break;
     }
 }
@@ -14481,13 +14484,14 @@ parse_parameters(
     bool accepts_blocks_in_defaults,
     uint16_t depth
 ) {
-    pm_parameters_node_t *params = pm_parameters_node_create(parser);
-    bool looping = true;
-
     pm_do_loop_stack_push(parser, false);
+
+    pm_parameters_node_t *params = pm_parameters_node_create(parser);
     pm_parameters_order_t order = PM_PARAMETERS_ORDER_NONE;
 
-    do {
+    while (true) {
+        bool parsing = true;
+
         switch (parser->current.type) {
             case PM_TOKEN_PARENTHESIS_LEFT: {
                 update_parameter_state(parser, &parser->current, &order);
@@ -14622,7 +14626,7 @@ parse_parameters(
                     // then we can put a missing node in its place and stop parsing the
                     // parameters entirely now.
                     if (parser->recovering) {
-                        looping = false;
+                        parsing = false;
                         break;
                     }
                 } else if (order > PM_PARAMETERS_ORDER_AFTER_OPTIONAL) {
@@ -14680,7 +14684,7 @@ parse_parameters(
                         context_pop(parser);
 
                         if (uses_parentheses) {
-                            looping = false;
+                            parsing = false;
                             break;
                         }
 
@@ -14724,7 +14728,7 @@ parse_parameters(
                         // then we can put a missing node in its place and stop parsing the
                         // parameters entirely now.
                         if (parser->recovering) {
-                            looping = false;
+                            parsing = false;
                             break;
                         }
                     }
@@ -14826,14 +14830,31 @@ parse_parameters(
                     }
                 }
 
-                looping = false;
+                parsing = false;
                 break;
         }
 
-        if (looping && uses_parentheses) {
-            accept1(parser, PM_TOKEN_NEWLINE);
+        // If we hit some kind of issue while parsing the parameter, this would
+        // have been set to false. In that case, we need to break out of the
+        // loop.
+        if (!parsing) break;
+
+        bool accepted_newline = false;
+        if (uses_parentheses) {
+            accepted_newline = accept1(parser, PM_TOKEN_NEWLINE);
         }
-    } while (looping && accept1(parser, PM_TOKEN_COMMA));
+
+        if (accept1(parser, PM_TOKEN_COMMA)) {
+            // If there was a comma, but we also accepted a newline, then this
+            // is a syntax error.
+            if (accepted_newline) {
+                pm_parser_err_previous(parser, PM_ERR_INVALID_COMMA);
+            }
+        } else {
+            // If there was no comma, then we're done parsing parameters.
+            break;
+        }
+    }
 
     pm_do_loop_stack_pop(parser);
 
@@ -17972,19 +17993,31 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, b
             bool parsed_bare_hash = false;
 
             while (!match2(parser, PM_TOKEN_BRACKET_RIGHT, PM_TOKEN_EOF)) {
+                bool accepted_newline = accept1(parser, PM_TOKEN_NEWLINE);
+
                 // Handle the case where we don't have a comma and we have a
                 // newline followed by a right bracket.
-                if (accept1(parser, PM_TOKEN_NEWLINE) && match1(parser, PM_TOKEN_BRACKET_RIGHT)) {
+                if (accepted_newline && match1(parser, PM_TOKEN_BRACKET_RIGHT)) {
                     break;
                 }
 
                 // Ensure that we have a comma between elements in the array.
-                if ((pm_array_node_size(array) != 0) && !accept1(parser, PM_TOKEN_COMMA)) {
-                    const uint8_t *location = parser->previous.end;
-                    PM_PARSER_ERR_FORMAT(parser, location, location, PM_ERR_ARRAY_SEPARATOR, pm_token_type_human(parser->current.type));
+                if (array->elements.size > 0) {
+                    if (accept1(parser, PM_TOKEN_COMMA)) {
+                        // If there was a comma but we also accepts a newline,
+                        // then this is a syntax error.
+                        if (accepted_newline) {
+                            pm_parser_err_previous(parser, PM_ERR_INVALID_COMMA);
+                        }
+                    } else {
+                        // If there was no comma, then we need to add a syntax
+                        // error.
+                        const uint8_t *location = parser->previous.end;
+                        PM_PARSER_ERR_FORMAT(parser, location, location, PM_ERR_ARRAY_SEPARATOR, pm_token_type_human(parser->current.type));
 
-                    parser->previous.start = location;
-                    parser->previous.type = PM_TOKEN_MISSING;
+                        parser->previous.start = location;
+                        parser->previous.type = PM_TOKEN_MISSING;
+                    }
                 }
 
                 // If we have a right bracket immediately following a comma,
@@ -21732,8 +21765,11 @@ parse_expression(pm_parser_t *parser, pm_binding_power_t binding_power, bool acc
     // Otherwise we'll look and see if the next token can be parsed as an infix
     // operator. If it can, then we'll parse it using parse_expression_infix.
     pm_binding_powers_t current_binding_powers;
+    pm_token_type_t current_token_type;
+
     while (
-        current_binding_powers = pm_binding_powers[parser->current.type],
+        current_token_type = parser->current.type,
+        current_binding_powers = pm_binding_powers[current_token_type],
         binding_power <= current_binding_powers.left &&
         current_binding_powers.binary
      ) {
@@ -21774,6 +21810,13 @@ parse_expression(pm_parser_t *parser, pm_binding_power_t binding_power, bool acc
         // If the operator is nonassoc and we should not be able to parse the
         // upcoming infix operator, break.
         if (current_binding_powers.nonassoc) {
+            // If this is a non-assoc operator and we are about to parse the
+            // exact same operator, then we need to add an error.
+            if (match1(parser, current_token_type)) {
+                PM_PARSER_ERR_TOKEN_FORMAT(parser, parser->current, PM_ERR_NON_ASSOCIATIVE_OPERATOR, pm_token_type_human(parser->current.type), pm_token_type_human(current_token_type));
+                break;
+            }
+
             // If this is an endless range, then we need to reject a couple of
             // additional operators because it violates the normal operator
             // precedence rules. Those patterns are:
@@ -21783,7 +21826,7 @@ parse_expression(pm_parser_t *parser, pm_binding_power_t binding_power, bool acc
             //
             if (PM_NODE_TYPE_P(node, PM_RANGE_NODE) && ((pm_range_node_t *) node)->right == NULL) {
                 if (match4(parser, PM_TOKEN_UAMPERSAND, PM_TOKEN_USTAR, PM_TOKEN_DOT, PM_TOKEN_AMPERSAND_DOT)) {
-                    PM_PARSER_ERR_TOKEN_FORMAT(parser, parser->current, PM_ERR_NON_ASSOCIATIVE_OPERATOR, pm_token_type_human(parser->current.type), pm_token_type_human(parser->previous.type));
+                    PM_PARSER_ERR_TOKEN_FORMAT(parser, parser->current, PM_ERR_NON_ASSOCIATIVE_OPERATOR, pm_token_type_human(parser->current.type), pm_token_type_human(current_token_type));
                     break;
                 }
 
@@ -21905,6 +21948,7 @@ wrap_statements(pm_parser_t *parser, pm_statements_node_t *statements) {
             ));
 
             pm_arguments_node_arguments_append(arguments, (pm_node_t *) keywords);
+            pm_node_flag_set((pm_node_t *) arguments, PM_ARGUMENTS_NODE_FLAGS_CONTAINS_KEYWORDS);
         }
 
         pm_statements_node_t *wrapped_statements = pm_statements_node_create(parser);
