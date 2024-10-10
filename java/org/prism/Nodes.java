@@ -9259,7 +9259,7 @@ public abstract class Nodes {
      *     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
      *     end
      *
-     * `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `exception` field.
+     * `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `reference` field.
      * </pre>
      */
     public static final class RescueNode extends Node {

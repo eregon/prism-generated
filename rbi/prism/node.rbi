@@ -7277,7 +7277,7 @@ end
 #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 #     end
 #
-# `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `exception` field.
+# `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `reference` field.
 class Prism::RescueNode < Prism::Node
   sig { returns(Prism::Location) }
   def keyword_loc; end

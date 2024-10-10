@@ -6490,7 +6490,7 @@ typedef struct pm_rescue_modifier_node {
  *     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  *     end
  *
- * `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `exception` field.
+ * `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `reference` field.
  *
  * Type: ::PM_RESCUE_NODE
  *

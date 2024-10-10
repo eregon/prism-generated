@@ -14219,7 +14219,7 @@ module Prism
   #     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   #     end
   #
-  # `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `exception` field.
+  # `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `reference` field.
   class RescueNode < Node
     # Initialize a new RescueNode node.
     def initialize(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent)

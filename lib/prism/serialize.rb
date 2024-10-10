@@ -18,7 +18,7 @@ module Prism
 
     # The minor version of prism that we are expecting to find in the serialized
     # strings.
-    MINOR_VERSION = 1
+    MINOR_VERSION = 2
 
     # The patch version of prism that we are expecting to find in the serialized
     # strings.

@@ -961,7 +961,7 @@ pm_locals_order(PRISM_ATTRIBUTE_UNUSED pm_parser_t *parser, pm_locals_t *locals,
         if (local->name != PM_CONSTANT_ID_UNSET) {
             pm_constant_id_list_insert(list, (size_t) local->index, local->name);
 
-            if (warn_unused && local->reads == 0) {
+            if (warn_unused && local->reads == 0 && ((parser->start_line >= 0) || (pm_newline_list_line(&parser->newline_list, local->location.start, parser->start_line) >= 0))) {
                 pm_constant_t *constant = pm_constant_pool_id_to_constant(&parser->constant_pool, local->name);
 
                 if (constant->length >= 1 && *constant->start != '_') {
@@ -18255,20 +18255,36 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, b
                 }
             }
 
+            context_pop(parser);
+            pm_accepts_block_stack_pop(parser);
+            expect1(parser, PM_TOKEN_PARENTHESIS_RIGHT, PM_ERR_EXPECT_RPAREN);
+
             // When we're parsing multi targets, we allow them to be followed by
             // a right parenthesis if they are at the statement level. This is
             // only possible if they are the final statement in a parentheses.
             // We need to explicitly reject that here.
             {
-                const pm_node_t *statement = statements->body.nodes[statements->body.size - 1];
+                pm_node_t *statement = statements->body.nodes[statements->body.size - 1];
+
+                if (PM_NODE_TYPE_P(statement, PM_SPLAT_NODE)) {
+                    pm_multi_target_node_t *multi_target = pm_multi_target_node_create(parser);
+                    pm_multi_target_node_targets_append(parser, multi_target, statement);
+
+                    statement = (pm_node_t *) multi_target;
+                    statements->body.nodes[statements->body.size - 1] = statement;
+                }
+
                 if (PM_NODE_TYPE_P(statement, PM_MULTI_TARGET_NODE)) {
+                    const uint8_t *offset = statement->location.end;
+                    pm_token_t operator = { .type = PM_TOKEN_EQUAL, .start = offset, .end = offset };
+                    pm_node_t *value = (pm_node_t *) pm_missing_node_create(parser, offset, offset);
+
+                    statement = (pm_node_t *) pm_multi_write_node_create(parser, (pm_multi_target_node_t *) statement, &operator, value);
+                    statements->body.nodes[statements->body.size - 1] = statement;
+
                     pm_parser_err_node(parser, statement, PM_ERR_WRITE_TARGET_UNEXPECTED);
                 }
             }
-
-            context_pop(parser);
-            pm_accepts_block_stack_pop(parser);
-            expect1(parser, PM_TOKEN_PARENTHESIS_RIGHT, PM_ERR_EXPECT_RPAREN);
 
             pop_block_exits(parser, previous_block_exits);
             pm_node_list_free(&current_block_exits);

@@ -14811,7 +14811,7 @@ export class RescueModifierNode {
  *     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
  *     end
  *
- * `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `exception` field.
+ * `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `reference` field.
  */
 export class RescueNode {
   /**
