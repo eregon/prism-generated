@@ -20,12 +20,32 @@ module Prism
     # will be consistent across multiple parses of the same source code.
     attr_reader :node_id
 
+    # Save this node using a saved source so that it can be retrieved later.
+    def save(repository)
+      repository.enter(node_id, :itself)
+    end
+
     # A Location instance that represents the location of this node in the
     # source.
     def location
       location = @location
       return location if location.is_a?(Location)
       @location = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the location using a saved source so that it can be retrieved later.
+    def save_location(repository)
+      repository.enter(node_id, :location)
+    end
+
+    # Delegates to the start_line of the associated location object.
+    def start_line
+      location.start_line
+    end
+
+    # Delegates to the end_line of the associated location object.
+    def end_line
+      location.end_line
     end
 
     # The start offset of the node in the source. This method is effectively a
@@ -40,6 +60,75 @@ module Prism
     def end_offset
       location = @location
       location.is_a?(Location) ? location.end_offset : ((location >> 32) + (location & 0xFFFFFFFF))
+    end
+
+    # Delegates to the start_character_offset of the associated location object.
+    def start_character_offset
+      location.start_character_offset
+    end
+
+    # Delegates to the end_character_offset of the associated location object.
+    def end_character_offset
+      location.end_character_offset
+    end
+
+    # Delegates to the cached_start_code_units_offset of the associated location
+    # object.
+    def cached_start_code_units_offset(cache)
+      location.cached_start_code_units_offset(cache)
+    end
+
+    # Delegates to the cached_end_code_units_offset of the associated location
+    # object.
+    def cached_end_code_units_offset(cache)
+      location.cached_end_code_units_offset(cache)
+    end
+
+    # Delegates to the start_column of the associated location object.
+    def start_column
+      location.start_column
+    end
+
+    # Delegates to the end_column of the associated location object.
+    def end_column
+      location.end_column
+    end
+
+    # Delegates to the start_character_column of the associated location object.
+    def start_character_column
+      location.start_character_column
+    end
+
+    # Delegates to the end_character_column of the associated location object.
+    def end_character_column
+      location.end_character_column
+    end
+
+    # Delegates to the cached_start_code_units_column of the associated location
+    # object.
+    def cached_start_code_units_column(cache)
+      location.cached_start_code_units_column(cache)
+    end
+
+    # Delegates to the cached_end_code_units_column of the associated location
+    # object.
+    def cached_end_code_units_column(cache)
+      location.cached_end_code_units_column(cache)
+    end
+
+    # Delegates to the leading_comments of the associated location object.
+    def leading_comments
+      location.leading_comments
+    end
+
+    # Delegates to the trailing_comments of the associated location object.
+    def trailing_comments
+      location.trailing_comments
+    end
+
+    # Delegates to the comments of the associated location object.
+    def comments
+      location.comments
     end
 
     # Returns all of the lines of the source code associated with this node.
@@ -291,6 +380,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -401,6 +496,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -500,6 +601,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -607,6 +714,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -814,6 +927,12 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # Represents the optional source location for the closing token.
     #
     #     [1,2,3]                 # "]"
@@ -830,6 +949,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # def opening: () -> String?
@@ -963,6 +1088,12 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -974,6 +1105,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # def opening: () -> String?
@@ -1102,6 +1239,12 @@ module Prism
       end
     end
 
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc) unless @operator_loc.nil?
+    end
+
     # def operator: () -> String?
     def operator
       operator_loc&.slice
@@ -1196,6 +1339,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -1376,6 +1525,12 @@ module Prism
       end
     end
 
+    # Save the begin_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_begin_keyword_loc(repository)
+      repository.enter(node_id, :begin_keyword_loc) unless @begin_keyword_loc.nil?
+    end
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
 
@@ -1399,6 +1554,12 @@ module Prism
       else
         @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
 
     # def begin_keyword: () -> String?
@@ -1497,6 +1658,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -1677,11 +1844,23 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def opening: () -> String
@@ -1793,11 +1972,23 @@ module Prism
       end
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc) unless @name_loc.nil?
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -1907,6 +2098,12 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -1918,6 +2115,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # def opening: () -> String?
@@ -2021,6 +2224,12 @@ module Prism
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
     end
 
     # def keyword: () -> String
@@ -2144,6 +2353,12 @@ module Prism
       end
     end
 
+    # Save the call_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_call_operator_loc(repository)
+      repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
+    end
+
     # attr_reader message_loc: Location?
     def message_loc
       location = @message_loc
@@ -2157,6 +2372,12 @@ module Prism
       end
     end
 
+    # Save the message_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_message_loc(repository)
+      repository.enter(node_id, :message_loc) unless @message_loc.nil?
+    end
+
     # attr_reader read_name: Symbol
     attr_reader :read_name
 
@@ -2168,6 +2389,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -2336,6 +2563,12 @@ module Prism
       end
     end
 
+    # Save the call_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_call_operator_loc(repository)
+      repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
+    end
+
     # attr_reader name: Symbol
     attr_reader :name
 
@@ -2352,6 +2585,12 @@ module Prism
       end
     end
 
+    # Save the message_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_message_loc(repository)
+      repository.enter(node_id, :message_loc) unless @message_loc.nil?
+    end
+
     # attr_reader opening_loc: Location?
     def opening_loc
       location = @opening_loc
@@ -2363,6 +2602,12 @@ module Prism
       else
         @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
     # attr_reader arguments: ArgumentsNode?
@@ -2379,6 +2624,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # attr_reader block: BlockNode | BlockArgumentNode | nil
@@ -2528,6 +2779,12 @@ module Prism
       end
     end
 
+    # Save the call_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_call_operator_loc(repository)
+      repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
+    end
+
     # attr_reader message_loc: Location?
     def message_loc
       location = @message_loc
@@ -2539,6 +2796,12 @@ module Prism
       else
         @message_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the message_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_message_loc(repository)
+      repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
 
     # attr_reader read_name: Symbol
@@ -2555,6 +2818,12 @@ module Prism
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the binary_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_binary_operator_loc(repository)
+      repository.enter(node_id, :binary_operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -2693,6 +2962,12 @@ module Prism
       end
     end
 
+    # Save the call_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_call_operator_loc(repository)
+      repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
+    end
+
     # attr_reader message_loc: Location?
     def message_loc
       location = @message_loc
@@ -2706,6 +2981,12 @@ module Prism
       end
     end
 
+    # Save the message_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_message_loc(repository)
+      repository.enter(node_id, :message_loc) unless @message_loc.nil?
+    end
+
     # attr_reader read_name: Symbol
     attr_reader :read_name
 
@@ -2717,6 +2998,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -2855,6 +3142,12 @@ module Prism
       @call_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the call_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_call_operator_loc(repository)
+      repository.enter(node_id, :call_operator_loc)
+    end
+
     # attr_reader name: Symbol
     attr_reader :name
 
@@ -2863,6 +3156,12 @@ module Prism
       location = @message_loc
       return location if location.is_a?(Location)
       @message_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the message_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_message_loc(repository)
+      repository.enter(node_id, :message_loc)
     end
 
     # def call_operator: () -> String
@@ -2962,6 +3261,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -3067,11 +3372,23 @@ module Prism
       @case_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the case_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_case_keyword_loc(repository)
+      repository.enter(node_id, :case_keyword_loc)
+    end
+
     # attr_reader end_keyword_loc: Location
     def end_keyword_loc
       location = @end_keyword_loc
       return location if location.is_a?(Location)
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
     end
 
     # def case_keyword: () -> String
@@ -3185,11 +3502,23 @@ module Prism
       @case_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the case_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_case_keyword_loc(repository)
+      repository.enter(node_id, :case_keyword_loc)
+    end
+
     # attr_reader end_keyword_loc: Location
     def end_keyword_loc
       location = @end_keyword_loc
       return location if location.is_a?(Location)
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
     end
 
     # def case_keyword: () -> String
@@ -3298,6 +3627,12 @@ module Prism
       @class_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the class_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_class_keyword_loc(repository)
+      repository.enter(node_id, :class_keyword_loc)
+    end
+
     # attr_reader constant_path: ConstantReadNode | ConstantPathNode | CallNode
     attr_reader :constant_path
 
@@ -3314,6 +3649,12 @@ module Prism
       end
     end
 
+    # Save the inheritance_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_inheritance_operator_loc(repository)
+      repository.enter(node_id, :inheritance_operator_loc) unless @inheritance_operator_loc.nil?
+    end
+
     # attr_reader superclass: Prism::node?
     attr_reader :superclass
 
@@ -3325,6 +3666,12 @@ module Prism
       location = @end_keyword_loc
       return location if location.is_a?(Location)
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
     end
 
     # attr_reader name: Symbol
@@ -3436,11 +3783,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -3538,11 +3897,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader binary_operator_loc: Location
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the binary_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_binary_operator_loc(repository)
+      repository.enter(node_id, :binary_operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -3638,11 +4009,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -3896,6 +4279,12 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # The value to write to the class variable. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     @@foo = :bar
@@ -3913,6 +4302,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -4006,11 +4401,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -4108,11 +4515,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader binary_operator_loc: Location
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the binary_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_binary_operator_loc(repository)
+      repository.enter(node_id, :binary_operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -4208,11 +4627,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -4306,6 +4737,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -4421,6 +4858,12 @@ module Prism
       @delimiter_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the delimiter_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_delimiter_loc(repository)
+      repository.enter(node_id, :delimiter_loc)
+    end
+
     # The location of the name of the constant.
     #
     #     ::Foo
@@ -4432,6 +4875,12 @@ module Prism
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
     end
 
     # def delimiter: () -> String
@@ -4525,6 +4974,12 @@ module Prism
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the binary_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_binary_operator_loc(repository)
+      repository.enter(node_id, :binary_operator_loc)
+    end
+
     # attr_reader value: Prism::node
     attr_reader :value
 
@@ -4614,6 +5069,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -4714,11 +5175,23 @@ module Prism
       @delimiter_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the delimiter_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_delimiter_loc(repository)
+      repository.enter(node_id, :delimiter_loc)
+    end
+
     # attr_reader name_loc: Location
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
     end
 
     # def delimiter: () -> String
@@ -4824,6 +5297,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # The value to write to the constant path. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
@@ -5079,6 +5558,12 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # The value to write to the constant. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     FOO = :bar
@@ -5096,6 +5581,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -5202,6 +5693,12 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader receiver: Prism::node?
     attr_reader :receiver
 
@@ -5221,6 +5718,12 @@ module Prism
       @def_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the def_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_def_keyword_loc(repository)
+      repository.enter(node_id, :def_keyword_loc)
+    end
+
     # attr_reader operator_loc: Location?
     def operator_loc
       location = @operator_loc
@@ -5232,6 +5735,12 @@ module Prism
       else
         @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc) unless @operator_loc.nil?
     end
 
     # attr_reader lparen_loc: Location?
@@ -5247,6 +5756,12 @@ module Prism
       end
     end
 
+    # Save the lparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_lparen_loc(repository)
+      repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
+    end
+
     # attr_reader rparen_loc: Location?
     def rparen_loc
       location = @rparen_loc
@@ -5258,6 +5773,12 @@ module Prism
       else
         @rparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the rparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_rparen_loc(repository)
+      repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
 
     # attr_reader equal_loc: Location?
@@ -5273,6 +5794,12 @@ module Prism
       end
     end
 
+    # Save the equal_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_equal_loc(repository)
+      repository.enter(node_id, :equal_loc) unless @equal_loc.nil?
+    end
+
     # attr_reader end_keyword_loc: Location?
     def end_keyword_loc
       location = @end_keyword_loc
@@ -5284,6 +5811,12 @@ module Prism
       else
         @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
 
     # def def_keyword: () -> String
@@ -5414,6 +5947,12 @@ module Prism
       end
     end
 
+    # Save the lparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_lparen_loc(repository)
+      repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
+    end
+
     # attr_reader value: Prism::node
     attr_reader :value
 
@@ -5430,11 +5969,23 @@ module Prism
       end
     end
 
+    # Save the rparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_rparen_loc(repository)
+      repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
+    end
+
     # attr_reader keyword_loc: Location
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
     end
 
     # def lparen: () -> String?
@@ -5536,6 +6087,12 @@ module Prism
       @else_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the else_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_else_keyword_loc(repository)
+      repository.enter(node_id, :else_keyword_loc)
+    end
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
 
@@ -5550,6 +6107,12 @@ module Prism
       else
         @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
 
     # def else_keyword: () -> String
@@ -5645,6 +6208,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
 
@@ -5653,6 +6222,12 @@ module Prism
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def opening: () -> String
@@ -5743,6 +6318,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader variable: InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode
@@ -5839,6 +6420,12 @@ module Prism
       @ensure_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the ensure_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_ensure_keyword_loc(repository)
+      repository.enter(node_id, :ensure_keyword_loc)
+    end
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
 
@@ -5847,6 +6434,12 @@ module Prism
       location = @end_keyword_loc
       return location if location.is_a?(Location)
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
     end
 
     # def ensure_keyword: () -> String
@@ -6040,6 +6633,12 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -6051,6 +6650,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # def opening: () -> String?
@@ -6160,6 +6765,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -6353,6 +6964,12 @@ module Prism
       @for_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the for_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_for_keyword_loc(repository)
+      repository.enter(node_id, :for_keyword_loc)
+    end
+
     # The location of the `in` keyword.
     #
     #     for i in a end
@@ -6361,6 +6978,12 @@ module Prism
       location = @in_keyword_loc
       return location if location.is_a?(Location)
       @in_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the in_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_in_keyword_loc(repository)
+      repository.enter(node_id, :in_keyword_loc)
     end
 
     # The location of the `do` keyword, if present.
@@ -6379,6 +7002,12 @@ module Prism
       end
     end
 
+    # Save the do_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_do_keyword_loc(repository)
+      repository.enter(node_id, :do_keyword_loc) unless @do_keyword_loc.nil?
+    end
+
     # The location of the `end` keyword.
     #
     #     for i in a end
@@ -6387,6 +7016,12 @@ module Prism
       location = @end_keyword_loc
       return location if location.is_a?(Location)
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
     end
 
     # def for_keyword: () -> String
@@ -6712,11 +7347,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -6814,11 +7461,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader binary_operator_loc: Location
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the binary_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_binary_operator_loc(repository)
+      repository.enter(node_id, :binary_operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -6914,11 +7573,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -7172,6 +7843,12 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # The value to write to the global variable. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     $foo = :bar
@@ -7189,6 +7866,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -7281,6 +7964,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # The elements of the hash. These can be either `AssocNode`s or `AssocSplatNode`s.
     #
     #     { a: b }
@@ -7298,6 +7987,12 @@ module Prism
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def opening: () -> String
@@ -7416,6 +8111,12 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -7427,6 +8128,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # def opening: () -> String?
@@ -7547,6 +8254,12 @@ module Prism
       end
     end
 
+    # Save the if_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_if_keyword_loc(repository)
+      repository.enter(node_id, :if_keyword_loc) unless @if_keyword_loc.nil?
+    end
+
     # The node for the condition the `IfNode` is testing.
     #
     #     if foo
@@ -7578,6 +8291,12 @@ module Prism
       else
         @then_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the then_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_then_keyword_loc(repository)
+      repository.enter(node_id, :then_keyword_loc) unless @then_keyword_loc.nil?
     end
 
     # Represents the body of statements that will be executed when the predicate is evaluated as truthy. Will be `nil` when no body is provided.
@@ -7621,6 +8340,12 @@ module Prism
       else
         @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
 
     # def if_keyword: () -> String?
@@ -7961,6 +8686,12 @@ module Prism
       @in_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the in_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_in_loc(repository)
+      repository.enter(node_id, :in_loc)
+    end
+
     # attr_reader then_loc: Location?
     def then_loc
       location = @then_loc
@@ -7972,6 +8703,12 @@ module Prism
       else
         @then_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the then_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_then_loc(repository)
+      repository.enter(node_id, :then_loc) unless @then_loc.nil?
     end
 
     # def in: () -> String
@@ -8105,11 +8842,23 @@ module Prism
       end
     end
 
+    # Save the call_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_call_operator_loc(repository)
+      repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
+    end
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
       return location if location.is_a?(Location)
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
     end
 
     # attr_reader arguments: ArgumentsNode?
@@ -8122,6 +8871,12 @@ module Prism
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
     # attr_reader block: BlockArgumentNode?
     attr_reader :block
 
@@ -8130,6 +8885,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -8282,11 +9043,23 @@ module Prism
       end
     end
 
+    # Save the call_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_call_operator_loc(repository)
+      repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
+    end
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
       return location if location.is_a?(Location)
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
     end
 
     # attr_reader arguments: ArgumentsNode?
@@ -8297,6 +9070,12 @@ module Prism
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # attr_reader block: BlockArgumentNode?
@@ -8310,6 +9089,12 @@ module Prism
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the binary_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_binary_operator_loc(repository)
+      repository.enter(node_id, :binary_operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -8457,11 +9242,23 @@ module Prism
       end
     end
 
+    # Save the call_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_call_operator_loc(repository)
+      repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
+    end
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
       return location if location.is_a?(Location)
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
     end
 
     # attr_reader arguments: ArgumentsNode?
@@ -8474,6 +9271,12 @@ module Prism
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
     # attr_reader block: BlockArgumentNode?
     attr_reader :block
 
@@ -8482,6 +9285,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -8631,6 +9440,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader arguments: ArgumentsNode?
     attr_reader :arguments
 
@@ -8639,6 +9454,12 @@ module Prism
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # attr_reader block: BlockArgumentNode?
@@ -8742,11 +9563,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -8844,11 +9677,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader binary_operator_loc: Location
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the binary_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_binary_operator_loc(repository)
+      repository.enter(node_id, :binary_operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -8944,11 +9789,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -9202,6 +10059,12 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # The value to write to the instance variable. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     @foo = :bar
@@ -9219,6 +10082,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -9457,6 +10326,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
     attr_reader :parts
 
@@ -9465,6 +10340,12 @@ module Prism
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def opening: () -> String
@@ -9615,6 +10496,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
     attr_reader :parts
 
@@ -9623,6 +10510,12 @@ module Prism
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def opening: () -> String
@@ -9734,6 +10627,12 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode]
     attr_reader :parts
 
@@ -9748,6 +10647,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # def opening: () -> String?
@@ -9849,6 +10754,12 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
     attr_reader :parts
 
@@ -9863,6 +10774,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # def opening: () -> String?
@@ -9957,6 +10874,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
     attr_reader :parts
 
@@ -9965,6 +10888,12 @@ module Prism
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def opening: () -> String
@@ -10290,11 +11219,23 @@ module Prism
       end
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc) unless @name_loc.nil?
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -10393,6 +11334,12 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
@@ -10400,11 +11347,23 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # attr_reader parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil
@@ -10515,11 +11474,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -10622,11 +11593,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader binary_operator_loc: Location
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the binary_operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_binary_operator_loc(repository)
+      repository.enter(node_id, :binary_operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -10727,11 +11710,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -11022,6 +12017,12 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # The value to write to the local variable. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo = :bar
@@ -11043,6 +12044,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -11189,6 +12196,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader content_loc: Location
     def content_loc
       location = @content_loc
@@ -11196,11 +12209,23 @@ module Prism
       @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the content_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_content_loc(repository)
+      repository.enter(node_id, :content_loc)
+    end
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # attr_reader unescaped: String
@@ -11310,6 +12335,12 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -11400,6 +12431,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -11641,6 +12678,12 @@ module Prism
       @module_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the module_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_module_keyword_loc(repository)
+      repository.enter(node_id, :module_keyword_loc)
+    end
+
     # attr_reader constant_path: ConstantReadNode | ConstantPathNode | MissingNode
     attr_reader :constant_path
 
@@ -11652,6 +12695,12 @@ module Prism
       location = @end_keyword_loc
       return location if location.is_a?(Location)
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
     end
 
     # attr_reader name: Symbol
@@ -11805,6 +12854,12 @@ module Prism
       end
     end
 
+    # Save the lparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_lparen_loc(repository)
+      repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
+    end
+
     # The location of the closing parenthesis.
     #
     #     a, (b, c) = 1, 2, 3
@@ -11819,6 +12874,12 @@ module Prism
       else
         @rparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the rparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_rparen_loc(repository)
+      repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
 
     # def lparen: () -> String?
@@ -11967,6 +13028,12 @@ module Prism
       end
     end
 
+    # Save the lparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_lparen_loc(repository)
+      repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
+    end
+
     # The location of the closing parenthesis.
     #
     #     (a, b, c) = 1, 2, 3
@@ -11983,6 +13050,12 @@ module Prism
       end
     end
 
+    # Save the rparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_rparen_loc(repository)
+      repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
+    end
+
     # The location of the operator.
     #
     #     a, b, c = 1, 2, 3
@@ -11991,6 +13064,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # The value to write to the targets. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
@@ -12103,6 +13182,12 @@ module Prism
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
     end
 
     # def keyword: () -> String
@@ -12258,11 +13343,23 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
     # attr_reader keyword_loc: Location
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
     end
 
     # def operator: () -> String
@@ -12516,6 +13613,12 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader value: Prism::node
     attr_reader :value
 
@@ -12611,11 +13714,23 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader value: Prism::node
@@ -12728,6 +13843,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -12937,11 +14058,23 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def opening: () -> String
@@ -13039,6 +14172,12 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
     # attr_reader lparen_loc: Location
     def lparen_loc
       location = @lparen_loc
@@ -13046,11 +14185,23 @@ module Prism
       @lparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the lparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_lparen_loc(repository)
+      repository.enter(node_id, :lparen_loc)
+    end
+
     # attr_reader rparen_loc: Location
     def rparen_loc
       location = @rparen_loc
       return location if location.is_a?(Location)
       @rparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the rparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_rparen_loc(repository)
+      repository.enter(node_id, :rparen_loc)
     end
 
     # def operator: () -> String
@@ -13152,6 +14303,12 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
     # def operator: () -> String
     def operator
       operator_loc.slice
@@ -13243,6 +14400,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
@@ -13250,11 +14413,23 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def keyword: () -> String
@@ -13360,6 +14535,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader opening_loc: Location
     def opening_loc
       location = @opening_loc
@@ -13367,11 +14548,23 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # def keyword: () -> String
@@ -13575,6 +14768,12 @@ module Prism
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -13891,6 +15090,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader content_loc: Location
     def content_loc
       location = @content_loc
@@ -13898,11 +15103,23 @@ module Prism
       @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the content_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_content_loc(repository)
+      repository.enter(node_id, :content_loc)
+    end
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # attr_reader unescaped: String
@@ -14012,6 +15229,12 @@ module Prism
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
     end
 
     # def inspect -> String
@@ -14178,6 +15401,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader rescue_expression: Prism::node
     attr_reader :rescue_expression
 
@@ -14280,6 +15509,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader exceptions: Array[Prism::node]
     attr_reader :exceptions
 
@@ -14294,6 +15529,12 @@ module Prism
       else
         @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc) unless @operator_loc.nil?
     end
 
     # attr_reader reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil
@@ -14415,11 +15656,23 @@ module Prism
       end
     end
 
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc) unless @name_loc.nil?
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # def operator: () -> String
@@ -14576,6 +15829,12 @@ module Prism
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
     end
 
     # attr_reader arguments: ArgumentsNode?
@@ -14833,11 +16092,23 @@ module Prism
       @class_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the class_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_class_keyword_loc(repository)
+      repository.enter(node_id, :class_keyword_loc)
+    end
+
     # attr_reader operator_loc: Location
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
     # attr_reader expression: Prism::node
@@ -14851,6 +16122,12 @@ module Prism
       location = @end_keyword_loc
       return location if location.is_a?(Location)
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
     end
 
     # def class_keyword: () -> String
@@ -15184,6 +16461,12 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
     # attr_reader expression: Prism::node?
     attr_reader :expression
 
@@ -15379,11 +16662,23 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # attr_reader content_loc: Location
     def content_loc
       location = @content_loc
       return location if location.is_a?(Location)
       @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the content_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_content_loc(repository)
+      repository.enter(node_id, :content_loc)
     end
 
     # attr_reader closing_loc: Location?
@@ -15397,6 +16692,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # attr_reader unescaped: String
@@ -15508,6 +16809,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader lparen_loc: Location?
     def lparen_loc
       location = @lparen_loc
@@ -15519,6 +16826,12 @@ module Prism
       else
         @lparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the lparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_lparen_loc(repository)
+      repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
 
     # attr_reader arguments: ArgumentsNode?
@@ -15535,6 +16848,12 @@ module Prism
       else
         @rparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the rparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_rparen_loc(repository)
+      repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
 
     # attr_reader block: BlockNode | BlockArgumentNode | nil
@@ -15663,6 +16982,12 @@ module Prism
       end
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
+    end
+
     # attr_reader value_loc: Location?
     def value_loc
       location = @value_loc
@@ -15676,6 +17001,12 @@ module Prism
       end
     end
 
+    # Save the value_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_value_loc(repository)
+      repository.enter(node_id, :value_loc) unless @value_loc.nil?
+    end
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -15687,6 +17018,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # attr_reader unescaped: String
@@ -15860,6 +17197,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # def keyword: () -> String
     def keyword
       keyword_loc.slice
@@ -15962,6 +17305,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # The condition to be evaluated for the unless expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     unless cond then bar end
@@ -15985,6 +17334,12 @@ module Prism
       else
         @then_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the then_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_then_keyword_loc(repository)
+      repository.enter(node_id, :then_keyword_loc) unless @then_keyword_loc.nil?
     end
 
     # The body of statements that will executed if the unless condition is
@@ -16014,6 +17369,12 @@ module Prism
       else
         @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
 
     # def keyword: () -> String
@@ -16127,6 +17488,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -16138,6 +17505,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # attr_reader predicate: Prism::node
@@ -16245,6 +17618,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader conditions: Array[Prism::node]
     attr_reader :conditions
 
@@ -16259,6 +17638,12 @@ module Prism
       else
         @then_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the then_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_then_keyword_loc(repository)
+      repository.enter(node_id, :then_keyword_loc) unless @then_keyword_loc.nil?
     end
 
     # attr_reader statements: StatementsNode?
@@ -16369,6 +17754,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader closing_loc: Location?
     def closing_loc
       location = @closing_loc
@@ -16380,6 +17771,12 @@ module Prism
       else
         @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
     # attr_reader predicate: Prism::node
@@ -16492,6 +17889,12 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
     # attr_reader content_loc: Location
     def content_loc
       location = @content_loc
@@ -16499,11 +17902,23 @@ module Prism
       @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the content_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_content_loc(repository)
+      repository.enter(node_id, :content_loc)
+    end
+
     # attr_reader closing_loc: Location
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
     end
 
     # attr_reader unescaped: String
@@ -16610,6 +18025,12 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # attr_reader lparen_loc: Location?
     def lparen_loc
       location = @lparen_loc
@@ -16621,6 +18042,12 @@ module Prism
       else
         @lparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the lparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_lparen_loc(repository)
+      repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
 
     # attr_reader arguments: ArgumentsNode?
@@ -16637,6 +18064,12 @@ module Prism
       else
         @rparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
       end
+    end
+
+    # Save the rparen_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_rparen_loc(repository)
+      repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
 
     # def keyword: () -> String
