@@ -8245,6 +8245,9 @@ class Prism::UntilNode < Prism::Node
   def keyword_loc; end
 
   sig { returns(T.nilable(Prism::Location)) }
+  def do_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
   def closing_loc; end
 
   sig { returns(Prism::Node) }
@@ -8253,8 +8256,8 @@ class Prism::UntilNode < Prism::Node
   sig { returns(T.nilable(Prism::StatementsNode)) }
   def statements; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).void }
-  def initialize(source, node_id, location, flags, keyword_loc, closing_loc, predicate, statements); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, do_keyword_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).void }
+  def initialize(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
   def accept(visitor); end
@@ -8271,14 +8274,17 @@ class Prism::UntilNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::UntilNode) }
-  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements); end
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, do_keyword_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::UntilNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, do_keyword_loc: self.do_keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
   def deconstruct_keys(keys); end
 
   sig { returns(String) }
   def keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def do_keyword; end
 
   sig { returns(T.nilable(String)) }
   def closing; end
@@ -8367,6 +8373,9 @@ class Prism::WhileNode < Prism::Node
   def keyword_loc; end
 
   sig { returns(T.nilable(Prism::Location)) }
+  def do_keyword_loc; end
+
+  sig { returns(T.nilable(Prism::Location)) }
   def closing_loc; end
 
   sig { returns(Prism::Node) }
@@ -8375,8 +8384,8 @@ class Prism::WhileNode < Prism::Node
   sig { returns(T.nilable(Prism::StatementsNode)) }
   def statements; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).void }
-  def initialize(source, node_id, location, flags, keyword_loc, closing_loc, predicate, statements); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, do_keyword_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).void }
+  def initialize(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
   def accept(visitor); end
@@ -8393,14 +8402,17 @@ class Prism::WhileNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::WhileNode) }
-  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements); end
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, do_keyword_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::WhileNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, do_keyword_loc: self.do_keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
   def deconstruct_keys(keys); end
 
   sig { returns(String) }
   def keyword; end
+
+  sig { returns(T.nilable(String)) }
+  def do_keyword; end
 
   sig { returns(T.nilable(String)) }
   def closing; end

@@ -952,11 +952,11 @@ module Prism
           when 146 then
             UnlessNode.new(source, node_id, location, load_varuint, load_location, load_node, load_optional_location, load_optional_node, load_optional_node, load_optional_location)
           when 147 then
-            UntilNode.new(source, node_id, location, load_varuint, load_location, load_optional_location, load_node, load_optional_node)
+            UntilNode.new(source, node_id, location, load_varuint, load_location, load_optional_location, load_optional_location, load_node, load_optional_node)
           when 148 then
             WhenNode.new(source, node_id, location, load_varuint, load_location, Array.new(load_varuint) { load_node }, load_optional_location, load_optional_node)
           when 149 then
-            WhileNode.new(source, node_id, location, load_varuint, load_location, load_optional_location, load_node, load_optional_node)
+            WhileNode.new(source, node_id, location, load_varuint, load_location, load_optional_location, load_optional_location, load_node, load_optional_node)
           when 150 then
             XStringNode.new(source, node_id, location, load_varuint, load_location, load_location, load_location, load_string)
           when 151 then
@@ -1706,7 +1706,7 @@ module Prism
             -> {
               node_id = load_varuint
               location = load_location
-              UntilNode.new(source, node_id, location, load_varuint, load_location, load_optional_location, load_node, load_optional_node)
+              UntilNode.new(source, node_id, location, load_varuint, load_location, load_optional_location, load_optional_location, load_node, load_optional_node)
             },
             -> {
               node_id = load_varuint
@@ -1716,7 +1716,7 @@ module Prism
             -> {
               node_id = load_varuint
               location = load_location
-              WhileNode.new(source, node_id, location, load_varuint, load_location, load_optional_location, load_node, load_optional_node)
+              WhileNode.new(source, node_id, location, load_varuint, load_location, load_optional_location, load_optional_location, load_node, load_optional_node)
             },
             -> {
               node_id = load_varuint

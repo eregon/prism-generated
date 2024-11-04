@@ -804,8 +804,8 @@ module Prism
     end
 
     # Create a new UntilNode node.
-    def until_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, closing_loc: nil, predicate: default_node(source, location), statements: nil)
-      UntilNode.new(source, node_id, location, flags, keyword_loc, closing_loc, predicate, statements)
+    def until_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, do_keyword_loc: nil, closing_loc: nil, predicate: default_node(source, location), statements: nil)
+      UntilNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
     end
 
     # Create a new WhenNode node.
@@ -814,8 +814,8 @@ module Prism
     end
 
     # Create a new WhileNode node.
-    def while_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, closing_loc: nil, predicate: default_node(source, location), statements: nil)
-      WhileNode.new(source, node_id, location, flags, keyword_loc, closing_loc, predicate, statements)
+    def while_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, do_keyword_loc: nil, closing_loc: nil, predicate: default_node(source, location), statements: nil)
+      WhileNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
     end
 
     # Create a new XStringNode node.

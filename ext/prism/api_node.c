@@ -6075,7 +6075,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 172 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_UNTIL_NODE: {
                     pm_until_node_t *cast = (pm_until_node_t *) node;
-                    VALUE argv[8];
+                    VALUE argv[9];
 
                     // source
                     argv[0] = source;
@@ -6093,19 +6093,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 220 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(parser, cast->keyword_loc.start, cast->keyword_loc.end);
 
+                    // do_keyword_loc
+#line 223 "prism/templates/ext/prism/api_node.c.erb"
+                    argv[5] = cast->do_keyword_loc.start == NULL ? Qnil : pm_location_new(parser, cast->do_keyword_loc.start, cast->do_keyword_loc.end);
+
                     // closing_loc
 #line 223 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[5] = cast->closing_loc.start == NULL ? Qnil : pm_location_new(parser, cast->closing_loc.start, cast->closing_loc.end);
+                    argv[6] = cast->closing_loc.start == NULL ? Qnil : pm_location_new(parser, cast->closing_loc.start, cast->closing_loc.end);
 
                     // predicate
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[6] = rb_ary_pop(value_stack);
+                    argv[7] = rb_ary_pop(value_stack);
 
                     // statements
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[7] = rb_ary_pop(value_stack);
+                    argv[8] = rb_ary_pop(value_stack);
 
-                    rb_ary_push(value_stack, rb_class_new_instance(8, argv, rb_cPrismUntilNode));
+                    rb_ary_push(value_stack, rb_class_new_instance(9, argv, rb_cPrismUntilNode));
                     break;
                 }
 #line 172 "prism/templates/ext/prism/api_node.c.erb"
@@ -6150,7 +6154,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 172 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_WHILE_NODE: {
                     pm_while_node_t *cast = (pm_while_node_t *) node;
-                    VALUE argv[8];
+                    VALUE argv[9];
 
                     // source
                     argv[0] = source;
@@ -6168,19 +6172,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 220 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(parser, cast->keyword_loc.start, cast->keyword_loc.end);
 
+                    // do_keyword_loc
+#line 223 "prism/templates/ext/prism/api_node.c.erb"
+                    argv[5] = cast->do_keyword_loc.start == NULL ? Qnil : pm_location_new(parser, cast->do_keyword_loc.start, cast->do_keyword_loc.end);
+
                     // closing_loc
 #line 223 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[5] = cast->closing_loc.start == NULL ? Qnil : pm_location_new(parser, cast->closing_loc.start, cast->closing_loc.end);
+                    argv[6] = cast->closing_loc.start == NULL ? Qnil : pm_location_new(parser, cast->closing_loc.start, cast->closing_loc.end);
 
                     // predicate
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[6] = rb_ary_pop(value_stack);
+                    argv[7] = rb_ary_pop(value_stack);
 
                     // statements
 #line 195 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[7] = rb_ary_pop(value_stack);
+                    argv[8] = rb_ary_pop(value_stack);
 
-                    rb_ary_push(value_stack, rb_class_new_instance(8, argv, rb_cPrismWhileNode));
+                    rb_ary_push(value_stack, rb_class_new_instance(9, argv, rb_cPrismWhileNode));
                     break;
                 }
 #line 172 "prism/templates/ext/prism/api_node.c.erb"

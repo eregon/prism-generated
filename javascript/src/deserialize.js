@@ -980,11 +980,11 @@ export function deserialize(source, array) {
       case 146:
         return new nodes.UnlessNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readRequiredNode(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode(), buffer.readOptionalLocation());
       case 147:
-        return new nodes.UntilNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readOptionalLocation(), readRequiredNode(), readOptionalNode());
+        return new nodes.UntilNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredNode(), readOptionalNode());
       case 148:
         return new nodes.WhenNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), readOptionalNode());
       case 149:
-        return new nodes.WhileNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readOptionalLocation(), readRequiredNode(), readOptionalNode());
+        return new nodes.WhileNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredNode(), readOptionalNode());
       case 150:
         return new nodes.XStringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), buffer.readStringField(flags));
       case 151:

@@ -3336,14 +3336,16 @@ module Prism
     def begin_modifier?: () -> bool
 
     attr_reader keyword_loc: Location
+    attr_reader do_keyword_loc: Location?
     attr_reader closing_loc: Location?
     attr_reader predicate: Prism::node
     attr_reader statements: StatementsNode?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Location? closing_loc, Prism::node predicate, StatementsNode? statements) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> UntilNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Location? do_keyword_loc, Location? closing_loc, Prism::node predicate, StatementsNode? statements) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?do_keyword_loc: Location?, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> UntilNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, do_keyword_loc: Location?, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
     def keyword: () -> String
+    def do_keyword: () -> String?
     def closing: () -> String?
     def type: () -> :until_node
             | ...
@@ -3387,14 +3389,16 @@ module Prism
     def begin_modifier?: () -> bool
 
     attr_reader keyword_loc: Location
+    attr_reader do_keyword_loc: Location?
     attr_reader closing_loc: Location?
     attr_reader predicate: Prism::node
     attr_reader statements: StatementsNode?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Location? closing_loc, Prism::node predicate, StatementsNode? statements) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> WhileNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Location? do_keyword_loc, Location? closing_loc, Prism::node predicate, StatementsNode? statements) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?do_keyword_loc: Location?, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> WhileNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, do_keyword_loc: Location?, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
     def keyword: () -> String
+    def do_keyword: () -> String?
     def closing: () -> String?
     def type: () -> :while_node
             | ...

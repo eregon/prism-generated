@@ -17429,12 +17429,13 @@ module Prism
   #     ^^^^^^^^^^^^^^^^^^^^
   class UntilNode < Node
     # Initialize a new UntilNode node.
-    def initialize(source, node_id, location, flags, keyword_loc, closing_loc, predicate, statements)
+    def initialize(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
       @source = source
       @node_id = node_id
       @location = location
       @flags = flags
       @keyword_loc = keyword_loc
+      @do_keyword_loc = do_keyword_loc
       @closing_loc = closing_loc
       @predicate = predicate
       @statements = statements
@@ -17460,20 +17461,20 @@ module Prism
 
     # def comment_targets: () -> Array[Node | Location]
     def comment_targets
-      [keyword_loc, *closing_loc, predicate, *statements] #: Array[Prism::node | Location]
+      [keyword_loc, *do_keyword_loc, *closing_loc, predicate, *statements] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> UntilNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements)
-      UntilNode.new(source, node_id, location, flags, keyword_loc, closing_loc, predicate, statements)
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?do_keyword_loc: Location?, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> UntilNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, do_keyword_loc: self.do_keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements)
+      UntilNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
     end
 
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, do_keyword_loc: Location?, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
     def deconstruct_keys(keys)
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
+      { node_id: node_id, location: location, keyword_loc: keyword_loc, do_keyword_loc: do_keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
     end
 
     # def begin_modifier?: () -> bool
@@ -17492,6 +17493,25 @@ module Prism
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
+    end
+
+    # attr_reader do_keyword_loc: Location?
+    def do_keyword_loc
+      location = @do_keyword_loc
+      case location
+      when nil
+        nil
+      when Location
+        location
+      else
+        @do_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+      end
+    end
+
+    # Save the do_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_do_keyword_loc(repository)
+      repository.enter(node_id, :do_keyword_loc) unless @do_keyword_loc.nil?
     end
 
     # attr_reader closing_loc: Location?
@@ -17524,6 +17544,11 @@ module Prism
       keyword_loc.slice
     end
 
+    # def do_keyword: () -> String?
+    def do_keyword
+      do_keyword_loc&.slice
+    end
+
     # def closing: () -> String?
     def closing
       closing_loc&.slice
@@ -17550,6 +17575,7 @@ module Prism
       other.is_a?(UntilNode) &&
         (flags === other.flags) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
+        (do_keyword_loc.nil? == other.do_keyword_loc.nil?) &&
         (closing_loc.nil? == other.closing_loc.nil?) &&
         (predicate === other.predicate) &&
         (statements === other.statements)
@@ -17695,12 +17721,13 @@ module Prism
   #     ^^^^^^^^^^^^^^^^^^^^
   class WhileNode < Node
     # Initialize a new WhileNode node.
-    def initialize(source, node_id, location, flags, keyword_loc, closing_loc, predicate, statements)
+    def initialize(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
       @source = source
       @node_id = node_id
       @location = location
       @flags = flags
       @keyword_loc = keyword_loc
+      @do_keyword_loc = do_keyword_loc
       @closing_loc = closing_loc
       @predicate = predicate
       @statements = statements
@@ -17726,20 +17753,20 @@ module Prism
 
     # def comment_targets: () -> Array[Node | Location]
     def comment_targets
-      [keyword_loc, *closing_loc, predicate, *statements] #: Array[Prism::node | Location]
+      [keyword_loc, *do_keyword_loc, *closing_loc, predicate, *statements] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> WhileNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements)
-      WhileNode.new(source, node_id, location, flags, keyword_loc, closing_loc, predicate, statements)
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?do_keyword_loc: Location?, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> WhileNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, do_keyword_loc: self.do_keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements)
+      WhileNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
     end
 
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, do_keyword_loc: Location?, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
     def deconstruct_keys(keys)
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
+      { node_id: node_id, location: location, keyword_loc: keyword_loc, do_keyword_loc: do_keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
     end
 
     # def begin_modifier?: () -> bool
@@ -17758,6 +17785,25 @@ module Prism
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
+    end
+
+    # attr_reader do_keyword_loc: Location?
+    def do_keyword_loc
+      location = @do_keyword_loc
+      case location
+      when nil
+        nil
+      when Location
+        location
+      else
+        @do_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+      end
+    end
+
+    # Save the do_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_do_keyword_loc(repository)
+      repository.enter(node_id, :do_keyword_loc) unless @do_keyword_loc.nil?
     end
 
     # attr_reader closing_loc: Location?
@@ -17790,6 +17836,11 @@ module Prism
       keyword_loc.slice
     end
 
+    # def do_keyword: () -> String?
+    def do_keyword
+      do_keyword_loc&.slice
+    end
+
     # def closing: () -> String?
     def closing
       closing_loc&.slice
@@ -17816,6 +17867,7 @@ module Prism
       other.is_a?(WhileNode) &&
         (flags === other.flags) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
+        (do_keyword_loc.nil? == other.do_keyword_loc.nil?) &&
         (closing_loc.nil? == other.closing_loc.nil?) &&
         (predicate === other.predicate) &&
         (statements === other.statements)

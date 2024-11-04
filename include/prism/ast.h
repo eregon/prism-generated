@@ -7135,6 +7135,11 @@ typedef struct pm_until_node {
     pm_location_t keyword_loc;
 
     /**
+     * UntilNode#do_keyword_loc
+     */
+    pm_location_t do_keyword_loc;
+
+    /**
      * UntilNode#closing_loc
      */
     pm_location_t closing_loc;
@@ -7217,6 +7222,11 @@ typedef struct pm_while_node {
      * WhileNode#keyword_loc
      */
     pm_location_t keyword_loc;
+
+    /**
+     * WhileNode#do_keyword_loc
+     */
+    pm_location_t do_keyword_loc;
 
     /**
      * WhileNode#closing_loc

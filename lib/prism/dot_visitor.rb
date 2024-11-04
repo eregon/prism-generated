@@ -4414,6 +4414,11 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
+      # do_keyword_loc
+      unless (do_keyword_loc = node.do_keyword_loc).nil?
+        table.field("do_keyword_loc", location_inspect(do_keyword_loc))
+      end
+
       # closing_loc
       unless (closing_loc = node.closing_loc).nil?
         table.field("closing_loc", location_inspect(closing_loc))
@@ -4489,6 +4494,11 @@ module Prism
 
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
+
+      # do_keyword_loc
+      unless (do_keyword_loc = node.do_keyword_loc).nil?
+        table.field("do_keyword_loc", location_inspect(do_keyword_loc))
+      end
 
       # closing_loc
       unless (closing_loc = node.closing_loc).nil?

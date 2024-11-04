@@ -396,11 +396,11 @@ module Prism
       when :unless_node
         [LocationField.new(:keyword_loc), NodeField.new(:predicate), OptionalLocationField.new(:then_keyword_loc), OptionalNodeField.new(:statements), OptionalNodeField.new(:else_clause), OptionalLocationField.new(:end_keyword_loc)]
       when :until_node
-        [FlagsField.new(:flags, [:begin_modifier?]), LocationField.new(:keyword_loc), OptionalLocationField.new(:closing_loc), NodeField.new(:predicate), OptionalNodeField.new(:statements)]
+        [FlagsField.new(:flags, [:begin_modifier?]), LocationField.new(:keyword_loc), OptionalLocationField.new(:do_keyword_loc), OptionalLocationField.new(:closing_loc), NodeField.new(:predicate), OptionalNodeField.new(:statements)]
       when :when_node
         [LocationField.new(:keyword_loc), NodeListField.new(:conditions), OptionalLocationField.new(:then_keyword_loc), OptionalNodeField.new(:statements)]
       when :while_node
-        [FlagsField.new(:flags, [:begin_modifier?]), LocationField.new(:keyword_loc), OptionalLocationField.new(:closing_loc), NodeField.new(:predicate), OptionalNodeField.new(:statements)]
+        [FlagsField.new(:flags, [:begin_modifier?]), LocationField.new(:keyword_loc), OptionalLocationField.new(:do_keyword_loc), OptionalLocationField.new(:closing_loc), NodeField.new(:predicate), OptionalNodeField.new(:statements)]
       when :x_string_node
         [FlagsField.new(:flags, [:forced_utf8_encoding?, :forced_binary_encoding?]), LocationField.new(:opening_loc), LocationField.new(:content_loc), LocationField.new(:closing_loc), StringField.new(:unescaped)]
       when :yield_node

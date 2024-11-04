@@ -2287,6 +2287,7 @@ module Prism
       flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ("begin_modifier" if node.begin_modifier?)].compact
       commands << ["├── flags: #{flags.empty? ? "∅" : flags.join(", ")}\n", indent]
       commands << ["├── keyword_loc: #{inspect_location(node.keyword_loc)}\n", indent]
+      commands << ["├── do_keyword_loc: #{inspect_location(node.do_keyword_loc)}\n", indent]
       commands << ["├── closing_loc: #{inspect_location(node.closing_loc)}\n", indent]
       commands << ["├── predicate:\n", indent]
       commands << [node.predicate, "#{indent}│   "]
@@ -2328,6 +2329,7 @@ module Prism
       flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ("begin_modifier" if node.begin_modifier?)].compact
       commands << ["├── flags: #{flags.empty? ? "∅" : flags.join(", ")}\n", indent]
       commands << ["├── keyword_loc: #{inspect_location(node.keyword_loc)}\n", indent]
+      commands << ["├── do_keyword_loc: #{inspect_location(node.do_keyword_loc)}\n", indent]
       commands << ["├── closing_loc: #{inspect_location(node.closing_loc)}\n", indent]
       commands << ["├── predicate:\n", indent]
       commands << [node.predicate, "#{indent}│   "]

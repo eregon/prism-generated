@@ -451,14 +451,14 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), else_clause: T.nilable(Prism::ElseNode), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::UnlessNode) }
   def unless_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, else_clause: nil, end_keyword_loc: nil); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::UntilNode) }
-  def until_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, closing_loc: nil, predicate: default_node(source, location), statements: nil); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, do_keyword_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::UntilNode) }
+  def until_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, do_keyword_loc: nil, closing_loc: nil, predicate: default_node(source, location), statements: nil); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, conditions: T::Array[Prism::Node], then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode)).returns(Prism::WhenNode) }
   def when_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, conditions: [], then_keyword_loc: nil, statements: nil); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::WhileNode) }
-  def while_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, closing_loc: nil, predicate: default_node(source, location), statements: nil); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, do_keyword_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location), predicate: Prism::Node, statements: T.nilable(Prism::StatementsNode)).returns(Prism::WhileNode) }
+  def while_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, do_keyword_loc: nil, closing_loc: nil, predicate: default_node(source, location), statements: nil); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: Prism::Location, content_loc: Prism::Location, closing_loc: Prism::Location, unescaped: String).returns(Prism::XStringNode) }
   def x_string_node(source: default_source, node_id: 0, location: default_location, flags: 0, opening_loc: location, content_loc: location, closing_loc: location, unescaped: ""); end
