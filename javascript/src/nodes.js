@@ -801,8 +801,8 @@ export class ArrayNode {
  *     foo in [1, 2]
  *     ^^^^^^^^^^^^^
  *
- *     foo in *1
- *     ^^^^^^^^^
+ *     foo in *bar
+ *     ^^^^^^^^^^^
  *
  *     foo in Bar[]
  *     ^^^^^^^^^^^^

@@ -489,7 +489,10 @@ module Prism
     #                     ^^^^^^^^^
     attr_reader :old_name
 
-    # attr_reader keyword_loc: Location
+    # Represents the location of the `alias` keyword.
+    #
+    #     alias foo bar
+    #     ^^^^^
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
@@ -824,7 +827,10 @@ module Prism
       flags.anybits?(ArgumentsNodeFlags::CONTAINS_MULTIPLE_SPLATS)
     end
 
-    # attr_reader arguments: Array[Prism::node]
+    # The list of arguments, if present. These can be any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     foo(bar, baz)
+    #         ^^^^^^^^
     attr_reader :arguments
 
     # def inspect -> String
@@ -1002,8 +1008,8 @@ module Prism
   #     foo in [1, 2]
   #     ^^^^^^^^^^^^^
   #
-  #     foo in *1
-  #     ^^^^^^^^^
+  #     foo in *bar
+  #     ^^^^^^^^^^^
   #
   #     foo in Bar[]
   #     ^^^^^^^^^^^^
@@ -1066,16 +1072,28 @@ module Prism
     # attr_reader constant: ConstantReadNode | ConstantPathNode | nil
     attr_reader :constant
 
-    # attr_reader requireds: Array[Prism::node]
+    # Represents the required elements of the array pattern.
+    #
+    #     foo in [1, 2]
+    #             ^  ^
     attr_reader :requireds
 
-    # attr_reader rest: Prism::node?
+    # Represents the rest element of the array pattern.
+    #
+    #     foo in *bar
+    #            ^^^^
     attr_reader :rest
 
-    # attr_reader posts: Array[Prism::node]
+    # Represents the elements after the rest element of the array pattern.
+    #
+    #     foo in *bar, baz
+    #                  ^^^
     attr_reader :posts
 
-    # attr_reader opening_loc: Location?
+    # Represents the opening location of the array pattern.
+    #
+    #     foo in [1, 2]
+    #            ^
     def opening_loc
       location = @opening_loc
       case location
@@ -1094,7 +1112,10 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # attr_reader closing_loc: Location?
+    # Represents the closing location of the array pattern.
+    #
+    #     foo in [1, 2]
+    #                 ^
     def closing_loc
       location = @closing_loc
       case location
@@ -1512,7 +1533,10 @@ module Prism
       { node_id: node_id, location: location, begin_keyword_loc: begin_keyword_loc, statements: statements, rescue_clause: rescue_clause, else_clause: else_clause, ensure_clause: ensure_clause, end_keyword_loc: end_keyword_loc }
     end
 
-    # attr_reader begin_keyword_loc: Location?
+    # Represents the location of the `begin` keyword.
+    #
+    #     begin x end
+    #     ^^^^^
     def begin_keyword_loc
       location = @begin_keyword_loc
       case location
@@ -1531,19 +1555,34 @@ module Prism
       repository.enter(node_id, :begin_keyword_loc) unless @begin_keyword_loc.nil?
     end
 
-    # attr_reader statements: StatementsNode?
+    # Represents the statements within the begin block.
+    #
+    #     begin x end
+    #           ^
     attr_reader :statements
 
-    # attr_reader rescue_clause: RescueNode?
+    # Represents the rescue clause within the begin block.
+    #
+    #     begin x; rescue y; end
+    #              ^^^^^^^^
     attr_reader :rescue_clause
 
-    # attr_reader else_clause: ElseNode?
+    # Represents the else clause within the begin block.
+    #
+    #     begin x; rescue y; else z; end
+    #                        ^^^^^^
     attr_reader :else_clause
 
-    # attr_reader ensure_clause: EnsureNode?
+    # Represents the ensure clause within the begin block.
+    #
+    #     begin x; ensure y; end
+    #              ^^^^^^^^
     attr_reader :ensure_clause
 
-    # attr_reader end_keyword_loc: Location?
+    # Represents the location of the `end` keyword.
+    #
+    #     begin x end
+    #             ^^^
     def end_keyword_loc
       location = @end_keyword_loc
       case location
@@ -1650,10 +1689,16 @@ module Prism
       { node_id: node_id, location: location, expression: expression, operator_loc: operator_loc }
     end
 
-    # attr_reader expression: Prism::node?
+    # The expression that is being passed as a block argument. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     foo(&args)
+    #         ^^^^^
     attr_reader :expression
 
-    # attr_reader operator_loc: Location
+    # Represents the location of the `&` operator.
+    #
+    #     foo(&args)
+    #         ^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -1747,7 +1792,10 @@ module Prism
       flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # attr_reader name: Symbol
+    # The name of the block local variable.
+    #
+    #     a { |; b| } # name `:b`
+    #            ^
     attr_reader :name
 
     # def inspect -> String
@@ -1828,16 +1876,32 @@ module Prism
       { node_id: node_id, location: location, locals: locals, parameters: parameters, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # attr_reader locals: Array[Symbol]
+    # The local variables declared in the block.
+    #
+    #     [1, 2, 3].each { |i| puts x } # locals: [:i]
+    #                       ^
     attr_reader :locals
 
-    # attr_reader parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil
+    # The parameters of the block.
+    #
+    #     [1, 2, 3].each { |i| puts x }
+    #                      ^^^
+    #     [1, 2, 3].each { puts _1 }
+    #                    ^^^^^^^^^^^
+    #     [1, 2, 3].each { puts it }
+    #                    ^^^^^^^^^^^
     attr_reader :parameters
 
-    # attr_reader body: StatementsNode | BeginNode | nil
+    # The body of the block.
+    #
+    #     [1, 2, 3].each { |i| puts x }
+    #                          ^^^^^^
     attr_reader :body
 
-    # attr_reader opening_loc: Location
+    # Represents the location of the opening `|`.
+    #
+    #     [1, 2, 3].each { |i| puts x }
+    #                      ^
     def opening_loc
       location = @opening_loc
       return location if location.is_a?(Location)
@@ -1850,7 +1914,10 @@ module Prism
       repository.enter(node_id, :opening_loc)
     end
 
-    # attr_reader closing_loc: Location
+    # Represents the location of the closing `|`.
+    #
+    #     [1, 2, 3].each { |i| puts x }
+    #                        ^
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
@@ -1956,10 +2023,17 @@ module Prism
       flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # attr_reader name: Symbol?
+    # The name of the block parameter.
+    #
+    #     def a(&b) # name `:b`
+    #            ^
+    #     end
     attr_reader :name
 
-    # attr_reader name_loc: Location?
+    # Represents the location of the block parameter name.
+    #
+    #     def a(&b)
+    #            ^
     def name_loc
       location = @name_loc
       case location
@@ -1978,7 +2052,11 @@ module Prism
       repository.enter(node_id, :name_loc) unless @name_loc.nil?
     end
 
-    # attr_reader operator_loc: Location
+    # Represents the location of the `&` operator.
+    #
+    #     def a(&b)
+    #           ^
+    #     end
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -2079,13 +2157,34 @@ module Prism
       { node_id: node_id, location: location, parameters: parameters, locals: locals, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # attr_reader parameters: ParametersNode?
+    # Represents the parameters of the block.
+    #
+    #     -> (a, b = 1; local) { }
+    #         ^^^^^^^^
+    #
+    #     foo do |a, b = 1; local|
+    #             ^^^^^^^^
+    #     end
     attr_reader :parameters
 
-    # attr_reader locals: Array[BlockLocalVariableNode]
+    # Represents the local variables of the block.
+    #
+    #     -> (a, b = 1; local) { }
+    #                   ^^^^^
+    #
+    #     foo do |a, b = 1; local|
+    #                       ^^^^^
+    #     end
     attr_reader :locals
 
-    # attr_reader opening_loc: Location?
+    # Represents the opening location of the block parameters.
+    #
+    #     -> (a, b = 1; local) { }
+    #        ^
+    #
+    #     foo do |a, b = 1; local|
+    #            ^
+    #     end
     def opening_loc
       location = @opening_loc
       case location
@@ -2104,7 +2203,14 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # attr_reader closing_loc: Location?
+    # Represents the closing location of the block parameters.
+    #
+    #     -> (a, b = 1; local) { }
+    #                        ^
+    #
+    #     foo do |a, b = 1; local|
+    #                            ^
+    #     end
     def closing_loc
       location = @closing_loc
       case location
@@ -2337,10 +2443,16 @@ module Prism
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
-    # attr_reader receiver: Prism::node?
+    # The object that the method is being called on. This can be either `nil` or any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     foo.bar &&= value
+    #     ^^^
     attr_reader :receiver
 
-    # attr_reader call_operator_loc: Location?
+    # Represents the location of the call operator.
+    #
+    #     foo.bar &&= value
+    #        ^
     def call_operator_loc
       location = @call_operator_loc
       case location
@@ -2359,7 +2471,10 @@ module Prism
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
 
-    # attr_reader message_loc: Location?
+    # Represents the location of the message.
+    #
+    #     foo.bar &&= value
+    #         ^^^
     def message_loc
       location = @message_loc
       case location
@@ -2378,13 +2493,22 @@ module Prism
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
 
-    # attr_reader read_name: Symbol
+    # Represents the name of the method being called.
+    #
+    #     foo.bar &&= value # read_name `:bar`
+    #         ^^^
     attr_reader :read_name
 
-    # attr_reader write_name: Symbol
+    # Represents the name of the method being written to.
+    #
+    #     foo.bar &&= value # write_name `:bar=`
+    #         ^^^
     attr_reader :write_name
 
-    # attr_reader operator_loc: Location
+    # Represents the location of the operator.
+    #
+    #     foo.bar &&= value
+    #             ^^^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -2397,7 +2521,10 @@ module Prism
       repository.enter(node_id, :operator_loc)
     end
 
-    # attr_reader value: Prism::node
+    # Represents the value being assigned.
+    #
+    #     foo.bar &&= value
+    #                 ^^^^^
     attr_reader :value
 
     # def call_operator: () -> String?
@@ -2550,7 +2677,13 @@ module Prism
     #     ^^^
     attr_reader :receiver
 
-    # attr_reader call_operator_loc: Location?
+    # Represents the location of the call operator.
+    #
+    #     foo.bar
+    #        ^
+    #
+    #     foo&.bar
+    #        ^^
     def call_operator_loc
       location = @call_operator_loc
       case location
@@ -2569,10 +2702,16 @@ module Prism
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
 
-    # attr_reader name: Symbol
+    # Represents the name of the method being called.
+    #
+    #     foo.bar # name `:foo`
+    #     ^^^
     attr_reader :name
 
-    # attr_reader message_loc: Location?
+    # Represents the location of the message.
+    #
+    #     foo.bar
+    #         ^^^
     def message_loc
       location = @message_loc
       case location
@@ -2591,7 +2730,9 @@ module Prism
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
 
-    # attr_reader opening_loc: Location?
+    # Represents the location of the left parenthesis.
+    #     foo(bar)
+    #        ^
     def opening_loc
       location = @opening_loc
       case location
@@ -2610,10 +2751,16 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # attr_reader arguments: ArgumentsNode?
+    # Represents the arguments to the method call. These can be any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     foo(bar)
+    #         ^^^
     attr_reader :arguments
 
-    # attr_reader closing_loc: Location?
+    # Represents the location of the right parenthesis.
+    #
+    #     foo(bar)
+    #            ^
     def closing_loc
       location = @closing_loc
       case location
@@ -2632,7 +2779,10 @@ module Prism
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
-    # attr_reader block: BlockNode | BlockArgumentNode | nil
+    # Represents the block that is being passed to the method.
+    #
+    #     foo { |a| a }
+    #         ^^^^^^^^^
     attr_reader :block
 
     # def call_operator: () -> String?
