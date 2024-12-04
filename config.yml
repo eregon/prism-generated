@@ -1698,11 +1698,26 @@ nodes:
       - name: value
         type: node
         kind: pattern expression
+        comment: |
+          Represents the value to capture.
+
+              foo => bar
+                     ^^^
       - name: target
         type: node
         kind: LocalVariableTargetNode
+        comment: |
+          Represents the target of the capture.
+
+              foo => bar
+              ^^^
       - name: operator_loc
         type: location
+        comment: |
+          Represents the location of the `=>` operator.
+
+              foo => bar
+                  ^^
     comment: |
       Represents assigning to a local variable in pattern matching.
 
@@ -1713,16 +1728,41 @@ nodes:
       - name: predicate
         type: node?
         kind: non-void expression
+        comment: |
+          Represents the predicate of the case match. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+
+              case true; in false; end
+              ^^^^
       - name: conditions
         type: node[]
         kind: InNode
+        comment: |
+          Represents the conditions of the case match.
+
+              case true; in false; end
+                         ^^^^^^^^
       - name: else_clause
         type: node?
         kind: ElseNode
+        comment: |
+          Represents the else clause of the case match.
+
+              case true; in false; else; end
+                                   ^^^^
       - name: case_keyword_loc
         type: location
+        comment: |
+          Represents the location of the `case` keyword.
+
+              case true; in false; end
+              ^^^^
       - name: end_keyword_loc
         type: location
+        comment: |
+          Represents the location of the `end` keyword.
+
+              case true; in false; end
+                                   ^^^
     comment: |
       Represents the use of a case statement for pattern matching.
 
@@ -1735,16 +1775,41 @@ nodes:
       - name: predicate
         type: node?
         kind: non-void expression
+        comment: |
+          Represents the predicate of the case statement. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+
+              case true; when false; end
+              ^^^^
       - name: conditions
         type: node[]
         kind: WhenNode
+        comment: |
+          Represents the conditions of the case statement.
+
+              case true; when false; end
+                         ^^^^^^^^^^
       - name: else_clause
         type: node?
         kind: ElseNode
+        comment: |
+          Represents the else clause of the case statement.
+
+              case true; when false; else; end
+                                     ^^^^
       - name: case_keyword_loc
         type: location
+        comment: |
+          Represents the location of the `case` keyword.
+
+              case true; when false; end
+              ^^^^
       - name: end_keyword_loc
         type: location
+        comment: |
+          Represents the location of the `end` keyword.
+
+              case true; when false; end
+                                     ^^^
     comment: |
       Represents the use of a case statement.
 
@@ -1787,13 +1852,33 @@ nodes:
     fields:
       - name: name
         type: constant
+        comment: |
+          The name of the class variable, which is a `@@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
+
+              @@target &&= value # name `:@@target`
+              ^^^^^^^^
       - name: name_loc
         type: location
+        comment: |
+          Represents the location of the variable name.
+
+              @@target &&= value
+              ^^^^^^^^
       - name: operator_loc
         type: location
+        comment: |
+          Represents the location of the `&&=` operator.
+
+              @@target &&= value
+                       ^^^
       - name: value
         type: node
         kind: non-void expression
+        comment: |
+          Represents the value being assigned. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+
+              @@target &&= value
+                           ^^^^^
     comment: |
       Represents the use of the `&&=` operator for assignment to a class variable.
 

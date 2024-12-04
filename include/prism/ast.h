@@ -2499,16 +2499,31 @@ typedef struct pm_capture_pattern_node {
 
     /**
      * CapturePatternNode#value
+     *
+     * Represents the value to capture.
+     *
+     *     foo => bar
+     *            ^^^
      */
     struct pm_node *value;
 
     /**
      * CapturePatternNode#target
+     *
+     * Represents the target of the capture.
+     *
+     *     foo => bar
+     *     ^^^
      */
     struct pm_local_variable_target_node *target;
 
     /**
      * CapturePatternNode#operator_loc
+     *
+     * Represents the location of the `=>` operator.
+     *
+     *     foo => bar
+     *         ^^
      */
     pm_location_t operator_loc;
 } pm_capture_pattern_node_t;
@@ -2534,26 +2549,51 @@ typedef struct pm_case_match_node {
 
     /**
      * CaseMatchNode#predicate
+     *
+     * Represents the predicate of the case match. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+     *
+     *     case true; in false; end
+     *     ^^^^
      */
     struct pm_node *predicate;
 
     /**
      * CaseMatchNode#conditions
+     *
+     * Represents the conditions of the case match.
+     *
+     *     case true; in false; end
+     *                ^^^^^^^^
      */
     struct pm_node_list conditions;
 
     /**
      * CaseMatchNode#else_clause
+     *
+     * Represents the else clause of the case match.
+     *
+     *     case true; in false; else; end
+     *                          ^^^^
      */
     struct pm_else_node *else_clause;
 
     /**
      * CaseMatchNode#case_keyword_loc
+     *
+     * Represents the location of the `case` keyword.
+     *
+     *     case true; in false; end
+     *     ^^^^
      */
     pm_location_t case_keyword_loc;
 
     /**
      * CaseMatchNode#end_keyword_loc
+     *
+     * Represents the location of the `end` keyword.
+     *
+     *     case true; in false; end
+     *                          ^^^
      */
     pm_location_t end_keyword_loc;
 } pm_case_match_node_t;
@@ -2579,26 +2619,51 @@ typedef struct pm_case_node {
 
     /**
      * CaseNode#predicate
+     *
+     * Represents the predicate of the case statement. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+     *
+     *     case true; when false; end
+     *     ^^^^
      */
     struct pm_node *predicate;
 
     /**
      * CaseNode#conditions
+     *
+     * Represents the conditions of the case statement.
+     *
+     *     case true; when false; end
+     *                ^^^^^^^^^^
      */
     struct pm_node_list conditions;
 
     /**
      * CaseNode#else_clause
+     *
+     * Represents the else clause of the case statement.
+     *
+     *     case true; when false; else; end
+     *                            ^^^^
      */
     struct pm_else_node *else_clause;
 
     /**
      * CaseNode#case_keyword_loc
+     *
+     * Represents the location of the `case` keyword.
+     *
+     *     case true; when false; end
+     *     ^^^^
      */
     pm_location_t case_keyword_loc;
 
     /**
      * CaseNode#end_keyword_loc
+     *
+     * Represents the location of the `end` keyword.
+     *
+     *     case true; when false; end
+     *                            ^^^
      */
     pm_location_t end_keyword_loc;
 } pm_case_node_t;
@@ -2680,21 +2745,41 @@ typedef struct pm_class_variable_and_write_node {
 
     /**
      * ClassVariableAndWriteNode#name
+     *
+     * The name of the class variable, which is a `@@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
+     *
+     *     @@target &&= value # name `:@@target`
+     *     ^^^^^^^^
      */
     pm_constant_id_t name;
 
     /**
      * ClassVariableAndWriteNode#name_loc
+     *
+     * Represents the location of the variable name.
+     *
+     *     @@target &&= value
+     *     ^^^^^^^^
      */
     pm_location_t name_loc;
 
     /**
      * ClassVariableAndWriteNode#operator_loc
+     *
+     * Represents the location of the `&&=` operator.
+     *
+     *     @@target &&= value
+     *              ^^^
      */
     pm_location_t operator_loc;
 
     /**
      * ClassVariableAndWriteNode#value
+     *
+     * Represents the value being assigned. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+     *
+     *     @@target &&= value
+     *                  ^^^^^
      */
     struct pm_node *value;
 } pm_class_variable_and_write_node_t;

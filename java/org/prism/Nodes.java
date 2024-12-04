@@ -2964,7 +2964,23 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class CapturePatternNode extends Node {
+        /**
+         * <pre>
+         * Represents the value to capture.
+         *
+         *     foo =&gt; bar
+         *            ^^^
+         * </pre>
+         */
         public final Node value;
+        /**
+         * <pre>
+         * Represents the target of the capture.
+         *
+         *     foo =&gt; bar
+         *     ^^^
+         * </pre>
+         */
         public final LocalVariableTargetNode target;
 
         public CapturePatternNode(int startOffset, int length, Node value, LocalVariableTargetNode target) {
@@ -3016,9 +3032,33 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class CaseMatchNode extends Node {
+        /**
+         * <pre>
+         * Represents the predicate of the case match. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+         *
+         *     case true; in false; end
+         *     ^^^^
+         * </pre>
+         */
         @Nullable
         public final Node predicate;
+        /**
+         * <pre>
+         * Represents the conditions of the case match.
+         *
+         *     case true; in false; end
+         *                ^^^^^^^^
+         * </pre>
+         */
         public final InNode[] conditions;
+        /**
+         * <pre>
+         * Represents the else clause of the case match.
+         *
+         *     case true; in false; else; end
+         *                          ^^^^
+         * </pre>
+         */
         @Nullable
         public final ElseNode else_clause;
 
@@ -3090,9 +3130,33 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class CaseNode extends Node {
+        /**
+         * <pre>
+         * Represents the predicate of the case statement. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+         *
+         *     case true; when false; end
+         *     ^^^^
+         * </pre>
+         */
         @Nullable
         public final Node predicate;
+        /**
+         * <pre>
+         * Represents the conditions of the case statement.
+         *
+         *     case true; when false; end
+         *                ^^^^^^^^^^
+         * </pre>
+         */
         public final WhenNode[] conditions;
+        /**
+         * <pre>
+         * Represents the else clause of the case statement.
+         *
+         *     case true; when false; else; end
+         *                            ^^^^
+         * </pre>
+         */
         @Nullable
         public final ElseNode else_clause;
 
@@ -3241,7 +3305,23 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ClassVariableAndWriteNode extends Node {
+        /**
+         * <pre>
+         * The name of the class variable, which is a `&#64;&#64;` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
+         *
+         *     &#64;&#64;target &amp;&amp;= value # name `:&#64;&#64;target`
+         *     ^^^^^^^^
+         * </pre>
+         */
         public final String name;
+        /**
+         * <pre>
+         * Represents the value being assigned. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+         *
+         *     &#64;&#64;target &amp;&amp;= value
+         *                  ^^^^^
+         * </pre>
+         */
         public final Node value;
 
         public ClassVariableAndWriteNode(int startOffset, int length, String name, Node value) {

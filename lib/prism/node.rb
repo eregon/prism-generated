@@ -3457,13 +3457,22 @@ module Prism
       { node_id: node_id, location: location, value: value, target: target, operator_loc: operator_loc }
     end
 
-    # attr_reader value: Prism::node
+    # Represents the value to capture.
+    #
+    #     foo => bar
+    #            ^^^
     attr_reader :value
 
-    # attr_reader target: LocalVariableTargetNode
+    # Represents the target of the capture.
+    #
+    #     foo => bar
+    #     ^^^
     attr_reader :target
 
-    # attr_reader operator_loc: Location
+    # Represents the location of the `=>` operator.
+    #
+    #     foo => bar
+    #         ^^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -3563,16 +3572,28 @@ module Prism
       { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
-    # attr_reader predicate: Prism::node?
+    # Represents the predicate of the case match. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     case true; in false; end
+    #     ^^^^
     attr_reader :predicate
 
-    # attr_reader conditions: Array[InNode]
+    # Represents the conditions of the case match.
+    #
+    #     case true; in false; end
+    #                ^^^^^^^^
     attr_reader :conditions
 
-    # attr_reader else_clause: ElseNode?
+    # Represents the else clause of the case match.
+    #
+    #     case true; in false; else; end
+    #                          ^^^^
     attr_reader :else_clause
 
-    # attr_reader case_keyword_loc: Location
+    # Represents the location of the `case` keyword.
+    #
+    #     case true; in false; end
+    #     ^^^^
     def case_keyword_loc
       location = @case_keyword_loc
       return location if location.is_a?(Location)
@@ -3585,7 +3606,10 @@ module Prism
       repository.enter(node_id, :case_keyword_loc)
     end
 
-    # attr_reader end_keyword_loc: Location
+    # Represents the location of the `end` keyword.
+    #
+    #     case true; in false; end
+    #                          ^^^
     def end_keyword_loc
       location = @end_keyword_loc
       return location if location.is_a?(Location)
@@ -3693,16 +3717,28 @@ module Prism
       { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
-    # attr_reader predicate: Prism::node?
+    # Represents the predicate of the case statement. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     case true; when false; end
+    #     ^^^^
     attr_reader :predicate
 
-    # attr_reader conditions: Array[WhenNode]
+    # Represents the conditions of the case statement.
+    #
+    #     case true; when false; end
+    #                ^^^^^^^^^^
     attr_reader :conditions
 
-    # attr_reader else_clause: ElseNode?
+    # Represents the else clause of the case statement.
+    #
+    #     case true; when false; else; end
+    #                            ^^^^
     attr_reader :else_clause
 
-    # attr_reader case_keyword_loc: Location
+    # Represents the location of the `case` keyword.
+    #
+    #     case true; when false; end
+    #     ^^^^
     def case_keyword_loc
       location = @case_keyword_loc
       return location if location.is_a?(Location)
@@ -3715,7 +3751,10 @@ module Prism
       repository.enter(node_id, :case_keyword_loc)
     end
 
-    # attr_reader end_keyword_loc: Location
+    # Represents the location of the `end` keyword.
+    #
+    #     case true; when false; end
+    #                            ^^^
     def end_keyword_loc
       location = @end_keyword_loc
       return location if location.is_a?(Location)
@@ -3980,10 +4019,16 @@ module Prism
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader name: Symbol
+    # The name of the class variable, which is a `@@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
+    #
+    #     @@target &&= value # name `:@@target`
+    #     ^^^^^^^^
     attr_reader :name
 
-    # attr_reader name_loc: Location
+    # Represents the location of the variable name.
+    #
+    #     @@target &&= value
+    #     ^^^^^^^^
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
@@ -3996,7 +4041,10 @@ module Prism
       repository.enter(node_id, :name_loc)
     end
 
-    # attr_reader operator_loc: Location
+    # Represents the location of the `&&=` operator.
+    #
+    #     @@target &&= value
+    #              ^^^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -4009,7 +4057,10 @@ module Prism
       repository.enter(node_id, :operator_loc)
     end
 
-    # attr_reader value: Prism::node
+    # Represents the value being assigned. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     @@target &&= value
+    #                  ^^^^^
     attr_reader :value
 
     # def operator: () -> String
