@@ -2913,10 +2913,16 @@ module Prism
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
-    # attr_reader receiver: Prism::node?
+    # The object that the method is being called on. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     foo.bar += value
+    #     ^^^
     attr_reader :receiver
 
-    # attr_reader call_operator_loc: Location?
+    # Represents the location of the call operator.
+    #
+    #     foo.bar += value
+    #        ^
     def call_operator_loc
       location = @call_operator_loc
       case location
@@ -2935,7 +2941,10 @@ module Prism
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
 
-    # attr_reader message_loc: Location?
+    # Represents the location of the message.
+    #
+    #     foo.bar += value
+    #         ^^^
     def message_loc
       location = @message_loc
       case location
@@ -2954,16 +2963,28 @@ module Prism
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
 
-    # attr_reader read_name: Symbol
+    # Represents the name of the method being called.
+    #
+    #     foo.bar += value # read_name `:bar`
+    #         ^^^
     attr_reader :read_name
 
-    # attr_reader write_name: Symbol
+    # Represents the name of the method being written to.
+    #
+    #     foo.bar += value # write_name `:bar=`
+    #         ^^^
     attr_reader :write_name
 
-    # attr_reader binary_operator: Symbol
+    # Represents the binary operator being used.
+    #
+    #     foo.bar += value # binary_operator `:+`
+    #             ^
     attr_reader :binary_operator
 
-    # attr_reader binary_operator_loc: Location
+    # Represents the location of the binary operator.
+    #
+    #     foo.bar += value
+    #             ^^
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
@@ -2976,7 +2997,10 @@ module Prism
       repository.enter(node_id, :binary_operator_loc)
     end
 
-    # attr_reader value: Prism::node
+    # Represents the value being assigned.
+    #
+    #     foo.bar += value
+    #                ^^^^^
     attr_reader :value
 
     # def call_operator: () -> String?
@@ -3096,10 +3120,16 @@ module Prism
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
-    # attr_reader receiver: Prism::node?
+    # The object that the method is being called on. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     foo.bar ||= value
+    #     ^^^
     attr_reader :receiver
 
-    # attr_reader call_operator_loc: Location?
+    # Represents the location of the call operator.
+    #
+    #     foo.bar ||= value
+    #        ^
     def call_operator_loc
       location = @call_operator_loc
       case location
@@ -3118,7 +3148,10 @@ module Prism
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
 
-    # attr_reader message_loc: Location?
+    # Represents the location of the message.
+    #
+    #     foo.bar ||= value
+    #         ^^^
     def message_loc
       location = @message_loc
       case location
@@ -3137,13 +3170,22 @@ module Prism
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
 
-    # attr_reader read_name: Symbol
+    # Represents the name of the method being called.
+    #
+    #     foo.bar ||= value # read_name `:bar`
+    #         ^^^
     attr_reader :read_name
 
-    # attr_reader write_name: Symbol
+    # Represents the name of the method being written to.
+    #
+    #     foo.bar ||= value # write_name `:bar=`
+    #         ^^^
     attr_reader :write_name
 
-    # attr_reader operator_loc: Location
+    # Represents the location of the operator.
+    #
+    #     foo.bar ||= value
+    #             ^^^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -3156,7 +3198,10 @@ module Prism
       repository.enter(node_id, :operator_loc)
     end
 
-    # attr_reader value: Prism::node
+    # Represents the value being assigned.
+    #
+    #     foo.bar ||= value
+    #                 ^^^^^
     attr_reader :value
 
     # def call_operator: () -> String?
@@ -3282,10 +3327,16 @@ module Prism
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
-    # attr_reader receiver: Prism::node
+    # The object that the method is being called on. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     foo.bar = 1
+    #     ^^^
     attr_reader :receiver
 
-    # attr_reader call_operator_loc: Location
+    # Represents the location of the call operator.
+    #
+    #     foo.bar = 1
+    #        ^
     def call_operator_loc
       location = @call_operator_loc
       return location if location.is_a?(Location)
@@ -3298,10 +3349,16 @@ module Prism
       repository.enter(node_id, :call_operator_loc)
     end
 
-    # attr_reader name: Symbol
+    # Represents the name of the method being called.
+    #
+    #     foo.bar = 1 # name `:foo`
+    #     ^^^
     attr_reader :name
 
-    # attr_reader message_loc: Location
+    # Represents the location of the message.
+    #
+    #     foo.bar = 1
+    #         ^^^
     def message_loc
       location = @message_loc
       return location if location.is_a?(Location)

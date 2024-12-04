@@ -2235,41 +2235,81 @@ typedef struct pm_call_operator_write_node {
 
     /**
      * CallOperatorWriteNode#receiver
+     *
+     * The object that the method is being called on. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+     *
+     *     foo.bar += value
+     *     ^^^
      */
     struct pm_node *receiver;
 
     /**
      * CallOperatorWriteNode#call_operator_loc
+     *
+     * Represents the location of the call operator.
+     *
+     *     foo.bar += value
+     *        ^
      */
     pm_location_t call_operator_loc;
 
     /**
      * CallOperatorWriteNode#message_loc
+     *
+     * Represents the location of the message.
+     *
+     *     foo.bar += value
+     *         ^^^
      */
     pm_location_t message_loc;
 
     /**
      * CallOperatorWriteNode#read_name
+     *
+     * Represents the name of the method being called.
+     *
+     *     foo.bar += value # read_name `:bar`
+     *         ^^^
      */
     pm_constant_id_t read_name;
 
     /**
      * CallOperatorWriteNode#write_name
+     *
+     * Represents the name of the method being written to.
+     *
+     *     foo.bar += value # write_name `:bar=`
+     *         ^^^
      */
     pm_constant_id_t write_name;
 
     /**
      * CallOperatorWriteNode#binary_operator
+     *
+     * Represents the binary operator being used.
+     *
+     *     foo.bar += value # binary_operator `:+`
+     *             ^
      */
     pm_constant_id_t binary_operator;
 
     /**
      * CallOperatorWriteNode#binary_operator_loc
+     *
+     * Represents the location of the binary operator.
+     *
+     *     foo.bar += value
+     *             ^^
      */
     pm_location_t binary_operator_loc;
 
     /**
      * CallOperatorWriteNode#value
+     *
+     * Represents the value being assigned.
+     *
+     *     foo.bar += value
+     *                ^^^^^
      */
     struct pm_node *value;
 } pm_call_operator_write_node_t;
@@ -2299,36 +2339,71 @@ typedef struct pm_call_or_write_node {
 
     /**
      * CallOrWriteNode#receiver
+     *
+     * The object that the method is being called on. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+     *
+     *     foo.bar ||= value
+     *     ^^^
      */
     struct pm_node *receiver;
 
     /**
      * CallOrWriteNode#call_operator_loc
+     *
+     * Represents the location of the call operator.
+     *
+     *     foo.bar ||= value
+     *        ^
      */
     pm_location_t call_operator_loc;
 
     /**
      * CallOrWriteNode#message_loc
+     *
+     * Represents the location of the message.
+     *
+     *     foo.bar ||= value
+     *         ^^^
      */
     pm_location_t message_loc;
 
     /**
      * CallOrWriteNode#read_name
+     *
+     * Represents the name of the method being called.
+     *
+     *     foo.bar ||= value # read_name `:bar`
+     *         ^^^
      */
     pm_constant_id_t read_name;
 
     /**
      * CallOrWriteNode#write_name
+     *
+     * Represents the name of the method being written to.
+     *
+     *     foo.bar ||= value # write_name `:bar=`
+     *         ^^^
      */
     pm_constant_id_t write_name;
 
     /**
      * CallOrWriteNode#operator_loc
+     *
+     * Represents the location of the operator.
+     *
+     *     foo.bar ||= value
+     *             ^^^
      */
     pm_location_t operator_loc;
 
     /**
      * CallOrWriteNode#value
+     *
+     * Represents the value being assigned.
+     *
+     *     foo.bar ||= value
+     *                 ^^^^^
      */
     struct pm_node *value;
 } pm_call_or_write_node_t;
@@ -2366,21 +2441,41 @@ typedef struct pm_call_target_node {
 
     /**
      * CallTargetNode#receiver
+     *
+     * The object that the method is being called on. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+     *
+     *     foo.bar = 1
+     *     ^^^
      */
     struct pm_node *receiver;
 
     /**
      * CallTargetNode#call_operator_loc
+     *
+     * Represents the location of the call operator.
+     *
+     *     foo.bar = 1
+     *        ^
      */
     pm_location_t call_operator_loc;
 
     /**
      * CallTargetNode#name
+     *
+     * Represents the name of the method being called.
+     *
+     *     foo.bar = 1 # name `:foo`
+     *     ^^^
      */
     pm_constant_id_t name;
 
     /**
      * CallTargetNode#message_loc
+     *
+     * Represents the location of the message.
+     *
+     *     foo.bar = 1
+     *         ^^^
      */
     pm_location_t message_loc;
 } pm_call_target_node_t;

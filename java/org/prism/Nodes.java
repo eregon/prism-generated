@@ -2617,11 +2617,51 @@ public abstract class Nodes {
      */
     public static final class CallOperatorWriteNode extends Node {
         public final short flags;
+        /**
+         * <pre>
+         * The object that the method is being called on. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+         *
+         *     foo.bar += value
+         *     ^^^
+         * </pre>
+         */
         @Nullable
         public final Node receiver;
+        /**
+         * <pre>
+         * Represents the name of the method being called.
+         *
+         *     foo.bar += value # read_name `:bar`
+         *         ^^^
+         * </pre>
+         */
         public final String read_name;
+        /**
+         * <pre>
+         * Represents the name of the method being written to.
+         *
+         *     foo.bar += value # write_name `:bar=`
+         *         ^^^
+         * </pre>
+         */
         public final String write_name;
+        /**
+         * <pre>
+         * Represents the binary operator being used.
+         *
+         *     foo.bar += value # binary_operator `:+`
+         *             ^
+         * </pre>
+         */
         public final String binary_operator;
+        /**
+         * <pre>
+         * Represents the value being assigned.
+         *
+         *     foo.bar += value
+         *                ^^^^^
+         * </pre>
+         */
         public final Node value;
 
         public CallOperatorWriteNode(int startOffset, int length, short flags, Node receiver, String read_name, String write_name, String binary_operator, Node value) {
@@ -2710,10 +2750,42 @@ public abstract class Nodes {
      */
     public static final class CallOrWriteNode extends Node {
         public final short flags;
+        /**
+         * <pre>
+         * The object that the method is being called on. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+         *
+         *     foo.bar ||= value
+         *     ^^^
+         * </pre>
+         */
         @Nullable
         public final Node receiver;
+        /**
+         * <pre>
+         * Represents the name of the method being called.
+         *
+         *     foo.bar ||= value # read_name `:bar`
+         *         ^^^
+         * </pre>
+         */
         public final String read_name;
+        /**
+         * <pre>
+         * Represents the name of the method being written to.
+         *
+         *     foo.bar ||= value # write_name `:bar=`
+         *         ^^^
+         * </pre>
+         */
         public final String write_name;
+        /**
+         * <pre>
+         * Represents the value being assigned.
+         *
+         *     foo.bar ||= value
+         *                 ^^^^^
+         * </pre>
+         */
         public final Node value;
 
         public CallOrWriteNode(int startOffset, int length, short flags, Node receiver, String read_name, String write_name, Node value) {
@@ -2805,7 +2877,23 @@ public abstract class Nodes {
      */
     public static final class CallTargetNode extends Node {
         public final short flags;
+        /**
+         * <pre>
+         * The object that the method is being called on. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+         *
+         *     foo.bar = 1
+         *     ^^^
+         * </pre>
+         */
         public final Node receiver;
+        /**
+         * <pre>
+         * Represents the name of the method being called.
+         *
+         *     foo.bar = 1 # name `:foo`
+         *     ^^^
+         * </pre>
+         */
         public final String name;
 
         public CallTargetNode(int startOffset, int length, short flags, Node receiver, String name) {
