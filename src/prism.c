@@ -4142,14 +4142,7 @@ pm_double_parse(pm_parser_t *parser, const pm_token_t *token) {
 
     // If errno is set, then it should only be ERANGE. At this point we need to
     // check if it's infinity (it should be).
-    if (
-        errno == ERANGE &&
-#ifdef _WIN32
-        !_finite(value)
-#else
-        isinf(value)
-#endif
-    ) {
+    if (errno == ERANGE && PRISM_ISINF(value)) {
         int warn_width;
         const char *ellipsis;
 
@@ -10508,6 +10501,7 @@ pm_token_buffer_escape(pm_parser_t *parser, pm_token_buffer_t *token_buffer) {
     }
 
     const uint8_t *end = parser->current.end - 1;
+    assert(end >= start);
     pm_buffer_append_bytes(&token_buffer->buffer, start, (size_t) (end - start));
 
     token_buffer->cursor = end;
@@ -10588,9 +10582,15 @@ pm_lex_percent_delimiter(pm_parser_t *parser) {
             pm_newline_list_append(&parser->newline_list, parser->current.end + eol_length - 1);
         }
 
-        const uint8_t delimiter = *parser->current.end;
-        parser->current.end += eol_length;
+        uint8_t delimiter = *parser->current.end;
 
+        // If our delimiter is \r\n, we want to treat it as if it's \n.
+        // For example, %\r\nfoo\r\n should be "foo"
+        if (eol_length == 2) {
+            delimiter = *(parser->current.end + 1);
+        }
+
+        parser->current.end += eol_length;
         return delimiter;
     }
 
@@ -12108,9 +12108,28 @@ parser_lex(pm_parser_t *parser) {
             pm_regexp_token_buffer_t token_buffer = { 0 };
 
             while (breakpoint != NULL) {
+                uint8_t term = lex_mode->as.regexp.terminator;
+                bool is_terminator = (*breakpoint == term);
+
+                // If the terminator is newline, we need to consider \r\n _also_ a newline
+                // For example: `%\nfoo\r\n`
+                // The string should be "foo", not "foo\r"
+                if (*breakpoint == '\r' && peek_at(parser, breakpoint + 1) == '\n') {
+                    if (term == '\n') {
+                        is_terminator = true;
+                    }
+
+                    // If the terminator is a CR, but we see a CRLF, we need to
+                    // treat the CRLF as a newline, meaning this is _not_ the
+                    // terminator
+                    if (term == '\r') {
+                        is_terminator = false;
+                    }
+                }
+
                 // If we hit the terminator, we need to determine what kind of
                 // token to return.
-                if (*breakpoint == lex_mode->as.regexp.terminator) {
+                if (is_terminator) {
                     if (lex_mode->as.regexp.nesting > 0) {
                         parser->current.end = breakpoint + 1;
                         breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
@@ -12340,10 +12359,29 @@ parser_lex(pm_parser_t *parser) {
                     continue;
                 }
 
+                uint8_t term = lex_mode->as.string.terminator;
+                bool is_terminator = (*breakpoint == term);
+
+                // If the terminator is newline, we need to consider \r\n _also_ a newline
+                // For example: `%r\nfoo\r\n`
+                // The string should be /foo/, not /foo\r/
+                if (*breakpoint == '\r' && peek_at(parser, breakpoint + 1) == '\n') {
+                    if (term == '\n') {
+                        is_terminator = true;
+                    }
+
+                    // If the terminator is a CR, but we see a CRLF, we need to
+                    // treat the CRLF as a newline, meaning this is _not_ the
+                    // terminator
+                    if (term == '\r') {
+                        is_terminator = false;
+                    }
+                }
+
                 // Note that we have to check the terminator here first because we could
                 // potentially be parsing a % string that has a # character as the
                 // terminator.
-                if (*breakpoint == lex_mode->as.string.terminator) {
+                if (is_terminator) {
                     // If this terminator doesn't actually close the string, then we need
                     // to continue on past it.
                     if (lex_mode->as.string.nesting > 0) {
@@ -16383,14 +16421,15 @@ static pm_node_t *
 parse_variable(pm_parser_t *parser) {
     pm_constant_id_t name_id = pm_parser_constant_id_token(parser, &parser->previous);
     int depth;
+    bool is_numbered_param = pm_token_is_numbered_parameter(parser->previous.start, parser->previous.end);
 
-    if ((depth = pm_parser_local_depth_constant_id(parser, name_id)) != -1) {
+    if (!is_numbered_param && ((depth = pm_parser_local_depth_constant_id(parser, name_id)) != -1)) {
         return (pm_node_t *) pm_local_variable_read_node_create_constant_id(parser, &parser->previous, name_id, (uint32_t) depth, false);
     }
 
     pm_scope_t *current_scope = parser->current_scope;
     if (!current_scope->closed && !(current_scope->parameters & PM_SCOPE_PARAMETERS_IMPLICIT_DISALLOWED)) {
-        if (pm_token_is_numbered_parameter(parser->previous.start, parser->previous.end)) {
+        if (is_numbered_param) {
             // When you use a numbered parameter, it implies the existence of
             // all of the locals that exist before it. For example, referencing
             // _2 means that _1 must exist. Therefore here we loop through all
