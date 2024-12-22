@@ -162,7 +162,7 @@ const SymbolFlags = {
  */
 export class AliasGlobalVariableNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -262,7 +262,7 @@ export class AliasGlobalVariableNode {
  */
 export class AliasMethodNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -362,7 +362,7 @@ export class AliasMethodNode {
  */
 export class AlternationPatternNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -462,7 +462,7 @@ export class AlternationPatternNode {
  */
 export class AndNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -562,7 +562,7 @@ export class AndNode {
  */
 export class ArgumentsNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -691,7 +691,7 @@ export class ArgumentsNode {
  */
 export class ArrayNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -812,7 +812,7 @@ export class ArrayNode {
  */
 export class ArrayPatternNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -947,7 +947,7 @@ export class ArrayPatternNode {
  */
 export class AssocNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1047,7 +1047,7 @@ export class AssocNode {
  */
 export class AssocSplatNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1145,7 +1145,7 @@ export class AssocSplatNode {
  */
 export class BackReferenceReadNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1231,7 +1231,7 @@ export class BackReferenceReadNode {
  */
 export class BeginNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1370,7 +1370,7 @@ export class BeginNode {
  */
 export class BlockArgumentNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1468,7 +1468,7 @@ export class BlockArgumentNode {
  */
 export class BlockLocalVariableNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1561,7 +1561,7 @@ export class BlockLocalVariableNode {
  */
 export class BlockNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1687,7 +1687,7 @@ export class BlockNode {
  */
 export class BlockParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1800,7 +1800,7 @@ export class BlockParameterNode {
  */
 export class BlockParametersNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -1915,7 +1915,7 @@ export class BlockParametersNode {
  */
 export class BreakNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -2013,7 +2013,7 @@ export class BreakNode {
  */
 export class CallAndWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -2204,7 +2204,7 @@ export class CallAndWriteNode {
  */
 export class CallNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -2392,7 +2392,7 @@ export class CallNode {
  */
 export class CallOperatorWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -2576,7 +2576,7 @@ export class CallOperatorWriteNode {
  */
 export class CallOrWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -2760,7 +2760,7 @@ export class CallOrWriteNode {
  */
 export class CallTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -2904,7 +2904,7 @@ export class CallTargetNode {
  */
 export class CapturePatternNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3006,7 +3006,7 @@ export class CapturePatternNode {
  */
 export class CaseMatchNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3134,7 +3134,7 @@ export class CaseMatchNode {
  */
 export class CaseNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3260,7 +3260,7 @@ export class CaseNode {
  */
 export class ClassNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3411,7 +3411,7 @@ export class ClassNode {
  */
 export class ClassVariableAndWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3519,7 +3519,7 @@ export class ClassVariableAndWriteNode {
  */
 export class ClassVariableOperatorWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3635,7 +3635,7 @@ export class ClassVariableOperatorWriteNode {
  */
 export class ClassVariableOrWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3743,7 +3743,7 @@ export class ClassVariableOrWriteNode {
  */
 export class ClassVariableReadNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3827,7 +3827,7 @@ export class ClassVariableReadNode {
  */
 export class ClassVariableTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -3911,7 +3911,7 @@ export class ClassVariableTargetNode {
  */
 export class ClassVariableWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4019,7 +4019,7 @@ export class ClassVariableWriteNode {
  */
 export class ConstantAndWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4127,7 +4127,7 @@ export class ConstantAndWriteNode {
  */
 export class ConstantOperatorWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4243,7 +4243,7 @@ export class ConstantOperatorWriteNode {
  */
 export class ConstantOrWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4351,7 +4351,7 @@ export class ConstantOrWriteNode {
  */
 export class ConstantPathAndWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4451,7 +4451,7 @@ export class ConstantPathAndWriteNode {
  */
 export class ConstantPathNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4565,7 +4565,7 @@ export class ConstantPathNode {
  */
 export class ConstantPathOperatorWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4673,7 +4673,7 @@ export class ConstantPathOperatorWriteNode {
  */
 export class ConstantPathOrWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4773,7 +4773,7 @@ export class ConstantPathOrWriteNode {
  */
 export class ConstantPathTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4893,7 +4893,7 @@ export class ConstantPathTargetNode {
  */
 export class ConstantPathWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -4993,7 +4993,7 @@ export class ConstantPathWriteNode {
  */
 export class ConstantReadNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5077,7 +5077,7 @@ export class ConstantReadNode {
  */
 export class ConstantTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5161,7 +5161,7 @@ export class ConstantTargetNode {
  */
 export class ConstantWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5270,7 +5270,7 @@ export class ConstantWriteNode {
  */
 export class DefNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5454,7 +5454,7 @@ export class DefNode {
  */
 export class DefinedNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5562,7 +5562,7 @@ export class DefinedNode {
  */
 export class ElseNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5668,7 +5668,7 @@ export class ElseNode {
  */
 export class EmbeddedStatementsNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5774,7 +5774,7 @@ export class EmbeddedStatementsNode {
  */
 export class EmbeddedVariableNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5870,7 +5870,7 @@ export class EmbeddedVariableNode {
  */
 export class EnsureNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -5976,7 +5976,7 @@ export class EnsureNode {
  */
 export class FalseNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6058,7 +6058,7 @@ export class FalseNode {
  */
 export class FindPatternNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6193,7 +6193,7 @@ export class FindPatternNode {
  */
 export class FlipFlopNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6311,7 +6311,7 @@ export class FlipFlopNode {
  */
 export class FloatNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6395,7 +6395,7 @@ export class FloatNode {
  */
 export class ForNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6539,7 +6539,7 @@ export class ForNode {
  */
 export class ForwardingArgumentsNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6616,7 +6616,7 @@ export class ForwardingArgumentsNode {
  */
 export class ForwardingParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6692,7 +6692,7 @@ export class ForwardingParameterNode {
  */
 export class ForwardingSuperNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6782,7 +6782,7 @@ export class ForwardingSuperNode {
  */
 export class GlobalVariableAndWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -6890,7 +6890,7 @@ export class GlobalVariableAndWriteNode {
  */
 export class GlobalVariableOperatorWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7006,7 +7006,7 @@ export class GlobalVariableOperatorWriteNode {
  */
 export class GlobalVariableOrWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7114,7 +7114,7 @@ export class GlobalVariableOrWriteNode {
  */
 export class GlobalVariableReadNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7198,7 +7198,7 @@ export class GlobalVariableReadNode {
  */
 export class GlobalVariableTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7282,7 +7282,7 @@ export class GlobalVariableTargetNode {
  */
 export class GlobalVariableWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7390,7 +7390,7 @@ export class GlobalVariableWriteNode {
  */
 export class HashNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7493,7 +7493,7 @@ export class HashNode {
  */
 export class HashPatternNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7625,7 +7625,7 @@ export class HashPatternNode {
  */
 export class IfNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7760,7 +7760,7 @@ export class IfNode {
  */
 export class ImaginaryNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7850,7 +7850,7 @@ export class ImaginaryNode {
  */
 export class ImplicitNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -7943,7 +7943,7 @@ export class ImplicitNode {
  */
 export class ImplicitRestNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -8019,7 +8019,7 @@ export class ImplicitRestNode {
  */
 export class InNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -8135,7 +8135,7 @@ export class InNode {
  */
 export class IndexAndWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -8325,7 +8325,7 @@ export class IndexAndWriteNode {
  */
 export class IndexOperatorWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -8523,7 +8523,7 @@ export class IndexOperatorWriteNode {
  */
 export class IndexOrWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -8721,7 +8721,7 @@ export class IndexOrWriteNode {
  */
 export class IndexTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -8884,7 +8884,7 @@ export class IndexTargetNode {
  */
 export class InstanceVariableAndWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -8992,7 +8992,7 @@ export class InstanceVariableAndWriteNode {
  */
 export class InstanceVariableOperatorWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -9108,7 +9108,7 @@ export class InstanceVariableOperatorWriteNode {
  */
 export class InstanceVariableOrWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -9216,7 +9216,7 @@ export class InstanceVariableOrWriteNode {
  */
 export class InstanceVariableReadNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -9300,7 +9300,7 @@ export class InstanceVariableReadNode {
  */
 export class InstanceVariableTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -9384,7 +9384,7 @@ export class InstanceVariableTargetNode {
  */
 export class InstanceVariableWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -9492,7 +9492,7 @@ export class InstanceVariableWriteNode {
  */
 export class IntegerNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -9612,7 +9612,7 @@ export class IntegerNode {
  */
 export class InterpolatedMatchLastLineNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -9811,7 +9811,7 @@ export class InterpolatedMatchLastLineNode {
  */
 export class InterpolatedRegularExpressionNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10010,7 +10010,7 @@ export class InterpolatedRegularExpressionNode {
  */
 export class InterpolatedStringNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10128,7 +10128,7 @@ export class InterpolatedStringNode {
  */
 export class InterpolatedSymbolNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10228,7 +10228,7 @@ export class InterpolatedSymbolNode {
  */
 export class InterpolatedXStringNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10328,7 +10328,7 @@ export class InterpolatedXStringNode {
  */
 export class ItLocalVariableReadNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10404,7 +10404,7 @@ export class ItLocalVariableReadNode {
  */
 export class ItParametersNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10480,7 +10480,7 @@ export class ItParametersNode {
  */
 export class KeywordHashNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10574,7 +10574,7 @@ export class KeywordHashNode {
  */
 export class KeywordRestParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10683,7 +10683,7 @@ export class KeywordRestParameterNode {
  */
 export class LambdaNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10816,7 +10816,7 @@ export class LambdaNode {
  */
 export class LocalVariableAndWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -10932,7 +10932,7 @@ export class LocalVariableAndWriteNode {
  */
 export class LocalVariableOperatorWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11056,7 +11056,7 @@ export class LocalVariableOperatorWriteNode {
  */
 export class LocalVariableOrWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11172,7 +11172,7 @@ export class LocalVariableOrWriteNode {
  */
 export class LocalVariableReadNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11264,7 +11264,7 @@ export class LocalVariableReadNode {
  */
 export class LocalVariableTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11356,7 +11356,7 @@ export class LocalVariableTargetNode {
  */
 export class LocalVariableWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11472,7 +11472,7 @@ export class LocalVariableWriteNode {
  */
 export class MatchLastLineNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11679,7 +11679,7 @@ export class MatchLastLineNode {
  */
 export class MatchPredicateNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11779,7 +11779,7 @@ export class MatchPredicateNode {
  */
 export class MatchRequiredNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11879,7 +11879,7 @@ export class MatchRequiredNode {
  */
 export class MatchWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -11968,7 +11968,7 @@ export class MatchWriteNode {
  */
 export class MissingNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12044,7 +12044,7 @@ export class MissingNode {
  */
 export class ModuleNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12181,7 +12181,7 @@ export class ModuleNode {
  */
 export class MultiTargetNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12305,7 +12305,7 @@ export class MultiTargetNode {
  */
 export class MultiWriteNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12447,7 +12447,7 @@ export class MultiWriteNode {
  */
 export class NextNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12545,7 +12545,7 @@ export class NextNode {
  */
 export class NilNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12622,7 +12622,7 @@ export class NilNode {
  */
 export class NoKeywordsParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12714,7 +12714,7 @@ export class NoKeywordsParameterNode {
  */
 export class NumberedParametersNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12798,7 +12798,7 @@ export class NumberedParametersNode {
  */
 export class NumberedReferenceReadNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12883,7 +12883,7 @@ export class NumberedReferenceReadNode {
  */
 export class OptionalKeywordParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -12993,7 +12993,7 @@ export class OptionalKeywordParameterNode {
  */
 export class OptionalParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13110,7 +13110,7 @@ export class OptionalParameterNode {
  */
 export class OrNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13211,7 +13211,7 @@ export class OrNode {
  */
 export class ParametersNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13359,7 +13359,7 @@ export class ParametersNode {
  */
 export class ParenthesesNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13465,7 +13465,7 @@ export class ParenthesesNode {
  */
 export class PinnedExpressionNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13573,7 +13573,7 @@ export class PinnedExpressionNode {
  */
 export class PinnedVariableNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13665,7 +13665,7 @@ export class PinnedVariableNode {
  */
 export class PostExecutionNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13779,7 +13779,7 @@ export class PostExecutionNode {
  */
 export class PreExecutionNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13890,7 +13890,7 @@ export class PreExecutionNode {
  */
 export class ProgramNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -13985,7 +13985,7 @@ export class ProgramNode {
  */
 export class RangeNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -14103,7 +14103,7 @@ export class RangeNode {
  */
 export class RationalNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -14231,7 +14231,7 @@ export class RationalNode {
  */
 export class RedoNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -14307,7 +14307,7 @@ export class RedoNode {
  */
 export class RegularExpressionNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -14515,7 +14515,7 @@ export class RegularExpressionNode {
  */
 export class RequiredKeywordParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -14617,7 +14617,7 @@ export class RequiredKeywordParameterNode {
  */
 export class RequiredParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -14710,7 +14710,7 @@ export class RequiredParameterNode {
  */
 export class RescueModifierNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -14815,7 +14815,7 @@ export class RescueModifierNode {
  */
 export class RescueNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -14953,7 +14953,7 @@ export class RescueNode {
  */
 export class RestParameterNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15062,7 +15062,7 @@ export class RestParameterNode {
  */
 export class RetryNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15138,7 +15138,7 @@ export class RetryNode {
  */
 export class ReturnNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15236,7 +15236,7 @@ export class ReturnNode {
  */
 export class SelfNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15313,7 +15313,7 @@ export class SelfNode {
  */
 export class ShareableConstantNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15424,7 +15424,7 @@ export class ShareableConstantNode {
  */
 export class SingletonClassNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15556,7 +15556,7 @@ export class SingletonClassNode {
  */
 export class SourceEncodingNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15632,7 +15632,7 @@ export class SourceEncodingNode {
  */
 export class SourceFileNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15752,7 +15752,7 @@ export class SourceFileNode {
  */
 export class SourceLineNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15828,7 +15828,7 @@ export class SourceLineNode {
  */
 export class SplatNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -15926,7 +15926,7 @@ export class SplatNode {
  */
 export class StatementsNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16016,7 +16016,7 @@ export class StatementsNode {
  */
 export class StringNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16163,7 +16163,7 @@ export class StringNode {
  */
 export class SuperNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16291,7 +16291,7 @@ export class SuperNode {
  */
 export class SymbolNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16426,7 +16426,7 @@ export class SymbolNode {
  */
 export class TrueNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16502,7 +16502,7 @@ export class TrueNode {
  */
 export class UndefNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16597,7 +16597,7 @@ export class UndefNode {
  */
 export class UnlessNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16735,7 +16735,7 @@ export class UnlessNode {
  */
 export class UntilNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16870,7 +16870,7 @@ export class UntilNode {
  */
 export class WhenNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -16988,7 +16988,7 @@ export class WhenNode {
  */
 export class WhileNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -17121,7 +17121,7 @@ export class WhileNode {
  */
 export class XStringNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
@@ -17247,7 +17247,7 @@ export class XStringNode {
  */
 export class YieldNode {
   /**
-   * @type {Integer}
+   * @type number
    */
   nodeID;
 
