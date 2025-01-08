@@ -62,7 +62,6 @@ module Prism
     # These files are either failing to parse or failing to translate, so we'll
     # skip them for now.
     skip_all = skip_incorrect | [
-      "regex.txt",
       "unescaping.txt",
       "seattlerb/bug190.txt",
       "seattlerb/heredoc_with_extra_carriage_returns_windows.txt",
@@ -71,7 +70,6 @@ module Prism
       "seattlerb/pctW_lineno.txt",
       "seattlerb/regexp_esc_C_slash.txt",
       "unparser/corpus/literal/literal.txt",
-      "unparser/corpus/semantic/dstr.txt",
       "whitequark/parser_slash_slash_n_escaping_in_literals.txt",
     ]
 
@@ -121,10 +119,14 @@ module Prism
       "whitequark/bug_ascii_8bit_in_literal.txt",
       "whitequark/bug_def_no_paren_eql_begin.txt",
       "whitequark/forward_arg_with_open_args.txt",
+      "whitequark/kwarg_no_paren.txt",
       "whitequark/lbrace_arg_after_command_args.txt",
       "whitequark/multiple_pattern_matches.txt",
       "whitequark/newline_in_hash_argument.txt",
       "whitequark/parser_bug_640.txt",
+      "whitequark/pattern_matching_expr_in_paren.txt",
+      "whitequark/pattern_matching_hash.txt",
+      "whitequark/pin_expr.txt",
       "whitequark/ruby_bug_14690.txt",
       "whitequark/ruby_bug_9669.txt",
       "whitequark/slash_newline_in_heredocs.txt",
