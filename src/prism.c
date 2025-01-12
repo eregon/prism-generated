@@ -9653,7 +9653,8 @@ escape_read_warn(pm_parser_t *parser, uint8_t flags, uint8_t flag, const char *t
  */
 static void
 escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expression_buffer, uint8_t flags) {
-    switch (peek(parser)) {
+    uint8_t peeked = peek(parser);
+    switch (peeked) {
         case '\\': {
             parser->current.end++;
             escape_write_byte(parser, buffer, regular_expression_buffer, flags, escape_byte('\\', flags));
@@ -9723,6 +9724,7 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
                 }
             }
 
+            value = escape_byte(value, flags);
             escape_write_byte(parser, buffer, regular_expression_buffer, flags, value);
             return;
         }
@@ -10050,6 +10052,11 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, pm_buffer_t *regular_expre
             PRISM_FALLTHROUGH
         }
         default: {
+            if ((flags & (PM_ESCAPE_FLAG_CONTROL | PM_ESCAPE_FLAG_META)) && !char_is_ascii_printable(peeked)) {
+                size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
+                pm_parser_err(parser, parser->current.start, parser->current.end + width, PM_ERR_ESCAPE_INVALID_META);
+                return;
+            }
             if (parser->current.end < parser->end) {
                 escape_write_escape_encoded(parser, buffer, regular_expression_buffer, flags);
             } else {
@@ -19712,11 +19719,12 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, b
             accept1(parser, PM_TOKEN_NEWLINE);
 
             if (accept1(parser, PM_TOKEN_PARENTHESIS_LEFT)) {
-                arguments.opening_loc = PM_LOCATION_TOKEN_VALUE(&parser->previous);
+                pm_token_t lparen = parser->previous;
 
                 if (accept1(parser, PM_TOKEN_PARENTHESIS_RIGHT)) {
-                    arguments.closing_loc = PM_LOCATION_TOKEN_VALUE(&parser->previous);
+                    receiver = (pm_node_t *) pm_parentheses_node_create(parser, &lparen, NULL, &parser->previous);
                 } else {
+                    arguments.opening_loc = PM_LOCATION_TOKEN_VALUE(&lparen);
                     receiver = parse_expression(parser, PM_BINDING_POWER_COMPOSITION, true, false, PM_ERR_NOT_EXPRESSION, (uint16_t) (depth + 1));
 
                     if (!parser->recovering) {

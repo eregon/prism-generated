@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require "strscan"
+
 module Prism
   module Translation
     class Parser
@@ -200,6 +202,11 @@ module Prism
           :tEQL, :tLPAREN, :tLPAREN2, :tLPAREN_ARG, :tLSHFT, :tNL, :tOP_ASGN, :tOROP, :tPIPE, :tSEMI, :tSTRING_DBEG, :tUMINUS, :tUPLUS
         ]
 
+        # Types of tokens that are allowed to continue a method call with comments in-between.
+        # For these, the parser gem doesn't emit a newline token after the last comment.
+        COMMENT_CONTINUATION_TYPES = [:COMMENT, :AMPERSAND_DOT, :DOT]
+        private_constant :COMMENT_CONTINUATION_TYPES
+
         # Heredocs are complex and require us to keep track of a bit of info to refer to later
         HeredocData = Struct.new(:identifier, :common_whitespace, keyword_init: true)
 
@@ -233,8 +240,13 @@ module Prism
           index = 0
           length = lexed.length
 
-          heredoc_stack = Array.new
-          quote_stack = Array.new
+          heredoc_stack = []
+          quote_stack = []
+
+          # The parser gem emits the newline tokens for comments out of order. This saves
+          # that token location to emit at a later time to properly line everything up.
+          # https://github.com/whitequark/parser/issues/1025
+          comment_newline_location = nil
 
           while index < length
             token, state = lexed[index]
@@ -255,25 +267,50 @@ module Prism
               end
             when :tCHARACTER
               value.delete_prefix!("?")
+              # Character literals behave similar to double-quoted strings. We can use the same escaping mechanism.
+              value = unescape_string(value, "?")
             when :tCOMMENT
               if token.type == :EMBDOC_BEGIN
-                start_index = index
 
                 while !((next_token = lexed[index][0]) && next_token.type == :EMBDOC_END) && (index < length - 1)
                   value += next_token.value
                   index += 1
                 end
 
-                if start_index != index
-                  value += next_token.value
-                  location = range(token.location.start_offset, lexed[index][0].location.end_offset)
-                  index += 1
-                end
+                value += next_token.value
+                location = range(token.location.start_offset, lexed[index][0].location.end_offset)
+                index += 1
               else
                 value.chomp!
                 location = range(token.location.start_offset, token.location.end_offset - 1)
+
+                prev_token = lexed[index - 2][0]
+                next_token = lexed[index][0]
+
+                is_inline_comment = prev_token.location.start_line == token.location.start_line
+                if is_inline_comment && !COMMENT_CONTINUATION_TYPES.include?(next_token&.type)
+                  tokens << [:tCOMMENT, [value, location]]
+
+                  nl_location = range(token.location.end_offset - 1, token.location.end_offset)
+                  tokens << [:tNL, [nil, nl_location]]
+                  next
+                elsif is_inline_comment && next_token&.type == :COMMENT
+                  comment_newline_location = range(token.location.end_offset - 1, token.location.end_offset)
+                elsif comment_newline_location && !COMMENT_CONTINUATION_TYPES.include?(next_token&.type)
+                  tokens << [:tCOMMENT, [value, location]]
+                  tokens << [:tNL, [nil, comment_newline_location]]
+                  comment_newline_location = nil
+                  next
+                end
               end
             when :tNL
+              next_token = next_token = lexed[index][0]
+              # Newlines after comments are emitted out of order.
+              if next_token&.type == :COMMENT
+                comment_newline_location = location
+                next
+              end
+
               value = nil
             when :tFLOAT
               value = parse_float(value)
@@ -377,12 +414,20 @@ module Prism
 
                 lines.each.with_index do |line, index|
                   chomped_line = line.chomp
+                  backslash_count = chomped_line[/\\{1,}\z/]&.length || 0
+                  is_interpolation = interpolation?(quote_stack.last)
+                  is_percent_array = percent_array?(quote_stack.last)
 
-                  # When the line ends with an odd number of backslashes, it must be a line continuation.
-                  if chomped_line[/\\{1,}\z/]&.length&.odd?
-                    chomped_line.delete_suffix!("\\")
-                    current_line << chomped_line
-                    adjustment += 2
+                  if backslash_count.odd? && (is_interpolation || is_percent_array)
+                    if is_percent_array
+                      # Remove the last backslash, keep potential newlines
+                      current_line << line.sub(/(\\)(\r?\n)\z/, '\2')
+                      adjustment += 1
+                    else
+                      chomped_line.delete_suffix!("\\")
+                      current_line << chomped_line
+                      adjustment += 2
+                    end
                     # If the string ends with a line continuation emit the remainder
                     emit = index == lines.count - 1
                   else
@@ -565,7 +610,7 @@ module Prism
         ESCAPES = {
           "a" => "\a", "b" => "\b", "e" => "\e", "f" => "\f",
           "n" => "\n", "r" => "\r", "s" => "\s", "t" => "\t",
-          "v" => "\v", "\\\\" => "\\"
+          "v" => "\v", "\\" => "\\"
         }.freeze
         private_constant :ESCAPES
 
@@ -574,7 +619,7 @@ module Prism
         DELIMITER_SYMETRY = { "[" => "]", "(" => ")", "{" => "}", "<" => ">" }.freeze
         private_constant :DELIMITER_SYMETRY
 
-        # TODO: Does not handle "\u1234" and other longer-form escapes.
+        # Apply Ruby string escaping rules
         def unescape_string(string, quote)
           # In single-quoted heredocs, everything is taken literally.
           return string if quote == "<<'"
@@ -582,7 +627,55 @@ module Prism
           # TODO: Implement regexp escaping
           return string if quote == "/" || quote.start_with?("%r")
 
-          if quote == "'" || quote.start_with?("%q") || quote.start_with?("%w") || quote.start_with?("%i")
+          # OPTIMIZATION: Assume that few strings need escaping to speed up the common case.
+          return string unless string.include?("\\")
+
+          if interpolation?(quote)
+            # Appending individual escape sequences may force the string out of its intended
+            # encoding. Start out with binary and force it back later.
+            result = "".b
+
+            scanner = StringScanner.new(string)
+            while (skipped = scanner.skip_until(/\\/))
+              # Append what was just skipped over, excluding the found backslash.
+              result << string.byteslice(scanner.pos - skipped, skipped - 1)
+
+              # Simple single-character escape sequences like \n
+              if (replacement = ESCAPES[scanner.peek(1)])
+                result << replacement
+                scanner.pos += 1
+              elsif (octal = scanner.check(/[0-7]{1,3}/))
+                # \nnn
+                # NOTE: When Ruby 3.4 is required, this can become result.append_as_bytes(chr)
+                result << octal.to_i(8).chr.b
+                scanner.pos += octal.bytesize
+              elsif (hex = scanner.check(/x([0-9a-fA-F]{1,2})/))
+                # \xnn
+                result << hex[1..].to_i(16).chr.b
+                scanner.pos += hex.bytesize
+              elsif (unicode = scanner.check(/u([0-9a-fA-F]{4})/))
+                # \unnnn
+                result << unicode[1..].hex.chr(Encoding::UTF_8).b
+                scanner.pos += unicode.bytesize
+              elsif scanner.peek(3) == "u{}"
+                # https://github.com/whitequark/parser/issues/856
+                scanner.pos += 3
+              elsif (unicode_parts = scanner.check(/u{.*}/))
+                # \u{nnnn ...}
+                unicode_parts[2..-2].split.each do |unicode|
+                  result << unicode.hex.chr(Encoding::UTF_8).b
+                end
+                scanner.pos += unicode_parts.bytesize
+              end
+            end
+
+            # Add remainging chars
+            result << string.byteslice(scanner.pos..)
+
+            result.force_encoding(source_buffer.source.encoding)
+
+            result
+          else
             if quote == "'"
               delimiter = "'"
             else
@@ -591,13 +684,17 @@ module Prism
 
             delimiters = Regexp.escape("#{delimiter}#{DELIMITER_SYMETRY[delimiter]}")
             string.gsub(/\\([\\#{delimiters}])/, '\1')
-          else
-            # When double-quoted, escape sequences can be written literally. For example, "\\n" becomes "\n",
-            # and "\\\\n" becomes "\\n". Unknown escapes sequences, like "\\o" simply become "o".
-            string.gsub(/\\./) do |match|
-              ESCAPES[match[1]] || match[1]
-            end
           end
+        end
+
+        # Determine if characters preceeded by a backslash should be escaped or not
+        def interpolation?(quote)
+          quote != "'" && !quote.start_with?("%q", "%w", "%i")
+        end
+
+        # Determine if the string is part of a %-style array.
+        def percent_array?(quote)
+          quote.start_with?("%w", "%W", "%i", "%I")
         end
       end
     end

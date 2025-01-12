@@ -17,6 +17,18 @@ end
 # First, opt in to every AST feature.
 Parser::Builders::Default.modernize
 
+# The parser gem rejects some strings that would most likely lead to errors
+# in consumers due to encoding problems. RuboCop however monkey-patches this
+# method out in order to accept such code.
+# https://github.com/whitequark/parser/blob/v3.3.6.0/lib/parser/builders/default.rb#L2289-L2295
+Parser::Builders::Default.prepend(
+  Module.new {
+    def string_value(token)
+      value(token)
+    end
+  }
+)
+
 # Modify the source map == check so that it doesn't check against the node
 # itself so we don't get into a recursive loop.
 Parser::Source::Map.prepend(
@@ -81,43 +93,28 @@ module Prism
     # These files are failing to translate their lexer output into the lexer
     # output expected by the parser gem, so we'll skip them for now.
     skip_tokens = [
-      "comments.txt",
       "dash_heredocs.txt",
-      "dos_endings.txt",
       "embdoc_no_newline_at_end.txt",
-      "heredoc_with_comment.txt",
       "heredocs_with_ignored_newlines.txt",
-      "indented_file_end.txt",
       "methods.txt",
       "strings.txt",
       "tilde_heredocs.txt",
       "seattlerb/backticks_interpolation_line.txt",
       "seattlerb/bug169.txt",
       "seattlerb/case_in.txt",
-      "seattlerb/class_comments.txt",
       "seattlerb/difficult4__leading_dots2.txt",
       "seattlerb/difficult6__7.txt",
       "seattlerb/difficult6__8.txt",
-      "seattlerb/dsym_esc_to_sym.txt",
       "seattlerb/heredoc_unicode.txt",
-      "seattlerb/module_comments.txt",
-      "seattlerb/parse_line_block_inline_comment_leading_newlines.txt",
-      "seattlerb/parse_line_block_inline_comment.txt",
-      "seattlerb/parse_line_block_inline_multiline_comment.txt",
       "seattlerb/parse_line_heredoc.txt",
       "seattlerb/pct_w_heredoc_interp_nested.txt",
-      "seattlerb/read_escape_unicode_curlies.txt",
-      "seattlerb/read_escape_unicode_h4.txt",
       "seattlerb/required_kwarg_no_value.txt",
       "seattlerb/slashy_newlines_within_string.txt",
-      "seattlerb/str_evstr_escape.txt",
       "seattlerb/TestRubyParserShared.txt",
       "unparser/corpus/literal/assignment.txt",
       "whitequark/args.txt",
       "whitequark/beginless_erange_after_newline.txt",
       "whitequark/beginless_irange_after_newline.txt",
-      "whitequark/bug_ascii_8bit_in_literal.txt",
-      "whitequark/bug_def_no_paren_eql_begin.txt",
       "whitequark/forward_arg_with_open_args.txt",
       "whitequark/kwarg_no_paren.txt",
       "whitequark/lbrace_arg_after_command_args.txt",
