@@ -281,14 +281,14 @@ module Prism
                 location = range(token.location.start_offset, lexed[index][0].location.end_offset)
                 index += 1
               else
-                value.chomp!
-                location = range(token.location.start_offset, token.location.end_offset - 1)
+                is_at_eol = value.chomp!.nil?
+                location = range(token.location.start_offset, token.location.end_offset + (is_at_eol ? 0 : -1))
 
-                prev_token = lexed[index - 2][0]
+                prev_token = lexed[index - 2][0] if index - 2 >= 0
                 next_token = lexed[index][0]
 
-                is_inline_comment = prev_token.location.start_line == token.location.start_line
-                if is_inline_comment && !COMMENT_CONTINUATION_TYPES.include?(next_token&.type)
+                is_inline_comment = prev_token&.location&.start_line == token.location.start_line
+                if is_inline_comment && !is_at_eol && !COMMENT_CONTINUATION_TYPES.include?(next_token&.type)
                   tokens << [:tCOMMENT, [value, location]]
 
                   nl_location = range(token.location.end_offset - 1, token.location.end_offset)
@@ -409,7 +409,7 @@ module Prism
                 # it emits a single string node. The backslash (and remaining newline) is removed.
                 current_line = +""
                 adjustment = 0
-                start_offset = offset_cache[token.location.start_offset]
+                start_offset = token.location.start_offset
                 emit = false
 
                 lines.each.with_index do |line, index|
@@ -457,7 +457,15 @@ module Prism
                 location = range(token.location.start_offset, token.location.start_offset + 1)
               end
 
-              quote_stack.pop
+              if percent_array?(quote_stack.pop)
+                prev_token = lexed[index - 2][0] if index - 2 >= 0
+                empty = %i[PERCENT_LOWER_I PERCENT_LOWER_W PERCENT_UPPER_I PERCENT_UPPER_W].include?(prev_token&.type)
+                ends_with_whitespace = prev_token&.type == :WORDS_SEP
+                # parser always emits a space token after content in a percent array, even if no actual whitespace is present.
+                if !empty && !ends_with_whitespace
+                  tokens << [:tSPACE, [nil, range(token.location.start_offset, token.location.start_offset)]]
+                end
+              end
             when :tSYMBEG
               if (next_token = lexed[index][0]) && next_token.type != :STRING_CONTENT && next_token.type != :EMBEXPR_BEGIN && next_token.type != :EMBVAR && next_token.type != :STRING_END
                 next_location = token.location.join(next_token.location)
