@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "strscan"
+require_relative "../../polyfill/append_as_bytes"
 
 module Prism
   module Translation
@@ -482,7 +483,8 @@ module Prism
                 type = :tIDENTIFIER
               end
             when :tXSTRING_BEG
-              if (next_token = lexed[index][0]) && next_token.type != :STRING_CONTENT && next_token.type != :STRING_END
+              if (next_token = lexed[index][0]) && !%i[STRING_CONTENT STRING_END EMBEXPR_BEGIN].include?(next_token.type)
+                # self.`()
                 type = :tBACK_REF2
               end
               quote_stack.push(value)
@@ -569,6 +571,11 @@ module Prism
 
             # String content inside nested heredocs and interpolation is ignored
             if next_token.type == :HEREDOC_START || next_token.type == :EMBEXPR_BEGIN
+              # When interpolation is the first token of a line there is no string
+              # content to check against. There will be no common whitespace.
+              if nesting_level == 0 && next_token.location.start_column == 0
+                result = 0
+              end
               nesting_level += 1
             elsif next_token.type == :HEREDOC_END || next_token.type == :EMBEXPR_END
               nesting_level -= 1
@@ -646,24 +653,23 @@ module Prism
             scanner = StringScanner.new(string)
             while (skipped = scanner.skip_until(/\\/))
               # Append what was just skipped over, excluding the found backslash.
-              result << string.byteslice(scanner.pos - skipped, skipped - 1)
+              result.append_as_bytes(string.byteslice(scanner.pos - skipped, skipped - 1))
 
               # Simple single-character escape sequences like \n
               if (replacement = ESCAPES[scanner.peek(1)])
-                result << replacement
+                result.append_as_bytes(replacement)
                 scanner.pos += 1
               elsif (octal = scanner.check(/[0-7]{1,3}/))
                 # \nnn
-                # NOTE: When Ruby 3.4 is required, this can become result.append_as_bytes(chr)
-                result << octal.to_i(8).chr.b
+                result.append_as_bytes(octal.to_i(8).chr)
                 scanner.pos += octal.bytesize
               elsif (hex = scanner.check(/x([0-9a-fA-F]{1,2})/))
                 # \xnn
-                result << hex[1..].to_i(16).chr.b
+                result.append_as_bytes(hex[1..].to_i(16).chr)
                 scanner.pos += hex.bytesize
               elsif (unicode = scanner.check(/u([0-9a-fA-F]{4})/))
                 # \unnnn
-                result << unicode[1..].hex.chr(Encoding::UTF_8).b
+                result.append_as_bytes(unicode[1..].hex.chr(Encoding::UTF_8))
                 scanner.pos += unicode.bytesize
               elsif scanner.peek(3) == "u{}"
                 # https://github.com/whitequark/parser/issues/856
@@ -671,14 +677,14 @@ module Prism
               elsif (unicode_parts = scanner.check(/u{.*}/))
                 # \u{nnnn ...}
                 unicode_parts[2..-2].split.each do |unicode|
-                  result << unicode.hex.chr(Encoding::UTF_8).b
+                  result.append_as_bytes(unicode.hex.chr(Encoding::UTF_8))
                 end
                 scanner.pos += unicode_parts.bytesize
               end
             end
 
             # Add remainging chars
-            result << string.byteslice(scanner.pos..)
+            result.append_as_bytes(string.byteslice(scanner.pos..))
 
             result.force_encoding(source_buffer.source.encoding)
 

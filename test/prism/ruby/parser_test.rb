@@ -98,8 +98,6 @@ module Prism
       "heredocs_with_ignored_newlines.txt",
       "methods.txt",
       "strings.txt",
-      "tilde_heredocs.txt",
-      "seattlerb/backticks_interpolation_line.txt",
       "seattlerb/bug169.txt",
       "seattlerb/case_in.txt",
       "seattlerb/difficult4__leading_dots2.txt",
