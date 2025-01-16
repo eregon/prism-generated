@@ -264,7 +264,7 @@ module Prism
 
     def rescue_modifier_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?expression: Prism::node, ?keyword_loc: Location, ?rescue_expression: Prism::node) -> RescueModifierNode
 
-    def rescue_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
+    def rescue_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
 
     def rest_parameter_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol?, ?name_loc: Location?, ?operator_loc: Location) -> RestParameterNode
 

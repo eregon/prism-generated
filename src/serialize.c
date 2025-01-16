@@ -1706,6 +1706,12 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             } else {
                 pm_serialize_node(parser, (pm_node_t *)((pm_rescue_node_t *)node)->reference, buffer);
             }
+            if (((pm_rescue_node_t *)node)->then_keyword_loc.start == NULL) {
+                pm_buffer_append_byte(buffer, 0);
+            } else {
+                pm_buffer_append_byte(buffer, 1);
+                pm_serialize_location(parser, &((pm_rescue_node_t *)node)->then_keyword_loc, buffer);
+            }
             if (((pm_rescue_node_t *)node)->statements == NULL) {
                 pm_buffer_append_byte(buffer, 0);
             } else {

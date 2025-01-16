@@ -14850,6 +14850,11 @@ export class RescueNode {
   reference;
 
   /**
+   * @type Location | null
+   */
+  thenKeywordLoc;
+
+  /**
    * @type StatementsNode | null
    */
   statements;
@@ -14869,10 +14874,11 @@ export class RescueNode {
    * @param {Node[]} exceptions
    * @param {Location | null} operatorLoc
    * @param {Node | null} reference
+   * @param {Location | null} thenKeywordLoc
    * @param {StatementsNode | null} statements
    * @param {RescueNode | null} subsequent
    */
-  constructor(nodeID, location, flags, keywordLoc, exceptions, operatorLoc, reference, statements, subsequent) {
+  constructor(nodeID, location, flags, keywordLoc, exceptions, operatorLoc, reference, thenKeywordLoc, statements, subsequent) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
@@ -14880,6 +14886,7 @@ export class RescueNode {
     this.exceptions = exceptions;
     this.operatorLoc = operatorLoc;
     this.reference = reference;
+    this.thenKeywordLoc = thenKeywordLoc;
     this.statements = statements;
     this.subsequent = subsequent;
   }
@@ -14938,6 +14945,7 @@ export class RescueNode {
       exceptions: this.exceptions,
       operatorLoc: this.operatorLoc,
       reference: this.reference,
+      thenKeywordLoc: this.thenKeywordLoc,
       statements: this.statements,
       subsequent: this.subsequent,
     };

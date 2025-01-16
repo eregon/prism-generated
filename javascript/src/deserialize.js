@@ -944,7 +944,7 @@ export function deserialize(source, array) {
       case 128:
         return new nodes.RescueModifierNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readRequiredNode());
       case 129:
-        return new nodes.RescueNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode(), readOptionalNode());
+        return new nodes.RescueNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), readOptionalNode(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode());
       case 130:
         return new nodes.RestParameterNode(nodeID, location, flags = buffer.readVarInt(), readOptionalConstant(), buffer.readOptionalLocation(), buffer.readLocation());
       case 131:

@@ -2945,14 +2945,16 @@ module Prism
     attr_reader exceptions: Array[Prism::node]
     attr_reader operator_loc: Location?
     attr_reader reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil
+    attr_reader then_keyword_loc: Location?
     attr_reader statements: StatementsNode?
     attr_reader subsequent: RescueNode?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Array[Prism::node] exceptions, Location? operator_loc, LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil reference, StatementsNode? statements, RescueNode? subsequent) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, statements: StatementsNode?, subsequent: RescueNode? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, Array[Prism::node] exceptions, Location? operator_loc, LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil reference, Location? then_keyword_loc, StatementsNode? statements, RescueNode? subsequent) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, then_keyword_loc: Location?, statements: StatementsNode?, subsequent: RescueNode? }
     def keyword: () -> String
     def operator: () -> String?
+    def then_keyword: () -> String?
     def type: () -> :rescue_node
             | ...
     def self.type: () -> :rescue_node

@@ -1094,7 +1094,7 @@ module Prism
           when 128 then
             RescueModifierNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_location(freeze), load_node(constant_pool, encoding, freeze))
           when 129 then
-            RescueNode.new(source, node_id, location, load_varuint, load_location(freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
+            RescueNode.new(source, node_id, location, load_varuint, load_location(freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
           when 130 then
             RestParameterNode.new(source, node_id, location, load_varuint, load_optional_constant(constant_pool, encoding), load_optional_location(freeze), load_location(freeze))
           when 131 then
@@ -2052,7 +2052,7 @@ module Prism
             -> (constant_pool, encoding, freeze) {
               node_id = load_varuint
               location = load_location(freeze)
-              value = RescueNode.new(source, node_id, location, load_varuint, load_location(freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }, load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
+              value = RescueNode.new(source, node_id, location, load_varuint, load_location(freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }, load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
               value.freeze if freeze
               value
             },

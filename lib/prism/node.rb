@@ -15709,7 +15709,7 @@ module Prism
   # `Foo, *splat, Bar` are in the `exceptions` field. `ex` is in the `reference` field.
   class RescueNode < Node
     # Initialize a new RescueNode node.
-    def initialize(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent)
+    def initialize(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, then_keyword_loc, statements, subsequent)
       @source = source
       @node_id = node_id
       @location = location
@@ -15718,6 +15718,7 @@ module Prism
       @exceptions = exceptions
       @operator_loc = operator_loc
       @reference = reference
+      @then_keyword_loc = then_keyword_loc
       @statements = statements
       @subsequent = subsequent
     end
@@ -15744,20 +15745,20 @@ module Prism
 
     # def comment_targets: () -> Array[Node | Location]
     def comment_targets
-      [keyword_loc, *exceptions, *operator_loc, *reference, *statements, *subsequent] #: Array[Prism::node | Location]
+      [keyword_loc, *exceptions, *operator_loc, *reference, *then_keyword_loc, *statements, *subsequent] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, exceptions: self.exceptions, operator_loc: self.operator_loc, reference: self.reference, statements: self.statements, subsequent: self.subsequent)
-      RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent)
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, exceptions: self.exceptions, operator_loc: self.operator_loc, reference: self.reference, then_keyword_loc: self.then_keyword_loc, statements: self.statements, subsequent: self.subsequent)
+      RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, then_keyword_loc, statements, subsequent)
     end
 
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, statements: StatementsNode?, subsequent: RescueNode? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, then_keyword_loc: Location?, statements: StatementsNode?, subsequent: RescueNode? }
     def deconstruct_keys(keys)
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, exceptions: exceptions, operator_loc: operator_loc, reference: reference, statements: statements, subsequent: subsequent }
+      { node_id: node_id, location: location, keyword_loc: keyword_loc, exceptions: exceptions, operator_loc: operator_loc, reference: reference, then_keyword_loc: then_keyword_loc, statements: statements, subsequent: subsequent }
     end
 
     # attr_reader keyword_loc: Location
@@ -15798,6 +15799,25 @@ module Prism
     # attr_reader reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil
     attr_reader :reference
 
+    # attr_reader then_keyword_loc: Location?
+    def then_keyword_loc
+      location = @then_keyword_loc
+      case location
+      when nil
+        nil
+      when Location
+        location
+      else
+        @then_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+      end
+    end
+
+    # Save the then_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_then_keyword_loc(repository)
+      repository.enter(node_id, :then_keyword_loc) unless @then_keyword_loc.nil?
+    end
+
     # attr_reader statements: StatementsNode?
     attr_reader :statements
 
@@ -15812,6 +15832,11 @@ module Prism
     # def operator: () -> String?
     def operator
       operator_loc&.slice
+    end
+
+    # def then_keyword: () -> String?
+    def then_keyword
+      then_keyword_loc&.slice
     end
 
     # def inspect -> String
@@ -15838,6 +15863,7 @@ module Prism
         exceptions.zip(other.exceptions).all? { |left, right| left === right } &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
         (reference === other.reference) &&
+        (then_keyword_loc.nil? == other.then_keyword_loc.nil?) &&
         (statements === other.statements) &&
         (subsequent === other.subsequent)
     end

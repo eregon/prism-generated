@@ -5970,7 +5970,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 190 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RESCUE_NODE: {
                     pm_rescue_node_t *cast = (pm_rescue_node_t *) node;
-                    VALUE argv[10];
+                    VALUE argv[11];
 
                     // source
                     argv[0] = source;
@@ -6004,15 +6004,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 213 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
-                    // statements
-#line 213 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[8] = rb_ary_pop(value_stack);
+                    // then_keyword_loc
+#line 243 "prism/templates/ext/prism/api_node.c.erb"
+                    argv[8] = cast->then_keyword_loc.start == NULL ? Qnil : pm_location_new(parser, cast->then_keyword_loc.start, cast->then_keyword_loc.end, source, freeze);
 
-                    // subsequent
+                    // statements
 #line 213 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
-                    VALUE value = rb_class_new_instance(10, argv, rb_cPrismRescueNode);
+                    // subsequent
+#line 213 "prism/templates/ext/prism/api_node.c.erb"
+                    argv[10] = rb_ary_pop(value_stack);
+
+                    VALUE value = rb_class_new_instance(11, argv, rb_cPrismRescueNode);
                     if (freeze) rb_obj_freeze(value);
 
                     rb_ary_push(value_stack, value);

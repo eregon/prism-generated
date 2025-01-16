@@ -7291,14 +7291,17 @@ class Prism::RescueNode < Prism::Node
   sig { returns(T.nilable(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode))) }
   def reference; end
 
+  sig { returns(T.nilable(Prism::Location)) }
+  def then_keyword_loc; end
+
   sig { returns(T.nilable(Prism::StatementsNode)) }
   def statements; end
 
   sig { returns(T.nilable(Prism::RescueNode)) }
   def subsequent; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, exceptions: T::Array[Prism::Node], operator_loc: T.nilable(Prism::Location), reference: T.nilable(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode)), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(Prism::RescueNode)).void }
-  def initialize(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, exceptions: T::Array[Prism::Node], operator_loc: T.nilable(Prism::Location), reference: T.nilable(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode)), then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(Prism::RescueNode)).void }
+  def initialize(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, then_keyword_loc, statements, subsequent); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
   def accept(visitor); end
@@ -7315,8 +7318,8 @@ class Prism::RescueNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, exceptions: T::Array[Prism::Node], operator_loc: T.nilable(Prism::Location), reference: T.nilable(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode)), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(Prism::RescueNode)).returns(Prism::RescueNode) }
-  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, exceptions: self.exceptions, operator_loc: self.operator_loc, reference: self.reference, statements: self.statements, subsequent: self.subsequent); end
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, keyword_loc: Prism::Location, exceptions: T::Array[Prism::Node], operator_loc: T.nilable(Prism::Location), reference: T.nilable(T.any(Prism::LocalVariableTargetNode, Prism::InstanceVariableTargetNode, Prism::ClassVariableTargetNode, Prism::GlobalVariableTargetNode, Prism::ConstantTargetNode, Prism::ConstantPathTargetNode, Prism::CallTargetNode, Prism::IndexTargetNode, Prism::BackReferenceReadNode, Prism::NumberedReferenceReadNode, Prism::MissingNode)), then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(Prism::RescueNode)).returns(Prism::RescueNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, exceptions: self.exceptions, operator_loc: self.operator_loc, reference: self.reference, then_keyword_loc: self.then_keyword_loc, statements: self.statements, subsequent: self.subsequent); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
   def deconstruct_keys(keys); end
@@ -7326,6 +7329,9 @@ class Prism::RescueNode < Prism::Node
 
   sig { returns(T.nilable(String)) }
   def operator; end
+
+  sig { returns(T.nilable(String)) }
+  def then_keyword; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end

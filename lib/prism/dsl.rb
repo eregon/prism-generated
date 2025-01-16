@@ -714,8 +714,8 @@ module Prism
     end
 
     # Create a new RescueNode node.
-    def rescue_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, exceptions: [], operator_loc: nil, reference: nil, statements: nil, subsequent: nil)
-      RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, statements, subsequent)
+    def rescue_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, exceptions: [], operator_loc: nil, reference: nil, then_keyword_loc: nil, statements: nil, subsequent: nil)
+      RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, then_keyword_loc, statements, subsequent)
     end
 
     # Create a new RestParameterNode node.

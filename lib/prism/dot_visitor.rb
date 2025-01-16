@@ -3954,6 +3954,11 @@ module Prism
         digraph.edge("#{id}:reference -> #{node_id(reference)};")
       end
 
+      # then_keyword_loc
+      unless (then_keyword_loc = node.then_keyword_loc).nil?
+        table.field("then_keyword_loc", location_inspect(then_keyword_loc))
+      end
+
       # statements
       unless (statements = node.statements).nil?
         table.field("statements", port: true)

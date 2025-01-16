@@ -360,7 +360,7 @@ module Prism
       when :rescue_modifier_node
         [NodeField.new(:expression), LocationField.new(:keyword_loc), NodeField.new(:rescue_expression)]
       when :rescue_node
-        [LocationField.new(:keyword_loc), NodeListField.new(:exceptions), OptionalLocationField.new(:operator_loc), OptionalNodeField.new(:reference), OptionalNodeField.new(:statements), OptionalNodeField.new(:subsequent)]
+        [LocationField.new(:keyword_loc), NodeListField.new(:exceptions), OptionalLocationField.new(:operator_loc), OptionalNodeField.new(:reference), OptionalLocationField.new(:then_keyword_loc), OptionalNodeField.new(:statements), OptionalNodeField.new(:subsequent)]
       when :rest_parameter_node
         [FlagsField.new(:flags, [:repeated_parameter?]), OptionalConstantField.new(:name), OptionalLocationField.new(:name_loc), LocationField.new(:operator_loc)]
       when :retry_node

@@ -6936,6 +6936,11 @@ typedef struct pm_rescue_node {
     struct pm_node *reference;
 
     /**
+     * RescueNode#then_keyword_loc
+     */
+    pm_location_t then_keyword_loc;
+
+    /**
      * RescueNode#statements
      */
     struct pm_statements_node *statements;

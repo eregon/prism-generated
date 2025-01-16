@@ -2053,6 +2053,7 @@ module Prism
         commands << ["├── reference:\n", indent]
         commands << [reference, "#{indent}│   "]
       end
+      commands << ["├── then_keyword_loc: #{inspect_location(node.then_keyword_loc)}\n", indent]
       if (statements = node.statements).nil?
         commands << ["├── statements: ∅\n", indent]
       else
