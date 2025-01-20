@@ -150,14 +150,17 @@ module Prism
               builder.pair_quoted(token(key.opening_loc), [builder.string_internal([key.unescaped, srange(key.value_loc)])], token(key.closing_loc), visit(node.value))
             end
           elsif node.value.is_a?(ImplicitNode)
-            if (value = node.value.value).is_a?(LocalVariableReadNode)
-              builder.pair_keyword(
-                [key.unescaped, srange(key)],
-                builder.ident([value.name, srange(key.value_loc)]).updated(:lvar)
-              )
+            value = node.value.value
+
+            implicit_value = if value.is_a?(CallNode)
+              builder.call_method(nil, nil, [value.name, srange(value.message_loc)])
+            elsif value.is_a?(ConstantReadNode)
+              builder.const([value.name, srange(key.value_loc)])
             else
-              builder.pair_label([key.unescaped, srange(key.location)])
+              builder.ident([value.name, srange(key.value_loc)]).updated(:lvar)
             end
+
+            builder.pair_keyword([key.unescaped, srange(key)], implicit_value)
           elsif node.operator_loc
             builder.pair(visit(key), token(node.operator_loc), visit(node.value))
           elsif key.is_a?(SymbolNode) && key.opening_loc.nil?
@@ -203,7 +206,14 @@ module Prism
           if (rescue_clause = node.rescue_clause)
             begin
               find_start_offset = (rescue_clause.reference&.location || rescue_clause.exceptions.last&.location || rescue_clause.keyword_loc).end_offset
-              find_end_offset = (rescue_clause.statements&.location&.start_offset || rescue_clause.subsequent&.location&.start_offset || (find_start_offset + 1))
+              find_end_offset = (
+                rescue_clause.statements&.location&.start_offset ||
+                rescue_clause.subsequent&.location&.start_offset ||
+                node.else_clause&.location&.start_offset ||
+                node.ensure_clause&.location&.start_offset ||
+                node.end_keyword_loc&.start_offset ||
+                find_start_offset + 1
+              )
 
               rescue_bodies << builder.rescue_body(
                 token(rescue_clause.keyword_loc),
@@ -1090,7 +1100,7 @@ module Prism
         def visit_interpolated_regular_expression_node(node)
           builder.regexp_compose(
             token(node.opening_loc),
-            visit_all(node.parts),
+            string_nodes_from_interpolation(node, node.opening),
             [node.closing[0], srange_offsets(node.closing_loc.start_offset, node.closing_loc.start_offset + 1)],
             builder.regexp_options([node.closing[1..], srange_offsets(node.closing_loc.start_offset + 1, node.closing_loc.end_offset)])
           )
@@ -1313,7 +1323,7 @@ module Prism
         def visit_multi_write_node(node)
           elements = multi_target_elements(node)
 
-          if elements.length == 1 && elements.first.is_a?(MultiTargetNode)
+          if elements.length == 1 && elements.first.is_a?(MultiTargetNode) && !node.rest
             elements = multi_target_elements(elements.first)
           end
 
@@ -2109,6 +2119,7 @@ module Prism
           unescaped = unescaped.lines
           escaped = escaped.lines
           percent_array = opening&.start_with?("%w", "%W", "%i", "%I")
+          regex = opening == "/" || opening&.start_with?("%r")
 
           # Non-interpolating strings
           if opening&.end_with?("'") || opening&.start_with?("%q", "%s", "%w", "%i")
@@ -2143,9 +2154,18 @@ module Prism
               .chunk_while { |before, after| before[/(\\*)\r?\n$/, 1]&.length&.odd? || false }
               .each do |lines|
                 escaped_lengths << lines.sum(&:bytesize)
-                unescaped_lines_count = lines.sum do |line|
-                  line.scan(/(\\*)n/).count { |(backslashes)| backslashes&.length&.odd? || false }
-                end
+
+                unescaped_lines_count =
+                  if regex
+                    0 # Will always be preserved as is
+                  else
+                    lines.sum do |line|
+                      count = line.scan(/(\\*)n/).count { |(backslashes)| backslashes&.length&.odd? }
+                      count -= 1 if !line.end_with?("\n") && count > 0
+                      count
+                    end
+                  end
+
                 extra = 1
                 extra = lines.count if percent_array # Account for line continuations in percent arrays
 
