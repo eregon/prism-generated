@@ -6169,7 +6169,10 @@ pm_numbered_reference_read_node_number(pm_parser_t *parser, const pm_token_t *to
     const uint8_t *end = token->end;
 
     ptrdiff_t diff = end - start;
-    assert(diff > 0 && ((unsigned long) diff < SIZE_MAX));
+    assert(diff > 0);
+#if PTRDIFF_MAX > SIZE_MAX
+    assert(diff < (ptrdiff_t) SIZE_MAX);
+#endif
     size_t length = (size_t) diff;
 
     char *digits = xcalloc(length + 1, sizeof(char));
@@ -13945,6 +13948,15 @@ parse_statements(pm_parser_t *parser, pm_context_t context, uint16_t depth) {
         // an error and continue parsing the statements list.
         if (PM_NODE_TYPE_P(node, PM_MISSING_NODE)) {
             parser_lex(parser);
+
+            // If we are at the end of the file, then we need to stop parsing
+            // the statements entirely at this point. Mark the parser as
+            // recovering, as we know that EOF closes the top-level context, and
+            // then break out of the loop.
+            if (match1(parser, PM_TOKEN_EOF)) {
+                parser->recovering = true;
+                break;
+            }
 
             while (accept2(parser, PM_TOKEN_NEWLINE, PM_TOKEN_SEMICOLON));
             if (context_terminator(context, &parser->current)) break;
