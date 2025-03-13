@@ -9,16 +9,17 @@ module Prism
       # Accepts a list of prism tokens and converts them into the expected
       # format for the parser gem.
       class Lexer
+        # These tokens are always skipped
+        TYPES_ALWAYS_SKIP = Set.new(%i[IGNORED_NEWLINE __END__ EOF])
+        private_constant :TYPES_ALWAYS_SKIP
+
         # The direct translating of types between the two lexers.
         TYPES = {
           # These tokens should never appear in the output of the lexer.
-          EOF: nil,
           MISSING: nil,
           NOT_PROVIDED: nil,
-          IGNORED_NEWLINE: nil,
           EMBDOC_END: nil,
           EMBDOC_LINE: nil,
-          __END__: nil,
 
           # These tokens have more or less direct mappings.
           AMPERSAND: :tAMPER2,
@@ -194,18 +195,18 @@ module Prism
         #
         # NOTE: In edge cases like `-> (foo = -> (bar) {}) do end`, please note that `kDO` is still returned
         # instead of `kDO_LAMBDA`, which is expected: https://github.com/ruby/prism/pull/3046
-        LAMBDA_TOKEN_TYPES = [:kDO_LAMBDA, :tLAMBDA, :tLAMBEG]
+        LAMBDA_TOKEN_TYPES = Set.new([:kDO_LAMBDA, :tLAMBDA, :tLAMBEG])
 
         # The `PARENTHESIS_LEFT` token in Prism is classified as either `tLPAREN` or `tLPAREN2` in the Parser gem.
         # The following token types are listed as those classified as `tLPAREN`.
-        LPAREN_CONVERSION_TOKEN_TYPES = [
+        LPAREN_CONVERSION_TOKEN_TYPES = Set.new([
           :kBREAK, :kCASE, :tDIVIDE, :kFOR, :kIF, :kNEXT, :kRETURN, :kUNTIL, :kWHILE, :tAMPER, :tANDOP, :tBANG, :tCOMMA, :tDOT2, :tDOT3,
           :tEQL, :tLPAREN, :tLPAREN2, :tLPAREN_ARG, :tLSHFT, :tNL, :tOP_ASGN, :tOROP, :tPIPE, :tSEMI, :tSTRING_DBEG, :tUMINUS, :tUPLUS
-        ]
+        ])
 
         # Types of tokens that are allowed to continue a method call with comments in-between.
         # For these, the parser gem doesn't emit a newline token after the last comment.
-        COMMENT_CONTINUATION_TYPES = [:COMMENT, :AMPERSAND_DOT, :DOT]
+        COMMENT_CONTINUATION_TYPES = Set.new([:COMMENT, :AMPERSAND_DOT, :DOT])
         private_constant :COMMENT_CONTINUATION_TYPES
 
         # Heredocs are complex and require us to keep track of a bit of info to refer to later
@@ -252,7 +253,7 @@ module Prism
           while index < length
             token, state = lexed[index]
             index += 1
-            next if %i[IGNORED_NEWLINE __END__ EOF].include?(token.type)
+            next if TYPES_ALWAYS_SKIP.include?(token.type)
 
             type = TYPES.fetch(token.type)
             value = token.value
@@ -260,10 +261,11 @@ module Prism
 
             case type
             when :kDO
-              types = tokens.map(&:first)
-              nearest_lambda_token_type = types.reverse.find { |type| LAMBDA_TOKEN_TYPES.include?(type) }
+              nearest_lambda_token = tokens.reverse_each.find do |token|
+                LAMBDA_TOKEN_TYPES.include?(token.first)
+              end
 
-              if nearest_lambda_token_type == :tLAMBDA
+              if nearest_lambda_token&.first == :tLAMBDA
                 type = :kDO_LAMBDA
               end
             when :tCHARACTER
@@ -344,7 +346,7 @@ module Prism
             when :tSTRING_BEG
               next_token = lexed[index][0]
               next_next_token = lexed[index + 1][0]
-              basic_quotes = ["\"", "'"].include?(value)
+              basic_quotes = value == '"' || value == "'"
 
               if basic_quotes && next_token&.type == :STRING_END
                 next_location = token.location.join(next_token.location)
