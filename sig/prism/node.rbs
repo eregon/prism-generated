@@ -2003,12 +2003,12 @@ module Prism
     def mutable?: () -> bool
 
     attr_reader opening_loc: Location?
-    attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode]
+    attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode]
     attr_reader closing_loc: Location?
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location? opening_loc, Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode] parts, Location? closing_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode], ?closing_loc: Location?) -> InterpolatedStringNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode], closing_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location? opening_loc, Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode] parts, Location? closing_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode], ?closing_loc: Location?) -> InterpolatedStringNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode], closing_loc: Location? }
     def opening: () -> String?
     def closing: () -> String?
     def type: () -> :interpolated_string_node
@@ -2651,6 +2651,8 @@ module Prism
   #     ^^^^^^^^^
   class ParenthesesNode < Node
     include _Node
+
+    def multiple_statements?: () -> bool
 
     attr_reader body: Prism::node?
     attr_reader opening_loc: Location
@@ -3532,6 +3534,12 @@ module Prism
   module ParameterFlags
     # a parameter name that has been repeated in the method signature
     REPEATED_PARAMETER: Integer
+  end
+
+  # Flags for parentheses nodes.
+  module ParenthesesNodeFlags
+    # parentheses that contain multiple potentially void statements
+    MULTIPLE_STATEMENTS: Integer
   end
 
   # Flags for range and flip-flop nodes.

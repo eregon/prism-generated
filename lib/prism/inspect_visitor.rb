@@ -1879,7 +1879,7 @@ module Prism
     # Inspect a ParenthesesNode node.
     def visit_parentheses_node(node)
       commands << [inspect_node("ParenthesesNode", node), indent]
-      flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ].compact
+      flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ("multiple_statements" if node.multiple_statements?)].compact
       commands << ["├── flags: #{flags.empty? ? "∅" : flags.join(", ")}\n", indent]
       if (body = node.body).nil?
         commands << ["├── body: ∅\n", indent]

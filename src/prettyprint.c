@@ -6950,6 +6950,20 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             prettyprint_location(output_buffer, parser, &node->location);
             pm_buffer_append_string(output_buffer, ")\n", 2);
 
+            // ParenthesesNodeFlags
+            {
+                pm_buffer_concat(output_buffer, prefix_buffer);
+                pm_buffer_append_string(output_buffer, "+-- ParenthesesNodeFlags:", 25);
+                bool found = false;
+                if (cast->base.flags & PM_PARENTHESES_NODE_FLAGS_MULTIPLE_STATEMENTS) {
+                    if (found) pm_buffer_append_byte(output_buffer, ',');
+                    pm_buffer_append_string(output_buffer, " multiple_statements", 20);
+                    found = true;
+                }
+                if (!found) pm_buffer_append_string(output_buffer, " nil", 4);
+                pm_buffer_append_byte(output_buffer, '\n');
+            }
+
             // body
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);

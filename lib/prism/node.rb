@@ -10849,7 +10849,7 @@ module Prism
       [*opening_loc, *parts, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode], ?closing_loc: Location?) -> InterpolatedStringNode
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode], ?closing_loc: Location?) -> InterpolatedStringNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc)
       InterpolatedStringNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
@@ -10857,7 +10857,7 @@ module Prism
     # def deconstruct: () -> Array[nil | Node]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode], closing_loc: Location? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode], closing_loc: Location? }
     def deconstruct_keys(keys)
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
@@ -10891,7 +10891,7 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode]
+    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode]
     attr_reader :parts
 
     # attr_reader closing_loc: Location?
@@ -14306,6 +14306,11 @@ module Prism
       { node_id: node_id, location: location, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
+    # def multiple_statements?: () -> bool
+    def multiple_statements?
+      flags.anybits?(ParenthesesNodeFlags::MULTIPLE_STATEMENTS)
+    end
+
     # attr_reader body: Prism::node?
     attr_reader :body
 
@@ -14364,6 +14369,7 @@ module Prism
     # comparing the value of locations. Locations are checked only for presence.
     def ===(other)
       other.is_a?(ParenthesesNode) &&
+        (flags === other.flags) &&
         (body === other.body) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
         (closing_loc.nil? == other.closing_loc.nil?)
@@ -18537,6 +18543,12 @@ module Prism
   module ParameterFlags
     # a parameter name that has been repeated in the method signature
     REPEATED_PARAMETER = 1 << 2
+  end
+
+  # Flags for parentheses nodes.
+  module ParenthesesNodeFlags
+    # parentheses that contain multiple potentially void statements
+    MULTIPLE_STATEMENTS = 1 << 2
   end
 
   # Flags for range and flip-flop nodes.

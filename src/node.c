@@ -7347,6 +7347,18 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             const pm_parentheses_node_t *cast = (const pm_parentheses_node_t *) node;
             pm_dump_json_location(buffer, parser, &cast->base.location);
 
+            // Dump the ParenthesesNodeFlags field
+            pm_buffer_append_byte(buffer, ',');
+            pm_buffer_append_string(buffer, "\"ParenthesesNodeFlags\":", 23);
+            size_t flags = 0;
+            pm_buffer_append_byte(buffer, '[');
+            if (PM_NODE_FLAG_P(cast, PM_PARENTHESES_NODE_FLAGS_MULTIPLE_STATEMENTS)) {
+                if (flags != 0) pm_buffer_append_byte(buffer, ',');
+                pm_buffer_append_string(buffer, "\"MULTIPLE_STATEMENTS\"", 21);
+                flags++;
+            }
+            pm_buffer_append_byte(buffer, ']');
+
             // Dump the body field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"body\":", 7);

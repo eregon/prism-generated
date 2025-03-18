@@ -662,6 +662,49 @@ public abstract class Nodes {
     }
 
     /**
+     * Flags for parentheses nodes.
+     */
+    public static final class ParenthesesNodeFlags implements Comparable<ParenthesesNodeFlags> {
+
+        // parentheses that contain multiple potentially void statements
+        public static final short MULTIPLE_STATEMENTS = 1 << 2;
+
+        public static boolean isMultipleStatements(short flags) {
+            return (flags & MULTIPLE_STATEMENTS) != 0;
+        }
+
+        private final short flags;
+
+        public ParenthesesNodeFlags(short flags) {
+            this.flags = flags;
+        }
+
+        @Override
+        public int hashCode() {
+            return flags;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (!(other instanceof ParenthesesNodeFlags)) {
+                return false;
+            }
+
+            return flags == ((ParenthesesNodeFlags) other).flags;
+        }
+
+        @Override
+        public int compareTo(ParenthesesNodeFlags other) {
+            return flags - other.flags;
+        }
+
+        public boolean isMultipleStatements() {
+            return (flags & MULTIPLE_STATEMENTS) != 0;
+        }
+
+    }
+
+    /**
      * Flags for range and flip-flop nodes.
      */
     public static final class RangeFlags implements Comparable<RangeFlags> {
@@ -6865,7 +6908,7 @@ public abstract class Nodes {
      */
     public static final class InterpolatedStringNode extends Node {
         public final short flags;
-        @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class, InterpolatedStringNode.class })
+        @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class, InterpolatedStringNode.class, XStringNode.class })
         public final Node[] parts;
 
         public InterpolatedStringNode(int startOffset, int length, short flags, Node[] parts) {
@@ -8863,14 +8906,20 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ParenthesesNode extends Node {
+        public final short flags;
         @Nullable
         public final Node body;
 
-        public ParenthesesNode(int startOffset, int length, Node body) {
+        public ParenthesesNode(int startOffset, int length, short flags, Node body) {
             super(startOffset, length);
+            this.flags = flags;
             this.body = body;
         }
-                
+        
+        public boolean isMultipleStatements() {
+            return ParenthesesNodeFlags.isMultipleStatements(flags);
+        }
+        
         @Override
         public void setNewLineFlag(Source source, boolean[] newlineMarked) {
             // Never mark ParenthesesNode with a newline flag, mark children instead
@@ -8899,6 +8948,10 @@ public abstract class Nodes {
             }
             builder.append('\n');
             String nextIndent = indent + "  ";
+            builder.append(nextIndent);
+            builder.append("ParenthesesNodeFlags: ");
+            builder.append(flags);
+            builder.append('\n');
             builder.append(nextIndent);
             builder.append("body: ");
             builder.append(this.body == null ? "null\n" : this.body.toString(nextIndent));

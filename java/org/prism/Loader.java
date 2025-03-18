@@ -102,7 +102,7 @@ public class Loader {
         expect((byte) 'M', "incorrect prism header");
 
         expect((byte) 1, "prism major version does not match");
-        expect((byte) 3, "prism minor version does not match");
+        expect((byte) 4, "prism minor version does not match");
         expect((byte) 0, "prism patch version does not match");
 
         expect((byte) 1, "Loader.java requires no location fields in the serialized output");
@@ -592,7 +592,7 @@ public class Loader {
             case 115:
                 return new Nodes.ParametersNode(startOffset, length, loadNodes(), loadOptionalParameterNodes(), loadOptionalNode(), loadNodes(), loadNodes(), loadOptionalNode(), (Nodes.BlockParameterNode) loadOptionalNode());
             case 116:
-                return new Nodes.ParenthesesNode(startOffset, length, loadOptionalNode());
+                return new Nodes.ParenthesesNode(startOffset, length, loadFlags(), loadOptionalNode());
             case 117:
                 return new Nodes.PinnedExpressionNode(startOffset, length, loadNode());
             case 118:

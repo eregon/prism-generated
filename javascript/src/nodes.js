@@ -85,6 +85,13 @@ const ParameterFlags = {
 };
 
 /**
+ * Flags for parentheses nodes.
+ */
+const ParenthesesNodeFlags = {
+  MULTIPLE_STATEMENTS: 1 << 2,
+};
+
+/**
  * Flags for range and flip-flop nodes.
  */
 const RangeFlags = {
@@ -13405,6 +13412,15 @@ export class ParenthesesNode {
     this.body = body;
     this.openingLoc = openingLoc;
     this.closingLoc = closingLoc;
+  }
+
+  /**
+   * True if this node has the MULTIPLE_STATEMENTS flag.
+   *
+   * @returns {boolean}
+   */
+  isMultipleStatements() {
+    return (this.#flags & ParenthesesNodeFlags.MULTIPLE_STATEMENTS) !== 0;
   }
 
   /**

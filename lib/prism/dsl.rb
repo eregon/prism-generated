@@ -912,6 +912,14 @@ module Prism
       end
     end
 
+    # Retrieve the value of one of the ParenthesesNodeFlags flags.
+    def parentheses_node_flag(name)
+      case name
+      when :multiple_statements then ParenthesesNodeFlags::MULTIPLE_STATEMENTS
+      else Kernel.raise ArgumentError, "invalid ParenthesesNodeFlags flag: #{name.inspect}"
+      end
+    end
+
     # Retrieve the value of one of the RangeFlags flags.
     def range_flag(name)
       case name

@@ -3608,6 +3608,9 @@ module Prism
       table = Table.new("ParenthesesNode")
       id = node_id(node)
 
+      # flags
+      table.field("flags", parentheses_node_flags_inspect(node))
+
       # body
       unless (body = node.body).nil?
         table.field("body", port: true)
@@ -4684,6 +4687,14 @@ module Prism
     def parameter_flags_inspect(node)
       flags = [] #: Array[String]
       flags << "repeated_parameter" if node.repeated_parameter?
+      flags.join(", ")
+    end
+
+    # Inspect a node that has parentheses_node_flags flags to display the flags as a
+    # comma-separated list.
+    def parentheses_node_flags_inspect(node)
+      flags = [] #: Array[String]
+      flags << "multiple_statements" if node.multiple_statements?
       flags.join(", ")
     end
 

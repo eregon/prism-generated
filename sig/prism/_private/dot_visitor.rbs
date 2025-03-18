@@ -51,6 +51,7 @@ module Prism
     def keyword_hash_node_flags_inspect: (KeywordHashNode node) -> String
     def loop_flags_inspect: (UntilNode | WhileNode node) -> String
     def parameter_flags_inspect: (BlockLocalVariableNode | BlockParameterNode | KeywordRestParameterNode | OptionalKeywordParameterNode | OptionalParameterNode | RequiredKeywordParameterNode | RequiredParameterNode | RestParameterNode node) -> String
+    def parentheses_node_flags_inspect: (ParenthesesNode node) -> String
     def range_flags_inspect: (FlipFlopNode | RangeNode node) -> String
     def regular_expression_flags_inspect: (InterpolatedMatchLastLineNode | InterpolatedRegularExpressionNode | MatchLastLineNode | RegularExpressionNode node) -> String
     def shareable_constant_node_flags_inspect: (ShareableConstantNode node) -> String

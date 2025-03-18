@@ -6441,6 +6441,9 @@ typedef struct pm_parameters_node {
  *     ^^^^^^^^^
  *
  * Type: ::PM_PARENTHESES_NODE
+
+ * Flags (#pm_parentheses_node_flags):
+ * * ::PM_PARENTHESES_NODE_FLAGS_MULTIPLE_STATEMENTS
  *
  * @extends pm_node_t
  */
@@ -7850,6 +7853,14 @@ typedef enum pm_parameter_flags {
     /** a parameter name that has been repeated in the method signature */
     PM_PARAMETER_FLAGS_REPEATED_PARAMETER = 4,
 } pm_parameter_flags_t;
+
+/**
+ * Flags for parentheses nodes.
+ */
+typedef enum pm_parentheses_node_flags {
+    /** parentheses that contain multiple potentially void statements */
+    PM_PARENTHESES_NODE_FLAGS_MULTIPLE_STATEMENTS = 4,
+} pm_parentheses_node_flags_t;
 
 /**
  * Flags for range and flip-flop nodes.

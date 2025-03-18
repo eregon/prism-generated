@@ -334,7 +334,7 @@ module Prism
       when :parameters_node
         [NodeListField.new(:requireds), NodeListField.new(:optionals), OptionalNodeField.new(:rest), NodeListField.new(:posts), NodeListField.new(:keywords), OptionalNodeField.new(:keyword_rest), OptionalNodeField.new(:block)]
       when :parentheses_node
-        [OptionalNodeField.new(:body), LocationField.new(:opening_loc), LocationField.new(:closing_loc)]
+        [FlagsField.new(:flags, [:multiple_statements?]), OptionalNodeField.new(:body), LocationField.new(:opening_loc), LocationField.new(:closing_loc)]
       when :pinned_expression_node
         [NodeField.new(:expression), LocationField.new(:operator_loc), LocationField.new(:lparen_loc), LocationField.new(:rparen_loc)]
       when :pinned_variable_node
