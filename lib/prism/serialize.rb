@@ -2382,7 +2382,7 @@ module Prism
       :USTAR_STAR,
       :WORDS_SEP,
       :__END__,
-    ]
+    ].freeze
 
     private_constant :MAJOR_VERSION, :MINOR_VERSION, :PATCH_VERSION
     private_constant :ConstantPool, :FastStringIO, :Loader, :TOKEN_TYPES
