@@ -99,11 +99,13 @@ public abstract class Nodes {
 
         public static final Node[] EMPTY_ARRAY = {};
 
+        public final int nodeId;
         public final int startOffset;
         public final int length;
         private boolean newLineFlag = false;
 
-        public Node(int startOffset, int length) {
+        public Node(int nodeId, int startOffset, int length) {
+            this.nodeId = nodeId;
             this.startOffset = startOffset;
             this.length = length;
         }
@@ -1136,8 +1138,8 @@ public abstract class Nodes {
         @UnionType({ GlobalVariableReadNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class, SymbolNode.class, MissingNode.class })
         public final Node old_name;
 
-        public AliasGlobalVariableNode(int startOffset, int length, Node new_name, Node old_name) {
-            super(startOffset, length);
+        public AliasGlobalVariableNode(int nodeId, int startOffset, int length, Node new_name, Node old_name) {
+            super(nodeId, startOffset, length);
             this.new_name = new_name;
             this.old_name = old_name;
         }
@@ -1216,8 +1218,8 @@ public abstract class Nodes {
         @UnionType({ SymbolNode.class, InterpolatedSymbolNode.class, GlobalVariableReadNode.class, MissingNode.class })
         public final Node old_name;
 
-        public AliasMethodNode(int startOffset, int length, Node new_name, Node old_name) {
-            super(startOffset, length);
+        public AliasMethodNode(int nodeId, int startOffset, int length, Node new_name, Node old_name) {
+            super(nodeId, startOffset, length);
             this.new_name = new_name;
             this.old_name = old_name;
         }
@@ -1282,8 +1284,8 @@ public abstract class Nodes {
          */
         public final Node right;
 
-        public AlternationPatternNode(int startOffset, int length, Node left, Node right) {
-            super(startOffset, length);
+        public AlternationPatternNode(int nodeId, int startOffset, int length, Node left, Node right) {
+            super(nodeId, startOffset, length);
             this.left = left;
             this.right = right;
         }
@@ -1354,8 +1356,8 @@ public abstract class Nodes {
          */
         public final Node right;
 
-        public AndNode(int startOffset, int length, Node left, Node right) {
-            super(startOffset, length);
+        public AndNode(int nodeId, int startOffset, int length, Node left, Node right) {
+            super(nodeId, startOffset, length);
             this.left = left;
             this.right = right;
         }
@@ -1412,8 +1414,8 @@ public abstract class Nodes {
          */
         public final Node[] arguments;
 
-        public ArgumentsNode(int startOffset, int length, short flags, Node[] arguments) {
-            super(startOffset, length);
+        public ArgumentsNode(int nodeId, int startOffset, int length, short flags, Node[] arguments) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.arguments = arguments;
         }
@@ -1495,8 +1497,8 @@ public abstract class Nodes {
          */
         public final Node[] elements;
 
-        public ArrayNode(int startOffset, int length, short flags, Node[] elements) {
-            super(startOffset, length);
+        public ArrayNode(int nodeId, int startOffset, int length, short flags, Node[] elements) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.elements = elements;
         }
@@ -1598,8 +1600,8 @@ public abstract class Nodes {
          */
         public final Node[] posts;
 
-        public ArrayPatternNode(int startOffset, int length, Node constant, Node[] requireds, Node rest, Node[] posts) {
-            super(startOffset, length);
+        public ArrayPatternNode(int nodeId, int startOffset, int length, Node constant, Node[] requireds, Node rest, Node[] posts) {
+            super(nodeId, startOffset, length);
             this.constant = constant;
             this.requireds = requireds;
             this.rest = rest;
@@ -1703,8 +1705,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public AssocNode(int startOffset, int length, Node key, Node value) {
-            super(startOffset, length);
+        public AssocNode(int nodeId, int startOffset, int length, Node key, Node value) {
+            super(nodeId, startOffset, length);
             this.key = key;
             this.value = value;
         }
@@ -1761,8 +1763,8 @@ public abstract class Nodes {
         @Nullable
         public final Node value;
 
-        public AssocSplatNode(int startOffset, int length, Node value) {
-            super(startOffset, length);
+        public AssocSplatNode(int nodeId, int startOffset, int length, Node value) {
+            super(nodeId, startOffset, length);
             this.value = value;
         }
                 
@@ -1816,8 +1818,8 @@ public abstract class Nodes {
          */
         public final String name;
 
-        public BackReferenceReadNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public BackReferenceReadNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -1901,8 +1903,8 @@ public abstract class Nodes {
         @Nullable
         public final EnsureNode ensure_clause;
 
-        public BeginNode(int startOffset, int length, StatementsNode statements, RescueNode rescue_clause, ElseNode else_clause, EnsureNode ensure_clause) {
-            super(startOffset, length);
+        public BeginNode(int nodeId, int startOffset, int length, StatementsNode statements, RescueNode rescue_clause, ElseNode else_clause, EnsureNode ensure_clause) {
+            super(nodeId, startOffset, length);
             this.statements = statements;
             this.rescue_clause = rescue_clause;
             this.else_clause = else_clause;
@@ -1982,8 +1984,8 @@ public abstract class Nodes {
         @Nullable
         public final Node expression;
 
-        public BlockArgumentNode(int startOffset, int length, Node expression) {
-            super(startOffset, length);
+        public BlockArgumentNode(int nodeId, int startOffset, int length, Node expression) {
+            super(nodeId, startOffset, length);
             this.expression = expression;
         }
                 
@@ -2037,8 +2039,8 @@ public abstract class Nodes {
          */
         public final String name;
 
-        public BlockLocalVariableNode(int startOffset, int length, short flags, String name) {
-            super(startOffset, length);
+        public BlockLocalVariableNode(int nodeId, int startOffset, int length, short flags, String name) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
         }
@@ -2124,8 +2126,8 @@ public abstract class Nodes {
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
-        public BlockNode(int startOffset, int length, String[] locals, Node parameters, Node body) {
-            super(startOffset, length);
+        public BlockNode(int nodeId, int startOffset, int length, String[] locals, Node parameters, Node body) {
+            super(nodeId, startOffset, length);
             this.locals = locals;
             this.parameters = parameters;
             this.body = body;
@@ -2197,8 +2199,8 @@ public abstract class Nodes {
         @Nullable
         public final String name;
 
-        public BlockParameterNode(int startOffset, int length, short flags, String name) {
-            super(startOffset, length);
+        public BlockParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
         }
@@ -2280,8 +2282,8 @@ public abstract class Nodes {
          */
         public final BlockLocalVariableNode[] locals;
 
-        public BlockParametersNode(int startOffset, int length, ParametersNode parameters, BlockLocalVariableNode[] locals) {
-            super(startOffset, length);
+        public BlockParametersNode(int nodeId, int startOffset, int length, ParametersNode parameters, BlockLocalVariableNode[] locals) {
+            super(nodeId, startOffset, length);
             this.parameters = parameters;
             this.locals = locals;
         }
@@ -2349,8 +2351,8 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
 
-        public BreakNode(int startOffset, int length, ArgumentsNode arguments) {
-            super(startOffset, length);
+        public BreakNode(int nodeId, int startOffset, int length, ArgumentsNode arguments) {
+            super(nodeId, startOffset, length);
             this.arguments = arguments;
         }
                 
@@ -2432,8 +2434,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public CallAndWriteNode(int startOffset, int length, short flags, Node receiver, String read_name, String write_name, Node value) {
-            super(startOffset, length);
+        public CallAndWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, String read_name, String write_name, Node value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.read_name = read_name;
@@ -2575,8 +2577,8 @@ public abstract class Nodes {
         @UnionType({ BlockNode.class, BlockArgumentNode.class })
         public final Node block;
 
-        public CallNode(int startOffset, int length, short flags, Node receiver, String name, ArgumentsNode arguments, Node block) {
-            super(startOffset, length);
+        public CallNode(int nodeId, int startOffset, int length, short flags, Node receiver, String name, ArgumentsNode arguments, Node block) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.name = name;
@@ -2707,8 +2709,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public CallOperatorWriteNode(int startOffset, int length, short flags, Node receiver, String read_name, String write_name, String binary_operator, Node value) {
-            super(startOffset, length);
+        public CallOperatorWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, String read_name, String write_name, String binary_operator, Node value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.read_name = read_name;
@@ -2831,8 +2833,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public CallOrWriteNode(int startOffset, int length, short flags, Node receiver, String read_name, String write_name, Node value) {
-            super(startOffset, length);
+        public CallOrWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, String read_name, String write_name, Node value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.read_name = read_name;
@@ -2939,8 +2941,8 @@ public abstract class Nodes {
          */
         public final String name;
 
-        public CallTargetNode(int startOffset, int length, short flags, Node receiver, String name) {
-            super(startOffset, length);
+        public CallTargetNode(int nodeId, int startOffset, int length, short flags, Node receiver, String name) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.name = name;
@@ -3026,8 +3028,8 @@ public abstract class Nodes {
          */
         public final LocalVariableTargetNode target;
 
-        public CapturePatternNode(int startOffset, int length, Node value, LocalVariableTargetNode target) {
-            super(startOffset, length);
+        public CapturePatternNode(int nodeId, int startOffset, int length, Node value, LocalVariableTargetNode target) {
+            super(nodeId, startOffset, length);
             this.value = value;
             this.target = target;
         }
@@ -3105,8 +3107,8 @@ public abstract class Nodes {
         @Nullable
         public final ElseNode else_clause;
 
-        public CaseMatchNode(int startOffset, int length, Node predicate, InNode[] conditions, ElseNode else_clause) {
-            super(startOffset, length);
+        public CaseMatchNode(int nodeId, int startOffset, int length, Node predicate, InNode[] conditions, ElseNode else_clause) {
+            super(nodeId, startOffset, length);
             this.predicate = predicate;
             this.conditions = conditions;
             this.else_clause = else_clause;
@@ -3203,8 +3205,8 @@ public abstract class Nodes {
         @Nullable
         public final ElseNode else_clause;
 
-        public CaseNode(int startOffset, int length, Node predicate, WhenNode[] conditions, ElseNode else_clause) {
-            super(startOffset, length);
+        public CaseNode(int nodeId, int startOffset, int length, Node predicate, WhenNode[] conditions, ElseNode else_clause) {
+            super(nodeId, startOffset, length);
             this.predicate = predicate;
             this.conditions = conditions;
             this.else_clause = else_clause;
@@ -3279,8 +3281,8 @@ public abstract class Nodes {
         public final Node body;
         public final String name;
 
-        public ClassNode(int startOffset, int length, String[] locals, Node constant_path, Node superclass, Node body, String name) {
-            super(startOffset, length);
+        public ClassNode(int nodeId, int startOffset, int length, String[] locals, Node constant_path, Node superclass, Node body, String name) {
+            super(nodeId, startOffset, length);
             this.locals = locals;
             this.constant_path = constant_path;
             this.superclass = superclass;
@@ -3367,8 +3369,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public ClassVariableAndWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public ClassVariableAndWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -3418,8 +3420,8 @@ public abstract class Nodes {
         public final Node value;
         public final String binary_operator;
 
-        public ClassVariableOperatorWriteNode(int startOffset, int length, String name, Node value, String binary_operator) {
-            super(startOffset, length);
+        public ClassVariableOperatorWriteNode(int nodeId, int startOffset, int length, String name, Node value, String binary_operator) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
             this.binary_operator = binary_operator;
@@ -3473,8 +3475,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public ClassVariableOrWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public ClassVariableOrWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -3531,8 +3533,8 @@ public abstract class Nodes {
          */
         public final String name;
 
-        public ClassVariableReadNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public ClassVariableReadNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -3575,8 +3577,8 @@ public abstract class Nodes {
     public static final class ClassVariableTargetNode extends Node {
         public final String name;
 
-        public ClassVariableTargetNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public ClassVariableTargetNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -3640,8 +3642,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public ClassVariableWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public ClassVariableWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -3690,8 +3692,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public ConstantAndWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public ConstantAndWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -3741,8 +3743,8 @@ public abstract class Nodes {
         public final Node value;
         public final String binary_operator;
 
-        public ConstantOperatorWriteNode(int startOffset, int length, String name, Node value, String binary_operator) {
-            super(startOffset, length);
+        public ConstantOperatorWriteNode(int nodeId, int startOffset, int length, String name, Node value, String binary_operator) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
             this.binary_operator = binary_operator;
@@ -3796,8 +3798,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public ConstantOrWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public ConstantOrWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -3846,8 +3848,8 @@ public abstract class Nodes {
         public final ConstantPathNode target;
         public final Node value;
 
-        public ConstantPathAndWriteNode(int startOffset, int length, ConstantPathNode target, Node value) {
-            super(startOffset, length);
+        public ConstantPathAndWriteNode(int nodeId, int startOffset, int length, ConstantPathNode target, Node value) {
+            super(nodeId, startOffset, length);
             this.target = target;
             this.value = value;
         }
@@ -3917,8 +3919,8 @@ public abstract class Nodes {
         @Nullable
         public final String name;
 
-        public ConstantPathNode(int startOffset, int length, Node parent, String name) {
-            super(startOffset, length);
+        public ConstantPathNode(int nodeId, int startOffset, int length, Node parent, String name) {
+            super(nodeId, startOffset, length);
             this.parent = parent;
             this.name = name;
         }
@@ -3970,8 +3972,8 @@ public abstract class Nodes {
         public final Node value;
         public final String binary_operator;
 
-        public ConstantPathOperatorWriteNode(int startOffset, int length, ConstantPathNode target, Node value, String binary_operator) {
-            super(startOffset, length);
+        public ConstantPathOperatorWriteNode(int nodeId, int startOffset, int length, ConstantPathNode target, Node value, String binary_operator) {
+            super(nodeId, startOffset, length);
             this.target = target;
             this.value = value;
             this.binary_operator = binary_operator;
@@ -4025,8 +4027,8 @@ public abstract class Nodes {
         public final ConstantPathNode target;
         public final Node value;
 
-        public ConstantPathOrWriteNode(int startOffset, int length, ConstantPathNode target, Node value) {
-            super(startOffset, length);
+        public ConstantPathOrWriteNode(int nodeId, int startOffset, int length, ConstantPathNode target, Node value) {
+            super(nodeId, startOffset, length);
             this.target = target;
             this.value = value;
         }
@@ -4077,8 +4079,8 @@ public abstract class Nodes {
         @Nullable
         public final String name;
 
-        public ConstantPathTargetNode(int startOffset, int length, Node parent, String name) {
-            super(startOffset, length);
+        public ConstantPathTargetNode(int nodeId, int startOffset, int length, Node parent, String name) {
+            super(nodeId, startOffset, length);
             this.parent = parent;
             this.name = name;
         }
@@ -4154,8 +4156,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public ConstantPathWriteNode(int startOffset, int length, ConstantPathNode target, Node value) {
-            super(startOffset, length);
+        public ConstantPathWriteNode(int nodeId, int startOffset, int length, ConstantPathNode target, Node value) {
+            super(nodeId, startOffset, length);
             this.target = target;
             this.value = value;
         }
@@ -4212,8 +4214,8 @@ public abstract class Nodes {
          */
         public final String name;
 
-        public ConstantReadNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public ConstantReadNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -4256,8 +4258,8 @@ public abstract class Nodes {
     public static final class ConstantTargetNode extends Node {
         public final String name;
 
-        public ConstantTargetNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public ConstantTargetNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -4321,8 +4323,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public ConstantWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public ConstantWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -4380,8 +4382,8 @@ public abstract class Nodes {
         public final Node body;
         public final String[] locals;
 
-        public DefNode(int startOffset, int length, int serializedLength, String name, Node receiver, ParametersNode parameters, Node body, String[] locals) {
-            super(startOffset, length);
+        public DefNode(int nodeId, int startOffset, int length, int serializedLength, String name, Node receiver, ParametersNode parameters, Node body, String[] locals) {
+            super(nodeId, startOffset, length);
             this.serializedLength = serializedLength;
             this.name = name;
             this.receiver = receiver;
@@ -4454,8 +4456,8 @@ public abstract class Nodes {
     public static final class DefinedNode extends Node {
         public final Node value;
 
-        public DefinedNode(int startOffset, int length, Node value) {
-            super(startOffset, length);
+        public DefinedNode(int nodeId, int startOffset, int length, Node value) {
+            super(nodeId, startOffset, length);
             this.value = value;
         }
                 
@@ -4499,8 +4501,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public ElseNode(int startOffset, int length, StatementsNode statements) {
-            super(startOffset, length);
+        public ElseNode(int nodeId, int startOffset, int length, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.statements = statements;
         }
                 
@@ -4546,8 +4548,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public EmbeddedStatementsNode(int startOffset, int length, StatementsNode statements) {
-            super(startOffset, length);
+        public EmbeddedStatementsNode(int nodeId, int startOffset, int length, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.statements = statements;
         }
                 
@@ -4593,8 +4595,8 @@ public abstract class Nodes {
         @UnionType({ InstanceVariableReadNode.class, ClassVariableReadNode.class, GlobalVariableReadNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class })
         public final Node variable;
 
-        public EmbeddedVariableNode(int startOffset, int length, Node variable) {
-            super(startOffset, length);
+        public EmbeddedVariableNode(int nodeId, int startOffset, int length, Node variable) {
+            super(nodeId, startOffset, length);
             this.variable = variable;
         }
                 
@@ -4642,8 +4644,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public EnsureNode(int startOffset, int length, StatementsNode statements) {
-            super(startOffset, length);
+        public EnsureNode(int nodeId, int startOffset, int length, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.statements = statements;
         }
                 
@@ -4687,8 +4689,8 @@ public abstract class Nodes {
      */
     public static final class FalseNode extends Node {
 
-        public FalseNode(int startOffset, int length) {
-            super(startOffset, length);
+        public FalseNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -4738,8 +4740,8 @@ public abstract class Nodes {
         @UnionType({ SplatNode.class, MissingNode.class })
         public final Node right;
 
-        public FindPatternNode(int startOffset, int length, Node constant, SplatNode left, Node[] requireds, Node right) {
-            super(startOffset, length);
+        public FindPatternNode(int nodeId, int startOffset, int length, Node constant, SplatNode left, Node[] requireds, Node right) {
+            super(nodeId, startOffset, length);
             this.constant = constant;
             this.left = left;
             this.requireds = requireds;
@@ -4814,8 +4816,8 @@ public abstract class Nodes {
         @Nullable
         public final Node right;
 
-        public FlipFlopNode(int startOffset, int length, short flags, Node left, Node right) {
-            super(startOffset, length);
+        public FlipFlopNode(int nodeId, int startOffset, int length, short flags, Node left, Node right) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.left = left;
             this.right = right;
@@ -4881,8 +4883,8 @@ public abstract class Nodes {
          */
         public final double value;
 
-        public FloatNode(int startOffset, int length, double value) {
-            super(startOffset, length);
+        public FloatNode(int nodeId, int startOffset, int length, double value) {
+            super(nodeId, startOffset, length);
             this.value = value;
         }
                 
@@ -4955,8 +4957,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public ForNode(int startOffset, int length, Node index, Node collection, StatementsNode statements) {
-            super(startOffset, length);
+        public ForNode(int nodeId, int startOffset, int length, Node index, Node collection, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.index = index;
             this.collection = collection;
             this.statements = statements;
@@ -5012,8 +5014,8 @@ public abstract class Nodes {
      */
     public static final class ForwardingArgumentsNode extends Node {
 
-        public ForwardingArgumentsNode(int startOffset, int length) {
-            super(startOffset, length);
+        public ForwardingArgumentsNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -5051,8 +5053,8 @@ public abstract class Nodes {
      */
     public static final class ForwardingParameterNode extends Node {
 
-        public ForwardingParameterNode(int startOffset, int length) {
-            super(startOffset, length);
+        public ForwardingParameterNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -5091,8 +5093,8 @@ public abstract class Nodes {
         @Nullable
         public final BlockNode block;
 
-        public ForwardingSuperNode(int startOffset, int length, BlockNode block) {
-            super(startOffset, length);
+        public ForwardingSuperNode(int nodeId, int startOffset, int length, BlockNode block) {
+            super(nodeId, startOffset, length);
             this.block = block;
         }
                 
@@ -5138,8 +5140,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public GlobalVariableAndWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public GlobalVariableAndWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -5189,8 +5191,8 @@ public abstract class Nodes {
         public final Node value;
         public final String binary_operator;
 
-        public GlobalVariableOperatorWriteNode(int startOffset, int length, String name, Node value, String binary_operator) {
-            super(startOffset, length);
+        public GlobalVariableOperatorWriteNode(int nodeId, int startOffset, int length, String name, Node value, String binary_operator) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
             this.binary_operator = binary_operator;
@@ -5244,8 +5246,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public GlobalVariableOrWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public GlobalVariableOrWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -5302,8 +5304,8 @@ public abstract class Nodes {
          */
         public final String name;
 
-        public GlobalVariableReadNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public GlobalVariableReadNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -5346,8 +5348,8 @@ public abstract class Nodes {
     public static final class GlobalVariableTargetNode extends Node {
         public final String name;
 
-        public GlobalVariableTargetNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public GlobalVariableTargetNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -5411,8 +5413,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public GlobalVariableWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public GlobalVariableWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -5472,8 +5474,8 @@ public abstract class Nodes {
         @UnionType({ AssocNode.class, AssocSplatNode.class })
         public final Node[] elements;
 
-        public HashNode(int startOffset, int length, Node[] elements) {
-            super(startOffset, length);
+        public HashNode(int nodeId, int startOffset, int length, Node[] elements) {
+            super(nodeId, startOffset, length);
             this.elements = elements;
         }
                 
@@ -5533,8 +5535,8 @@ public abstract class Nodes {
         @UnionType({ AssocSplatNode.class, NoKeywordsParameterNode.class })
         public final Node rest;
 
-        public HashPatternNode(int startOffset, int length, Node constant, AssocNode[] elements, Node rest) {
-            super(startOffset, length);
+        public HashPatternNode(int nodeId, int startOffset, int length, Node constant, AssocNode[] elements, Node rest) {
+            super(nodeId, startOffset, length);
             this.constant = constant;
             this.elements = elements;
             this.rest = rest;
@@ -5657,8 +5659,8 @@ public abstract class Nodes {
         @UnionType({ ElseNode.class, IfNode.class })
         public final Node subsequent;
 
-        public IfNode(int startOffset, int length, Node predicate, StatementsNode statements, Node subsequent) {
-            super(startOffset, length);
+        public IfNode(int nodeId, int startOffset, int length, Node predicate, StatementsNode statements, Node subsequent) {
+            super(nodeId, startOffset, length);
             this.predicate = predicate;
             this.statements = statements;
             this.subsequent = subsequent;
@@ -5721,8 +5723,8 @@ public abstract class Nodes {
         @UnionType({ FloatNode.class, IntegerNode.class, RationalNode.class })
         public final Node numeric;
 
-        public ImaginaryNode(int startOffset, int length, Node numeric) {
-            super(startOffset, length);
+        public ImaginaryNode(int nodeId, int startOffset, int length, Node numeric) {
+            super(nodeId, startOffset, length);
             this.numeric = numeric;
         }
                 
@@ -5772,8 +5774,8 @@ public abstract class Nodes {
         @UnionType({ LocalVariableReadNode.class, CallNode.class, ConstantReadNode.class, LocalVariableTargetNode.class })
         public final Node value;
 
-        public ImplicitNode(int startOffset, int length, Node value) {
-            super(startOffset, length);
+        public ImplicitNode(int nodeId, int startOffset, int length, Node value) {
+            super(nodeId, startOffset, length);
             this.value = value;
         }
                 
@@ -5824,8 +5826,8 @@ public abstract class Nodes {
      */
     public static final class ImplicitRestNode extends Node {
 
-        public ImplicitRestNode(int startOffset, int length) {
-            super(startOffset, length);
+        public ImplicitRestNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -5865,8 +5867,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public InNode(int startOffset, int length, Node pattern, StatementsNode statements) {
-            super(startOffset, length);
+        public InNode(int nodeId, int startOffset, int length, Node pattern, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.pattern = pattern;
             this.statements = statements;
         }
@@ -5923,8 +5925,8 @@ public abstract class Nodes {
         public final BlockArgumentNode block;
         public final Node value;
 
-        public IndexAndWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, Node value) {
-            super(startOffset, length);
+        public IndexAndWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, Node value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.arguments = arguments;
@@ -6017,8 +6019,8 @@ public abstract class Nodes {
         public final String binary_operator;
         public final Node value;
 
-        public IndexOperatorWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, String binary_operator, Node value) {
-            super(startOffset, length);
+        public IndexOperatorWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, String binary_operator, Node value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.arguments = arguments;
@@ -6115,8 +6117,8 @@ public abstract class Nodes {
         public final BlockArgumentNode block;
         public final Node value;
 
-        public IndexOrWriteNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, Node value) {
-            super(startOffset, length);
+        public IndexOrWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, Node value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.arguments = arguments;
@@ -6214,8 +6216,8 @@ public abstract class Nodes {
         @Nullable
         public final BlockArgumentNode block;
 
-        public IndexTargetNode(int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block) {
-            super(startOffset, length);
+        public IndexTargetNode(int nodeId, int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
             this.arguments = arguments;
@@ -6294,8 +6296,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public InstanceVariableAndWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public InstanceVariableAndWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -6345,8 +6347,8 @@ public abstract class Nodes {
         public final Node value;
         public final String binary_operator;
 
-        public InstanceVariableOperatorWriteNode(int startOffset, int length, String name, Node value, String binary_operator) {
-            super(startOffset, length);
+        public InstanceVariableOperatorWriteNode(int nodeId, int startOffset, int length, String name, Node value, String binary_operator) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
             this.binary_operator = binary_operator;
@@ -6400,8 +6402,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public InstanceVariableOrWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public InstanceVariableOrWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -6458,8 +6460,8 @@ public abstract class Nodes {
          */
         public final String name;
 
-        public InstanceVariableReadNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public InstanceVariableReadNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -6502,8 +6504,8 @@ public abstract class Nodes {
     public static final class InstanceVariableTargetNode extends Node {
         public final String name;
 
-        public InstanceVariableTargetNode(int startOffset, int length, String name) {
-            super(startOffset, length);
+        public InstanceVariableTargetNode(int nodeId, int startOffset, int length, String name) {
+            super(nodeId, startOffset, length);
             this.name = name;
         }
                 
@@ -6567,8 +6569,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public InstanceVariableWriteNode(int startOffset, int length, String name, Node value) {
-            super(startOffset, length);
+        public InstanceVariableWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
         }
@@ -6622,8 +6624,8 @@ public abstract class Nodes {
          */
         public final Object value;
 
-        public IntegerNode(int startOffset, int length, short flags, Object value) {
-            super(startOffset, length);
+        public IntegerNode(int nodeId, int startOffset, int length, short flags, Object value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.value = value;
         }
@@ -6689,8 +6691,8 @@ public abstract class Nodes {
         @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class })
         public final Node[] parts;
 
-        public InterpolatedMatchLastLineNode(int startOffset, int length, short flags, Node[] parts) {
-            super(startOffset, length);
+        public InterpolatedMatchLastLineNode(int nodeId, int startOffset, int length, short flags, Node[] parts) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.parts = parts;
         }
@@ -6800,8 +6802,8 @@ public abstract class Nodes {
         @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class })
         public final Node[] parts;
 
-        public InterpolatedRegularExpressionNode(int startOffset, int length, short flags, Node[] parts) {
-            super(startOffset, length);
+        public InterpolatedRegularExpressionNode(int nodeId, int startOffset, int length, short flags, Node[] parts) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.parts = parts;
         }
@@ -6911,8 +6913,8 @@ public abstract class Nodes {
         @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class, InterpolatedStringNode.class, XStringNode.class })
         public final Node[] parts;
 
-        public InterpolatedStringNode(int startOffset, int length, short flags, Node[] parts) {
-            super(startOffset, length);
+        public InterpolatedStringNode(int nodeId, int startOffset, int length, short flags, Node[] parts) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.parts = parts;
         }
@@ -6985,8 +6987,8 @@ public abstract class Nodes {
         @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class })
         public final Node[] parts;
 
-        public InterpolatedSymbolNode(int startOffset, int length, Node[] parts) {
-            super(startOffset, length);
+        public InterpolatedSymbolNode(int nodeId, int startOffset, int length, Node[] parts) {
+            super(nodeId, startOffset, length);
             this.parts = parts;
         }
                 
@@ -7046,8 +7048,8 @@ public abstract class Nodes {
         @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class })
         public final Node[] parts;
 
-        public InterpolatedXStringNode(int startOffset, int length, Node[] parts) {
-            super(startOffset, length);
+        public InterpolatedXStringNode(int nodeId, int startOffset, int length, Node[] parts) {
+            super(nodeId, startOffset, length);
             this.parts = parts;
         }
                 
@@ -7105,8 +7107,8 @@ public abstract class Nodes {
      */
     public static final class ItLocalVariableReadNode extends Node {
 
-        public ItLocalVariableReadNode(int startOffset, int length) {
-            super(startOffset, length);
+        public ItLocalVariableReadNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -7143,8 +7145,8 @@ public abstract class Nodes {
      */
     public static final class ItParametersNode extends Node {
 
-        public ItParametersNode(int startOffset, int length) {
-            super(startOffset, length);
+        public ItParametersNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -7184,8 +7186,8 @@ public abstract class Nodes {
         @UnionType({ AssocNode.class, AssocSplatNode.class })
         public final Node[] elements;
 
-        public KeywordHashNode(int startOffset, int length, short flags, Node[] elements) {
-            super(startOffset, length);
+        public KeywordHashNode(int nodeId, int startOffset, int length, short flags, Node[] elements) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.elements = elements;
         }
@@ -7248,8 +7250,8 @@ public abstract class Nodes {
         @Nullable
         public final String name;
 
-        public KeywordRestParameterNode(int startOffset, int length, short flags, String name) {
-            super(startOffset, length);
+        public KeywordRestParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
         }
@@ -7307,8 +7309,8 @@ public abstract class Nodes {
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
-        public LambdaNode(int startOffset, int length, String[] locals, Node parameters, Node body) {
-            super(startOffset, length);
+        public LambdaNode(int nodeId, int startOffset, int length, String[] locals, Node parameters, Node body) {
+            super(nodeId, startOffset, length);
             this.locals = locals;
             this.parameters = parameters;
             this.body = body;
@@ -7370,8 +7372,8 @@ public abstract class Nodes {
         public final String name;
         public final int depth;
 
-        public LocalVariableAndWriteNode(int startOffset, int length, Node value, String name, int depth) {
-            super(startOffset, length);
+        public LocalVariableAndWriteNode(int nodeId, int startOffset, int length, Node value, String name, int depth) {
+            super(nodeId, startOffset, length);
             this.value = value;
             this.name = name;
             this.depth = depth;
@@ -7427,8 +7429,8 @@ public abstract class Nodes {
         public final String binary_operator;
         public final int depth;
 
-        public LocalVariableOperatorWriteNode(int startOffset, int length, Node value, String name, String binary_operator, int depth) {
-            super(startOffset, length);
+        public LocalVariableOperatorWriteNode(int nodeId, int startOffset, int length, Node value, String name, String binary_operator, int depth) {
+            super(nodeId, startOffset, length);
             this.value = value;
             this.name = name;
             this.binary_operator = binary_operator;
@@ -7488,8 +7490,8 @@ public abstract class Nodes {
         public final String name;
         public final int depth;
 
-        public LocalVariableOrWriteNode(int startOffset, int length, Node value, String name, int depth) {
-            super(startOffset, length);
+        public LocalVariableOrWriteNode(int nodeId, int startOffset, int length, Node value, String name, int depth) {
+            super(nodeId, startOffset, length);
             this.value = value;
             this.name = name;
             this.depth = depth;
@@ -7567,8 +7569,8 @@ public abstract class Nodes {
          */
         public final int depth;
 
-        public LocalVariableReadNode(int startOffset, int length, String name, int depth) {
-            super(startOffset, length);
+        public LocalVariableReadNode(int nodeId, int startOffset, int length, String name, int depth) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.depth = depth;
         }
@@ -7617,8 +7619,8 @@ public abstract class Nodes {
         public final String name;
         public final int depth;
 
-        public LocalVariableTargetNode(int startOffset, int length, String name, int depth) {
-            super(startOffset, length);
+        public LocalVariableTargetNode(int nodeId, int startOffset, int length, String name, int depth) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.depth = depth;
         }
@@ -7703,8 +7705,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public LocalVariableWriteNode(int startOffset, int length, String name, int depth, Node value) {
-            super(startOffset, length);
+        public LocalVariableWriteNode(int nodeId, int startOffset, int length, String name, int depth, Node value) {
+            super(nodeId, startOffset, length);
             this.name = name;
             this.depth = depth;
             this.value = value;
@@ -7758,8 +7760,8 @@ public abstract class Nodes {
         public final short flags;
         public final byte[] unescaped;
 
-        public MatchLastLineNode(int startOffset, int length, short flags, byte[] unescaped) {
-            super(startOffset, length);
+        public MatchLastLineNode(int nodeId, int startOffset, int length, short flags, byte[] unescaped) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.unescaped = unescaped;
         }
@@ -7852,8 +7854,8 @@ public abstract class Nodes {
         public final Node value;
         public final Node pattern;
 
-        public MatchPredicateNode(int startOffset, int length, Node value, Node pattern) {
-            super(startOffset, length);
+        public MatchPredicateNode(int nodeId, int startOffset, int length, Node value, Node pattern) {
+            super(nodeId, startOffset, length);
             this.value = value;
             this.pattern = pattern;
         }
@@ -7902,8 +7904,8 @@ public abstract class Nodes {
         public final Node value;
         public final Node pattern;
 
-        public MatchRequiredNode(int startOffset, int length, Node value, Node pattern) {
-            super(startOffset, length);
+        public MatchRequiredNode(int nodeId, int startOffset, int length, Node value, Node pattern) {
+            super(nodeId, startOffset, length);
             this.value = value;
             this.pattern = pattern;
         }
@@ -7952,8 +7954,8 @@ public abstract class Nodes {
         public final CallNode call;
         public final LocalVariableTargetNode[] targets;
 
-        public MatchWriteNode(int startOffset, int length, CallNode call, LocalVariableTargetNode[] targets) {
-            super(startOffset, length);
+        public MatchWriteNode(int nodeId, int startOffset, int length, CallNode call, LocalVariableTargetNode[] targets) {
+            super(nodeId, startOffset, length);
             this.call = call;
             this.targets = targets;
         }
@@ -8006,8 +8008,8 @@ public abstract class Nodes {
      */
     public static final class MissingNode extends Node {
 
-        public MissingNode(int startOffset, int length) {
-            super(startOffset, length);
+        public MissingNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -8051,8 +8053,8 @@ public abstract class Nodes {
         public final Node body;
         public final String name;
 
-        public ModuleNode(int startOffset, int length, String[] locals, Node constant_path, Node body, String name) {
-            super(startOffset, length);
+        public ModuleNode(int nodeId, int startOffset, int length, String[] locals, Node constant_path, Node body, String name) {
+            super(nodeId, startOffset, length);
             this.locals = locals;
             this.constant_path = constant_path;
             this.body = body;
@@ -8165,8 +8167,8 @@ public abstract class Nodes {
         @UnionType({ LocalVariableTargetNode.class, InstanceVariableTargetNode.class, ClassVariableTargetNode.class, GlobalVariableTargetNode.class, ConstantTargetNode.class, ConstantPathTargetNode.class, CallTargetNode.class, IndexTargetNode.class, MultiTargetNode.class, RequiredParameterNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class })
         public final Node[] rights;
 
-        public MultiTargetNode(int startOffset, int length, Node[] lefts, Node rest, Node[] rights) {
-            super(startOffset, length);
+        public MultiTargetNode(int nodeId, int startOffset, int length, Node[] lefts, Node rest, Node[] rights) {
+            super(nodeId, startOffset, length);
             this.lefts = lefts;
             this.rest = rest;
             this.rights = rights;
@@ -8290,8 +8292,8 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public MultiWriteNode(int startOffset, int length, Node[] lefts, Node rest, Node[] rights, Node value) {
-            super(startOffset, length);
+        public MultiWriteNode(int nodeId, int startOffset, int length, Node[] lefts, Node rest, Node[] rights, Node value) {
+            super(nodeId, startOffset, length);
             this.lefts = lefts;
             this.rest = rest;
             this.rights = rights;
@@ -8368,8 +8370,8 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
 
-        public NextNode(int startOffset, int length, ArgumentsNode arguments) {
-            super(startOffset, length);
+        public NextNode(int nodeId, int startOffset, int length, ArgumentsNode arguments) {
+            super(nodeId, startOffset, length);
             this.arguments = arguments;
         }
                 
@@ -8413,8 +8415,8 @@ public abstract class Nodes {
      */
     public static final class NilNode extends Node {
 
-        public NilNode(int startOffset, int length) {
-            super(startOffset, length);
+        public NilNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -8452,8 +8454,8 @@ public abstract class Nodes {
      */
     public static final class NoKeywordsParameterNode extends Node {
 
-        public NoKeywordsParameterNode(int startOffset, int length) {
-            super(startOffset, length);
+        public NoKeywordsParameterNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -8491,8 +8493,8 @@ public abstract class Nodes {
     public static final class NumberedParametersNode extends Node {
         public final int maximum;
 
-        public NumberedParametersNode(int startOffset, int length, int maximum) {
-            super(startOffset, length);
+        public NumberedParametersNode(int nodeId, int startOffset, int length, int maximum) {
+            super(nodeId, startOffset, length);
             this.maximum = maximum;
         }
                 
@@ -8546,8 +8548,8 @@ public abstract class Nodes {
          */
         public final int number;
 
-        public NumberedReferenceReadNode(int startOffset, int length, int number) {
-            super(startOffset, length);
+        public NumberedReferenceReadNode(int nodeId, int startOffset, int length, int number) {
+            super(nodeId, startOffset, length);
             this.number = number;
         }
                 
@@ -8593,8 +8595,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public OptionalKeywordParameterNode(int startOffset, int length, short flags, String name, Node value) {
-            super(startOffset, length);
+        public OptionalKeywordParameterNode(int nodeId, int startOffset, int length, short flags, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
             this.value = value;
@@ -8654,8 +8656,8 @@ public abstract class Nodes {
         public final String name;
         public final Node value;
 
-        public OptionalParameterNode(int startOffset, int length, short flags, String name, Node value) {
-            super(startOffset, length);
+        public OptionalParameterNode(int nodeId, int startOffset, int length, short flags, String name, Node value) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
             this.value = value;
@@ -8735,8 +8737,8 @@ public abstract class Nodes {
          */
         public final Node right;
 
-        public OrNode(int startOffset, int length, Node left, Node right) {
-            super(startOffset, length);
+        public OrNode(int nodeId, int startOffset, int length, Node left, Node right) {
+            super(nodeId, startOffset, length);
             this.left = left;
             this.right = right;
         }
@@ -8799,8 +8801,8 @@ public abstract class Nodes {
         @Nullable
         public final BlockParameterNode block;
 
-        public ParametersNode(int startOffset, int length, Node[] requireds, OptionalParameterNode[] optionals, Node rest, Node[] posts, Node[] keywords, Node keyword_rest, BlockParameterNode block) {
-            super(startOffset, length);
+        public ParametersNode(int nodeId, int startOffset, int length, Node[] requireds, OptionalParameterNode[] optionals, Node rest, Node[] posts, Node[] keywords, Node keyword_rest, BlockParameterNode block) {
+            super(nodeId, startOffset, length);
             this.requireds = requireds;
             this.optionals = optionals;
             this.rest = rest;
@@ -8910,8 +8912,8 @@ public abstract class Nodes {
         @Nullable
         public final Node body;
 
-        public ParenthesesNode(int startOffset, int length, short flags, Node body) {
-            super(startOffset, length);
+        public ParenthesesNode(int nodeId, int startOffset, int length, short flags, Node body) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.body = body;
         }
@@ -8970,8 +8972,8 @@ public abstract class Nodes {
     public static final class PinnedExpressionNode extends Node {
         public final Node expression;
 
-        public PinnedExpressionNode(int startOffset, int length, Node expression) {
-            super(startOffset, length);
+        public PinnedExpressionNode(int nodeId, int startOffset, int length, Node expression) {
+            super(nodeId, startOffset, length);
             this.expression = expression;
         }
                 
@@ -9015,8 +9017,8 @@ public abstract class Nodes {
         @UnionType({ LocalVariableReadNode.class, InstanceVariableReadNode.class, ClassVariableReadNode.class, GlobalVariableReadNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class, ItLocalVariableReadNode.class, MissingNode.class })
         public final Node variable;
 
-        public PinnedVariableNode(int startOffset, int length, Node variable) {
-            super(startOffset, length);
+        public PinnedVariableNode(int nodeId, int startOffset, int length, Node variable) {
+            super(nodeId, startOffset, length);
             this.variable = variable;
         }
                 
@@ -9060,8 +9062,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public PostExecutionNode(int startOffset, int length, StatementsNode statements) {
-            super(startOffset, length);
+        public PostExecutionNode(int nodeId, int startOffset, int length, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.statements = statements;
         }
                 
@@ -9107,8 +9109,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public PreExecutionNode(int startOffset, int length, StatementsNode statements) {
-            super(startOffset, length);
+        public PreExecutionNode(int nodeId, int startOffset, int length, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.statements = statements;
         }
                 
@@ -9151,8 +9153,8 @@ public abstract class Nodes {
         public final String[] locals;
         public final StatementsNode statements;
 
-        public ProgramNode(int startOffset, int length, String[] locals, StatementsNode statements) {
-            super(startOffset, length);
+        public ProgramNode(int nodeId, int startOffset, int length, String[] locals, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.locals = locals;
             this.statements = statements;
         }
@@ -9233,8 +9235,8 @@ public abstract class Nodes {
         @Nullable
         public final Node right;
 
-        public RangeNode(int startOffset, int length, short flags, Node left, Node right) {
-            super(startOffset, length);
+        public RangeNode(int nodeId, int startOffset, int length, short flags, Node left, Node right) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.left = left;
             this.right = right;
@@ -9311,8 +9313,8 @@ public abstract class Nodes {
          */
         public final Object denominator;
 
-        public RationalNode(int startOffset, int length, short flags, Object numerator, Object denominator) {
-            super(startOffset, length);
+        public RationalNode(int nodeId, int startOffset, int length, short flags, Object numerator, Object denominator) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.numerator = numerator;
             this.denominator = denominator;
@@ -9380,8 +9382,8 @@ public abstract class Nodes {
      */
     public static final class RedoNode extends Node {
 
-        public RedoNode(int startOffset, int length) {
-            super(startOffset, length);
+        public RedoNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -9420,8 +9422,8 @@ public abstract class Nodes {
         public final short flags;
         public final byte[] unescaped;
 
-        public RegularExpressionNode(int startOffset, int length, short flags, byte[] unescaped) {
-            super(startOffset, length);
+        public RegularExpressionNode(int nodeId, int startOffset, int length, short flags, byte[] unescaped) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.unescaped = unescaped;
         }
@@ -9515,8 +9517,8 @@ public abstract class Nodes {
         public final short flags;
         public final String name;
 
-        public RequiredKeywordParameterNode(int startOffset, int length, short flags, String name) {
-            super(startOffset, length);
+        public RequiredKeywordParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
         }
@@ -9570,8 +9572,8 @@ public abstract class Nodes {
         public final short flags;
         public final String name;
 
-        public RequiredParameterNode(int startOffset, int length, short flags, String name) {
-            super(startOffset, length);
+        public RequiredParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
         }
@@ -9624,8 +9626,8 @@ public abstract class Nodes {
         public final Node expression;
         public final Node rescue_expression;
 
-        public RescueModifierNode(int startOffset, int length, Node expression, Node rescue_expression) {
-            super(startOffset, length);
+        public RescueModifierNode(int nodeId, int startOffset, int length, Node expression, Node rescue_expression) {
+            super(nodeId, startOffset, length);
             this.expression = expression;
             this.rescue_expression = rescue_expression;
         }
@@ -9690,8 +9692,8 @@ public abstract class Nodes {
         @Nullable
         public final RescueNode subsequent;
 
-        public RescueNode(int startOffset, int length, Node[] exceptions, Node reference, StatementsNode statements, RescueNode subsequent) {
-            super(startOffset, length);
+        public RescueNode(int nodeId, int startOffset, int length, Node[] exceptions, Node reference, StatementsNode statements, RescueNode subsequent) {
+            super(nodeId, startOffset, length);
             this.exceptions = exceptions;
             this.reference = reference;
             this.statements = statements;
@@ -9769,8 +9771,8 @@ public abstract class Nodes {
         @Nullable
         public final String name;
 
-        public RestParameterNode(int startOffset, int length, short flags, String name) {
-            super(startOffset, length);
+        public RestParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
         }
@@ -9821,8 +9823,8 @@ public abstract class Nodes {
      */
     public static final class RetryNode extends Node {
 
-        public RetryNode(int startOffset, int length) {
-            super(startOffset, length);
+        public RetryNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -9861,8 +9863,8 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
 
-        public ReturnNode(int startOffset, int length, ArgumentsNode arguments) {
-            super(startOffset, length);
+        public ReturnNode(int nodeId, int startOffset, int length, ArgumentsNode arguments) {
+            super(nodeId, startOffset, length);
             this.arguments = arguments;
         }
                 
@@ -9906,8 +9908,8 @@ public abstract class Nodes {
      */
     public static final class SelfNode extends Node {
 
-        public SelfNode(int startOffset, int length) {
-            super(startOffset, length);
+        public SelfNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -9953,8 +9955,8 @@ public abstract class Nodes {
         @UnionType({ ConstantWriteNode.class, ConstantAndWriteNode.class, ConstantOrWriteNode.class, ConstantOperatorWriteNode.class, ConstantPathWriteNode.class, ConstantPathAndWriteNode.class, ConstantPathOrWriteNode.class, ConstantPathOperatorWriteNode.class })
         public final Node write;
 
-        public ShareableConstantNode(int startOffset, int length, short flags, Node write) {
-            super(startOffset, length);
+        public ShareableConstantNode(int nodeId, int startOffset, int length, short flags, Node write) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.write = write;
         }
@@ -10018,8 +10020,8 @@ public abstract class Nodes {
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
-        public SingletonClassNode(int startOffset, int length, String[] locals, Node expression, Node body) {
-            super(startOffset, length);
+        public SingletonClassNode(int nodeId, int startOffset, int length, String[] locals, Node expression, Node body) {
+            super(nodeId, startOffset, length);
             this.locals = locals;
             this.expression = expression;
             this.body = body;
@@ -10076,8 +10078,8 @@ public abstract class Nodes {
      */
     public static final class SourceEncodingNode extends Node {
 
-        public SourceEncodingNode(int startOffset, int length) {
-            super(startOffset, length);
+        public SourceEncodingNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -10121,8 +10123,8 @@ public abstract class Nodes {
          */
         public final byte[] filepath;
 
-        public SourceFileNode(int startOffset, int length, short flags, byte[] filepath) {
-            super(startOffset, length);
+        public SourceFileNode(int nodeId, int startOffset, int length, short flags, byte[] filepath) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.filepath = filepath;
         }
@@ -10185,8 +10187,8 @@ public abstract class Nodes {
      */
     public static final class SourceLineNode extends Node {
 
-        public SourceLineNode(int startOffset, int length) {
-            super(startOffset, length);
+        public SourceLineNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -10225,8 +10227,8 @@ public abstract class Nodes {
         @Nullable
         public final Node expression;
 
-        public SplatNode(int startOffset, int length, Node expression) {
-            super(startOffset, length);
+        public SplatNode(int nodeId, int startOffset, int length, Node expression) {
+            super(nodeId, startOffset, length);
             this.expression = expression;
         }
                 
@@ -10271,8 +10273,8 @@ public abstract class Nodes {
     public static final class StatementsNode extends Node {
         public final Node[] body;
 
-        public StatementsNode(int startOffset, int length, Node[] body) {
-            super(startOffset, length);
+        public StatementsNode(int nodeId, int startOffset, int length, Node[] body) {
+            super(nodeId, startOffset, length);
             this.body = body;
         }
                 
@@ -10330,8 +10332,8 @@ public abstract class Nodes {
         public final short flags;
         public final byte[] unescaped;
 
-        public StringNode(int startOffset, int length, short flags, byte[] unescaped) {
-            super(startOffset, length);
+        public StringNode(int nodeId, int startOffset, int length, short flags, byte[] unescaped) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.unescaped = unescaped;
         }
@@ -10402,8 +10404,8 @@ public abstract class Nodes {
         @UnionType({ BlockNode.class, BlockArgumentNode.class })
         public final Node block;
 
-        public SuperNode(int startOffset, int length, ArgumentsNode arguments, Node block) {
-            super(startOffset, length);
+        public SuperNode(int nodeId, int startOffset, int length, ArgumentsNode arguments, Node block) {
+            super(nodeId, startOffset, length);
             this.arguments = arguments;
             this.block = block;
         }
@@ -10459,8 +10461,8 @@ public abstract class Nodes {
         public final short flags;
         public final byte[] unescaped;
 
-        public SymbolNode(int startOffset, int length, short flags, byte[] unescaped) {
-            super(startOffset, length);
+        public SymbolNode(int nodeId, int startOffset, int length, short flags, byte[] unescaped) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.unescaped = unescaped;
         }
@@ -10519,8 +10521,8 @@ public abstract class Nodes {
      */
     public static final class TrueNode extends Node {
 
-        public TrueNode(int startOffset, int length) {
-            super(startOffset, length);
+        public TrueNode(int nodeId, int startOffset, int length) {
+            super(nodeId, startOffset, length);
         }
                 
         public <T> void visitChildNodes(AbstractNodeVisitor<T> visitor) {
@@ -10559,8 +10561,8 @@ public abstract class Nodes {
         @UnionType({ SymbolNode.class, InterpolatedSymbolNode.class })
         public final Node[] names;
 
-        public UndefNode(int startOffset, int length, Node[] names) {
-            super(startOffset, length);
+        public UndefNode(int nodeId, int startOffset, int length, Node[] names) {
+            super(nodeId, startOffset, length);
             this.names = names;
         }
                 
@@ -10646,8 +10648,8 @@ public abstract class Nodes {
         @Nullable
         public final ElseNode else_clause;
 
-        public UnlessNode(int startOffset, int length, Node predicate, StatementsNode statements, ElseNode else_clause) {
-            super(startOffset, length);
+        public UnlessNode(int nodeId, int startOffset, int length, Node predicate, StatementsNode statements, ElseNode else_clause) {
+            super(nodeId, startOffset, length);
             this.predicate = predicate;
             this.statements = statements;
             this.else_clause = else_clause;
@@ -10715,8 +10717,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public UntilNode(int startOffset, int length, short flags, Node predicate, StatementsNode statements) {
-            super(startOffset, length);
+        public UntilNode(int nodeId, int startOffset, int length, short flags, Node predicate, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.predicate = predicate;
             this.statements = statements;
@@ -10784,8 +10786,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public WhenNode(int startOffset, int length, Node[] conditions, StatementsNode statements) {
-            super(startOffset, length);
+        public WhenNode(int nodeId, int startOffset, int length, Node[] conditions, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.conditions = conditions;
             this.statements = statements;
         }
@@ -10850,8 +10852,8 @@ public abstract class Nodes {
         @Nullable
         public final StatementsNode statements;
 
-        public WhileNode(int startOffset, int length, short flags, Node predicate, StatementsNode statements) {
-            super(startOffset, length);
+        public WhileNode(int nodeId, int startOffset, int length, short flags, Node predicate, StatementsNode statements) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.predicate = predicate;
             this.statements = statements;
@@ -10916,8 +10918,8 @@ public abstract class Nodes {
         public final short flags;
         public final byte[] unescaped;
 
-        public XStringNode(int startOffset, int length, short flags, byte[] unescaped) {
-            super(startOffset, length);
+        public XStringNode(int nodeId, int startOffset, int length, short flags, byte[] unescaped) {
+            super(nodeId, startOffset, length);
             this.flags = flags;
             this.unescaped = unescaped;
         }
@@ -10974,8 +10976,8 @@ public abstract class Nodes {
         @Nullable
         public final ArgumentsNode arguments;
 
-        public YieldNode(int startOffset, int length, ArgumentsNode arguments) {
-            super(startOffset, length);
+        public YieldNode(int nodeId, int startOffset, int length, ArgumentsNode arguments) {
+            super(nodeId, startOffset, length);
             this.arguments = arguments;
         }
                 
