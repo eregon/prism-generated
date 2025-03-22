@@ -2131,7 +2131,7 @@ pm_serialize_metadata(pm_parser_t *parser, pm_buffer_t *buffer) {
     pm_serialize_diagnostic_list(parser, &parser->warning_list, buffer);
 }
 
-#line 273 "prism/templates/src/serialize.c.erb"
+#line 275 "prism/templates/src/serialize.c.erb"
 /**
  * Serialize the metadata, nodes, and constant pool.
  */
