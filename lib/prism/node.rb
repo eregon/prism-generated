@@ -330,7 +330,7 @@ module Prism
       visitor.visit_alias_global_variable_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [new_name, old_name]
     end
@@ -350,7 +350,7 @@ module Prism
       AliasGlobalVariableNode.new(source, node_id, location, flags, new_name, old_name, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, new_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode, old_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode, keyword_loc: Location }
@@ -437,7 +437,7 @@ module Prism
       visitor.visit_alias_method_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [new_name, old_name]
     end
@@ -457,7 +457,7 @@ module Prism
       AliasMethodNode.new(source, node_id, location, flags, new_name, old_name, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, new_name: SymbolNode | InterpolatedSymbolNode, old_name: SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode, keyword_loc: Location }
@@ -556,7 +556,7 @@ module Prism
       visitor.visit_alternation_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [left, right]
     end
@@ -576,7 +576,7 @@ module Prism
       AlternationPatternNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node, right: Prism::node, operator_loc: Location }
@@ -663,7 +663,7 @@ module Prism
       visitor.visit_and_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [left, right]
     end
@@ -683,7 +683,7 @@ module Prism
       AndNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node, right: Prism::node, operator_loc: Location }
@@ -774,7 +774,7 @@ module Prism
       visitor.visit_arguments_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*arguments]
     end
@@ -794,7 +794,7 @@ module Prism
       ArgumentsNode.new(source, node_id, location, flags, arguments)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, arguments: Array[Prism::node] }
@@ -879,7 +879,7 @@ module Prism
       visitor.visit_array_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*elements]
     end
@@ -899,7 +899,7 @@ module Prism
       ArrayNode.new(source, node_id, location, flags, elements, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, elements: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
@@ -1036,7 +1036,7 @@ module Prism
       visitor.visit_array_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [constant, *requireds, rest, *posts]
     end
@@ -1061,7 +1061,7 @@ module Prism
       ArrayPatternNode.new(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, requireds: Array[Prism::node], rest: Prism::node?, posts: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
@@ -1195,7 +1195,7 @@ module Prism
       visitor.visit_assoc_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [key, value]
     end
@@ -1215,7 +1215,7 @@ module Prism
       AssocNode.new(source, node_id, location, flags, key, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, key: Prism::node, value: Prism::node, operator_loc: Location? }
@@ -1316,7 +1316,7 @@ module Prism
       visitor.visit_assoc_splat_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -1338,7 +1338,7 @@ module Prism
       AssocSplatNode.new(source, node_id, location, flags, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node?, operator_loc: Location }
@@ -1416,7 +1416,7 @@ module Prism
       visitor.visit_back_reference_read_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -1436,7 +1436,7 @@ module Prism
       BackReferenceReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -1500,7 +1500,7 @@ module Prism
       visitor.visit_begin_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [statements, rescue_clause, else_clause, ensure_clause]
     end
@@ -1525,7 +1525,7 @@ module Prism
       BeginNode.new(source, node_id, location, flags, begin_keyword_loc, statements, rescue_clause, else_clause, ensure_clause, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, begin_keyword_loc: Location?, statements: StatementsNode?, rescue_clause: RescueNode?, else_clause: ElseNode?, ensure_clause: EnsureNode?, end_keyword_loc: Location? }
@@ -1659,7 +1659,7 @@ module Prism
       visitor.visit_block_argument_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [expression]
     end
@@ -1681,7 +1681,7 @@ module Prism
       BlockArgumentNode.new(source, node_id, location, flags, expression, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, expression: Prism::node?, operator_loc: Location }
@@ -1759,7 +1759,7 @@ module Prism
       visitor.visit_block_local_variable_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -1779,7 +1779,7 @@ module Prism
       BlockLocalVariableNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -1845,7 +1845,7 @@ module Prism
       visitor.visit_block_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [parameters, body]
     end
@@ -1868,7 +1868,7 @@ module Prism
       BlockNode.new(source, node_id, location, flags, locals, parameters, body, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, body: StatementsNode | BeginNode | nil, opening_loc: Location, closing_loc: Location }
@@ -1990,7 +1990,7 @@ module Prism
       visitor.visit_block_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -2010,7 +2010,7 @@ module Prism
       BlockParameterNode.new(source, node_id, location, flags, name, name_loc, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol?, name_loc: Location?, operator_loc: Location }
@@ -2126,7 +2126,7 @@ module Prism
       visitor.visit_block_parameters_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [parameters, *locals]
     end
@@ -2149,7 +2149,7 @@ module Prism
       BlockParametersNode.new(source, node_id, location, flags, parameters, locals, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, parameters: ParametersNode?, locals: Array[BlockLocalVariableNode], opening_loc: Location?, closing_loc: Location? }
@@ -2286,7 +2286,7 @@ module Prism
       visitor.visit_break_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [arguments]
     end
@@ -2308,7 +2308,7 @@ module Prism
       BreakNode.new(source, node_id, location, flags, arguments, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, arguments: ArgumentsNode?, keyword_loc: Location }
@@ -2392,7 +2392,7 @@ module Prism
       visitor.visit_call_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, value]
     end
@@ -2415,7 +2415,7 @@ module Prism
       CallAndWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, message_loc, read_name, write_name, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, message_loc: Location?, read_name: Symbol, write_name: Symbol, operator_loc: Location, value: Prism::node }
@@ -2613,7 +2613,7 @@ module Prism
       visitor.visit_call_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, arguments, block]
     end
@@ -2637,7 +2637,7 @@ module Prism
       CallNode.new(source, node_id, location, flags, receiver, call_operator_loc, name, message_loc, opening_loc, arguments, closing_loc, block)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, name: Symbol, message_loc: Location?, opening_loc: Location?, arguments: ArgumentsNode?, closing_loc: Location?, block: BlockNode | BlockArgumentNode | nil }
@@ -2862,7 +2862,7 @@ module Prism
       visitor.visit_call_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, value]
     end
@@ -2885,7 +2885,7 @@ module Prism
       CallOperatorWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, message_loc, read_name, write_name, binary_operator, binary_operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, message_loc: Location?, read_name: Symbol, write_name: Symbol, binary_operator: Symbol, binary_operator_loc: Location, value: Prism::node }
@@ -3069,7 +3069,7 @@ module Prism
       visitor.visit_call_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, value]
     end
@@ -3092,7 +3092,7 @@ module Prism
       CallOrWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, message_loc, read_name, write_name, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, message_loc: Location?, read_name: Symbol, write_name: Symbol, operator_loc: Location, value: Prism::node }
@@ -3279,7 +3279,7 @@ module Prism
       visitor.visit_call_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver]
     end
@@ -3299,7 +3299,7 @@ module Prism
       CallTargetNode.new(source, node_id, location, flags, receiver, call_operator_loc, name, message_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node, call_operator_loc: Location, name: Symbol, message_loc: Location }
@@ -3429,7 +3429,7 @@ module Prism
       visitor.visit_capture_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value, target]
     end
@@ -3449,7 +3449,7 @@ module Prism
       CapturePatternNode.new(source, node_id, location, flags, value, target, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node, target: LocalVariableTargetNode, operator_loc: Location }
@@ -3540,7 +3540,7 @@ module Prism
       visitor.visit_case_match_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [predicate, *conditions, else_clause]
     end
@@ -3564,7 +3564,7 @@ module Prism
       CaseMatchNode.new(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[InNode], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
@@ -3685,7 +3685,7 @@ module Prism
       visitor.visit_case_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [predicate, *conditions, else_clause]
     end
@@ -3709,7 +3709,7 @@ module Prism
       CaseNode.new(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[WhenNode], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
@@ -3831,7 +3831,7 @@ module Prism
       visitor.visit_class_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [constant_path, superclass, body]
     end
@@ -3855,7 +3855,7 @@ module Prism
       ClassNode.new(source, node_id, location, flags, locals, class_keyword_loc, constant_path, inheritance_operator_loc, superclass, body, end_keyword_loc, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], class_keyword_loc: Location, constant_path: ConstantReadNode | ConstantPathNode | CallNode, inheritance_operator_loc: Location?, superclass: Prism::node?, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location, name: Symbol }
@@ -3991,7 +3991,7 @@ module Prism
       visitor.visit_class_variable_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -4011,7 +4011,7 @@ module Prism
       ClassVariableAndWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -4117,7 +4117,7 @@ module Prism
       visitor.visit_class_variable_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -4137,7 +4137,7 @@ module Prism
       ClassVariableOperatorWriteNode.new(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
@@ -4229,7 +4229,7 @@ module Prism
       visitor.visit_class_variable_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -4249,7 +4249,7 @@ module Prism
       ClassVariableOrWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -4339,7 +4339,7 @@ module Prism
       visitor.visit_class_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -4359,7 +4359,7 @@ module Prism
       ClassVariableReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -4416,7 +4416,7 @@ module Prism
       visitor.visit_class_variable_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -4436,7 +4436,7 @@ module Prism
       ClassVariableTargetNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -4492,7 +4492,7 @@ module Prism
       visitor.visit_class_variable_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -4512,7 +4512,7 @@ module Prism
       ClassVariableWriteNode.new(source, node_id, location, flags, name, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node, operator_loc: Location }
@@ -4621,7 +4621,7 @@ module Prism
       visitor.visit_constant_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -4641,7 +4641,7 @@ module Prism
       ConstantAndWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -4735,7 +4735,7 @@ module Prism
       visitor.visit_constant_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -4755,7 +4755,7 @@ module Prism
       ConstantOperatorWriteNode.new(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
@@ -4847,7 +4847,7 @@ module Prism
       visitor.visit_constant_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -4867,7 +4867,7 @@ module Prism
       ConstantOrWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -4959,7 +4959,7 @@ module Prism
       visitor.visit_constant_path_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [target, value]
     end
@@ -4979,7 +4979,7 @@ module Prism
       ConstantPathAndWriteNode.new(source, node_id, location, flags, target, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, target: ConstantPathNode, operator_loc: Location, value: Prism::node }
@@ -5058,7 +5058,7 @@ module Prism
       visitor.visit_constant_path_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [parent]
     end
@@ -5080,7 +5080,7 @@ module Prism
       ConstantPathNode.new(source, node_id, location, flags, parent, name, delimiter_loc, name_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, parent: Prism::node?, name: Symbol?, delimiter_loc: Location, name_loc: Location }
@@ -5194,7 +5194,7 @@ module Prism
       visitor.visit_constant_path_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [target, value]
     end
@@ -5214,7 +5214,7 @@ module Prism
       ConstantPathOperatorWriteNode.new(source, node_id, location, flags, target, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, target: ConstantPathNode, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
@@ -5291,7 +5291,7 @@ module Prism
       visitor.visit_constant_path_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [target, value]
     end
@@ -5311,7 +5311,7 @@ module Prism
       ConstantPathOrWriteNode.new(source, node_id, location, flags, target, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, target: ConstantPathNode, operator_loc: Location, value: Prism::node }
@@ -5390,7 +5390,7 @@ module Prism
       visitor.visit_constant_path_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [parent]
     end
@@ -5412,7 +5412,7 @@ module Prism
       ConstantPathTargetNode.new(source, node_id, location, flags, parent, name, delimiter_loc, name_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, parent: Prism::node?, name: Symbol?, delimiter_loc: Location, name_loc: Location }
@@ -5510,7 +5510,7 @@ module Prism
       visitor.visit_constant_path_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [target, value]
     end
@@ -5530,7 +5530,7 @@ module Prism
       ConstantPathWriteNode.new(source, node_id, location, flags, target, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, target: ConstantPathNode, operator_loc: Location, value: Prism::node }
@@ -5618,7 +5618,7 @@ module Prism
       visitor.visit_constant_read_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -5638,7 +5638,7 @@ module Prism
       ConstantReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -5695,7 +5695,7 @@ module Prism
       visitor.visit_constant_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -5715,7 +5715,7 @@ module Prism
       ConstantTargetNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -5771,7 +5771,7 @@ module Prism
       visitor.visit_constant_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -5791,7 +5791,7 @@ module Prism
       ConstantWriteNode.new(source, node_id, location, flags, name, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node, operator_loc: Location }
@@ -5909,7 +5909,7 @@ module Prism
       visitor.visit_def_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, parameters, body]
     end
@@ -5933,7 +5933,7 @@ module Prism
       DefNode.new(source, node_id, location, flags, name, name_loc, receiver, parameters, body, locals, def_keyword_loc, operator_loc, lparen_loc, rparen_loc, equal_loc, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, receiver: Prism::node?, parameters: ParametersNode?, body: StatementsNode | BeginNode | nil, locals: Array[Symbol], def_keyword_loc: Location, operator_loc: Location?, lparen_loc: Location?, rparen_loc: Location?, equal_loc: Location?, end_keyword_loc: Location? }
@@ -6164,7 +6164,7 @@ module Prism
       visitor.visit_defined_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -6184,7 +6184,7 @@ module Prism
       DefinedNode.new(source, node_id, location, flags, lparen_loc, value, rparen_loc, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lparen_loc: Location?, value: Prism::node, rparen_loc: Location?, keyword_loc: Location }
@@ -6308,7 +6308,7 @@ module Prism
       visitor.visit_else_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [statements]
     end
@@ -6330,7 +6330,7 @@ module Prism
       ElseNode.new(source, node_id, location, flags, else_keyword_loc, statements, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, else_keyword_loc: Location, statements: StatementsNode?, end_keyword_loc: Location? }
@@ -6429,7 +6429,7 @@ module Prism
       visitor.visit_embedded_statements_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [statements]
     end
@@ -6451,7 +6451,7 @@ module Prism
       EmbeddedStatementsNode.new(source, node_id, location, flags, opening_loc, statements, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, statements: StatementsNode?, closing_loc: Location }
@@ -6543,7 +6543,7 @@ module Prism
       visitor.visit_embedded_variable_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [variable]
     end
@@ -6563,7 +6563,7 @@ module Prism
       EmbeddedVariableNode.new(source, node_id, location, flags, operator_loc, variable)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, variable: InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode }
@@ -6641,7 +6641,7 @@ module Prism
       visitor.visit_ensure_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [statements]
     end
@@ -6663,7 +6663,7 @@ module Prism
       EnsureNode.new(source, node_id, location, flags, ensure_keyword_loc, statements, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, ensure_keyword_loc: Location, statements: StatementsNode?, end_keyword_loc: Location }
@@ -6753,7 +6753,7 @@ module Prism
       visitor.visit_false_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -6773,7 +6773,7 @@ module Prism
       FalseNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -6833,7 +6833,7 @@ module Prism
       visitor.visit_find_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [constant, left, *requireds, right]
     end
@@ -6858,7 +6858,7 @@ module Prism
       FindPatternNode.new(source, node_id, location, flags, constant, left, requireds, right, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, left: SplatNode, requireds: Array[Prism::node], right: SplatNode | MissingNode, opening_loc: Location?, closing_loc: Location? }
@@ -6976,7 +6976,7 @@ module Prism
       visitor.visit_flip_flop_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [left, right]
     end
@@ -6999,7 +6999,7 @@ module Prism
       FlipFlopNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node?, right: Prism::node?, operator_loc: Location }
@@ -7081,7 +7081,7 @@ module Prism
       visitor.visit_float_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -7101,7 +7101,7 @@ module Prism
       FloatNode.new(source, node_id, location, flags, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Float }
@@ -7160,7 +7160,7 @@ module Prism
       visitor.visit_for_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [index, collection, statements]
     end
@@ -7184,7 +7184,7 @@ module Prism
       ForNode.new(source, node_id, location, flags, index, collection, statements, for_keyword_loc, in_keyword_loc, do_keyword_loc, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, index: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode, collection: Prism::node, statements: StatementsNode?, for_keyword_loc: Location, in_keyword_loc: Location, do_keyword_loc: Location?, end_keyword_loc: Location }
@@ -7351,7 +7351,7 @@ module Prism
       visitor.visit_forwarding_arguments_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -7371,7 +7371,7 @@ module Prism
       ForwardingArgumentsNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -7420,7 +7420,7 @@ module Prism
       visitor.visit_forwarding_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -7440,7 +7440,7 @@ module Prism
       ForwardingParameterNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -7489,7 +7489,7 @@ module Prism
       visitor.visit_forwarding_super_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [block]
     end
@@ -7511,7 +7511,7 @@ module Prism
       ForwardingSuperNode.new(source, node_id, location, flags, block)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, block: BlockNode? }
@@ -7567,7 +7567,7 @@ module Prism
       visitor.visit_global_variable_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -7587,7 +7587,7 @@ module Prism
       GlobalVariableAndWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -7681,7 +7681,7 @@ module Prism
       visitor.visit_global_variable_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -7701,7 +7701,7 @@ module Prism
       GlobalVariableOperatorWriteNode.new(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
@@ -7793,7 +7793,7 @@ module Prism
       visitor.visit_global_variable_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -7813,7 +7813,7 @@ module Prism
       GlobalVariableOrWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -7903,7 +7903,7 @@ module Prism
       visitor.visit_global_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -7923,7 +7923,7 @@ module Prism
       GlobalVariableReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -7980,7 +7980,7 @@ module Prism
       visitor.visit_global_variable_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -8000,7 +8000,7 @@ module Prism
       GlobalVariableTargetNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -8056,7 +8056,7 @@ module Prism
       visitor.visit_global_variable_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -8076,7 +8076,7 @@ module Prism
       GlobalVariableWriteNode.new(source, node_id, location, flags, name, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node, operator_loc: Location }
@@ -8184,7 +8184,7 @@ module Prism
       visitor.visit_hash_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*elements]
     end
@@ -8204,7 +8204,7 @@ module Prism
       HashNode.new(source, node_id, location, flags, opening_loc, elements, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, elements: Array[AssocNode | AssocSplatNode], closing_loc: Location }
@@ -8315,7 +8315,7 @@ module Prism
       visitor.visit_hash_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [constant, *elements, rest]
     end
@@ -8339,7 +8339,7 @@ module Prism
       HashPatternNode.new(source, node_id, location, flags, constant, elements, rest, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, elements: Array[AssocNode], rest: AssocSplatNode | NoKeywordsParameterNode | nil, opening_loc: Location?, closing_loc: Location? }
@@ -8462,7 +8462,7 @@ module Prism
       visitor.visit_if_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [predicate, statements, subsequent]
     end
@@ -8486,7 +8486,7 @@ module Prism
       IfNode.new(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, subsequent, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, if_keyword_loc: Location?, predicate: Prism::node, then_keyword_loc: Location?, statements: StatementsNode?, subsequent: ElseNode | IfNode | nil, end_keyword_loc: Location? }
@@ -8668,7 +8668,7 @@ module Prism
       visitor.visit_imaginary_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [numeric]
     end
@@ -8688,7 +8688,7 @@ module Prism
       ImaginaryNode.new(source, node_id, location, flags, numeric)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, numeric: FloatNode | IntegerNode | RationalNode }
@@ -8747,7 +8747,7 @@ module Prism
       visitor.visit_implicit_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -8767,7 +8767,7 @@ module Prism
       ImplicitNode.new(source, node_id, location, flags, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode }
@@ -8828,7 +8828,7 @@ module Prism
       visitor.visit_implicit_rest_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -8848,7 +8848,7 @@ module Prism
       ImplicitRestNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -8900,7 +8900,7 @@ module Prism
       visitor.visit_in_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [pattern, statements]
     end
@@ -8923,7 +8923,7 @@ module Prism
       InNode.new(source, node_id, location, flags, pattern, statements, in_loc, then_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, pattern: Prism::node, statements: StatementsNode?, in_loc: Location, then_loc: Location? }
@@ -9031,7 +9031,7 @@ module Prism
       visitor.visit_index_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, arguments, block, value]
     end
@@ -9056,7 +9056,7 @@ module Prism
       IndexAndWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, opening_loc, arguments, closing_loc, block, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, operator_loc: Location, value: Prism::node }
@@ -9232,7 +9232,7 @@ module Prism
       visitor.visit_index_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, arguments, block, value]
     end
@@ -9257,7 +9257,7 @@ module Prism
       IndexOperatorWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, opening_loc, arguments, closing_loc, block, binary_operator, binary_operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, binary_operator: Symbol, binary_operator_loc: Location, value: Prism::node }
@@ -9431,7 +9431,7 @@ module Prism
       visitor.visit_index_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, arguments, block, value]
     end
@@ -9456,7 +9456,7 @@ module Prism
       IndexOrWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, opening_loc, arguments, closing_loc, block, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, operator_loc: Location, value: Prism::node }
@@ -9636,7 +9636,7 @@ module Prism
       visitor.visit_index_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [receiver, arguments, block]
     end
@@ -9660,7 +9660,7 @@ module Prism
       IndexTargetNode.new(source, node_id, location, flags, receiver, opening_loc, arguments, closing_loc, block)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode? }
@@ -9783,7 +9783,7 @@ module Prism
       visitor.visit_instance_variable_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -9803,7 +9803,7 @@ module Prism
       InstanceVariableAndWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -9897,7 +9897,7 @@ module Prism
       visitor.visit_instance_variable_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -9917,7 +9917,7 @@ module Prism
       InstanceVariableOperatorWriteNode.new(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
@@ -10009,7 +10009,7 @@ module Prism
       visitor.visit_instance_variable_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -10029,7 +10029,7 @@ module Prism
       InstanceVariableOrWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -10119,7 +10119,7 @@ module Prism
       visitor.visit_instance_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -10139,7 +10139,7 @@ module Prism
       InstanceVariableReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -10196,7 +10196,7 @@ module Prism
       visitor.visit_instance_variable_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -10216,7 +10216,7 @@ module Prism
       InstanceVariableTargetNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -10272,7 +10272,7 @@ module Prism
       visitor.visit_instance_variable_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -10292,7 +10292,7 @@ module Prism
       InstanceVariableWriteNode.new(source, node_id, location, flags, name, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node, operator_loc: Location }
@@ -10398,7 +10398,7 @@ module Prism
       visitor.visit_integer_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -10418,7 +10418,7 @@ module Prism
       IntegerNode.new(source, node_id, location, flags, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Integer }
@@ -10494,7 +10494,7 @@ module Prism
       visitor.visit_interpolated_match_last_line_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*parts]
     end
@@ -10514,7 +10514,7 @@ module Prism
       InterpolatedMatchLastLineNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], closing_loc: Location }
@@ -10664,7 +10664,7 @@ module Prism
       visitor.visit_interpolated_regular_expression_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*parts]
     end
@@ -10684,7 +10684,7 @@ module Prism
       InterpolatedRegularExpressionNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], closing_loc: Location }
@@ -10834,7 +10834,7 @@ module Prism
       visitor.visit_interpolated_string_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*parts]
     end
@@ -10854,7 +10854,7 @@ module Prism
       InterpolatedStringNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode], closing_loc: Location? }
@@ -10971,7 +10971,7 @@ module Prism
       visitor.visit_interpolated_symbol_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*parts]
     end
@@ -10991,7 +10991,7 @@ module Prism
       InterpolatedSymbolNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], closing_loc: Location? }
@@ -11097,7 +11097,7 @@ module Prism
       visitor.visit_interpolated_x_string_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*parts]
     end
@@ -11117,7 +11117,7 @@ module Prism
       InterpolatedXStringNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], closing_loc: Location }
@@ -11208,7 +11208,7 @@ module Prism
       visitor.visit_it_local_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -11228,7 +11228,7 @@ module Prism
       ItLocalVariableReadNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -11276,7 +11276,7 @@ module Prism
       visitor.visit_it_parameters_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -11296,7 +11296,7 @@ module Prism
       ItParametersNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -11345,7 +11345,7 @@ module Prism
       visitor.visit_keyword_hash_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*elements]
     end
@@ -11365,7 +11365,7 @@ module Prism
       KeywordHashNode.new(source, node_id, location, flags, elements)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, elements: Array[AssocNode | AssocSplatNode] }
@@ -11428,7 +11428,7 @@ module Prism
       visitor.visit_keyword_rest_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -11448,7 +11448,7 @@ module Prism
       KeywordRestParameterNode.new(source, node_id, location, flags, name, name_loc, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol?, name_loc: Location?, operator_loc: Location }
@@ -11551,7 +11551,7 @@ module Prism
       visitor.visit_lambda_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [parameters, body]
     end
@@ -11574,7 +11574,7 @@ module Prism
       LambdaNode.new(source, node_id, location, flags, locals, operator_loc, opening_loc, closing_loc, parameters, body)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], operator_loc: Location, opening_loc: Location, closing_loc: Location, parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, body: StatementsNode | BeginNode | nil }
@@ -11697,7 +11697,7 @@ module Prism
       visitor.visit_local_variable_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -11717,7 +11717,7 @@ module Prism
       LocalVariableAndWriteNode.new(source, node_id, location, flags, name_loc, operator_loc, value, name, depth)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name_loc: Location, operator_loc: Location, value: Prism::node, name: Symbol, depth: Integer }
@@ -11816,7 +11816,7 @@ module Prism
       visitor.visit_local_variable_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -11836,7 +11836,7 @@ module Prism
       LocalVariableOperatorWriteNode.new(source, node_id, location, flags, name_loc, binary_operator_loc, value, name, binary_operator, depth)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name_loc: Location, binary_operator_loc: Location, value: Prism::node, name: Symbol, binary_operator: Symbol, depth: Integer }
@@ -11933,7 +11933,7 @@ module Prism
       visitor.visit_local_variable_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -11953,7 +11953,7 @@ module Prism
       LocalVariableOrWriteNode.new(source, node_id, location, flags, name_loc, operator_loc, value, name, depth)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name_loc: Location, operator_loc: Location, value: Prism::node, name: Symbol, depth: Integer }
@@ -12048,7 +12048,7 @@ module Prism
       visitor.visit_local_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -12068,7 +12068,7 @@ module Prism
       LocalVariableReadNode.new(source, node_id, location, flags, name, depth)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, depth: Integer }
@@ -12140,7 +12140,7 @@ module Prism
       visitor.visit_local_variable_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -12160,7 +12160,7 @@ module Prism
       LocalVariableTargetNode.new(source, node_id, location, flags, name, depth)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, depth: Integer }
@@ -12221,7 +12221,7 @@ module Prism
       visitor.visit_local_variable_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -12241,7 +12241,7 @@ module Prism
       LocalVariableWriteNode.new(source, node_id, location, flags, name, depth, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, depth: Integer, name_loc: Location, value: Prism::node, operator_loc: Location }
@@ -12364,7 +12364,7 @@ module Prism
       visitor.visit_match_last_line_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -12384,7 +12384,7 @@ module Prism
       MatchLastLineNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, content_loc: Location, closing_loc: Location, unescaped: String }
@@ -12552,7 +12552,7 @@ module Prism
       visitor.visit_match_predicate_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value, pattern]
     end
@@ -12572,7 +12572,7 @@ module Prism
       MatchPredicateNode.new(source, node_id, location, flags, value, pattern, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node, pattern: Prism::node, operator_loc: Location }
@@ -12650,7 +12650,7 @@ module Prism
       visitor.visit_match_required_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value, pattern]
     end
@@ -12670,7 +12670,7 @@ module Prism
       MatchRequiredNode.new(source, node_id, location, flags, value, pattern, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node, pattern: Prism::node, operator_loc: Location }
@@ -12747,7 +12747,7 @@ module Prism
       visitor.visit_match_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [call, *targets]
     end
@@ -12767,7 +12767,7 @@ module Prism
       MatchWriteNode.new(source, node_id, location, flags, call, targets)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, call: CallNode, targets: Array[LocalVariableTargetNode] }
@@ -12821,7 +12821,7 @@ module Prism
       visitor.visit_missing_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -12841,7 +12841,7 @@ module Prism
       MissingNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -12895,7 +12895,7 @@ module Prism
       visitor.visit_module_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [constant_path, body]
     end
@@ -12918,7 +12918,7 @@ module Prism
       ModuleNode.new(source, node_id, location, flags, locals, module_keyword_loc, constant_path, body, end_keyword_loc, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], module_keyword_loc: Location, constant_path: ConstantReadNode | ConstantPathNode | MissingNode, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location, name: Symbol }
@@ -13031,7 +13031,7 @@ module Prism
       visitor.visit_multi_target_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*lefts, rest, *rights]
     end
@@ -13055,7 +13055,7 @@ module Prism
       MultiTargetNode.new(source, node_id, location, flags, lefts, rest, rights, lparen_loc, rparen_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], rest: ImplicitRestNode | SplatNode | nil, rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], lparen_loc: Location?, rparen_loc: Location? }
@@ -13204,7 +13204,7 @@ module Prism
       visitor.visit_multi_write_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*lefts, rest, *rights, value]
     end
@@ -13229,7 +13229,7 @@ module Prism
       MultiWriteNode.new(source, node_id, location, flags, lefts, rest, rights, lparen_loc, rparen_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], rest: ImplicitRestNode | SplatNode | nil, rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], lparen_loc: Location?, rparen_loc: Location?, operator_loc: Location, value: Prism::node }
@@ -13402,7 +13402,7 @@ module Prism
       visitor.visit_next_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [arguments]
     end
@@ -13424,7 +13424,7 @@ module Prism
       NextNode.new(source, node_id, location, flags, arguments, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, arguments: ArgumentsNode?, keyword_loc: Location }
@@ -13495,7 +13495,7 @@ module Prism
       visitor.visit_nil_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -13515,7 +13515,7 @@ module Prism
       NilNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -13566,7 +13566,7 @@ module Prism
       visitor.visit_no_keywords_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -13586,7 +13586,7 @@ module Prism
       NoKeywordsParameterNode.new(source, node_id, location, flags, operator_loc, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, keyword_loc: Location }
@@ -13673,7 +13673,7 @@ module Prism
       visitor.visit_numbered_parameters_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -13693,7 +13693,7 @@ module Prism
       NumberedParametersNode.new(source, node_id, location, flags, maximum)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, maximum: Integer }
@@ -13746,7 +13746,7 @@ module Prism
       visitor.visit_numbered_reference_read_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -13766,7 +13766,7 @@ module Prism
       NumberedReferenceReadNode.new(source, node_id, location, flags, number)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, number: Integer }
@@ -13828,7 +13828,7 @@ module Prism
       visitor.visit_optional_keyword_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -13848,7 +13848,7 @@ module Prism
       OptionalKeywordParameterNode.new(source, node_id, location, flags, name, name_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node }
@@ -13929,7 +13929,7 @@ module Prism
       visitor.visit_optional_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [value]
     end
@@ -13949,7 +13949,7 @@ module Prism
       OptionalParameterNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
@@ -14047,7 +14047,7 @@ module Prism
       visitor.visit_or_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [left, right]
     end
@@ -14067,7 +14067,7 @@ module Prism
       OrNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node, right: Prism::node, operator_loc: Location }
@@ -14165,7 +14165,7 @@ module Prism
       visitor.visit_parameters_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*requireds, *optionals, rest, *posts, *keywords, keyword_rest, block]
     end
@@ -14193,7 +14193,7 @@ module Prism
       ParametersNode.new(source, node_id, location, flags, requireds, optionals, rest, posts, keywords, keyword_rest, block)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, requireds: Array[RequiredParameterNode | MultiTargetNode], optionals: Array[OptionalParameterNode], rest: RestParameterNode | ImplicitRestNode | nil, posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode], keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode], keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil, block: BlockParameterNode? }
@@ -14276,7 +14276,7 @@ module Prism
       visitor.visit_parentheses_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [body]
     end
@@ -14298,7 +14298,7 @@ module Prism
       ParenthesesNode.new(source, node_id, location, flags, body, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, body: Prism::node?, opening_loc: Location, closing_loc: Location }
@@ -14398,7 +14398,7 @@ module Prism
       visitor.visit_pinned_expression_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [expression]
     end
@@ -14418,7 +14418,7 @@ module Prism
       PinnedExpressionNode.new(source, node_id, location, flags, expression, operator_loc, lparen_loc, rparen_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, expression: Prism::node, operator_loc: Location, lparen_loc: Location, rparen_loc: Location }
@@ -14529,7 +14529,7 @@ module Prism
       visitor.visit_pinned_variable_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [variable]
     end
@@ -14549,7 +14549,7 @@ module Prism
       PinnedVariableNode.new(source, node_id, location, flags, variable, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, variable: LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode, operator_loc: Location }
@@ -14624,7 +14624,7 @@ module Prism
       visitor.visit_post_execution_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [statements]
     end
@@ -14646,7 +14646,7 @@ module Prism
       PostExecutionNode.new(source, node_id, location, flags, statements, keyword_loc, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, statements: StatementsNode?, keyword_loc: Location, opening_loc: Location, closing_loc: Location }
@@ -14759,7 +14759,7 @@ module Prism
       visitor.visit_pre_execution_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [statements]
     end
@@ -14781,7 +14781,7 @@ module Prism
       PreExecutionNode.new(source, node_id, location, flags, statements, keyword_loc, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, statements: StatementsNode?, keyword_loc: Location, opening_loc: Location, closing_loc: Location }
@@ -14889,7 +14889,7 @@ module Prism
       visitor.visit_program_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [statements]
     end
@@ -14909,7 +14909,7 @@ module Prism
       ProgramNode.new(source, node_id, location, flags, locals, statements)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], statements: StatementsNode }
@@ -14972,7 +14972,7 @@ module Prism
       visitor.visit_range_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [left, right]
     end
@@ -14995,7 +14995,7 @@ module Prism
       RangeNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node?, right: Prism::node?, operator_loc: Location }
@@ -15091,7 +15091,7 @@ module Prism
       visitor.visit_rational_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -15111,7 +15111,7 @@ module Prism
       RationalNode.new(source, node_id, location, flags, numerator, denominator)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, numerator: Integer, denominator: Integer }
@@ -15192,7 +15192,7 @@ module Prism
       visitor.visit_redo_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -15212,7 +15212,7 @@ module Prism
       RedoNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -15264,7 +15264,7 @@ module Prism
       visitor.visit_regular_expression_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -15284,7 +15284,7 @@ module Prism
       RegularExpressionNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, content_loc: Location, closing_loc: Location, unescaped: String }
@@ -15452,7 +15452,7 @@ module Prism
       visitor.visit_required_keyword_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -15472,7 +15472,7 @@ module Prism
       RequiredKeywordParameterNode.new(source, node_id, location, flags, name, name_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location }
@@ -15546,7 +15546,7 @@ module Prism
       visitor.visit_required_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -15566,7 +15566,7 @@ module Prism
       RequiredParameterNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
@@ -15627,7 +15627,7 @@ module Prism
       visitor.visit_rescue_modifier_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [expression, rescue_expression]
     end
@@ -15647,7 +15647,7 @@ module Prism
       RescueModifierNode.new(source, node_id, location, flags, expression, keyword_loc, rescue_expression)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, expression: Prism::node, keyword_loc: Location, rescue_expression: Prism::node }
@@ -15734,7 +15734,7 @@ module Prism
       visitor.visit_rescue_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*exceptions, reference, statements, subsequent]
     end
@@ -15759,7 +15759,7 @@ module Prism
       RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, then_keyword_loc, statements, subsequent)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, then_keyword_loc: Location?, statements: StatementsNode?, subsequent: RescueNode? }
@@ -15897,7 +15897,7 @@ module Prism
       visitor.visit_rest_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -15917,7 +15917,7 @@ module Prism
       RestParameterNode.new(source, node_id, location, flags, name, name_loc, operator_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol?, name_loc: Location?, operator_loc: Location }
@@ -16014,7 +16014,7 @@ module Prism
       visitor.visit_retry_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -16034,7 +16034,7 @@ module Prism
       RetryNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -16084,7 +16084,7 @@ module Prism
       visitor.visit_return_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [arguments]
     end
@@ -16106,7 +16106,7 @@ module Prism
       ReturnNode.new(source, node_id, location, flags, keyword_loc, arguments)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, arguments: ArgumentsNode? }
@@ -16177,7 +16177,7 @@ module Prism
       visitor.visit_self_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -16197,7 +16197,7 @@ module Prism
       SelfNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -16247,7 +16247,7 @@ module Prism
       visitor.visit_shareable_constant_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [write]
     end
@@ -16267,7 +16267,7 @@ module Prism
       ShareableConstantNode.new(source, node_id, location, flags, write)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, write: ConstantWriteNode | ConstantAndWriteNode | ConstantOrWriteNode | ConstantOperatorWriteNode | ConstantPathWriteNode | ConstantPathAndWriteNode | ConstantPathOrWriteNode | ConstantPathOperatorWriteNode }
@@ -16341,7 +16341,7 @@ module Prism
       visitor.visit_singleton_class_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [expression, body]
     end
@@ -16364,7 +16364,7 @@ module Prism
       SingletonClassNode.new(source, node_id, location, flags, locals, class_keyword_loc, operator_loc, expression, body, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], class_keyword_loc: Location, operator_loc: Location, expression: Prism::node, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location }
@@ -16482,7 +16482,7 @@ module Prism
       visitor.visit_source_encoding_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -16502,7 +16502,7 @@ module Prism
       SourceEncodingNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -16551,7 +16551,7 @@ module Prism
       visitor.visit_source_file_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -16571,7 +16571,7 @@ module Prism
       SourceFileNode.new(source, node_id, location, flags, filepath)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, filepath: String }
@@ -16644,7 +16644,7 @@ module Prism
       visitor.visit_source_line_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -16664,7 +16664,7 @@ module Prism
       SourceLineNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -16714,7 +16714,7 @@ module Prism
       visitor.visit_splat_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [expression]
     end
@@ -16736,7 +16736,7 @@ module Prism
       SplatNode.new(source, node_id, location, flags, operator_loc, expression)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, expression: Prism::node? }
@@ -16808,7 +16808,7 @@ module Prism
       visitor.visit_statements_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*body]
     end
@@ -16828,7 +16828,7 @@ module Prism
       StatementsNode.new(source, node_id, location, flags, body)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, body: Array[Prism::node] }
@@ -16891,7 +16891,7 @@ module Prism
       visitor.visit_string_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -16911,7 +16911,7 @@ module Prism
       StringNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, content_loc: Location, closing_loc: Location?, unescaped: String }
@@ -17061,7 +17061,7 @@ module Prism
       visitor.visit_super_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [arguments, block]
     end
@@ -17084,7 +17084,7 @@ module Prism
       SuperNode.new(source, node_id, location, flags, keyword_loc, lparen_loc, arguments, rparen_loc, block)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, lparen_loc: Location?, arguments: ArgumentsNode?, rparen_loc: Location?, block: BlockNode | BlockArgumentNode | nil }
@@ -17216,7 +17216,7 @@ module Prism
       visitor.visit_symbol_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -17236,7 +17236,7 @@ module Prism
       SymbolNode.new(source, node_id, location, flags, opening_loc, value_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, value_loc: Location?, closing_loc: Location?, unescaped: String }
@@ -17379,7 +17379,7 @@ module Prism
       visitor.visit_true_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -17399,7 +17399,7 @@ module Prism
       TrueNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
@@ -17449,7 +17449,7 @@ module Prism
       visitor.visit_undef_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*names]
     end
@@ -17469,7 +17469,7 @@ module Prism
       UndefNode.new(source, node_id, location, flags, names, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, names: Array[SymbolNode | InterpolatedSymbolNode], keyword_loc: Location }
@@ -17550,7 +17550,7 @@ module Prism
       visitor.visit_unless_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [predicate, statements, else_clause]
     end
@@ -17574,7 +17574,7 @@ module Prism
       UnlessNode.new(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, else_clause, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, predicate: Prism::node, then_keyword_loc: Location?, statements: StatementsNode?, else_clause: ElseNode?, end_keyword_loc: Location? }
@@ -17736,7 +17736,7 @@ module Prism
       visitor.visit_until_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [predicate, statements]
     end
@@ -17759,7 +17759,7 @@ module Prism
       UntilNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, do_keyword_loc: Location?, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
@@ -17896,7 +17896,7 @@ module Prism
       visitor.visit_when_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [*conditions, statements]
     end
@@ -17919,7 +17919,7 @@ module Prism
       WhenNode.new(source, node_id, location, flags, keyword_loc, conditions, then_keyword_loc, statements)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, conditions: Array[Prism::node], then_keyword_loc: Location?, statements: StatementsNode? }
@@ -18028,7 +18028,7 @@ module Prism
       visitor.visit_while_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [predicate, statements]
     end
@@ -18051,7 +18051,7 @@ module Prism
       WhileNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, do_keyword_loc: Location?, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
@@ -18186,7 +18186,7 @@ module Prism
       visitor.visit_x_string_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       []
     end
@@ -18206,7 +18206,7 @@ module Prism
       XStringNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, content_loc: Location, closing_loc: Location, unescaped: String }
@@ -18330,7 +18330,7 @@ module Prism
       visitor.visit_yield_node(self)
     end
 
-    # def child_nodes: () -> Array[nil | Node]
+    # def child_nodes: () -> Array[Node?]
     def child_nodes
       [arguments]
     end
@@ -18352,7 +18352,7 @@ module Prism
       YieldNode.new(source, node_id, location, flags, keyword_loc, lparen_loc, arguments, rparen_loc)
     end
 
-    # def deconstruct: () -> Array[nil | Node]
+    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, lparen_loc: Location?, arguments: ArgumentsNode?, rparen_loc: Location? }
