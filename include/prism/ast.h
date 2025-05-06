@@ -30,11 +30,50 @@ typedef enum pm_token_type {
     /** final token in the file */
     PM_TOKEN_EOF = 1,
 
-    /** a token that was expected but not found */
-    PM_TOKEN_MISSING,
+    /** } */
+    PM_TOKEN_BRACE_RIGHT,
 
-    /** a token that was not present but it is okay */
-    PM_TOKEN_NOT_PROVIDED,
+    /** , */
+    PM_TOKEN_COMMA,
+
+    /** } */
+    PM_TOKEN_EMBEXPR_END,
+
+    /** do */
+    PM_TOKEN_KEYWORD_DO,
+
+    /** else */
+    PM_TOKEN_KEYWORD_ELSE,
+
+    /** elsif */
+    PM_TOKEN_KEYWORD_ELSIF,
+
+    /** end */
+    PM_TOKEN_KEYWORD_END,
+
+    /** ensure */
+    PM_TOKEN_KEYWORD_ENSURE,
+
+    /** in */
+    PM_TOKEN_KEYWORD_IN,
+
+    /** rescue */
+    PM_TOKEN_KEYWORD_RESCUE,
+
+    /** then */
+    PM_TOKEN_KEYWORD_THEN,
+
+    /** when */
+    PM_TOKEN_KEYWORD_WHEN,
+
+    /** a newline character outside of other tokens */
+    PM_TOKEN_NEWLINE,
+
+    /** ) */
+    PM_TOKEN_PARENTHESIS_RIGHT,
+
+    /** ; */
+    PM_TOKEN_SEMICOLON,
 
     /** & */
     PM_TOKEN_AMPERSAND,
@@ -69,9 +108,6 @@ typedef enum pm_token_type {
     /** { */
     PM_TOKEN_BRACE_LEFT,
 
-    /** } */
-    PM_TOKEN_BRACE_RIGHT,
-
     /** [ */
     PM_TOKEN_BRACKET_LEFT,
 
@@ -105,9 +141,6 @@ typedef enum pm_token_type {
     /** :: */
     PM_TOKEN_COLON_COLON,
 
-    /** , */
-    PM_TOKEN_COMMA,
-
     /** a comment */
     PM_TOKEN_COMMENT,
 
@@ -134,9 +167,6 @@ typedef enum pm_token_type {
 
     /** #{ */
     PM_TOKEN_EMBEXPR_BEGIN,
-
-    /** } */
-    PM_TOKEN_EMBEXPR_END,
 
     /** # */
     PM_TOKEN_EMBVAR,
@@ -237,26 +267,11 @@ typedef enum pm_token_type {
     /** defined? */
     PM_TOKEN_KEYWORD_DEFINED,
 
-    /** do */
-    PM_TOKEN_KEYWORD_DO,
-
     /** do keyword for a predicate in a while, until, or for loop */
     PM_TOKEN_KEYWORD_DO_LOOP,
 
-    /** else */
-    PM_TOKEN_KEYWORD_ELSE,
-
-    /** elsif */
-    PM_TOKEN_KEYWORD_ELSIF,
-
-    /** end */
-    PM_TOKEN_KEYWORD_END,
-
     /** END */
     PM_TOKEN_KEYWORD_END_UPCASE,
-
-    /** ensure */
-    PM_TOKEN_KEYWORD_ENSURE,
 
     /** false */
     PM_TOKEN_KEYWORD_FALSE,
@@ -269,9 +284,6 @@ typedef enum pm_token_type {
 
     /** if in the modifier form */
     PM_TOKEN_KEYWORD_IF_MODIFIER,
-
-    /** in */
-    PM_TOKEN_KEYWORD_IN,
 
     /** module */
     PM_TOKEN_KEYWORD_MODULE,
@@ -291,9 +303,6 @@ typedef enum pm_token_type {
     /** redo */
     PM_TOKEN_KEYWORD_REDO,
 
-    /** rescue */
-    PM_TOKEN_KEYWORD_RESCUE,
-
     /** rescue in the modifier form */
     PM_TOKEN_KEYWORD_RESCUE_MODIFIER,
 
@@ -308,9 +317,6 @@ typedef enum pm_token_type {
 
     /** super */
     PM_TOKEN_KEYWORD_SUPER,
-
-    /** then */
-    PM_TOKEN_KEYWORD_THEN,
 
     /** true */
     PM_TOKEN_KEYWORD_TRUE,
@@ -329,9 +335,6 @@ typedef enum pm_token_type {
 
     /** until in the modifier form */
     PM_TOKEN_KEYWORD_UNTIL_MODIFIER,
-
-    /** when */
-    PM_TOKEN_KEYWORD_WHEN,
 
     /** while */
     PM_TOKEN_KEYWORD_WHILE,
@@ -387,9 +390,6 @@ typedef enum pm_token_type {
     /** -> */
     PM_TOKEN_MINUS_GREATER,
 
-    /** a newline character outside of other tokens */
-    PM_TOKEN_NEWLINE,
-
     /** a numbered reference to a capture group in the previous regular expression match */
     PM_TOKEN_NUMBERED_REFERENCE,
 
@@ -398,9 +398,6 @@ typedef enum pm_token_type {
 
     /** ( for a parentheses node */
     PM_TOKEN_PARENTHESIS_LEFT_PARENTHESES,
-
-    /** ) */
-    PM_TOKEN_PARENTHESIS_RIGHT,
 
     /** % */
     PM_TOKEN_PERCENT,
@@ -449,9 +446,6 @@ typedef enum pm_token_type {
 
     /** the end of a regular expression */
     PM_TOKEN_REGEXP_END,
-
-    /** ; */
-    PM_TOKEN_SEMICOLON,
 
     /** / */
     PM_TOKEN_SLASH,
@@ -518,6 +512,12 @@ typedef enum pm_token_type {
 
     /** marker for the point in the file at which the parser should stop */
     PM_TOKEN___END__,
+
+    /** a token that was expected but not found */
+    PM_TOKEN_MISSING,
+
+    /** a token that was not present but it is okay */
+    PM_TOKEN_NOT_PROVIDED,
 
     /** The maximum token value. */
     PM_TOKEN_MAXIMUM,
