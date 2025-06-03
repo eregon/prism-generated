@@ -2696,6 +2696,11 @@ typedef struct pm_class_node {
 
     /**
      * ClassNode#class_keyword_loc
+     *
+     * Represents the location of the `class` keyword.
+     *
+     *     class Foo end
+     *     ^^^^^
      */
     pm_location_t class_keyword_loc;
 
@@ -2706,26 +2711,51 @@ typedef struct pm_class_node {
 
     /**
      * ClassNode#inheritance_operator_loc
+     *
+     * Represents the location of the `<` operator.
+     *
+     *     class Foo < Bar
+     *               ^
      */
     pm_location_t inheritance_operator_loc;
 
     /**
      * ClassNode#superclass
+     *
+     * Represents the superclass of the class.
+     *
+     *     class Foo < Bar
+     *                 ^^^
      */
     struct pm_node *superclass;
 
     /**
      * ClassNode#body
+     *
+     * Represents the body of the class.
+     *
+     *     class Foo
+     *       foo
+     *       ^^^
      */
     struct pm_node *body;
 
     /**
      * ClassNode#end_keyword_loc
+     *
+     * Represents the location of the `end` keyword.
+     *
+     *     class Foo end
+     *               ^^^
      */
     pm_location_t end_keyword_loc;
 
     /**
      * ClassNode#name
+     *
+     * The name of the class.
+     *
+     *     class Foo end # name `:Foo`
      */
     pm_constant_id_t name;
 } pm_class_node_t;

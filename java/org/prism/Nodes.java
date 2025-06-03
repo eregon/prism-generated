@@ -3276,11 +3276,35 @@ public abstract class Nodes {
         public final String[] locals;
         @UnionType({ ConstantReadNode.class, ConstantPathNode.class, CallNode.class })
         public final Node constant_path;
+        /**
+         * <pre>
+         * Represents the superclass of the class.
+         *
+         *     class Foo &lt; Bar
+         *                 ^^^
+         * </pre>
+         */
         @Nullable
         public final Node superclass;
+        /**
+         * <pre>
+         * Represents the body of the class.
+         *
+         *     class Foo
+         *       foo
+         *       ^^^
+         * </pre>
+         */
         @Nullable
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
+        /**
+         * <pre>
+         * The name of the class.
+         *
+         *     class Foo end # name `:Foo`
+         * </pre>
+         */
         public final String name;
 
         public ClassNode(int nodeId, int startOffset, int length, String[] locals, Node constant_path, Node superclass, Node body, String name) {

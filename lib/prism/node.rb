@@ -3869,7 +3869,10 @@ module Prism
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
 
-    # attr_reader class_keyword_loc: Location
+    # Represents the location of the `class` keyword.
+    #
+    #     class Foo end
+    #     ^^^^^
     def class_keyword_loc
       location = @class_keyword_loc
       return location if location.is_a?(Location)
@@ -3885,7 +3888,10 @@ module Prism
     # attr_reader constant_path: ConstantReadNode | ConstantPathNode | CallNode
     attr_reader :constant_path
 
-    # attr_reader inheritance_operator_loc: Location?
+    # Represents the location of the `<` operator.
+    #
+    #     class Foo < Bar
+    #               ^
     def inheritance_operator_loc
       location = @inheritance_operator_loc
       case location
@@ -3904,13 +3910,23 @@ module Prism
       repository.enter(node_id, :inheritance_operator_loc) unless @inheritance_operator_loc.nil?
     end
 
-    # attr_reader superclass: Prism::node?
+    # Represents the superclass of the class.
+    #
+    #     class Foo < Bar
+    #                 ^^^
     attr_reader :superclass
 
-    # attr_reader body: StatementsNode | BeginNode | nil
+    # Represents the body of the class.
+    #
+    #     class Foo
+    #       foo
+    #       ^^^
     attr_reader :body
 
-    # attr_reader end_keyword_loc: Location
+    # Represents the location of the `end` keyword.
+    #
+    #     class Foo end
+    #               ^^^
     def end_keyword_loc
       location = @end_keyword_loc
       return location if location.is_a?(Location)
@@ -3923,7 +3939,9 @@ module Prism
       repository.enter(node_id, :end_keyword_loc)
     end
 
-    # attr_reader name: Symbol
+    # The name of the class.
+    #
+    #     class Foo end # name `:Foo`
     attr_reader :name
 
     # def class_keyword: () -> String
