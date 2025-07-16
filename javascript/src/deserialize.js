@@ -389,6 +389,8 @@ const errorTypes = [
   "expect_for_delimiter",
   "expect_ident_req_parameter",
   "expect_in_delimiter",
+  "expect_lparen_after_not_lparen",
+  "expect_lparen_after_not_other",
   "expect_lparen_req_parameter",
   "expect_message",
   "expect_rbracket",
