@@ -9,7 +9,8 @@ if you are looking to modify the template
 ++
 =end
 
-require "cgi"
+require "cgi/escape"
+require "cgi/util" unless defined?(CGI::EscapeExt)
 
 module Prism
   # This visitor provides the ability to call Node#to_dot, which converts a
