@@ -417,7 +417,7 @@ end
 #     foo in Bar[1, 2, 3]
 #     ^^^^^^^^^^^^^^^^^^^
 class Prism::ArrayPatternNode < Prism::Node
-  sig { returns(T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode))) }
+  sig { returns(T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode))) }
   def constant; end
 
   sig { returns(T::Array[Prism::Node]) }
@@ -435,7 +435,7 @@ class Prism::ArrayPatternNode < Prism::Node
   sig { returns(T.nilable(Prism::Location)) }
   def closing_loc; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), requireds: T::Array[Prism::Node], rest: T.nilable(Prism::Node), posts: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), requireds: T::Array[Prism::Node], rest: T.nilable(Prism::Node), posts: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
   def initialize(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
@@ -453,7 +453,7 @@ class Prism::ArrayPatternNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), requireds: T::Array[Prism::Node], rest: T.nilable(Prism::Node), posts: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::ArrayPatternNode) }
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), requireds: T::Array[Prism::Node], rest: T.nilable(Prism::Node), posts: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::ArrayPatternNode) }
   def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, requireds: self.requireds, rest: self.rest, posts: self.posts, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
@@ -3002,8 +3002,11 @@ end
 #
 #     foo in Foo(*bar, baz, *qux)
 #            ^^^^^^^^^^^^^^^^^^^^
+#
+#     foo => *bar, baz, *qux
+#            ^^^^^^^^^^^^^^^
 class Prism::FindPatternNode < Prism::Node
-  sig { returns(T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode))) }
+  sig { returns(T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode))) }
   def constant; end
 
   sig { returns(Prism::SplatNode) }
@@ -3021,7 +3024,7 @@ class Prism::FindPatternNode < Prism::Node
   sig { returns(T.nilable(Prism::Location)) }
   def closing_loc; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), left: Prism::SplatNode, requireds: T::Array[Prism::Node], right: T.any(Prism::SplatNode, Prism::MissingNode), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), left: Prism::SplatNode, requireds: T::Array[Prism::Node], right: T.any(Prism::SplatNode, Prism::MissingNode), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
   def initialize(source, node_id, location, flags, constant, left, requireds, right, opening_loc, closing_loc); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
@@ -3039,7 +3042,7 @@ class Prism::FindPatternNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), left: Prism::SplatNode, requireds: T::Array[Prism::Node], right: T.any(Prism::SplatNode, Prism::MissingNode), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::FindPatternNode) }
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), left: Prism::SplatNode, requireds: T::Array[Prism::Node], right: T.any(Prism::SplatNode, Prism::MissingNode), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::FindPatternNode) }
   def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, left: self.left, requireds: self.requireds, right: self.right, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
@@ -3713,8 +3716,14 @@ end
 #
 #     foo => { a: 1, b: 2, **c }
 #            ^^^^^^^^^^^^^^^^^^^
+#
+#     foo => Bar[a: 1, b: 2]
+#            ^^^^^^^^^^^^^^^
+#
+#     foo in { a: 1, b: 2 }
+#            ^^^^^^^^^^^^^^
 class Prism::HashPatternNode < Prism::Node
-  sig { returns(T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode))) }
+  sig { returns(T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode))) }
   def constant; end
 
   sig { returns(T::Array[Prism::AssocNode]) }
@@ -3729,7 +3738,7 @@ class Prism::HashPatternNode < Prism::Node
   sig { returns(T.nilable(Prism::Location)) }
   def closing_loc; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).void }
   def initialize(source, node_id, location, flags, constant, elements, rest, opening_loc, closing_loc); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
@@ -3747,7 +3756,7 @@ class Prism::HashPatternNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::HashPatternNode) }
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::HashPatternNode) }
   def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, elements: self.elements, rest: self.rest, opening_loc: self.opening_loc, closing_loc: self.closing_loc); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
@@ -5537,6 +5546,9 @@ end
 #
 #     foo, bar = baz
 #     ^^^  ^^^
+#
+#     foo => baz
+#            ^^^
 class Prism::LocalVariableTargetNode < Prism::Node
   sig { returns(Symbol) }
   def name; end

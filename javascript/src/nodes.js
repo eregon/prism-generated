@@ -6064,6 +6064,9 @@ export class FalseNode {
  *
  *     foo in Foo(*bar, baz, *qux)
  *            ^^^^^^^^^^^^^^^^^^^^
+ *
+ *     foo => *bar, baz, *qux
+ *            ^^^^^^^^^^^^^^^
  */
 export class FindPatternNode {
   /**
@@ -7499,6 +7502,12 @@ export class HashNode {
  *
  *     foo => { a: 1, b: 2, **c }
  *            ^^^^^^^^^^^^^^^^^^^
+ *
+ *     foo => Bar[a: 1, b: 2]
+ *            ^^^^^^^^^^^^^^^
+ *
+ *     foo in { a: 1, b: 2 }
+ *            ^^^^^^^^^^^^^^
  */
 export class HashPatternNode {
   /**
@@ -11270,6 +11279,9 @@ export class LocalVariableReadNode {
  *
  *     foo, bar = baz
  *     ^^^  ^^^
+ *
+ *     foo => baz
+ *            ^^^
  */
 export class LocalVariableTargetNode {
   /**

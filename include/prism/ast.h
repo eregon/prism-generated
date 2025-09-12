@@ -1424,6 +1424,17 @@ typedef struct pm_array_pattern_node {
 
     /**
      * ArrayPatternNode#constant
+     *
+     * Represents the optional constant preceding the Array
+     *
+     *     foo in Bar[]
+     *            ^^^
+     *
+     *     foo in Bar[1, 2, 3]
+     *            ^^^
+     *
+     *     foo in Bar::Baz[1, 2, 3]
+     *            ^^^^^^^^
      */
     struct pm_node *constant;
 
@@ -3792,6 +3803,9 @@ typedef struct pm_false_node {
  *     foo in Foo(*bar, baz, *qux)
  *            ^^^^^^^^^^^^^^^^^^^^
  *
+ *     foo => *bar, baz, *qux
+ *            ^^^^^^^^^^^^^^^
+ *
  * Type: ::PM_FIND_PATTERN_NODE
  *
  * @extends pm_node_t
@@ -3803,31 +3817,76 @@ typedef struct pm_find_pattern_node {
 
     /**
      * FindPatternNode#constant
+     *
+     * Represents the optional constant preceding the pattern
+     *
+     *     foo in Foo(*bar, baz, *qux)
+     *            ^^^
      */
     struct pm_node *constant;
 
     /**
      * FindPatternNode#left
+     *
+     * Represents the first wildcard node in the pattern.
+     *
+     *     foo in *bar, baz, *qux
+     *            ^^^^
+     *
+     *     foo in Foo(*bar, baz, *qux)
+     *                ^^^^
      */
     struct pm_splat_node *left;
 
     /**
      * FindPatternNode#requireds
+     *
+     * Represents the nodes in between the wildcards.
+     *
+     *     foo in *bar, baz, *qux
+     *                  ^^^
+     *
+     *     foo in Foo(*bar, baz, 1, *qux)
+     *                      ^^^^^^
      */
     struct pm_node_list requireds;
 
     /**
      * FindPatternNode#right
+     *
+     * Represents the second wildcard node in the pattern.
+     *
+     *     foo in *bar, baz, *qux
+     *                       ^^^^
+     *
+     *     foo in Foo(*bar, baz, *qux)
+     *                           ^^^^
      */
     struct pm_node *right;
 
     /**
      * FindPatternNode#opening_loc
+     *
+     * The location of the opening brace.
+     *
+     *     foo in [*bar, baz, *qux]
+     *            ^
+     *
+     *     foo in Foo(*bar, baz, *qux)
+     *               ^
      */
     pm_location_t opening_loc;
 
     /**
      * FindPatternNode#closing_loc
+     *
+     * The location of the closing brace.
+     *
+     *     foo in [*bar, baz, *qux]
+     *                            ^
+     *
+     *     foo in Foo(*bar, baz, *qux)
+     *                               ^
      */
     pm_location_t closing_loc;
 } pm_find_pattern_node_t;
@@ -4340,6 +4399,12 @@ typedef struct pm_hash_node {
  *     foo => { a: 1, b: 2, **c }
  *            ^^^^^^^^^^^^^^^^^^^
  *
+ *     foo => Bar[a: 1, b: 2]
+ *            ^^^^^^^^^^^^^^^
+ *
+ *     foo in { a: 1, b: 2 }
+ *            ^^^^^^^^^^^^^^
+ *
  * Type: ::PM_HASH_PATTERN_NODE
  *
  * @extends pm_node_t
@@ -4351,26 +4416,66 @@ typedef struct pm_hash_pattern_node {
 
     /**
      * HashPatternNode#constant
+     *
+     * Represents the optional constant preceding the Hash.
+     *
+     *     foo => Bar[a: 1, b: 2]
+     *          ^^^
+     *
+     *     foo => Bar::Baz[a: 1, b: 2]
+     *          ^^^^^^^^
      */
     struct pm_node *constant;
 
     /**
      * HashPatternNode#elements
+     *
+     * Represents the explicit named hash keys and values.
+     *
+     *     foo => { a: 1, b:, ** }
+     *              ^^^^^^^^
      */
     struct pm_node_list elements;
 
     /**
      * HashPatternNode#rest
+     *
+     * Represents the rest of the Hash keys and values. This can be named, unnamed, or explicitly forbidden via `**nil`, this last one results in a `NoKeywordsParameterNode`.
+     *
+     *     foo => { a: 1, b:, **c }
+     *                        ^^^
+     *
+     *     foo => { a: 1, b:, ** }
+     *                        ^^
+     *
+     *     foo => { a: 1, b:, **nil }
+     *                        ^^^^^
      */
     struct pm_node *rest;
 
     /**
      * HashPatternNode#opening_loc
+     *
+     * The location of the opening brace.
+     *
+     *     foo => { a: 1 }
+     *            ^
+     *
+     *     foo => Bar[a: 1]
+     *               ^
      */
     pm_location_t opening_loc;
 
     /**
      * HashPatternNode#closing_loc
+     *
+     * The location of the closing brace.
+     *
+     *     foo => { a: 1 }
+     *                   ^
+     *
+     *     foo => Bar[a: 1]
+     *                    ^
      */
     pm_location_t closing_loc;
 } pm_hash_pattern_node_t;
@@ -5652,6 +5757,9 @@ typedef struct pm_local_variable_read_node {
  *     foo, bar = baz
  *     ^^^  ^^^
  *
+ *     foo => baz
+ *            ^^^
+ *
  * Type: ::PM_LOCAL_VARIABLE_TARGET_NODE
  *
  * @extends pm_node_t
@@ -5854,16 +5962,70 @@ typedef struct pm_match_required_node {
 
     /**
      * MatchRequiredNode#value
+     *
+     * Represents the left-hand side of the operator.
+     *
+     *     foo => bar
+     *     ^^^
      */
     struct pm_node *value;
 
     /**
      * MatchRequiredNode#pattern
+     *
+     * Represents the right-hand side of the operator. The type of the node depends on the expression.
+     *
+     * Anything that looks like a local variable name (including `_`) will result in a `LocalVariableTargetNode`.
+     *
+     *     foo => a # This is equivalent to writing `a = foo`
+     *            ^
+     *
+     * Using an explicit `Array` or combining expressions with `,` will result in a `ArrayPatternNode`. This can be preceded by a constant.
+     *
+     *     foo => [a]
+     *            ^^^
+     *
+     *     foo => a, b
+     *            ^^^^
+     *
+     *     foo => Bar[a, b]
+     *            ^^^^^^^^^
+     *
+     * If the array pattern contains at least two wildcard matches, a `FindPatternNode` is created instead.
+     *
+     *     foo => *, 1, *a
+     *            ^^^^^
+     *
+     * Using an explicit `Hash` or a constant with square brackets and hash keys in the square brackets will result in a `HashPatternNode`.
+     *
+     *     foo => { a: 1, b: }
+     *
+     *     foo => Bar[a: 1, b:]
+     *
+     *     foo => Bar[**]
+     *
+     * To use any variable that needs run time evaluation, pinning is required. This results in a `PinnedVariableNode`
+     *
+     *     foo => ^a
+     *            ^^
+     *
+     * Similar, any expression can be used with pinning. This results in a `PinnedExpressionNode`.
+     *
+     *     foo => ^(a + 1)
+     *
+     * Anything else will result in the regular node for that expression, for example a `ConstantReadNode`.
+     *
+     *     foo => CONST
      */
     struct pm_node *pattern;
 
     /**
      * MatchRequiredNode#operator_loc
+     *
+     * The location of the operator.
+     *
+     *     foo => bar
+     *         ^^
      */
     pm_location_t operator_loc;
 } pm_match_required_node_t;
@@ -6521,21 +6683,41 @@ typedef struct pm_pinned_expression_node {
 
     /**
      * PinnedExpressionNode#expression
+     *
+     * The expression used in the pinned expression
+     *
+     *     foo in ^(bar)
+     *              ^^^
      */
     struct pm_node *expression;
 
     /**
      * PinnedExpressionNode#operator_loc
+     *
+     * The location of the `^` operator
+     *
+     *     foo in ^(bar)
+     *            ^
      */
     pm_location_t operator_loc;
 
     /**
      * PinnedExpressionNode#lparen_loc
+     *
+     * The location of the opening parenthesis.
+     *
+     *     foo in ^(bar)
+     *             ^
      */
     pm_location_t lparen_loc;
 
     /**
      * PinnedExpressionNode#rparen_loc
+     *
+     * The location of the closing parenthesis.
+     *
+     *     foo in ^(bar)
+     *                 ^
      */
     pm_location_t rparen_loc;
 } pm_pinned_expression_node_t;
@@ -6559,11 +6741,21 @@ typedef struct pm_pinned_variable_node {
 
     /**
      * PinnedVariableNode#variable
+     *
+     * The variable used in the pinned expression
+     *
+     *     foo in ^bar
+     *             ^^^
      */
     struct pm_node *variable;
 
     /**
      * PinnedVariableNode#operator_loc
+     *
+     * The location of the `^` operator
+     *
+     *     foo in ^bar
+     *            ^
      */
     pm_location_t operator_loc;
 } pm_pinned_variable_node_t;

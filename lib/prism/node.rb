@@ -1059,7 +1059,7 @@ module Prism
       [*constant, *requireds, *rest, *posts, *opening_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, requireds: self.requireds, rest: self.rest, posts: self.posts, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       ArrayPatternNode.new(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc)
     end
@@ -1067,12 +1067,21 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, requireds: Array[Prism::node], rest: Prism::node?, posts: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, requireds: Array[Prism::node], rest: Prism::node?, posts: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
     def deconstruct_keys(keys)
       { node_id: node_id, location: location, constant: constant, requireds: requireds, rest: rest, posts: posts, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # attr_reader constant: ConstantReadNode | ConstantPathNode | nil
+    # Represents the optional constant preceding the Array
+    #
+    #     foo in Bar[]
+    #            ^^^
+    #
+    #     foo in Bar[1, 2, 3]
+    #            ^^^
+    #
+    #     foo in Bar::Baz[1, 2, 3]
+    #            ^^^^^^^^
     attr_reader :constant
 
     # Represents the required elements of the array pattern.
@@ -6834,6 +6843,9 @@ module Prism
   #
   #     foo in Foo(*bar, baz, *qux)
   #            ^^^^^^^^^^^^^^^^^^^^
+  #
+  #     foo => *bar, baz, *qux
+  #            ^^^^^^^^^^^^^^^
   class FindPatternNode < Node
     # Initialize a new FindPatternNode node.
     def initialize(source, node_id, location, flags, constant, left, requireds, right, opening_loc, closing_loc)
@@ -6874,7 +6886,7 @@ module Prism
       [*constant, left, *requireds, right, *opening_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?left: SplatNode, ?requireds: Array[Prism::node], ?right: SplatNode | MissingNode, ?opening_loc: Location?, ?closing_loc: Location?) -> FindPatternNode
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?left: SplatNode, ?requireds: Array[Prism::node], ?right: SplatNode | MissingNode, ?opening_loc: Location?, ?closing_loc: Location?) -> FindPatternNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, left: self.left, requireds: self.requireds, right: self.right, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       FindPatternNode.new(source, node_id, location, flags, constant, left, requireds, right, opening_loc, closing_loc)
     end
@@ -6882,24 +6894,51 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, left: SplatNode, requireds: Array[Prism::node], right: SplatNode | MissingNode, opening_loc: Location?, closing_loc: Location? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, left: SplatNode, requireds: Array[Prism::node], right: SplatNode | MissingNode, opening_loc: Location?, closing_loc: Location? }
     def deconstruct_keys(keys)
       { node_id: node_id, location: location, constant: constant, left: left, requireds: requireds, right: right, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # attr_reader constant: ConstantReadNode | ConstantPathNode | nil
+    # Represents the optional constant preceding the pattern
+    #
+    #     foo in Foo(*bar, baz, *qux)
+    #            ^^^
     attr_reader :constant
 
-    # attr_reader left: SplatNode
+    # Represents the first wildcard node in the pattern.
+    #
+    #     foo in *bar, baz, *qux
+    #            ^^^^
+    #
+    #     foo in Foo(*bar, baz, *qux)
+    #                ^^^^
     attr_reader :left
 
-    # attr_reader requireds: Array[Prism::node]
+    # Represents the nodes in between the wildcards.
+    #
+    #     foo in *bar, baz, *qux
+    #                  ^^^
+    #
+    #     foo in Foo(*bar, baz, 1, *qux)
+    #                      ^^^^^^
     attr_reader :requireds
 
-    # attr_reader right: SplatNode | MissingNode
+    # Represents the second wildcard node in the pattern.
+    #
+    #     foo in *bar, baz, *qux
+    #                       ^^^^
+    #
+    #     foo in Foo(*bar, baz, *qux)
+    #                           ^^^^
     attr_reader :right
 
-    # attr_reader opening_loc: Location?
+    # The location of the opening brace.
+    #
+    #     foo in [*bar, baz, *qux]
+    #            ^
+    #
+    #     foo in Foo(*bar, baz, *qux)
+    #               ^
     def opening_loc
       location = @opening_loc
       case location
@@ -6918,7 +6957,13 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # attr_reader closing_loc: Location?
+    # The location of the closing brace.
+    #
+    #     foo in [*bar, baz, *qux]
+    #                            ^
+    #
+    #     foo in Foo(*bar, baz, *qux)
+    #                               ^
     def closing_loc
       location = @closing_loc
       case location
@@ -8317,6 +8362,12 @@ module Prism
   #
   #     foo => { a: 1, b: 2, **c }
   #            ^^^^^^^^^^^^^^^^^^^
+  #
+  #     foo => Bar[a: 1, b: 2]
+  #            ^^^^^^^^^^^^^^^
+  #
+  #     foo in { a: 1, b: 2 }
+  #            ^^^^^^^^^^^^^^
   class HashPatternNode < Node
     # Initialize a new HashPatternNode node.
     def initialize(source, node_id, location, flags, constant, elements, rest, opening_loc, closing_loc)
@@ -8355,7 +8406,7 @@ module Prism
       [*constant, *elements, *rest, *opening_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?elements: Array[AssocNode], ?rest: AssocSplatNode | NoKeywordsParameterNode | nil, ?opening_loc: Location?, ?closing_loc: Location?) -> HashPatternNode
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?elements: Array[AssocNode], ?rest: AssocSplatNode | NoKeywordsParameterNode | nil, ?opening_loc: Location?, ?closing_loc: Location?) -> HashPatternNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, elements: self.elements, rest: self.rest, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       HashPatternNode.new(source, node_id, location, flags, constant, elements, rest, opening_loc, closing_loc)
     end
@@ -8363,21 +8414,45 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, elements: Array[AssocNode], rest: AssocSplatNode | NoKeywordsParameterNode | nil, opening_loc: Location?, closing_loc: Location? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, elements: Array[AssocNode], rest: AssocSplatNode | NoKeywordsParameterNode | nil, opening_loc: Location?, closing_loc: Location? }
     def deconstruct_keys(keys)
       { node_id: node_id, location: location, constant: constant, elements: elements, rest: rest, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # attr_reader constant: ConstantReadNode | ConstantPathNode | nil
+    # Represents the optional constant preceding the Hash.
+    #
+    #     foo => Bar[a: 1, b: 2]
+    #          ^^^
+    #
+    #     foo => Bar::Baz[a: 1, b: 2]
+    #          ^^^^^^^^
     attr_reader :constant
 
-    # attr_reader elements: Array[AssocNode]
+    # Represents the explicit named hash keys and values.
+    #
+    #     foo => { a: 1, b:, ** }
+    #              ^^^^^^^^
     attr_reader :elements
 
-    # attr_reader rest: AssocSplatNode | NoKeywordsParameterNode | nil
+    # Represents the rest of the Hash keys and values. This can be named, unnamed, or explicitly forbidden via `**nil`, this last one results in a `NoKeywordsParameterNode`.
+    #
+    #     foo => { a: 1, b:, **c }
+    #                        ^^^
+    #
+    #     foo => { a: 1, b:, ** }
+    #                        ^^
+    #
+    #     foo => { a: 1, b:, **nil }
+    #                        ^^^^^
     attr_reader :rest
 
-    # attr_reader opening_loc: Location?
+    # The location of the opening brace.
+    #
+    #     foo => { a: 1 }
+    #            ^
+    #
+    #     foo => Bar[a: 1]
+    #               ^
     def opening_loc
       location = @opening_loc
       case location
@@ -8396,7 +8471,13 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # attr_reader closing_loc: Location?
+    # The location of the closing brace.
+    #
+    #     foo => { a: 1 }
+    #                   ^
+    #
+    #     foo => Bar[a: 1]
+    #                    ^
     def closing_loc
       location = @closing_loc
       case location
@@ -12145,6 +12226,9 @@ module Prism
   #
   #     foo, bar = baz
   #     ^^^  ^^^
+  #
+  #     foo => baz
+  #            ^^^
   class LocalVariableTargetNode < Node
     # Initialize a new LocalVariableTargetNode node.
     def initialize(source, node_id, location, flags, name, depth)
@@ -12699,13 +12783,61 @@ module Prism
       { node_id: node_id, location: location, value: value, pattern: pattern, operator_loc: operator_loc }
     end
 
-    # attr_reader value: Prism::node
+    # Represents the left-hand side of the operator.
+    #
+    #     foo => bar
+    #     ^^^
     attr_reader :value
 
-    # attr_reader pattern: Prism::node
+    # Represents the right-hand side of the operator. The type of the node depends on the expression.
+    #
+    # Anything that looks like a local variable name (including `_`) will result in a `LocalVariableTargetNode`.
+    #
+    #     foo => a # This is equivalent to writing `a = foo`
+    #            ^
+    #
+    # Using an explicit `Array` or combining expressions with `,` will result in a `ArrayPatternNode`. This can be preceded by a constant.
+    #
+    #     foo => [a]
+    #            ^^^
+    #
+    #     foo => a, b
+    #            ^^^^
+    #
+    #     foo => Bar[a, b]
+    #            ^^^^^^^^^
+    #
+    # If the array pattern contains at least two wildcard matches, a `FindPatternNode` is created instead.
+    #
+    #     foo => *, 1, *a
+    #            ^^^^^
+    #
+    # Using an explicit `Hash` or a constant with square brackets and hash keys in the square brackets will result in a `HashPatternNode`.
+    #
+    #     foo => { a: 1, b: }
+    #
+    #     foo => Bar[a: 1, b:]
+    #
+    #     foo => Bar[**]
+    #
+    # To use any variable that needs run time evaluation, pinning is required. This results in a `PinnedVariableNode`
+    #
+    #     foo => ^a
+    #            ^^
+    #
+    # Similar, any expression can be used with pinning. This results in a `PinnedExpressionNode`.
+    #
+    #     foo => ^(a + 1)
+    #
+    # Anything else will result in the regular node for that expression, for example a `ConstantReadNode`.
+    #
+    #     foo => CONST
     attr_reader :pattern
 
-    # attr_reader operator_loc: Location
+    # The location of the operator.
+    #
+    #     foo => bar
+    #         ^^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -14447,10 +14579,16 @@ module Prism
       { node_id: node_id, location: location, expression: expression, operator_loc: operator_loc, lparen_loc: lparen_loc, rparen_loc: rparen_loc }
     end
 
-    # attr_reader expression: Prism::node
+    # The expression used in the pinned expression
+    #
+    #     foo in ^(bar)
+    #              ^^^
     attr_reader :expression
 
-    # attr_reader operator_loc: Location
+    # The location of the `^` operator
+    #
+    #     foo in ^(bar)
+    #            ^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -14463,7 +14601,10 @@ module Prism
       repository.enter(node_id, :operator_loc)
     end
 
-    # attr_reader lparen_loc: Location
+    # The location of the opening parenthesis.
+    #
+    #     foo in ^(bar)
+    #             ^
     def lparen_loc
       location = @lparen_loc
       return location if location.is_a?(Location)
@@ -14476,7 +14617,10 @@ module Prism
       repository.enter(node_id, :lparen_loc)
     end
 
-    # attr_reader rparen_loc: Location
+    # The location of the closing parenthesis.
+    #
+    #     foo in ^(bar)
+    #                 ^
     def rparen_loc
       location = @rparen_loc
       return location if location.is_a?(Location)
@@ -14578,10 +14722,16 @@ module Prism
       { node_id: node_id, location: location, variable: variable, operator_loc: operator_loc }
     end
 
-    # attr_reader variable: LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode
+    # The variable used in the pinned expression
+    #
+    #     foo in ^bar
+    #             ^^^
     attr_reader :variable
 
-    # attr_reader operator_loc: Location
+    # The location of the `^` operator
+    #
+    #     foo in ^bar
+    #            ^
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)

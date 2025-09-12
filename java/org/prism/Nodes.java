@@ -1570,8 +1570,22 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ArrayPatternNode extends Node {
+        /**
+         * <pre>
+         * Represents the optional constant preceding the Array
+         *
+         *     foo in Bar[]
+         *            ^^^
+         *
+         *     foo in Bar[1, 2, 3]
+         *            ^^^
+         *
+         *     foo in Bar::Baz[1, 2, 3]
+         *            ^^^^^^^^
+         * </pre>
+         */
         @Nullable
-        @UnionType({ ConstantReadNode.class, ConstantPathNode.class })
+        @UnionType({ ConstantPathNode.class, ConstantReadNode.class })
         public final Node constant;
         /**
          * <pre>
@@ -4755,14 +4769,58 @@ public abstract class Nodes {
      *
      *     foo in Foo(*bar, baz, *qux)
      *            ^^^^^^^^^^^^^^^^^^^^
+     *
+     *     foo =&gt; *bar, baz, *qux
+     *            ^^^^^^^^^^^^^^^
      * </pre>
      */
     public static final class FindPatternNode extends Node {
+        /**
+         * <pre>
+         * Represents the optional constant preceding the pattern
+         *
+         *     foo in Foo(*bar, baz, *qux)
+         *            ^^^
+         * </pre>
+         */
         @Nullable
-        @UnionType({ ConstantReadNode.class, ConstantPathNode.class })
+        @UnionType({ ConstantPathNode.class, ConstantReadNode.class })
         public final Node constant;
+        /**
+         * <pre>
+         * Represents the first wildcard node in the pattern.
+         *
+         *     foo in *bar, baz, *qux
+         *            ^^^^
+         *
+         *     foo in Foo(*bar, baz, *qux)
+         *                ^^^^
+         * </pre>
+         */
         public final SplatNode left;
+        /**
+         * <pre>
+         * Represents the nodes in between the wildcards.
+         *
+         *     foo in *bar, baz, *qux
+         *                  ^^^
+         *
+         *     foo in Foo(*bar, baz, 1, *qux)
+         *                      ^^^^^^
+         * </pre>
+         */
         public final Node[] requireds;
+        /**
+         * <pre>
+         * Represents the second wildcard node in the pattern.
+         *
+         *     foo in *bar, baz, *qux
+         *                       ^^^^
+         *
+         *     foo in Foo(*bar, baz, *qux)
+         *                           ^^^^
+         * </pre>
+         */
         @UnionType({ SplatNode.class, MissingNode.class })
         public final Node right;
 
@@ -5550,13 +5608,52 @@ public abstract class Nodes {
      *
      *     foo =&gt; { a: 1, b: 2, **c }
      *            ^^^^^^^^^^^^^^^^^^^
+     *
+     *     foo =&gt; Bar[a: 1, b: 2]
+     *            ^^^^^^^^^^^^^^^
+     *
+     *     foo in { a: 1, b: 2 }
+     *            ^^^^^^^^^^^^^^
      * </pre>
      */
     public static final class HashPatternNode extends Node {
+        /**
+         * <pre>
+         * Represents the optional constant preceding the Hash.
+         *
+         *     foo =&gt; Bar[a: 1, b: 2]
+         *          ^^^
+         *
+         *     foo =&gt; Bar::Baz[a: 1, b: 2]
+         *          ^^^^^^^^
+         * </pre>
+         */
         @Nullable
-        @UnionType({ ConstantReadNode.class, ConstantPathNode.class })
+        @UnionType({ ConstantPathNode.class, ConstantReadNode.class })
         public final Node constant;
+        /**
+         * <pre>
+         * Represents the explicit named hash keys and values.
+         *
+         *     foo =&gt; { a: 1, b:, ** }
+         *              ^^^^^^^^
+         * </pre>
+         */
         public final AssocNode[] elements;
+        /**
+         * <pre>
+         * Represents the rest of the Hash keys and values. This can be named, unnamed, or explicitly forbidden via `**nil`, this last one results in a `NoKeywordsParameterNode`.
+         *
+         *     foo =&gt; { a: 1, b:, **c }
+         *                        ^^^
+         *
+         *     foo =&gt; { a: 1, b:, ** }
+         *                        ^^
+         *
+         *     foo =&gt; { a: 1, b:, **nil }
+         *                        ^^^^^
+         * </pre>
+         */
         @Nullable
         @UnionType({ AssocSplatNode.class, NoKeywordsParameterNode.class })
         public final Node rest;
@@ -7639,6 +7736,9 @@ public abstract class Nodes {
      *
      *     foo, bar = baz
      *     ^^^  ^^^
+     *
+     *     foo =&gt; baz
+     *            ^^^
      * </pre>
      */
     public static final class LocalVariableTargetNode extends Node {
@@ -7927,7 +8027,62 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class MatchRequiredNode extends Node {
+        /**
+         * <pre>
+         * Represents the left-hand side of the operator.
+         *
+         *     foo =&gt; bar
+         *     ^^^
+         * </pre>
+         */
         public final Node value;
+        /**
+         * <pre>
+         * Represents the right-hand side of the operator. The type of the node depends on the expression.
+         *
+         * Anything that looks like a local variable name (including `_`) will result in a `LocalVariableTargetNode`.
+         *
+         *     foo =&gt; a # This is equivalent to writing `a = foo`
+         *            ^
+         *
+         * Using an explicit `Array` or combining expressions with `,` will result in a `ArrayPatternNode`. This can be preceded by a constant.
+         *
+         *     foo =&gt; [a]
+         *            ^^^
+         *
+         *     foo =&gt; a, b
+         *            ^^^^
+         *
+         *     foo =&gt; Bar[a, b]
+         *            ^^^^^^^^^
+         *
+         * If the array pattern contains at least two wildcard matches, a `FindPatternNode` is created instead.
+         *
+         *     foo =&gt; *, 1, *a
+         *            ^^^^^
+         *
+         * Using an explicit `Hash` or a constant with square brackets and hash keys in the square brackets will result in a `HashPatternNode`.
+         *
+         *     foo =&gt; { a: 1, b: }
+         *
+         *     foo =&gt; Bar[a: 1, b:]
+         *
+         *     foo =&gt; Bar[**]
+         *
+         * To use any variable that needs run time evaluation, pinning is required. This results in a `PinnedVariableNode`
+         *
+         *     foo =&gt; ^a
+         *            ^^
+         *
+         * Similar, any expression can be used with pinning. This results in a `PinnedExpressionNode`.
+         *
+         *     foo =&gt; ^(a + 1)
+         *
+         * Anything else will result in the regular node for that expression, for example a `ConstantReadNode`.
+         *
+         *     foo =&gt; CONST
+         * </pre>
+         */
         public final Node pattern;
 
         public MatchRequiredNode(int nodeId, int startOffset, int length, Node value, Node pattern) {
@@ -8996,6 +9151,14 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class PinnedExpressionNode extends Node {
+        /**
+         * <pre>
+         * The expression used in the pinned expression
+         *
+         *     foo in ^(bar)
+         *              ^^^
+         * </pre>
+         */
         public final Node expression;
 
         public PinnedExpressionNode(int nodeId, int startOffset, int length, Node expression) {
@@ -9040,6 +9203,14 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class PinnedVariableNode extends Node {
+        /**
+         * <pre>
+         * The variable used in the pinned expression
+         *
+         *     foo in ^bar
+         *             ^^^
+         * </pre>
+         */
         @UnionType({ LocalVariableReadNode.class, InstanceVariableReadNode.class, ClassVariableReadNode.class, GlobalVariableReadNode.class, BackReferenceReadNode.class, NumberedReferenceReadNode.class, ItLocalVariableReadNode.class, MissingNode.class })
         public final Node variable;
 

@@ -31,7 +31,7 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, elements: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::ArrayNode) }
   def array_node(source: default_source, node_id: 0, location: default_location, flags: 0, elements: [], opening_loc: nil, closing_loc: nil); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), requireds: T::Array[Prism::Node], rest: T.nilable(Prism::Node), posts: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::ArrayPatternNode) }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), requireds: T::Array[Prism::Node], rest: T.nilable(Prism::Node), posts: T::Array[Prism::Node], opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::ArrayPatternNode) }
   def array_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, constant: nil, requireds: [], rest: nil, posts: [], opening_loc: nil, closing_loc: nil); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, key: Prism::Node, value: Prism::Node, operator_loc: T.nilable(Prism::Location)).returns(Prism::AssocNode) }
@@ -166,7 +166,7 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer).returns(Prism::FalseNode) }
   def false_node(source: default_source, node_id: 0, location: default_location, flags: 0); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), left: Prism::SplatNode, requireds: T::Array[Prism::Node], right: T.any(Prism::SplatNode, Prism::MissingNode), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::FindPatternNode) }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), left: Prism::SplatNode, requireds: T::Array[Prism::Node], right: T.any(Prism::SplatNode, Prism::MissingNode), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::FindPatternNode) }
   def find_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, constant: nil, left: splat_node(source: source), requireds: [], right: splat_node(source: source), opening_loc: nil, closing_loc: nil); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, left: T.nilable(Prism::Node), right: T.nilable(Prism::Node), operator_loc: Prism::Location).returns(Prism::FlipFlopNode) }
@@ -208,7 +208,7 @@ module Prism::DSL
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: Prism::Location, elements: T::Array[T.any(Prism::AssocNode, Prism::AssocSplatNode)], closing_loc: Prism::Location).returns(Prism::HashNode) }
   def hash_node(source: default_source, node_id: 0, location: default_location, flags: 0, opening_loc: location, elements: [], closing_loc: location); end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantReadNode, Prism::ConstantPathNode)), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::HashPatternNode) }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, constant: T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode)), elements: T::Array[Prism::AssocNode], rest: T.nilable(T.any(Prism::AssocSplatNode, Prism::NoKeywordsParameterNode)), opening_loc: T.nilable(Prism::Location), closing_loc: T.nilable(Prism::Location)).returns(Prism::HashPatternNode) }
   def hash_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, constant: nil, elements: [], rest: nil, opening_loc: nil, closing_loc: nil); end
 
   sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, if_keyword_loc: T.nilable(Prism::Location), predicate: Prism::Node, then_keyword_loc: T.nilable(Prism::Location), statements: T.nilable(Prism::StatementsNode), subsequent: T.nilable(T.any(Prism::ElseNode, Prism::IfNode)), end_keyword_loc: T.nilable(Prism::Location)).returns(Prism::IfNode) }

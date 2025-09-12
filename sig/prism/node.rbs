@@ -231,7 +231,7 @@ module Prism
   class ArrayPatternNode < Node
     include _Node
 
-    attr_reader constant: ConstantReadNode | ConstantPathNode | nil
+    attr_reader constant: ConstantPathNode | ConstantReadNode | nil
     attr_reader requireds: Array[Prism::node]
     attr_reader rest: Prism::node?
     attr_reader posts: Array[Prism::node]
@@ -241,9 +241,9 @@ module Prism
     def save_opening_loc: (_Repository repository) -> void
     def save_closing_loc: (_Repository repository) -> void
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantReadNode | ConstantPathNode | nil constant, Array[Prism::node] requireds, Prism::node? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, requireds: Array[Prism::node], rest: Prism::node?, posts: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantPathNode | ConstantReadNode | nil constant, Array[Prism::node] requireds, Prism::node? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, requireds: Array[Prism::node], rest: Prism::node?, posts: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
     def opening: () -> String?
     def closing: () -> String?
     def type: () -> :array_pattern_node
@@ -1389,10 +1389,13 @@ module Prism
   #
   #     foo in Foo(*bar, baz, *qux)
   #            ^^^^^^^^^^^^^^^^^^^^
+  #
+  #     foo => *bar, baz, *qux
+  #            ^^^^^^^^^^^^^^^
   class FindPatternNode < Node
     include _Node
 
-    attr_reader constant: ConstantReadNode | ConstantPathNode | nil
+    attr_reader constant: ConstantPathNode | ConstantReadNode | nil
     attr_reader left: SplatNode
     attr_reader requireds: Array[Prism::node]
     attr_reader right: SplatNode | MissingNode
@@ -1402,9 +1405,9 @@ module Prism
     def save_opening_loc: (_Repository repository) -> void
     def save_closing_loc: (_Repository repository) -> void
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantReadNode | ConstantPathNode | nil constant, SplatNode left, Array[Prism::node] requireds, SplatNode | MissingNode right, Location? opening_loc, Location? closing_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?left: SplatNode, ?requireds: Array[Prism::node], ?right: SplatNode | MissingNode, ?opening_loc: Location?, ?closing_loc: Location?) -> FindPatternNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, left: SplatNode, requireds: Array[Prism::node], right: SplatNode | MissingNode, opening_loc: Location?, closing_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantPathNode | ConstantReadNode | nil constant, SplatNode left, Array[Prism::node] requireds, SplatNode | MissingNode right, Location? opening_loc, Location? closing_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?left: SplatNode, ?requireds: Array[Prism::node], ?right: SplatNode | MissingNode, ?opening_loc: Location?, ?closing_loc: Location?) -> FindPatternNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, left: SplatNode, requireds: Array[Prism::node], right: SplatNode | MissingNode, opening_loc: Location?, closing_loc: Location? }
     def opening: () -> String?
     def closing: () -> String?
     def type: () -> :find_pattern_node
@@ -1704,10 +1707,16 @@ module Prism
   #
   #     foo => { a: 1, b: 2, **c }
   #            ^^^^^^^^^^^^^^^^^^^
+  #
+  #     foo => Bar[a: 1, b: 2]
+  #            ^^^^^^^^^^^^^^^
+  #
+  #     foo in { a: 1, b: 2 }
+  #            ^^^^^^^^^^^^^^
   class HashPatternNode < Node
     include _Node
 
-    attr_reader constant: ConstantReadNode | ConstantPathNode | nil
+    attr_reader constant: ConstantPathNode | ConstantReadNode | nil
     attr_reader elements: Array[AssocNode]
     attr_reader rest: AssocSplatNode | NoKeywordsParameterNode | nil
     attr_reader opening_loc: Location?
@@ -1716,9 +1725,9 @@ module Prism
     def save_opening_loc: (_Repository repository) -> void
     def save_closing_loc: (_Repository repository) -> void
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantReadNode | ConstantPathNode | nil constant, Array[AssocNode] elements, AssocSplatNode | NoKeywordsParameterNode | nil rest, Location? opening_loc, Location? closing_loc) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantReadNode | ConstantPathNode | nil, ?elements: Array[AssocNode], ?rest: AssocSplatNode | NoKeywordsParameterNode | nil, ?opening_loc: Location?, ?closing_loc: Location?) -> HashPatternNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantReadNode | ConstantPathNode | nil, elements: Array[AssocNode], rest: AssocSplatNode | NoKeywordsParameterNode | nil, opening_loc: Location?, closing_loc: Location? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, ConstantPathNode | ConstantReadNode | nil constant, Array[AssocNode] elements, AssocSplatNode | NoKeywordsParameterNode | nil rest, Location? opening_loc, Location? closing_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?elements: Array[AssocNode], ?rest: AssocSplatNode | NoKeywordsParameterNode | nil, ?opening_loc: Location?, ?closing_loc: Location?) -> HashPatternNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, elements: Array[AssocNode], rest: AssocSplatNode | NoKeywordsParameterNode | nil, opening_loc: Location?, closing_loc: Location? }
     def opening: () -> String?
     def closing: () -> String?
     def type: () -> :hash_pattern_node
@@ -2516,6 +2525,9 @@ module Prism
   #
   #     foo, bar = baz
   #     ^^^  ^^^
+  #
+  #     foo => baz
+  #            ^^^
   class LocalVariableTargetNode < Node
     include _Node
 
