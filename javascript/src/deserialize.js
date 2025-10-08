@@ -348,6 +348,7 @@ const errorTypes = [
   "conditional_while_predicate",
   "constant_path_colon_colon_constant",
   "def_endless",
+  "def_endless_parameters",
   "def_endless_setter",
   "def_name",
   "def_params_term",
