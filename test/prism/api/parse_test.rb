@@ -140,6 +140,14 @@ module Prism
       end
     end
 
+    def test_version_current
+      if RUBY_VERSION >= "3.3"
+        assert Prism.parse_success?("1 + 1", version: "current")
+      else
+        assert_raise(CurrentVersionError) { Prism.parse_success?("1 + 1", version: "current") }
+      end
+    end
+
     def test_scopes
       assert_kind_of Prism::CallNode, Prism.parse_statement("foo")
       assert_kind_of Prism::LocalVariableReadNode, Prism.parse_statement("foo", scopes: [[:foo]])
