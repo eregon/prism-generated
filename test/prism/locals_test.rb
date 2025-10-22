@@ -31,9 +31,15 @@ module Prism
       # CRuby is eliminating dead code.
       "whitequark/ruby_bug_10653.txt",
 
+      # Valid only on Ruby 3.3
+      "3.3-3.3/block_args_in_array_assignment.txt",
+      "3.3-3.3/it_with_ordinary_parameter.txt",
+      "3.3-3.3/keyword_args_in_array_assignment.txt",
+      "3.3-3.3/return_in_sclass.txt",
+
       # Leaving these out until they are supported by parse.y.
-      "leading_logical.txt",
-      "endless_methods_command_call.txt",
+      "3.5/leading_logical.txt",
+      "3.5/endless_methods_command_call.txt",
       "command_method_call_2.txt"
     ]
 
