@@ -1132,11 +1132,14 @@ class Prism::CallNode < Prism::Node
   sig { returns(T.nilable(Prism::Location)) }
   def closing_loc; end
 
+  sig { returns(T.nilable(Prism::Location)) }
+  def equal_loc; end
+
   sig { returns(T.nilable(T.any(Prism::BlockNode, Prism::BlockArgumentNode))) }
   def block; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, receiver: T.nilable(Prism::Node), call_operator_loc: T.nilable(Prism::Location), name: Symbol, message_loc: T.nilable(Prism::Location), opening_loc: T.nilable(Prism::Location), arguments: T.nilable(Prism::ArgumentsNode), closing_loc: T.nilable(Prism::Location), block: T.nilable(T.any(Prism::BlockNode, Prism::BlockArgumentNode))).void }
-  def initialize(source, node_id, location, flags, receiver, call_operator_loc, name, message_loc, opening_loc, arguments, closing_loc, block); end
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, receiver: T.nilable(Prism::Node), call_operator_loc: T.nilable(Prism::Location), name: Symbol, message_loc: T.nilable(Prism::Location), opening_loc: T.nilable(Prism::Location), arguments: T.nilable(Prism::ArgumentsNode), closing_loc: T.nilable(Prism::Location), equal_loc: T.nilable(Prism::Location), block: T.nilable(T.any(Prism::BlockNode, Prism::BlockArgumentNode))).void }
+  def initialize(source, node_id, location, flags, receiver, call_operator_loc, name, message_loc, opening_loc, arguments, closing_loc, equal_loc, block); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
   def accept(visitor); end
@@ -1153,8 +1156,8 @@ class Prism::CallNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, receiver: T.nilable(Prism::Node), call_operator_loc: T.nilable(Prism::Location), name: Symbol, message_loc: T.nilable(Prism::Location), opening_loc: T.nilable(Prism::Location), arguments: T.nilable(Prism::ArgumentsNode), closing_loc: T.nilable(Prism::Location), block: T.nilable(T.any(Prism::BlockNode, Prism::BlockArgumentNode))).returns(Prism::CallNode) }
-  def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, name: self.name, message_loc: self.message_loc, opening_loc: self.opening_loc, arguments: self.arguments, closing_loc: self.closing_loc, block: self.block); end
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, receiver: T.nilable(Prism::Node), call_operator_loc: T.nilable(Prism::Location), name: Symbol, message_loc: T.nilable(Prism::Location), opening_loc: T.nilable(Prism::Location), arguments: T.nilable(Prism::ArgumentsNode), closing_loc: T.nilable(Prism::Location), equal_loc: T.nilable(Prism::Location), block: T.nilable(T.any(Prism::BlockNode, Prism::BlockArgumentNode))).returns(Prism::CallNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, name: self.name, message_loc: self.message_loc, opening_loc: self.opening_loc, arguments: self.arguments, closing_loc: self.closing_loc, equal_loc: self.equal_loc, block: self.block); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
   def deconstruct_keys(keys); end
@@ -1170,6 +1173,9 @@ class Prism::CallNode < Prism::Node
 
   sig { returns(T.nilable(String)) }
   def closing; end
+
+  sig { returns(T.nilable(String)) }
+  def equal; end
 
   sig { override.returns(T::Array[Prism::Reflection::Field]) }
   def fields; end

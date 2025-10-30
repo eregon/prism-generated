@@ -395,6 +395,12 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
                 pm_buffer_append_byte(buffer, 1);
                 pm_serialize_location(parser, &((pm_call_node_t *)node)->closing_loc, buffer);
             }
+            if (((pm_call_node_t *)node)->equal_loc.start == NULL) {
+                pm_buffer_append_byte(buffer, 0);
+            } else {
+                pm_buffer_append_byte(buffer, 1);
+                pm_serialize_location(parser, &((pm_call_node_t *)node)->equal_loc, buffer);
+            }
             if (((pm_call_node_t *)node)->block == NULL) {
                 pm_buffer_append_byte(buffer, 0);
             } else {

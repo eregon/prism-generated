@@ -879,7 +879,7 @@ module Prism
           when 18 then
             CallAndWriteNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_location(freeze), load_constant(constant_pool, encoding), load_constant(constant_pool, encoding), load_location(freeze), load_node(constant_pool, encoding, freeze))
           when 19 then
-            CallNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_constant(constant_pool, encoding), load_optional_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze))
+            CallNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_constant(constant_pool, encoding), load_optional_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze))
           when 20 then
             CallOperatorWriteNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_location(freeze), load_constant(constant_pool, encoding), load_constant(constant_pool, encoding), load_constant(constant_pool, encoding), load_location(freeze), load_node(constant_pool, encoding, freeze))
           when 21 then
@@ -1287,7 +1287,7 @@ module Prism
             -> (constant_pool, encoding, freeze) {
               node_id = load_varuint
               location = load_location(freeze)
-              value = CallNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_constant(constant_pool, encoding), load_optional_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze))
+              value = CallNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_constant(constant_pool, encoding), load_optional_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze))
               value.freeze if freeze
               value
             },

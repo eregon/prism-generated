@@ -728,7 +728,7 @@ export function deserialize(source, array) {
       case 18:
         return new nodes.CallAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredConstant(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
       case 19:
-        return new nodes.CallNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), readRequiredConstant(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readOptionalNode(), buffer.readOptionalLocation(), readOptionalNode());
+        return new nodes.CallNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), readRequiredConstant(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readOptionalNode());
       case 20:
         return new nodes.CallOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredConstant(), readRequiredConstant(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
       case 21:

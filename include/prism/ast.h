@@ -2215,6 +2215,19 @@ typedef struct pm_call_node {
     pm_location_t closing_loc;
 
     /**
+     * CallNode#equal_loc
+     *
+     * Represents the location of the equal sign, in the case that this is an attribute write.
+     *
+     *     foo.bar = value
+     *             ^
+     *
+     *     foo[bar] = value
+     *              ^
+     */
+    pm_location_t equal_loc;
+
+    /**
      * CallNode#block
      *
      * Represents the block that is being passed to the method.

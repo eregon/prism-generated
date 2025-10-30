@@ -553,20 +553,23 @@ module Prism
     attr_reader opening_loc: Location?
     attr_reader arguments: ArgumentsNode?
     attr_reader closing_loc: Location?
+    attr_reader equal_loc: Location?
     attr_reader block: BlockNode | BlockArgumentNode | nil
 
     def save_call_operator_loc: (_Repository repository) -> void
     def save_message_loc: (_Repository repository) -> void
     def save_opening_loc: (_Repository repository) -> void
     def save_closing_loc: (_Repository repository) -> void
+    def save_equal_loc: (_Repository repository) -> void
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Symbol name, Location? message_loc, Location? opening_loc, ArgumentsNode? arguments, Location? closing_loc, BlockNode | BlockArgumentNode | nil block) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?name: Symbol, ?message_loc: Location?, ?opening_loc: Location?, ?arguments: ArgumentsNode?, ?closing_loc: Location?, ?block: BlockNode | BlockArgumentNode | nil) -> CallNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, name: Symbol, message_loc: Location?, opening_loc: Location?, arguments: ArgumentsNode?, closing_loc: Location?, block: BlockNode | BlockArgumentNode | nil }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Prism::node? receiver, Location? call_operator_loc, Symbol name, Location? message_loc, Location? opening_loc, ArgumentsNode? arguments, Location? closing_loc, Location? equal_loc, BlockNode | BlockArgumentNode | nil block) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?name: Symbol, ?message_loc: Location?, ?opening_loc: Location?, ?arguments: ArgumentsNode?, ?closing_loc: Location?, ?equal_loc: Location?, ?block: BlockNode | BlockArgumentNode | nil) -> CallNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, name: Symbol, message_loc: Location?, opening_loc: Location?, arguments: ArgumentsNode?, closing_loc: Location?, equal_loc: Location?, block: BlockNode | BlockArgumentNode | nil }
     def call_operator: () -> String?
     def message: () -> String?
     def opening: () -> String?
     def closing: () -> String?
+    def equal: () -> String?
     def type: () -> :call_node
             | ...
     def self.type: () -> :call_node

@@ -2263,6 +2263,11 @@ export class CallNode {
   closingLoc;
 
   /**
+   * @type Location | null
+   */
+  equalLoc;
+
+  /**
    * @type Node | null
    */
   block;
@@ -2280,9 +2285,10 @@ export class CallNode {
    * @param {Location | null} openingLoc
    * @param {ArgumentsNode | null} arguments_
    * @param {Location | null} closingLoc
+   * @param {Location | null} equalLoc
    * @param {Node | null} block
    */
-  constructor(nodeID, location, flags, receiver, callOperatorLoc, name, messageLoc, openingLoc, arguments_, closingLoc, block) {
+  constructor(nodeID, location, flags, receiver, callOperatorLoc, name, messageLoc, openingLoc, arguments_, closingLoc, equalLoc, block) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
@@ -2293,6 +2299,7 @@ export class CallNode {
     this.openingLoc = openingLoc;
     this.arguments_ = arguments_;
     this.closingLoc = closingLoc;
+    this.equalLoc = equalLoc;
     this.block = block;
   }
 
@@ -2388,6 +2395,7 @@ export class CallNode {
       openingLoc: this.openingLoc,
       arguments: this.arguments_,
       closingLoc: this.closingLoc,
+      equalLoc: this.equalLoc,
       block: this.block,
     };
   }

@@ -44,7 +44,7 @@ module Prism
 
     def call_and_write_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?message_loc: Location?, ?read_name: Symbol, ?write_name: Symbol, ?operator_loc: Location, ?value: Prism::node) -> CallAndWriteNode
 
-    def call_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?name: Symbol, ?message_loc: Location?, ?opening_loc: Location?, ?arguments: ArgumentsNode?, ?closing_loc: Location?, ?block: BlockNode | BlockArgumentNode | nil) -> CallNode
+    def call_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?name: Symbol, ?message_loc: Location?, ?opening_loc: Location?, ?arguments: ArgumentsNode?, ?closing_loc: Location?, ?equal_loc: Location?, ?block: BlockNode | BlockArgumentNode | nil) -> CallNode
 
     def call_operator_write_node: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?message_loc: Location?, ?read_name: Symbol, ?write_name: Symbol, ?binary_operator: Symbol, ?binary_operator_loc: Location, ?value: Prism::node) -> CallOperatorWriteNode
 
