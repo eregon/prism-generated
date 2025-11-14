@@ -76,6 +76,9 @@ typedef enum pm_token_type {
     /** ) */
     PM_TOKEN_PARENTHESIS_RIGHT,
 
+    /** | */
+    PM_TOKEN_PIPE,
+
     /** ; */
     PM_TOKEN_SEMICOLON,
 
@@ -423,9 +426,6 @@ typedef enum pm_token_type {
 
     /** %W */
     PM_TOKEN_PERCENT_UPPER_W,
-
-    /** | */
-    PM_TOKEN_PIPE,
 
     /** |= */
     PM_TOKEN_PIPE_EQUAL,

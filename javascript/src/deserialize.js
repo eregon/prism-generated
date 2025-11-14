@@ -568,6 +568,7 @@ const errorTypes = [
   "unexpected_index_keywords",
   "unexpected_label",
   "unexpected_multi_write",
+  "unexpected_parameter_default_value",
   "unexpected_range_operator",
   "unexpected_safe_navigation",
   "unexpected_token_close_context",

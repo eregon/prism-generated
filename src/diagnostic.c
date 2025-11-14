@@ -10,7 +10,7 @@
 
 #include "prism/diagnostic.h"
 
-#define PM_DIAGNOSTIC_ID_MAX 322
+#define PM_DIAGNOSTIC_ID_MAX 323
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -371,6 +371,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_UNEXPECTED_INDEX_KEYWORDS]          = { "unexpected keyword arg given in index assignment; keywords are not allowed in index assignment expressions", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_UNEXPECTED_LABEL]                   = { "unexpected label", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_UNEXPECTED_MULTI_WRITE]             = { "unexpected multiple assignment; multiple assignment is not allowed in this context", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_UNEXPECTED_PARAMETER_DEFAULT_VALUE] = { "unexpected %s; expected a default value for a parameter", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_UNEXPECTED_RANGE_OPERATOR]          = { "unexpected range operator; .. and ... are non-associative and cannot be chained", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_UNEXPECTED_SAFE_NAVIGATION]         = { "&. inside multiple assignment destination", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_UNEXPECTED_TOKEN_CLOSE_CONTEXT]     = { "unexpected %s, assuming it is closing the parent %s", PM_ERROR_LEVEL_SYNTAX },
@@ -703,6 +704,7 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_UNEXPECTED_INDEX_KEYWORDS: return "unexpected_index_keywords";
         case PM_ERR_UNEXPECTED_LABEL: return "unexpected_label";
         case PM_ERR_UNEXPECTED_MULTI_WRITE: return "unexpected_multi_write";
+        case PM_ERR_UNEXPECTED_PARAMETER_DEFAULT_VALUE: return "unexpected_parameter_default_value";
         case PM_ERR_UNEXPECTED_RANGE_OPERATOR: return "unexpected_range_operator";
         case PM_ERR_UNEXPECTED_SAFE_NAVIGATION: return "unexpected_safe_navigation";
         case PM_ERR_UNEXPECTED_TOKEN_CLOSE_CONTEXT: return "unexpected_token_close_context";
