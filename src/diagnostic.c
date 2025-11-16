@@ -10,7 +10,7 @@
 
 #include "prism/diagnostic.h"
 
-#define PM_DIAGNOSTIC_ID_MAX 323
+#define PM_DIAGNOSTIC_ID_MAX 325
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -309,8 +309,10 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_PARAMETER_UNEXPECTED_FWD]           = { "unexpected `...` in parameters", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_PARAMETER_WILD_LOOSE_COMMA]         = { "unexpected `,` in parameters", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_PARAMETER_UNEXPECTED_NO_KW]         = { "unexpected **nil; no keywords marker disallowed after keywords", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_PATTERN_ALTERNATIVE_AFTER_CAPTURE]  = { "alternative pattern after variable capture", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_PATTERN_ARRAY_MULTIPLE_RESTS]       = { "unexpected multiple '*' rest patterns in an array pattern", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_PATTERN_CAPTURE_DUPLICATE]          = { "duplicated variable name", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_PATTERN_CAPTURE_IN_ALTERNATIVE]     = { "variable capture in alternative pattern", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_PATTERN_EXPRESSION_AFTER_BRACKET]   = { "expected a pattern expression after the `[` operator", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_PATTERN_EXPRESSION_AFTER_COMMA]     = { "expected a pattern expression after `,`", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_PATTERN_EXPRESSION_AFTER_HROCKET]   = { "expected a pattern expression after `=>`", PM_ERROR_LEVEL_SYNTAX },
@@ -641,8 +643,10 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_PARAMETER_UNEXPECTED_FWD: return "parameter_unexpected_fwd";
         case PM_ERR_PARAMETER_UNEXPECTED_NO_KW: return "parameter_unexpected_no_kw";
         case PM_ERR_PARAMETER_WILD_LOOSE_COMMA: return "parameter_wild_loose_comma";
+        case PM_ERR_PATTERN_ALTERNATIVE_AFTER_CAPTURE: return "pattern_alternative_after_capture";
         case PM_ERR_PATTERN_ARRAY_MULTIPLE_RESTS: return "pattern_array_multiple_rests";
         case PM_ERR_PATTERN_CAPTURE_DUPLICATE: return "pattern_capture_duplicate";
+        case PM_ERR_PATTERN_CAPTURE_IN_ALTERNATIVE: return "pattern_capture_in_alternative";
         case PM_ERR_PATTERN_EXPRESSION_AFTER_BRACKET: return "pattern_expression_after_bracket";
         case PM_ERR_PATTERN_EXPRESSION_AFTER_COMMA: return "pattern_expression_after_comma";
         case PM_ERR_PATTERN_EXPRESSION_AFTER_HROCKET: return "pattern_expression_after_hrocket";
