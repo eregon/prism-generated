@@ -505,7 +505,6 @@ const errorTypes = [
   "parameter_unexpected_fwd",
   "parameter_unexpected_no_kw",
   "parameter_wild_loose_comma",
-  "pattern_alternative_after_capture",
   "pattern_array_multiple_rests",
   "pattern_capture_duplicate",
   "pattern_capture_in_alternative",
