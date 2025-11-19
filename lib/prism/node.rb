@@ -7568,10 +7568,15 @@ module Prism
     end
   end
 
-  # Represents the use of the `super` keyword without parentheses or arguments.
+  # Represents the use of the `super` keyword without parentheses or arguments, but which might have a block.
   #
   #     super
   #     ^^^^^
+  #
+  #     super { 123 }
+  #     ^^^^^^^^^^^^^
+  #
+  # If it has any other arguments, it would be a `SuperNode` instead.
   class ForwardingSuperNode < Node
     # Initialize a new ForwardingSuperNode node.
     def initialize(source, node_id, location, flags, block)
@@ -7617,7 +7622,7 @@ module Prism
       { node_id: node_id, location: location, block: block }
     end
 
-    # attr_reader block: BlockNode?
+    # All other arguments are forwarded as normal, except the original block is replaced with the new block.
     attr_reader :block
 
     # def inspect -> String
@@ -17245,6 +17250,8 @@ module Prism
   #
   #     super foo, bar
   #     ^^^^^^^^^^^^^^
+  #
+  # If no arguments are provided (except for a block), it would be a `ForwardingSuperNode` instead.
   class SuperNode < Node
     # Initialize a new SuperNode node.
     def initialize(source, node_id, location, flags, keyword_loc, lparen_loc, arguments, rparen_loc, block)
@@ -17327,7 +17334,7 @@ module Prism
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
 
-    # attr_reader arguments: ArgumentsNode?
+    # Can be only `nil` when there are empty parentheses, like `super()`.
     attr_reader :arguments
 
     # attr_reader rparen_loc: Location?

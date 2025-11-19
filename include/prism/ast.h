@@ -4097,10 +4097,15 @@ typedef struct pm_forwarding_parameter_node {
 /**
  * ForwardingSuperNode
  *
- * Represents the use of the `super` keyword without parentheses or arguments.
+ * Represents the use of the `super` keyword without parentheses or arguments, but which might have a block.
  *
  *     super
  *     ^^^^^
+ *
+ *     super { 123 }
+ *     ^^^^^^^^^^^^^
+ *
+ * If it has any other arguments, it would be a `SuperNode` instead.
  *
  * Type: ::PM_FORWARDING_SUPER_NODE
  *
@@ -4113,6 +4118,8 @@ typedef struct pm_forwarding_super_node {
 
     /**
      * ForwardingSuperNode#block
+     *
+     * All other arguments are forwarded as normal, except the original block is replaced with the new block.
      */
     struct pm_block_node *block;
 } pm_forwarding_super_node_t;
@@ -7552,6 +7559,8 @@ typedef struct pm_string_node {
  *     super foo, bar
  *     ^^^^^^^^^^^^^^
  *
+ * If no arguments are provided (except for a block), it would be a `ForwardingSuperNode` instead.
+ *
  * Type: ::PM_SUPER_NODE
  *
  * @extends pm_node_t
@@ -7573,6 +7582,8 @@ typedef struct pm_super_node {
 
     /**
      * SuperNode#arguments
+     *
+     * Can be only `nil` when there are empty parentheses, like `super()`.
      */
     struct pm_arguments_node *arguments;
 

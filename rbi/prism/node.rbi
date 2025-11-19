@@ -3319,10 +3319,15 @@ class Prism::ForwardingParameterNode < Prism::Node
   def type; end
 end
 
-# Represents the use of the `super` keyword without parentheses or arguments.
+# Represents the use of the `super` keyword without parentheses or arguments, but which might have a block.
 #
 #     super
 #     ^^^^^
+#
+#     super { 123 }
+#     ^^^^^^^^^^^^^
+#
+# If it has any other arguments, it would be a `SuperNode` instead.
 class Prism::ForwardingSuperNode < Prism::Node
   sig { returns(T.nilable(Prism::BlockNode)) }
   def block; end
@@ -7970,6 +7975,8 @@ end
 #
 #     super foo, bar
 #     ^^^^^^^^^^^^^^
+#
+# If no arguments are provided (except for a block), it would be a `ForwardingSuperNode` instead.
 class Prism::SuperNode < Prism::Node
   sig { returns(Prism::Location) }
   def keyword_loc; end

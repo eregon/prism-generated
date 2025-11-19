@@ -5167,13 +5167,23 @@ public abstract class Nodes {
 
     /**
      * <pre>
-     * Represents the use of the `super` keyword without parentheses or arguments.
+     * Represents the use of the `super` keyword without parentheses or arguments, but which might have a block.
      *
      *     super
      *     ^^^^^
+     *
+     *     super { 123 }
+     *     ^^^^^^^^^^^^^
+     *
+     * If it has any other arguments, it would be a `SuperNode` instead.
      * </pre>
      */
     public static final class ForwardingSuperNode extends Node {
+        /**
+         * <pre>
+         * All other arguments are forwarded as normal, except the original block is replaced with the new block.
+         * </pre>
+         */
         @Nullable
         public final BlockNode block;
 
@@ -10592,9 +10602,16 @@ public abstract class Nodes {
      *
      *     super foo, bar
      *     ^^^^^^^^^^^^^^
+     *
+     * If no arguments are provided (except for a block), it would be a `ForwardingSuperNode` instead.
      * </pre>
      */
     public static final class SuperNode extends Node {
+        /**
+         * <pre>
+         * Can be only `nil` when there are empty parentheses, like `super()`.
+         * </pre>
+         */
         @Nullable
         public final ArgumentsNode arguments;
         @Nullable
