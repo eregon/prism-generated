@@ -13849,6 +13849,18 @@ parse_write(pm_parser_t *parser, pm_node_t *target, pm_token_t *operator, pm_nod
             // syntax error. In this case we'll fall through to our default
             // handling. We need to free the value that we parsed because there
             // is no way for us to attach it to the tree at this point.
+            switch (PM_NODE_TYPE(value)) {
+                case PM_LOCAL_VARIABLE_READ_NODE:
+                case PM_IT_LOCAL_VARIABLE_READ_NODE:
+                    // Since it is possible for the value to be an implicit
+                    // parameter, we need to remove it from the list of implicit
+                    // parameters.
+                    parse_target_implicit_parameter(parser, value);
+                    break;
+                default:
+                    break;
+            }
+
             pm_node_destroy(parser, value);
         }
         PRISM_FALLTHROUGH
@@ -14232,6 +14244,25 @@ parse_assocs(pm_parser_t *parser, pm_static_literals_t *literals, pm_node_t *nod
     return contains_keyword_splat;
 }
 
+static inline bool
+argument_allowed_for_bare_hash(pm_parser_t *parser, pm_node_t *argument) {
+    if (pm_symbol_node_label_p(argument)) {
+        return true;
+    }
+
+    switch (PM_NODE_TYPE(argument)) {
+        case PM_CALL_NODE: {
+            pm_call_node_t *cast = (pm_call_node_t *) argument;
+            if (cast->opening_loc.start == NULL && cast->arguments != NULL) {
+                return false;
+            }
+            break;
+        }
+        default: break;
+    }
+    return accept1(parser, PM_TOKEN_EQUAL_GREATER);
+}
+
 /**
  * Append an argument to a list of arguments.
  */
@@ -14389,7 +14420,7 @@ parse_arguments(pm_parser_t *parser, pm_arguments_t *arguments, bool accepts_for
                 bool contains_keywords = false;
                 bool contains_keyword_splat = false;
 
-                if (pm_symbol_node_label_p(argument) || accept1(parser, PM_TOKEN_EQUAL_GREATER)) {
+                if (argument_allowed_for_bare_hash(parser, argument)){
                     if (parsed_bare_hash) {
                         pm_parser_err_previous(parser, PM_ERR_ARGUMENT_BARE_HASH);
                     }
@@ -22620,7 +22651,7 @@ static const char *
 pm_strnstr(const char *big, const char *little, size_t big_length) {
     size_t little_length = strlen(little);
 
-    for (const char *big_end = big + big_length; big < big_end; big++) {
+    for (const char *max = big + big_length - little_length; big <= max; big++) {
         if (*big == *little && memcmp(big, little, little_length) == 0) return big;
     }
 
