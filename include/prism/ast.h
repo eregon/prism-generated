@@ -2701,8 +2701,8 @@ typedef struct pm_case_node {
  *
  * Represents a class declaration involving the `class` keyword.
  *
- *     class Foo end
- *     ^^^^^^^^^^^^^
+ *     class Foo; end
+ *     ^^^^^^^^^^^^^^
  *
  * Type: ::PM_CLASS_NODE
  *
@@ -2723,7 +2723,7 @@ typedef struct pm_class_node {
      *
      * Represents the location of the `class` keyword.
      *
-     *     class Foo end
+     *     class Foo; end
      *     ^^^^^
      */
     pm_location_t class_keyword_loc;
@@ -2769,8 +2769,8 @@ typedef struct pm_class_node {
      *
      * Represents the location of the `end` keyword.
      *
-     *     class Foo end
-     *               ^^^
+     *     class Foo; end
+     *                ^^^
      */
     pm_location_t end_keyword_loc;
 
@@ -2779,7 +2779,7 @@ typedef struct pm_class_node {
      *
      * The name of the class.
      *
-     *     class Foo end # name `:Foo`
+     *     class Foo; end # name `:Foo`
      */
     pm_constant_id_t name;
 } pm_class_node_t;

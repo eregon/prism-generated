@@ -3851,8 +3851,8 @@ module Prism
 
   # Represents a class declaration involving the `class` keyword.
   #
-  #     class Foo end
-  #     ^^^^^^^^^^^^^
+  #     class Foo; end
+  #     ^^^^^^^^^^^^^^
   class ClassNode < Node
     # Initialize a new ClassNode node.
     def initialize(source, node_id, location, flags, locals, class_keyword_loc, constant_path, inheritance_operator_loc, superclass, body, end_keyword_loc, name)
@@ -3912,7 +3912,7 @@ module Prism
 
     # Represents the location of the `class` keyword.
     #
-    #     class Foo end
+    #     class Foo; end
     #     ^^^^^
     def class_keyword_loc
       location = @class_keyword_loc
@@ -3966,8 +3966,8 @@ module Prism
 
     # Represents the location of the `end` keyword.
     #
-    #     class Foo end
-    #               ^^^
+    #     class Foo; end
+    #                ^^^
     def end_keyword_loc
       location = @end_keyword_loc
       return location if location.is_a?(Location)
@@ -3982,7 +3982,7 @@ module Prism
 
     # The name of the class.
     #
-    #     class Foo end # name `:Foo`
+    #     class Foo; end # name `:Foo`
     attr_reader :name
 
     # def class_keyword: () -> String

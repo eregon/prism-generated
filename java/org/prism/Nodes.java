@@ -3282,8 +3282,8 @@ public abstract class Nodes {
      * <pre>
      * Represents a class declaration involving the `class` keyword.
      *
-     *     class Foo end
-     *     ^^^^^^^^^^^^^
+     *     class Foo; end
+     *     ^^^^^^^^^^^^^^
      * </pre>
      */
     public static final class ClassNode extends Node {
@@ -3316,7 +3316,7 @@ public abstract class Nodes {
          * <pre>
          * The name of the class.
          *
-         *     class Foo end # name `:Foo`
+         *     class Foo; end # name `:Foo`
          * </pre>
          */
         public final String name;

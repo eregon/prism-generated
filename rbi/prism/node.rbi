@@ -1603,8 +1603,8 @@ end
 
 # Represents a class declaration involving the `class` keyword.
 #
-#     class Foo end
-#     ^^^^^^^^^^^^^
+#     class Foo; end
+#     ^^^^^^^^^^^^^^
 class Prism::ClassNode < Prism::Node
   sig { returns(T::Array[Symbol]) }
   def locals; end

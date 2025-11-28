@@ -763,8 +763,8 @@ module Prism
 
   # Represents a class declaration involving the `class` keyword.
   #
-  #     class Foo end
-  #     ^^^^^^^^^^^^^
+  #     class Foo; end
+  #     ^^^^^^^^^^^^^^
   class ClassNode < Node
     include _Node
 
