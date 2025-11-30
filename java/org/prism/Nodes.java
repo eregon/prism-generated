@@ -3282,8 +3282,8 @@ public abstract class Nodes {
      * <pre>
      * Represents a class declaration involving the `class` keyword.
      *
-     *     class Foo; end
-     *     ^^^^^^^^^^^^^^
+     *     class Foo end
+     *     ^^^^^^^^^^^^^
      * </pre>
      */
     public static final class ClassNode extends Node {
@@ -3316,7 +3316,7 @@ public abstract class Nodes {
          * <pre>
          * The name of the class.
          *
-         *     class Foo; end # name `:Foo`
+         *     class Foo end # name `:Foo`
          * </pre>
          */
         public final String name;
@@ -7043,7 +7043,7 @@ public abstract class Nodes {
      */
     public static final class InterpolatedStringNode extends Node {
         public final short flags;
-        @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class, InterpolatedStringNode.class, XStringNode.class })
+        @UnionType({ StringNode.class, EmbeddedStatementsNode.class, EmbeddedVariableNode.class, InterpolatedStringNode.class, XStringNode.class, InterpolatedXStringNode.class, SymbolNode.class, InterpolatedSymbolNode.class })
         public final Node[] parts;
 
         public InterpolatedStringNode(int nodeId, int startOffset, int length, short flags, Node[] parts) {

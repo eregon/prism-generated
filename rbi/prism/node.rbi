@@ -1603,8 +1603,8 @@ end
 
 # Represents a class declaration involving the `class` keyword.
 #
-#     class Foo; end
-#     ^^^^^^^^^^^^^^
+#     class Foo end
+#     ^^^^^^^^^^^^^
 class Prism::ClassNode < Prism::Node
   sig { returns(T::Array[Symbol]) }
   def locals; end
@@ -4939,13 +4939,13 @@ class Prism::InterpolatedStringNode < Prism::Node
   sig { returns(T.nilable(Prism::Location)) }
   def opening_loc; end
 
-  sig { returns(T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode, Prism::InterpolatedStringNode, Prism::XStringNode)]) }
+  sig { returns(T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode, Prism::InterpolatedStringNode, Prism::XStringNode, Prism::InterpolatedXStringNode, Prism::SymbolNode, Prism::InterpolatedSymbolNode)]) }
   def parts; end
 
   sig { returns(T.nilable(Prism::Location)) }
   def closing_loc; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: T.nilable(Prism::Location), parts: T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode, Prism::InterpolatedStringNode, Prism::XStringNode)], closing_loc: T.nilable(Prism::Location)).void }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: T.nilable(Prism::Location), parts: T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode, Prism::InterpolatedStringNode, Prism::XStringNode, Prism::InterpolatedXStringNode, Prism::SymbolNode, Prism::InterpolatedSymbolNode)], closing_loc: T.nilable(Prism::Location)).void }
   def initialize(source, node_id, location, flags, opening_loc, parts, closing_loc); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
@@ -4963,7 +4963,7 @@ class Prism::InterpolatedStringNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: T.nilable(Prism::Location), parts: T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode, Prism::InterpolatedStringNode, Prism::XStringNode)], closing_loc: T.nilable(Prism::Location)).returns(Prism::InterpolatedStringNode) }
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, opening_loc: T.nilable(Prism::Location), parts: T::Array[T.any(Prism::StringNode, Prism::EmbeddedStatementsNode, Prism::EmbeddedVariableNode, Prism::InterpolatedStringNode, Prism::XStringNode, Prism::InterpolatedXStringNode, Prism::SymbolNode, Prism::InterpolatedSymbolNode)], closing_loc: T.nilable(Prism::Location)).returns(Prism::InterpolatedStringNode) }
   def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }

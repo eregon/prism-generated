@@ -5344,8 +5344,10 @@ pm_interpolated_string_node_append(pm_interpolated_string_node_t *node, pm_node_
             break;
         case PM_X_STRING_NODE:
         case PM_INTERPOLATED_X_STRING_NODE:
-            // If this is an x string, then this is a syntax error. But we want
-            // to handle it here so that we don't fail the assertion.
+        case PM_SYMBOL_NODE:
+        case PM_INTERPOLATED_SYMBOL_NODE:
+            // These will only happen in error cases. But we want to handle it
+            // here so that we don't fail the assertion.
             CLEAR_FLAGS(node);
             break;
         default:
@@ -8443,7 +8445,7 @@ parser_lex_magic_comment(pm_parser_t *parser, bool semantic_token_seen) {
                 if (*cursor == '\\' && (cursor + 1 < end)) cursor++;
             }
             value_end = cursor;
-            if (*cursor == '"') cursor++;
+            if (cursor < end && *cursor == '"') cursor++;
         } else {
             value_start = cursor;
             while (cursor < end && *cursor != '"' && *cursor != ';' && !pm_char_is_whitespace(*cursor)) cursor++;
@@ -13452,28 +13454,43 @@ parse_unwriteable_target(pm_parser_t *parser, pm_node_t *target) {
     return (pm_node_t *) result;
 }
 
+static bool
+parse_target_implicit_parameter_each(const pm_node_t *node, void *data) {
+    switch (PM_NODE_TYPE(node)) {
+        case PM_LOCAL_VARIABLE_READ_NODE:
+        case PM_IT_LOCAL_VARIABLE_READ_NODE: {
+            pm_parser_t *parser = (pm_parser_t *) data;
+            pm_node_list_t *implicit_parameters = &parser->current_scope->implicit_parameters;
+
+            for (size_t index = 0; index < implicit_parameters->size; index++) {
+                if (implicit_parameters->nodes[index] == node) {
+                    // If the node is not the last one in the list, we need to
+                    // shift the remaining nodes down to fill the gap. This is
+                    // extremely unlikely to happen.
+                    if (index != implicit_parameters->size - 1) {
+                        memmove(&implicit_parameters->nodes[index], &implicit_parameters->nodes[index + 1], (implicit_parameters->size - index - 1) * sizeof(pm_node_t *));
+                    }
+
+                    implicit_parameters->size--;
+                    break;
+                }
+            }
+
+            return false;
+        }
+        default:
+            return true;
+    }
+}
+
 /**
  * When an implicit local variable is written to or targeted, it becomes a
  * regular, named local variable. This function removes it from the list of
  * implicit parameters when that happens.
  */
 static void
-parse_target_implicit_parameter(pm_parser_t *parser, pm_node_t *node) {
-    pm_node_list_t *implicit_parameters = &parser->current_scope->implicit_parameters;
-
-    for (size_t index = 0; index < implicit_parameters->size; index++) {
-        if (implicit_parameters->nodes[index] == node) {
-            // If the node is not the last one in the list, we need to shift the
-            // remaining nodes down to fill the gap. This is extremely unlikely
-            // to happen.
-            if (index != implicit_parameters->size - 1) {
-                memmove(&implicit_parameters->nodes[index], &implicit_parameters->nodes[index + 1], (implicit_parameters->size - index - 1) * sizeof(pm_node_t *));
-            }
-
-            implicit_parameters->size--;
-            break;
-        }
-    }
+parse_target_implicit_parameter(pm_parser_t *parser, const pm_node_t *node) {
+    pm_visit_node(node, parse_target_implicit_parameter_each, parser);
 }
 
 /**
@@ -13849,18 +13866,12 @@ parse_write(pm_parser_t *parser, pm_node_t *target, pm_token_t *operator, pm_nod
             // syntax error. In this case we'll fall through to our default
             // handling. We need to free the value that we parsed because there
             // is no way for us to attach it to the tree at this point.
-            switch (PM_NODE_TYPE(value)) {
-                case PM_LOCAL_VARIABLE_READ_NODE:
-                case PM_IT_LOCAL_VARIABLE_READ_NODE:
-                    // Since it is possible for the value to be an implicit
-                    // parameter, we need to remove it from the list of implicit
-                    // parameters.
-                    parse_target_implicit_parameter(parser, value);
-                    break;
-                default:
-                    break;
-            }
-
+            //
+            // Since it is possible for the value to contain an implicit
+            // parameter somewhere in its subtree, we need to walk it and remove
+            // any implicit parameters from the list of implicit parameters for
+            // the current scope.
+            parse_target_implicit_parameter(parser, value);
             pm_node_destroy(parser, value);
         }
         PRISM_FALLTHROUGH
@@ -17336,7 +17347,11 @@ parse_pattern_hash(pm_parser_t *parser, pm_constant_id_list_t *captures, pm_node
             pm_node_t *value = NULL;
 
             if (match7(parser, PM_TOKEN_COMMA, PM_TOKEN_KEYWORD_THEN, PM_TOKEN_BRACE_RIGHT, PM_TOKEN_BRACKET_RIGHT, PM_TOKEN_PARENTHESIS_RIGHT, PM_TOKEN_NEWLINE, PM_TOKEN_SEMICOLON)) {
-                value = parse_pattern_hash_implicit_value(parser, captures, (pm_symbol_node_t *) key);
+                if (PM_NODE_TYPE_P(key, PM_SYMBOL_NODE)) {
+                    value = parse_pattern_hash_implicit_value(parser, captures, (pm_symbol_node_t *) key);
+                } else {
+                    value = (pm_node_t *) pm_missing_node_create(parser, key->location.end, key->location.end);
+                }
             } else {
                 value = parse_pattern(parser, captures, PM_PARSE_PATTERN_SINGLE, PM_ERR_PATTERN_EXPRESSION_AFTER_KEY, (uint16_t) (depth + 1));
             }
@@ -21056,6 +21071,42 @@ parse_assignment_values(pm_parser_t *parser, pm_binding_power_t previous_binding
     return value;
 }
 
+static bool
+parse_call_operator_write_block_exits_each(const pm_node_t *node, void *data) {
+    pm_parser_t *parser = (pm_parser_t *) data;
+    size_t index = 0;
+
+    while (index < parser->current_block_exits->size) {
+        pm_node_t *block_exit = parser->current_block_exits->nodes[index];
+
+        if (block_exit == node) {
+            if (index + 1 < parser->current_block_exits->size) {
+                memmove(
+                    &parser->current_block_exits->nodes[index],
+                    &parser->current_block_exits->nodes[index + 1],
+                    (parser->current_block_exits->size - index - 1) * sizeof(pm_node_t *)
+                );
+            }
+            parser->current_block_exits->size--;
+            return false;
+        }
+
+        index++;
+    }
+
+    return true;
+}
+
+/**
+ * When we are about to destroy a set of nodes that could potentially contain
+ * block exits for the current scope, we need to check if they are contained in
+ * the list of block exits and remove them if they are.
+ */
+static void
+parse_call_operator_write_block_exits(pm_parser_t *parser, const pm_node_t *node) {
+    pm_visit_node(node, parse_call_operator_write_block_exits_each, parser);
+}
+
 /**
  * Ensure a call node that is about to become a call operator node does not
  * have arguments or a block attached. If it does, then we'll need to add an
@@ -21067,12 +21118,14 @@ static void
 parse_call_operator_write(pm_parser_t *parser, pm_call_node_t *call_node, const pm_token_t *operator) {
     if (call_node->arguments != NULL) {
         pm_parser_err_token(parser, operator, PM_ERR_OPERATOR_WRITE_ARGUMENTS);
+        parse_call_operator_write_block_exits(parser, (pm_node_t *) call_node->arguments);
         pm_node_destroy(parser, (pm_node_t *) call_node->arguments);
         call_node->arguments = NULL;
     }
 
     if (call_node->block != NULL) {
         pm_parser_err_token(parser, operator, PM_ERR_OPERATOR_WRITE_BLOCK);
+        parse_call_operator_write_block_exits(parser, (pm_node_t *) call_node->block);
         pm_node_destroy(parser, (pm_node_t *) call_node->block);
         call_node->block = NULL;
     }
@@ -22861,8 +22914,8 @@ pm_parser_init(pm_parser_t *parser, const uint8_t *source, size_t size, const pm
     // If the shebang does not include "ruby" and this is the main script being
     // parsed, then we will start searching the file for a shebang that does
     // contain "ruby" as if -x were passed on the command line.
-    const uint8_t *newline = next_newline(parser->start, parser->end - parser->start);
-    size_t length = (size_t) ((newline != NULL ? newline : parser->end) - parser->start);
+    const uint8_t *newline = next_newline(parser->current.end, parser->end - parser->current.end);
+    size_t length = (size_t) ((newline != NULL ? newline : parser->end) - parser->current.end);
 
     if (length > 2 && parser->current.end[0] == '#' && parser->current.end[1] == '!') {
         const char *engine;

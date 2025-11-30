@@ -3272,8 +3272,8 @@ export class CaseNode {
 /**
  * Represents a class declaration involving the `class` keyword.
  *
- *     class Foo; end
- *     ^^^^^^^^^^^^^^
+ *     class Foo end
+ *     ^^^^^^^^^^^^^
  */
 export class ClassNode {
   /**

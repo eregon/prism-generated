@@ -3851,8 +3851,8 @@ module Prism
 
   # Represents a class declaration involving the `class` keyword.
   #
-  #     class Foo; end
-  #     ^^^^^^^^^^^^^^
+  #     class Foo end
+  #     ^^^^^^^^^^^^^
   class ClassNode < Node
     # Initialize a new ClassNode node.
     def initialize(source, node_id, location, flags, locals, class_keyword_loc, constant_path, inheritance_operator_loc, superclass, body, end_keyword_loc, name)
@@ -3912,7 +3912,7 @@ module Prism
 
     # Represents the location of the `class` keyword.
     #
-    #     class Foo; end
+    #     class Foo end
     #     ^^^^^
     def class_keyword_loc
       location = @class_keyword_loc
@@ -3966,8 +3966,8 @@ module Prism
 
     # Represents the location of the `end` keyword.
     #
-    #     class Foo; end
-    #                ^^^
+    #     class Foo end
+    #               ^^^
     def end_keyword_loc
       location = @end_keyword_loc
       return location if location.is_a?(Location)
@@ -3982,7 +3982,7 @@ module Prism
 
     # The name of the class.
     #
-    #     class Foo; end # name `:Foo`
+    #     class Foo end # name `:Foo`
     attr_reader :name
 
     # def class_keyword: () -> String
@@ -10988,7 +10988,7 @@ module Prism
       [*opening_loc, *parts, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode], ?closing_loc: Location?) -> InterpolatedStringNode
+    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode], ?closing_loc: Location?) -> InterpolatedStringNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc)
       InterpolatedStringNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
@@ -10996,7 +10996,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode], closing_loc: Location? }
+    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode], closing_loc: Location? }
     def deconstruct_keys(keys)
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
@@ -11030,7 +11030,7 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode]
+    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode]
     attr_reader :parts
 
     # attr_reader closing_loc: Location?
