@@ -3077,6 +3077,17 @@ pm_call_target_node_create(pm_parser_t *parser, pm_call_node_t *target) {
         .message_loc = target->message_loc
     };
 
+    /* It is possible to get here where we have parsed an invalid syntax tree
+     * where the call operator was not present. In that case we will have a
+     * problem because it is a required location. In this case we need to fill
+     * it in with a fake location so that the syntax tree remains valid. */
+    if (node->call_operator_loc.start == NULL) {
+        node->call_operator_loc = (pm_location_t) {
+            .start = target->base.location.start,
+            .end = target->base.location.start
+        };
+    }
+
     // Here we're going to free the target, since it is no longer necessary.
     // However, we don't want to call `pm_node_destroy` because we want to keep
     // around all of its children since we just reused them.
@@ -4096,8 +4107,8 @@ pm_hash_pattern_node_node_list_create(pm_parser_t *parser, pm_node_list_t *eleme
 
     if (elements->size > 0) {
         if (rest) {
-            start = elements->nodes[0]->location.start;
-            end = rest->location.end;
+            start = MIN(rest->location.start, elements->nodes[0]->location.start);
+            end = MAX(rest->location.end, elements->nodes[elements->size - 1]->location.end);
         } else {
             start = elements->nodes[0]->location.start;
             end = elements->nodes[elements->size - 1]->location.end;
@@ -4117,11 +4128,7 @@ pm_hash_pattern_node_node_list_create(pm_parser_t *parser, pm_node_list_t *eleme
         .closing_loc = { 0 }
     };
 
-    pm_node_t *element;
-    PM_NODE_LIST_FOREACH(elements, index, element) {
-        pm_node_list_append(&node->elements, element);
-    }
-
+    pm_node_list_concat(&node->elements, elements);
     return node;
 }
 
@@ -12024,7 +12031,10 @@ parser_lex(pm_parser_t *parser) {
                                     // string content.
                                     if (heredoc_lex_mode->indent == PM_HEREDOC_INDENT_TILDE) {
                                         const uint8_t *end = parser->current.end;
-                                        pm_newline_list_append(&parser->newline_list, end);
+
+                                        if (parser->heredoc_end == NULL) {
+                                            pm_newline_list_append(&parser->newline_list, end);
+                                        }
 
                                         // Here we want the buffer to only
                                         // include up to the backslash.
@@ -12533,7 +12543,10 @@ pm_node_unreference_each(const pm_node_t *node, void *data) {
                         );
                     }
                     parser->current_block_exits->size--;
-                    return false;
+
+                    /* Note returning true here because these nodes could have
+                     * arguments that are themselves block exits. */
+                    return true;
                 }
 
                 index++;
