@@ -825,7 +825,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      arguments.each  {|node| yield node }
+      arguments.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -937,7 +937,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      elements.each  {|node| yield node }
+      elements.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -1102,9 +1102,9 @@ module Prism
       return to_enum(:each_child_node) unless block_given?
 
       yield constant if constant
-      requireds.each  {|node| yield node }
+      requireds.each { |node| yield node }
       yield rest if rest
-      posts.each  {|node| yield node }
+      posts.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -2269,7 +2269,7 @@ module Prism
       return to_enum(:each_child_node) unless block_given?
 
       yield parameters if parameters
-      locals.each  {|node| yield node }
+      locals.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -3778,7 +3778,7 @@ module Prism
       return to_enum(:each_child_node) unless block_given?
 
       yield predicate if predicate
-      conditions.each  {|node| yield node }
+      conditions.each { |node| yield node }
       yield else_clause if else_clause
     end
 
@@ -3932,7 +3932,7 @@ module Prism
       return to_enum(:each_child_node) unless block_given?
 
       yield predicate if predicate
-      conditions.each  {|node| yield node }
+      conditions.each { |node| yield node }
       yield else_clause if else_clause
     end
 
@@ -7296,7 +7296,7 @@ module Prism
 
       yield constant if constant
       yield left
-      requireds.each  {|node| yield node }
+      requireds.each { |node| yield node }
       yield right
     end
 
@@ -8775,7 +8775,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      elements.each  {|node| yield node }
+      elements.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -8920,7 +8920,7 @@ module Prism
       return to_enum(:each_child_node) unless block_given?
 
       yield constant if constant
-      elements.each  {|node| yield node }
+      elements.each { |node| yield node }
       yield rest if rest
     end
 
@@ -11259,7 +11259,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      parts.each  {|node| yield node }
+      parts.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -11436,7 +11436,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      parts.each  {|node| yield node }
+      parts.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -11613,7 +11613,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      parts.each  {|node| yield node }
+      parts.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -11757,7 +11757,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      parts.each  {|node| yield node }
+      parts.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -11890,7 +11890,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      parts.each  {|node| yield node }
+      parts.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -12157,7 +12157,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      elements.each  {|node| yield node }
+      elements.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -13694,7 +13694,7 @@ module Prism
       return to_enum(:each_child_node) unless block_given?
 
       yield call
-      targets.each  {|node| yield node }
+      targets.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -13999,9 +13999,9 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      lefts.each  {|node| yield node }
+      lefts.each { |node| yield node }
       yield rest if rest
-      rights.each  {|node| yield node }
+      rights.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -14181,9 +14181,9 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      lefts.each  {|node| yield node }
+      lefts.each { |node| yield node }
       yield rest if rest
-      rights.each  {|node| yield node }
+      rights.each { |node| yield node }
       yield value
     end
 
@@ -15205,11 +15205,11 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      requireds.each  {|node| yield node }
-      optionals.each  {|node| yield node }
+      requireds.each { |node| yield node }
+      optionals.each { |node| yield node }
       yield rest if rest
-      posts.each  {|node| yield node }
-      keywords.each  {|node| yield node }
+      posts.each { |node| yield node }
+      keywords.each { |node| yield node }
       yield keyword_rest if keyword_rest
       yield block if block
     end
@@ -16893,7 +16893,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      exceptions.each  {|node| yield node }
+      exceptions.each { |node| yield node }
       yield reference if reference
       yield statements if statements
       yield subsequent if subsequent
@@ -18042,7 +18042,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      body.each  {|node| yield node }
+      body.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -18718,7 +18718,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      names.each  {|node| yield node }
+      names.each { |node| yield node }
     end
 
     # def compact_child_nodes: () -> Array[Node]
@@ -19189,7 +19189,7 @@ module Prism
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
-      conditions.each  {|node| yield node }
+      conditions.each { |node| yield node }
       yield statements if statements
     end
 
