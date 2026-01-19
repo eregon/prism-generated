@@ -195,24 +195,13 @@ module Prism
       queue = [self] #: Array[Prism::node]
       result = [] #: Array[Prism::node]
 
+      search_offset = source.line_to_byte_offset(line) + column
+
       while (node = queue.shift)
         result << node
 
         node.each_child_node do |child_node|
-          child_location = child_node.location
-
-          start_line = child_location.start_line
-          end_line = child_location.end_line
-
-          if start_line == end_line
-            if line == start_line && column >= child_location.start_column && column < child_location.end_column
-              queue << child_node
-              break
-            end
-          elsif (line == start_line && column >= child_location.start_column) || (line == end_line && column < child_location.end_column)
-            queue << child_node
-            break
-          elsif line > start_line && line < end_line
+          if child_node.start_offset <= search_offset && search_offset < child_node.end_offset
             queue << child_node
             break
           end
@@ -2025,10 +2014,10 @@ module Prism
     #                          ^^^^^^
     attr_reader :body
 
-    # Represents the location of the opening `|`.
+    # Represents the location of the opening `{` or `do`.
     #
     #     [1, 2, 3].each { |i| puts x }
-    #                      ^
+    #                    ^
     def opening_loc
       location = @opening_loc
       return location if location.is_a?(Location)
@@ -2041,10 +2030,10 @@ module Prism
       repository.enter(node_id, :opening_loc)
     end
 
-    # Represents the location of the closing `|`.
+    # Represents the location of the closing `}` or `end`.
     #
     #     [1, 2, 3].each { |i| puts x }
-    #                        ^
+    #                                 ^
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
