@@ -657,6 +657,16 @@ module Prism
             IgnoreStateToken.new([[lineno, column], event, value, lex_state])
           when :on_embexpr_end
             IgnoreStateToken.new([[lineno, column], event, value, lex_state])
+          when :on_words_sep
+            # Ripper emits one token each per line.
+            value.each_line.with_index do |line, index|
+              if index > 0
+                lineno += 1
+                column = 0
+              end
+              tokens << Token.new([[lineno, column], event, line, lex_state])
+            end
+            tokens.pop
           when :on_regexp_end
             # On regex end, Ripper scans and then sets end state, so the ripper
             # lexed output is begin, when it should be end. prism sets lex state
