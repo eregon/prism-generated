@@ -14,119 +14,128 @@ module Prism
 
   def self.parse: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> ParseResult
 
   def self.profile: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> nil
 
   def self.lex: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> LexResult
 
   def self.lex_compat: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> LexCompat::Result
 
   def self.parse_lex: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> ParseLexResult
 
   def self.dump: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> String
 
   def self.parse_comments: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> Array[comment]
 
   def self.parse_success?: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> bool
 
   def self.parse_failure?: (
     String source,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> bool
 
   def self.load: (
@@ -143,98 +152,106 @@ module Prism
 
   def self.parse_file: (
     String filepath,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> ParseResult
 
   def self.profile_file: (
     String filepath,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> nil
 
   def self.lex_file: (
     String filepath,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> LexResult
 
   def self.parse_lex_file: (
     String filepath,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> ParseLexResult
 
   def self.dump_file: (
     String filepath,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> String
 
   def self.parse_file_comments: (
     String filepath,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> Array[comment]
 
   def self.parse_file_success?: (
     String filepath,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> bool
 
   def self.parse_file_failure?: (
     String filepath,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> bool
 
   interface _Stream
@@ -243,15 +260,16 @@ module Prism
 
   def self.parse_stream: (
     _Stream stream,
+    ?command_line: String,
     ?encoding: Encoding | false,
     ?filepath: String,
     ?freeze: bool,
     ?frozen_string_literal: bool,
     ?line: Integer,
     ?main_script: bool,
-    ?offset: Integer,
+    ?partial_script: bool,
     ?scopes: Array[Array[Symbol]],
-    ?verbose: bool
+    ?version: String
   ) -> ParseResult
 
   def self.scope: (?locals: Array[Symbol], ?forwarding: Array[Symbol]) -> Scope
