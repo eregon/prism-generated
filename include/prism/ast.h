@@ -517,12 +517,6 @@ typedef enum pm_token_type {
     /** marker for the point in the file at which the parser should stop */
     PM_TOKEN___END__,
 
-    /** a token that was expected but not found */
-    PM_TOKEN_MISSING,
-
-    /** a token that was not present but it is okay */
-    PM_TOKEN_NOT_PROVIDED,
-
     /** The maximum token value. */
     PM_TOKEN_MAXIMUM,
 } pm_token_type_t;
@@ -543,15 +537,19 @@ typedef struct {
 } pm_token_t;
 
 /**
- * This represents a range of bytes in the source string to which a node or
- * token corresponds.
+ * This struct represents a slice in the source code, defined by an offset and
+ * a length. Note that we have confirmation that we can represent all locations
+ * within Ruby source files using 32-bit integers per:
+ *
+ *     https://bugs.ruby-lang.org/issues/20488#note-1
+ *
  */
 typedef struct {
-    /** A pointer to the start location of the range in the source. */
-    const uint8_t *start;
+    /** The offset of the location from the start of the source. */
+    uint32_t start;
 
-    /** A pointer to the end location of the range in the source. */
-    const uint8_t *end;
+    /** The length of the location. */
+    uint32_t length;
 } pm_location_t;
 
 struct pm_node;
@@ -1057,7 +1055,7 @@ static const pm_node_flags_t PM_NODE_FLAG_STATIC_LITERAL = 0x2;
 typedef struct pm_node {
     /**
      * This represents the type of the node. It somewhat maps to the nodes that
-     * existed in the original grammar and ripper, but it's not a 1:1 mapping.
+     * existed in the original grammar and ripper, but it is not a 1:1 mapping.
      */
     pm_node_type_t type;
 
@@ -1074,7 +1072,7 @@ typedef struct pm_node {
     uint32_t node_id;
 
     /**
-     * This is the location of the node in the source. It's a range of bytes
+     * This is the location of the node in the source. It is a range of bytes
      * containing a start and an end.
      */
     pm_location_t location;
@@ -1107,6 +1105,15 @@ typedef struct pm_node {
 #define PM_NODE_FLAG_P(node_, flag_) ((PM_NODE_FLAGS(node_) & (flag_)) != 0)
 
 /**
+ * The alignment required for a child node within a parent node.
+ */
+#ifdef _MSC_VER
+#define PM_NODE_ALIGNAS __declspec(align(8))
+#else
+#define PM_NODE_ALIGNAS PRISM_ALIGNAS(PRISM_ALIGNOF(void *))
+#endif
+
+/**
  * AliasGlobalVariableNode
  *
  * Represents the use of the `alias` keyword to alias a global variable.
@@ -1122,7 +1129,6 @@ typedef struct pm_alias_global_variable_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * AliasGlobalVariableNode#new_name
      *
@@ -1131,7 +1137,7 @@ typedef struct pm_alias_global_variable_node {
      *     alias $foo $bar
      *           ^^^^
      */
-    struct pm_node *new_name;
+    PM_NODE_ALIGNAS struct pm_node *new_name;
 
     /**
      * AliasGlobalVariableNode#old_name
@@ -1141,7 +1147,7 @@ typedef struct pm_alias_global_variable_node {
      *     alias $foo $bar
      *                ^^^^
      */
-    struct pm_node *old_name;
+    PM_NODE_ALIGNAS struct pm_node *old_name;
 
     /**
      * AliasGlobalVariableNode#keyword_loc
@@ -1170,7 +1176,6 @@ typedef struct pm_alias_method_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * AliasMethodNode#new_name
      *
@@ -1185,7 +1190,7 @@ typedef struct pm_alias_method_node {
      *     alias :"#{foo}" :"#{bar}"
      *           ^^^^^^^^^
      */
-    struct pm_node *new_name;
+    PM_NODE_ALIGNAS struct pm_node *new_name;
 
     /**
      * AliasMethodNode#old_name
@@ -1201,7 +1206,7 @@ typedef struct pm_alias_method_node {
      *     alias :"#{foo}" :"#{bar}"
      *                     ^^^^^^^^^
      */
-    struct pm_node *old_name;
+    PM_NODE_ALIGNAS struct pm_node *old_name;
 
     /**
      * AliasMethodNode#keyword_loc
@@ -1230,7 +1235,6 @@ typedef struct pm_alternation_pattern_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * AlternationPatternNode#left
      *
@@ -1239,7 +1243,7 @@ typedef struct pm_alternation_pattern_node {
      *     foo => bar | baz
      *            ^^^
      */
-    struct pm_node *left;
+    PM_NODE_ALIGNAS struct pm_node *left;
 
     /**
      * AlternationPatternNode#right
@@ -1249,7 +1253,7 @@ typedef struct pm_alternation_pattern_node {
      *     foo => bar | baz
      *                  ^^^
      */
-    struct pm_node *right;
+    PM_NODE_ALIGNAS struct pm_node *right;
 
     /**
      * AlternationPatternNode#operator_loc
@@ -1278,7 +1282,6 @@ typedef struct pm_and_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * AndNode#left
      *
@@ -1290,7 +1293,7 @@ typedef struct pm_and_node {
      *     1 && 2
      *     ^
      */
-    struct pm_node *left;
+    PM_NODE_ALIGNAS struct pm_node *left;
 
     /**
      * AndNode#right
@@ -1303,7 +1306,7 @@ typedef struct pm_and_node {
      *     1 and 2
      *           ^
      */
-    struct pm_node *right;
+    PM_NODE_ALIGNAS struct pm_node *right;
 
     /**
      * AndNode#operator_loc
@@ -1339,7 +1342,6 @@ typedef struct pm_arguments_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ArgumentsNode#arguments
      *
@@ -1369,7 +1371,6 @@ typedef struct pm_arguments_node {
 typedef struct pm_array_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * ArrayNode#elements
@@ -1431,7 +1432,6 @@ typedef struct pm_array_pattern_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ArrayPatternNode#constant
      *
@@ -1446,7 +1446,7 @@ typedef struct pm_array_pattern_node {
      *     foo in Bar::Baz[1, 2, 3]
      *            ^^^^^^^^
      */
-    struct pm_node *constant;
+    PM_NODE_ALIGNAS struct pm_node *constant;
 
     /**
      * ArrayPatternNode#requireds
@@ -1466,7 +1466,7 @@ typedef struct pm_array_pattern_node {
      *     foo in *bar
      *            ^^^^
      */
-    struct pm_node *rest;
+    PM_NODE_ALIGNAS struct pm_node *rest;
 
     /**
      * ArrayPatternNode#posts
@@ -1515,7 +1515,6 @@ typedef struct pm_assoc_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * AssocNode#key
      *
@@ -1530,7 +1529,7 @@ typedef struct pm_assoc_node {
      *     { def a; end => 1 }
      *       ^^^^^^^^^^
      */
-    struct pm_node *key;
+    PM_NODE_ALIGNAS struct pm_node *key;
 
     /**
      * AssocNode#value
@@ -1543,7 +1542,7 @@ typedef struct pm_assoc_node {
      *     { x: 1 }
      *          ^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * AssocNode#operator_loc
@@ -1572,7 +1571,6 @@ typedef struct pm_assoc_splat_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * AssocSplatNode#value
      *
@@ -1581,7 +1579,7 @@ typedef struct pm_assoc_splat_node {
      *     { **foo }
      *         ^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * AssocSplatNode#operator_loc
@@ -1609,7 +1607,6 @@ typedef struct pm_assoc_splat_node {
 typedef struct pm_back_reference_read_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * BackReferenceReadNode#name
@@ -1641,7 +1638,6 @@ typedef struct pm_begin_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * BeginNode#begin_keyword_loc
      *
@@ -1660,7 +1656,7 @@ typedef struct pm_begin_node {
      *     begin x end
      *           ^
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * BeginNode#rescue_clause
@@ -1670,7 +1666,7 @@ typedef struct pm_begin_node {
      *     begin x; rescue y; end
      *              ^^^^^^^^
      */
-    struct pm_rescue_node *rescue_clause;
+    PM_NODE_ALIGNAS struct pm_rescue_node *rescue_clause;
 
     /**
      * BeginNode#else_clause
@@ -1680,7 +1676,7 @@ typedef struct pm_begin_node {
      *     begin x; rescue y; else z; end
      *                        ^^^^^^
      */
-    struct pm_else_node *else_clause;
+    PM_NODE_ALIGNAS struct pm_else_node *else_clause;
 
     /**
      * BeginNode#ensure_clause
@@ -1690,7 +1686,7 @@ typedef struct pm_begin_node {
      *     begin x; ensure y; end
      *              ^^^^^^^^
      */
-    struct pm_ensure_node *ensure_clause;
+    PM_NODE_ALIGNAS struct pm_ensure_node *ensure_clause;
 
     /**
      * BeginNode#end_keyword_loc
@@ -1719,7 +1715,6 @@ typedef struct pm_block_argument_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * BlockArgumentNode#expression
      *
@@ -1728,7 +1723,7 @@ typedef struct pm_block_argument_node {
      *     foo(&args)
      *         ^^^^^
      */
-    struct pm_node *expression;
+    PM_NODE_ALIGNAS struct pm_node *expression;
 
     /**
      * BlockArgumentNode#operator_loc
@@ -1760,7 +1755,6 @@ typedef struct pm_block_local_variable_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * BlockLocalVariableNode#name
      *
@@ -1788,7 +1782,6 @@ typedef struct pm_block_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * BlockNode#locals
      *
@@ -1811,7 +1804,7 @@ typedef struct pm_block_node {
      *     [1, 2, 3].each { puts it }
      *                    ^^^^^^^^^^^
      */
-    struct pm_node *parameters;
+    PM_NODE_ALIGNAS struct pm_node *parameters;
 
     /**
      * BlockNode#body
@@ -1821,7 +1814,7 @@ typedef struct pm_block_node {
      *     [1, 2, 3].each { |i| puts x }
      *                          ^^^^^^
      */
-    struct pm_node *body;
+    PM_NODE_ALIGNAS struct pm_node *body;
 
     /**
      * BlockNode#opening_loc
@@ -1863,7 +1856,6 @@ typedef struct pm_block_node {
 typedef struct pm_block_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * BlockParameterNode#name
@@ -1918,7 +1910,6 @@ typedef struct pm_block_parameters_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * BlockParametersNode#parameters
      *
@@ -1931,7 +1922,7 @@ typedef struct pm_block_parameters_node {
      *             ^^^^^^^^
      *     end
      */
-    struct pm_parameters_node *parameters;
+    PM_NODE_ALIGNAS struct pm_parameters_node *parameters;
 
     /**
      * BlockParametersNode#locals
@@ -1992,7 +1983,6 @@ typedef struct pm_break_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * BreakNode#arguments
      *
@@ -2001,7 +1991,7 @@ typedef struct pm_break_node {
      *     break foo
      *           ^^^
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * BreakNode#keyword_loc
@@ -2036,7 +2026,6 @@ typedef struct pm_call_and_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * CallAndWriteNode#receiver
      *
@@ -2045,7 +2034,7 @@ typedef struct pm_call_and_write_node {
      *     foo.bar &&= value
      *     ^^^
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * CallAndWriteNode#call_operator_loc
@@ -2105,7 +2094,7 @@ typedef struct pm_call_and_write_node {
      *     foo.bar &&= value
      *                 ^^^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_call_and_write_node_t;
 
 /**
@@ -2145,7 +2134,6 @@ typedef struct pm_call_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * CallNode#receiver
      *
@@ -2160,7 +2148,7 @@ typedef struct pm_call_node {
      *     foo + bar
      *     ^^^
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * CallNode#call_operator_loc
@@ -2212,7 +2200,7 @@ typedef struct pm_call_node {
      *     foo(bar)
      *         ^^^
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * CallNode#closing_loc
@@ -2245,7 +2233,7 @@ typedef struct pm_call_node {
      *     foo { |a| a }
      *         ^^^^^^^^^
      */
-    struct pm_node *block;
+    PM_NODE_ALIGNAS struct pm_node *block;
 } pm_call_node_t;
 
 /**
@@ -2270,7 +2258,6 @@ typedef struct pm_call_operator_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * CallOperatorWriteNode#receiver
      *
@@ -2279,7 +2266,7 @@ typedef struct pm_call_operator_write_node {
      *     foo.bar += value
      *     ^^^
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * CallOperatorWriteNode#call_operator_loc
@@ -2349,7 +2336,7 @@ typedef struct pm_call_operator_write_node {
      *     foo.bar += value
      *                ^^^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_call_operator_write_node_t;
 
 /**
@@ -2374,7 +2361,6 @@ typedef struct pm_call_or_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * CallOrWriteNode#receiver
      *
@@ -2383,7 +2369,7 @@ typedef struct pm_call_or_write_node {
      *     foo.bar ||= value
      *     ^^^
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * CallOrWriteNode#call_operator_loc
@@ -2443,7 +2429,7 @@ typedef struct pm_call_or_write_node {
      *     foo.bar ||= value
      *                 ^^^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_call_or_write_node_t;
 
 /**
@@ -2476,7 +2462,6 @@ typedef struct pm_call_target_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * CallTargetNode#receiver
      *
@@ -2485,7 +2470,7 @@ typedef struct pm_call_target_node {
      *     foo.bar = 1
      *     ^^^
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * CallTargetNode#call_operator_loc
@@ -2534,7 +2519,6 @@ typedef struct pm_capture_pattern_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * CapturePatternNode#value
      *
@@ -2543,7 +2527,7 @@ typedef struct pm_capture_pattern_node {
      *     foo => bar
      *            ^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * CapturePatternNode#target
@@ -2553,7 +2537,7 @@ typedef struct pm_capture_pattern_node {
      *     foo => bar
      *     ^^^
      */
-    struct pm_local_variable_target_node *target;
+    PM_NODE_ALIGNAS struct pm_local_variable_target_node *target;
 
     /**
      * CapturePatternNode#operator_loc
@@ -2584,7 +2568,6 @@ typedef struct pm_case_match_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * CaseMatchNode#predicate
      *
@@ -2593,7 +2576,7 @@ typedef struct pm_case_match_node {
      *     case true; in false; end
      *     ^^^^
      */
-    struct pm_node *predicate;
+    PM_NODE_ALIGNAS struct pm_node *predicate;
 
     /**
      * CaseMatchNode#conditions
@@ -2613,7 +2596,7 @@ typedef struct pm_case_match_node {
      *     case true; in false; else; end
      *                          ^^^^
      */
-    struct pm_else_node *else_clause;
+    PM_NODE_ALIGNAS struct pm_else_node *else_clause;
 
     /**
      * CaseMatchNode#case_keyword_loc
@@ -2654,7 +2637,6 @@ typedef struct pm_case_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * CaseNode#predicate
      *
@@ -2663,7 +2645,7 @@ typedef struct pm_case_node {
      *     case true; when false; end
      *          ^^^^
      */
-    struct pm_node *predicate;
+    PM_NODE_ALIGNAS struct pm_node *predicate;
 
     /**
      * CaseNode#conditions
@@ -2683,7 +2665,7 @@ typedef struct pm_case_node {
      *     case true; when false; else; end
      *                            ^^^^
      */
-    struct pm_else_node *else_clause;
+    PM_NODE_ALIGNAS struct pm_else_node *else_clause;
 
     /**
      * CaseNode#case_keyword_loc
@@ -2722,7 +2704,6 @@ typedef struct pm_class_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ClassNode#locals
      */
@@ -2741,7 +2722,7 @@ typedef struct pm_class_node {
     /**
      * ClassNode#constant_path
      */
-    struct pm_node *constant_path;
+    PM_NODE_ALIGNAS struct pm_node *constant_path;
 
     /**
      * ClassNode#inheritance_operator_loc
@@ -2761,7 +2742,7 @@ typedef struct pm_class_node {
      *     class Foo < Bar
      *                 ^^^
      */
-    struct pm_node *superclass;
+    PM_NODE_ALIGNAS struct pm_node *superclass;
 
     /**
      * ClassNode#body
@@ -2772,7 +2753,7 @@ typedef struct pm_class_node {
      *       foo
      *       ^^^
      */
-    struct pm_node *body;
+    PM_NODE_ALIGNAS struct pm_node *body;
 
     /**
      * ClassNode#end_keyword_loc
@@ -2809,7 +2790,6 @@ typedef struct pm_class_node {
 typedef struct pm_class_variable_and_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * ClassVariableAndWriteNode#name
@@ -2849,7 +2829,7 @@ typedef struct pm_class_variable_and_write_node {
      *     @@target &&= value
      *                  ^^^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_class_variable_and_write_node_t;
 
 /**
@@ -2867,7 +2847,6 @@ typedef struct pm_class_variable_and_write_node {
 typedef struct pm_class_variable_operator_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * ClassVariableOperatorWriteNode#name
@@ -2887,7 +2866,7 @@ typedef struct pm_class_variable_operator_write_node {
     /**
      * ClassVariableOperatorWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * ClassVariableOperatorWriteNode#binary_operator
@@ -2911,7 +2890,6 @@ typedef struct pm_class_variable_or_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ClassVariableOrWriteNode#name
      */
@@ -2930,7 +2908,7 @@ typedef struct pm_class_variable_or_write_node {
     /**
      * ClassVariableOrWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_class_variable_or_write_node_t;
 
 /**
@@ -2948,7 +2926,6 @@ typedef struct pm_class_variable_or_write_node {
 typedef struct pm_class_variable_read_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * ClassVariableReadNode#name
@@ -2978,7 +2955,6 @@ typedef struct pm_class_variable_target_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ClassVariableTargetNode#name
      */
@@ -3000,7 +2976,6 @@ typedef struct pm_class_variable_target_node {
 typedef struct pm_class_variable_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * ClassVariableWriteNode#name
@@ -3034,7 +3009,7 @@ typedef struct pm_class_variable_write_node {
      *     @@_xyz = 123
      *              ^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * ClassVariableWriteNode#operator_loc
@@ -3063,7 +3038,6 @@ typedef struct pm_constant_and_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantAndWriteNode#name
      */
@@ -3082,7 +3056,7 @@ typedef struct pm_constant_and_write_node {
     /**
      * ConstantAndWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_constant_and_write_node_t;
 
 /**
@@ -3100,7 +3074,6 @@ typedef struct pm_constant_and_write_node {
 typedef struct pm_constant_operator_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * ConstantOperatorWriteNode#name
@@ -3120,7 +3093,7 @@ typedef struct pm_constant_operator_write_node {
     /**
      * ConstantOperatorWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * ConstantOperatorWriteNode#binary_operator
@@ -3144,7 +3117,6 @@ typedef struct pm_constant_or_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantOrWriteNode#name
      */
@@ -3163,7 +3135,7 @@ typedef struct pm_constant_or_write_node {
     /**
      * ConstantOrWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_constant_or_write_node_t;
 
 /**
@@ -3182,11 +3154,10 @@ typedef struct pm_constant_path_and_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantPathAndWriteNode#target
      */
-    struct pm_constant_path_node *target;
+    PM_NODE_ALIGNAS struct pm_constant_path_node *target;
 
     /**
      * ConstantPathAndWriteNode#operator_loc
@@ -3196,7 +3167,7 @@ typedef struct pm_constant_path_and_write_node {
     /**
      * ConstantPathAndWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_constant_path_and_write_node_t;
 
 /**
@@ -3215,7 +3186,6 @@ typedef struct pm_constant_path_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantPathNode#parent
      *
@@ -3230,7 +3200,7 @@ typedef struct pm_constant_path_node {
      *     a.b::C
      *     ^^^
      */
-    struct pm_node *parent;
+    PM_NODE_ALIGNAS struct pm_node *parent;
 
     /**
      * ConstantPathNode#name
@@ -3282,11 +3252,10 @@ typedef struct pm_constant_path_operator_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantPathOperatorWriteNode#target
      */
-    struct pm_constant_path_node *target;
+    PM_NODE_ALIGNAS struct pm_constant_path_node *target;
 
     /**
      * ConstantPathOperatorWriteNode#binary_operator_loc
@@ -3296,7 +3265,7 @@ typedef struct pm_constant_path_operator_write_node {
     /**
      * ConstantPathOperatorWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * ConstantPathOperatorWriteNode#binary_operator
@@ -3320,11 +3289,10 @@ typedef struct pm_constant_path_or_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantPathOrWriteNode#target
      */
-    struct pm_constant_path_node *target;
+    PM_NODE_ALIGNAS struct pm_constant_path_node *target;
 
     /**
      * ConstantPathOrWriteNode#operator_loc
@@ -3334,7 +3302,7 @@ typedef struct pm_constant_path_or_write_node {
     /**
      * ConstantPathOrWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_constant_path_or_write_node_t;
 
 /**
@@ -3353,11 +3321,10 @@ typedef struct pm_constant_path_target_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantPathTargetNode#parent
      */
-    struct pm_node *parent;
+    PM_NODE_ALIGNAS struct pm_node *parent;
 
     /**
      * ConstantPathTargetNode#name
@@ -3397,7 +3364,6 @@ typedef struct pm_constant_path_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantPathWriteNode#target
      *
@@ -3409,7 +3375,7 @@ typedef struct pm_constant_path_write_node {
      *     ::Foo = :abc
      *     ^^^^^
      */
-    struct pm_constant_path_node *target;
+    PM_NODE_ALIGNAS struct pm_constant_path_node *target;
 
     /**
      * ConstantPathWriteNode#operator_loc
@@ -3429,7 +3395,7 @@ typedef struct pm_constant_path_write_node {
      *     FOO::BAR = :abc
      *                ^^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_constant_path_write_node_t;
 
 /**
@@ -3447,7 +3413,6 @@ typedef struct pm_constant_path_write_node {
 typedef struct pm_constant_read_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * ConstantReadNode#name
@@ -3477,7 +3442,6 @@ typedef struct pm_constant_target_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ConstantTargetNode#name
      */
@@ -3499,7 +3463,6 @@ typedef struct pm_constant_target_node {
 typedef struct pm_constant_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * ConstantWriteNode#name
@@ -3533,7 +3496,7 @@ typedef struct pm_constant_write_node {
      *     MyClass = Class.new
      *               ^^^^^^^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * ConstantWriteNode#operator_loc
@@ -3563,7 +3526,6 @@ typedef struct pm_def_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * DefNode#name
      */
@@ -3577,17 +3539,17 @@ typedef struct pm_def_node {
     /**
      * DefNode#receiver
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * DefNode#parameters
      */
-    struct pm_parameters_node *parameters;
+    PM_NODE_ALIGNAS struct pm_parameters_node *parameters;
 
     /**
      * DefNode#body
      */
-    struct pm_node *body;
+    PM_NODE_ALIGNAS struct pm_node *body;
 
     /**
      * DefNode#locals
@@ -3641,7 +3603,6 @@ typedef struct pm_defined_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * DefinedNode#lparen_loc
      */
@@ -3650,7 +3611,7 @@ typedef struct pm_defined_node {
     /**
      * DefinedNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * DefinedNode#rparen_loc
@@ -3679,7 +3640,6 @@ typedef struct pm_else_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ElseNode#else_keyword_loc
      */
@@ -3688,7 +3648,7 @@ typedef struct pm_else_node {
     /**
      * ElseNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * ElseNode#end_keyword_loc
@@ -3712,7 +3672,6 @@ typedef struct pm_embedded_statements_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * EmbeddedStatementsNode#opening_loc
      */
@@ -3721,7 +3680,7 @@ typedef struct pm_embedded_statements_node {
     /**
      * EmbeddedStatementsNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * EmbeddedStatementsNode#closing_loc
@@ -3745,7 +3704,6 @@ typedef struct pm_embedded_variable_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * EmbeddedVariableNode#operator_loc
      */
@@ -3754,7 +3712,7 @@ typedef struct pm_embedded_variable_node {
     /**
      * EmbeddedVariableNode#variable
      */
-    struct pm_node *variable;
+    PM_NODE_ALIGNAS struct pm_node *variable;
 } pm_embedded_variable_node_t;
 
 /**
@@ -3777,7 +3735,6 @@ typedef struct pm_ensure_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * EnsureNode#ensure_keyword_loc
      */
@@ -3786,7 +3743,7 @@ typedef struct pm_ensure_node {
     /**
      * EnsureNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * EnsureNode#end_keyword_loc
@@ -3809,7 +3766,6 @@ typedef struct pm_ensure_node {
 typedef struct pm_false_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_false_node_t;
 
 /**
@@ -3837,7 +3793,6 @@ typedef struct pm_find_pattern_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * FindPatternNode#constant
      *
@@ -3846,7 +3801,7 @@ typedef struct pm_find_pattern_node {
      *     foo in Foo(*bar, baz, *qux)
      *            ^^^
      */
-    struct pm_node *constant;
+    PM_NODE_ALIGNAS struct pm_node *constant;
 
     /**
      * FindPatternNode#left
@@ -3859,7 +3814,7 @@ typedef struct pm_find_pattern_node {
      *     foo in Foo(*bar, baz, *qux)
      *                ^^^^
      */
-    struct pm_splat_node *left;
+    PM_NODE_ALIGNAS struct pm_splat_node *left;
 
     /**
      * FindPatternNode#requireds
@@ -3885,7 +3840,7 @@ typedef struct pm_find_pattern_node {
      *     foo in Foo(*bar, baz, *qux)
      *                           ^^^^
      */
-    struct pm_node *right;
+    PM_NODE_ALIGNAS struct pm_node *right;
 
     /**
      * FindPatternNode#opening_loc
@@ -3933,16 +3888,15 @@ typedef struct pm_flip_flop_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * FlipFlopNode#left
      */
-    struct pm_node *left;
+    PM_NODE_ALIGNAS struct pm_node *left;
 
     /**
      * FlipFlopNode#right
      */
-    struct pm_node *right;
+    PM_NODE_ALIGNAS struct pm_node *right;
 
     /**
      * FlipFlopNode#operator_loc
@@ -3965,7 +3919,6 @@ typedef struct pm_flip_flop_node {
 typedef struct pm_float_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * FloatNode#value
@@ -3991,7 +3944,6 @@ typedef struct pm_for_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ForNode#index
      *
@@ -4000,7 +3952,7 @@ typedef struct pm_for_node {
      *     for i in a end
      *         ^
      */
-    struct pm_node *index;
+    PM_NODE_ALIGNAS struct pm_node *index;
 
     /**
      * ForNode#collection
@@ -4010,7 +3962,7 @@ typedef struct pm_for_node {
      *     for i in a end
      *              ^
      */
-    struct pm_node *collection;
+    PM_NODE_ALIGNAS struct pm_node *collection;
 
     /**
      * ForNode#statements
@@ -4022,7 +3974,7 @@ typedef struct pm_for_node {
      *       ^^^^^^
      *     end
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * ForNode#for_keyword_loc
@@ -4082,7 +4034,6 @@ typedef struct pm_for_node {
 typedef struct pm_forwarding_arguments_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_forwarding_arguments_node_t;
 
 /**
@@ -4101,7 +4052,6 @@ typedef struct pm_forwarding_arguments_node {
 typedef struct pm_forwarding_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_forwarding_parameter_node_t;
 
 /**
@@ -4125,13 +4075,12 @@ typedef struct pm_forwarding_super_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ForwardingSuperNode#block
      *
      * All other arguments are forwarded as normal, except the original block is replaced with the new block.
      */
-    struct pm_block_node *block;
+    PM_NODE_ALIGNAS struct pm_block_node *block;
 } pm_forwarding_super_node_t;
 
 /**
@@ -4149,7 +4098,6 @@ typedef struct pm_forwarding_super_node {
 typedef struct pm_global_variable_and_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * GlobalVariableAndWriteNode#name
@@ -4169,7 +4117,7 @@ typedef struct pm_global_variable_and_write_node {
     /**
      * GlobalVariableAndWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_global_variable_and_write_node_t;
 
 /**
@@ -4187,7 +4135,6 @@ typedef struct pm_global_variable_and_write_node {
 typedef struct pm_global_variable_operator_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * GlobalVariableOperatorWriteNode#name
@@ -4207,7 +4154,7 @@ typedef struct pm_global_variable_operator_write_node {
     /**
      * GlobalVariableOperatorWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * GlobalVariableOperatorWriteNode#binary_operator
@@ -4231,7 +4178,6 @@ typedef struct pm_global_variable_or_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * GlobalVariableOrWriteNode#name
      */
@@ -4250,7 +4196,7 @@ typedef struct pm_global_variable_or_write_node {
     /**
      * GlobalVariableOrWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_global_variable_or_write_node_t;
 
 /**
@@ -4268,7 +4214,6 @@ typedef struct pm_global_variable_or_write_node {
 typedef struct pm_global_variable_read_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * GlobalVariableReadNode#name
@@ -4298,7 +4243,6 @@ typedef struct pm_global_variable_target_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * GlobalVariableTargetNode#name
      */
@@ -4320,7 +4264,6 @@ typedef struct pm_global_variable_target_node {
 typedef struct pm_global_variable_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * GlobalVariableWriteNode#name
@@ -4354,7 +4297,7 @@ typedef struct pm_global_variable_write_node {
      *     $-xyz = 123
      *             ^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * GlobalVariableWriteNode#operator_loc
@@ -4382,7 +4325,6 @@ typedef struct pm_global_variable_write_node {
 typedef struct pm_hash_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * HashNode#opening_loc
@@ -4443,7 +4385,6 @@ typedef struct pm_hash_pattern_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * HashPatternNode#constant
      *
@@ -4455,7 +4396,7 @@ typedef struct pm_hash_pattern_node {
      *     foo => Bar::Baz[a: 1, b: 2]
      *          ^^^^^^^^
      */
-    struct pm_node *constant;
+    PM_NODE_ALIGNAS struct pm_node *constant;
 
     /**
      * HashPatternNode#elements
@@ -4481,7 +4422,7 @@ typedef struct pm_hash_pattern_node {
      *     foo => { a: 1, b:, **nil }
      *                        ^^^^^
      */
-    struct pm_node *rest;
+    PM_NODE_ALIGNAS struct pm_node *rest;
 
     /**
      * HashPatternNode#opening_loc
@@ -4532,7 +4473,6 @@ typedef struct pm_if_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * IfNode#if_keyword_loc
      *
@@ -4561,7 +4501,7 @@ typedef struct pm_if_node {
      *     foo ? bar : baz
      *     ^^^
      */
-    struct pm_node *predicate;
+    PM_NODE_ALIGNAS struct pm_node *predicate;
 
     /**
      * IfNode#then_keyword_loc
@@ -4588,7 +4528,7 @@ typedef struct pm_if_node {
      *       ^^^
      *     end
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * IfNode#subsequent
@@ -4607,7 +4547,7 @@ typedef struct pm_if_node {
      *     if foo then bar else baz end
      *                     ^^^^^^^^^^^^
      */
-    struct pm_node *subsequent;
+    PM_NODE_ALIGNAS struct pm_node *subsequent;
 
     /**
      * IfNode#end_keyword_loc
@@ -4638,11 +4578,10 @@ typedef struct pm_imaginary_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ImaginaryNode#numeric
      */
-    struct pm_node *numeric;
+    PM_NODE_ALIGNAS struct pm_node *numeric;
 } pm_imaginary_node_t;
 
 /**
@@ -4667,11 +4606,10 @@ typedef struct pm_implicit_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ImplicitNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_implicit_node_t;
 
 /**
@@ -4698,7 +4636,6 @@ typedef struct pm_implicit_node {
 typedef struct pm_implicit_rest_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_implicit_rest_node_t;
 
 /**
@@ -4717,16 +4654,15 @@ typedef struct pm_in_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * InNode#pattern
      */
-    struct pm_node *pattern;
+    PM_NODE_ALIGNAS struct pm_node *pattern;
 
     /**
      * InNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * InNode#in_loc
@@ -4761,11 +4697,10 @@ typedef struct pm_index_and_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * IndexAndWriteNode#receiver
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * IndexAndWriteNode#call_operator_loc
@@ -4780,7 +4715,7 @@ typedef struct pm_index_and_write_node {
     /**
      * IndexAndWriteNode#arguments
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * IndexAndWriteNode#closing_loc
@@ -4790,7 +4725,7 @@ typedef struct pm_index_and_write_node {
     /**
      * IndexAndWriteNode#block
      */
-    struct pm_block_argument_node *block;
+    PM_NODE_ALIGNAS struct pm_block_argument_node *block;
 
     /**
      * IndexAndWriteNode#operator_loc
@@ -4800,7 +4735,7 @@ typedef struct pm_index_and_write_node {
     /**
      * IndexAndWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_index_and_write_node_t;
 
 /**
@@ -4825,11 +4760,10 @@ typedef struct pm_index_operator_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * IndexOperatorWriteNode#receiver
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * IndexOperatorWriteNode#call_operator_loc
@@ -4844,7 +4778,7 @@ typedef struct pm_index_operator_write_node {
     /**
      * IndexOperatorWriteNode#arguments
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * IndexOperatorWriteNode#closing_loc
@@ -4854,7 +4788,7 @@ typedef struct pm_index_operator_write_node {
     /**
      * IndexOperatorWriteNode#block
      */
-    struct pm_block_argument_node *block;
+    PM_NODE_ALIGNAS struct pm_block_argument_node *block;
 
     /**
      * IndexOperatorWriteNode#binary_operator
@@ -4869,7 +4803,7 @@ typedef struct pm_index_operator_write_node {
     /**
      * IndexOperatorWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_index_operator_write_node_t;
 
 /**
@@ -4894,11 +4828,10 @@ typedef struct pm_index_or_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * IndexOrWriteNode#receiver
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * IndexOrWriteNode#call_operator_loc
@@ -4913,7 +4846,7 @@ typedef struct pm_index_or_write_node {
     /**
      * IndexOrWriteNode#arguments
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * IndexOrWriteNode#closing_loc
@@ -4923,7 +4856,7 @@ typedef struct pm_index_or_write_node {
     /**
      * IndexOrWriteNode#block
      */
-    struct pm_block_argument_node *block;
+    PM_NODE_ALIGNAS struct pm_block_argument_node *block;
 
     /**
      * IndexOrWriteNode#operator_loc
@@ -4933,7 +4866,7 @@ typedef struct pm_index_or_write_node {
     /**
      * IndexOrWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_index_or_write_node_t;
 
 /**
@@ -4966,11 +4899,10 @@ typedef struct pm_index_target_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * IndexTargetNode#receiver
      */
-    struct pm_node *receiver;
+    PM_NODE_ALIGNAS struct pm_node *receiver;
 
     /**
      * IndexTargetNode#opening_loc
@@ -4980,7 +4912,7 @@ typedef struct pm_index_target_node {
     /**
      * IndexTargetNode#arguments
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * IndexTargetNode#closing_loc
@@ -4990,7 +4922,7 @@ typedef struct pm_index_target_node {
     /**
      * IndexTargetNode#block
      */
-    struct pm_block_argument_node *block;
+    PM_NODE_ALIGNAS struct pm_block_argument_node *block;
 } pm_index_target_node_t;
 
 /**
@@ -5008,7 +4940,6 @@ typedef struct pm_index_target_node {
 typedef struct pm_instance_variable_and_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * InstanceVariableAndWriteNode#name
@@ -5028,7 +4959,7 @@ typedef struct pm_instance_variable_and_write_node {
     /**
      * InstanceVariableAndWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_instance_variable_and_write_node_t;
 
 /**
@@ -5046,7 +4977,6 @@ typedef struct pm_instance_variable_and_write_node {
 typedef struct pm_instance_variable_operator_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * InstanceVariableOperatorWriteNode#name
@@ -5066,7 +4996,7 @@ typedef struct pm_instance_variable_operator_write_node {
     /**
      * InstanceVariableOperatorWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * InstanceVariableOperatorWriteNode#binary_operator
@@ -5090,7 +5020,6 @@ typedef struct pm_instance_variable_or_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * InstanceVariableOrWriteNode#name
      */
@@ -5109,7 +5038,7 @@ typedef struct pm_instance_variable_or_write_node {
     /**
      * InstanceVariableOrWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_instance_variable_or_write_node_t;
 
 /**
@@ -5127,7 +5056,6 @@ typedef struct pm_instance_variable_or_write_node {
 typedef struct pm_instance_variable_read_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * InstanceVariableReadNode#name
@@ -5157,7 +5085,6 @@ typedef struct pm_instance_variable_target_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * InstanceVariableTargetNode#name
      */
@@ -5179,7 +5106,6 @@ typedef struct pm_instance_variable_target_node {
 typedef struct pm_instance_variable_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * InstanceVariableWriteNode#name
@@ -5213,7 +5139,7 @@ typedef struct pm_instance_variable_write_node {
      *     @_x = 1234
      *           ^^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * InstanceVariableWriteNode#operator_loc
@@ -5247,7 +5173,6 @@ typedef struct pm_instance_variable_write_node {
 typedef struct pm_integer_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * IntegerNode#value
@@ -5285,7 +5210,6 @@ typedef struct pm_integer_node {
 typedef struct pm_interpolated_match_last_line_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * InterpolatedMatchLastLineNode#opening_loc
@@ -5332,7 +5256,6 @@ typedef struct pm_interpolated_regular_expression_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * InterpolatedRegularExpressionNode#opening_loc
      */
@@ -5369,7 +5292,6 @@ typedef struct pm_interpolated_string_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * InterpolatedStringNode#opening_loc
      */
@@ -5401,7 +5323,6 @@ typedef struct pm_interpolated_string_node {
 typedef struct pm_interpolated_symbol_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * InterpolatedSymbolNode#opening_loc
@@ -5435,7 +5356,6 @@ typedef struct pm_interpolated_x_string_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * InterpolatedXStringNode#opening_loc
      */
@@ -5467,7 +5387,6 @@ typedef struct pm_interpolated_x_string_node {
 typedef struct pm_it_local_variable_read_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_it_local_variable_read_node_t;
 
 /**
@@ -5485,7 +5404,6 @@ typedef struct pm_it_local_variable_read_node {
 typedef struct pm_it_parameters_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_it_parameters_node_t;
 
 /**
@@ -5506,7 +5424,6 @@ typedef struct pm_it_parameters_node {
 typedef struct pm_keyword_hash_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * KeywordHashNode#elements
@@ -5533,7 +5450,6 @@ typedef struct pm_keyword_hash_node {
 typedef struct pm_keyword_rest_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * KeywordRestParameterNode#name
@@ -5567,7 +5483,6 @@ typedef struct pm_lambda_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * LambdaNode#locals
      */
@@ -5591,12 +5506,12 @@ typedef struct pm_lambda_node {
     /**
      * LambdaNode#parameters
      */
-    struct pm_node *parameters;
+    PM_NODE_ALIGNAS struct pm_node *parameters;
 
     /**
      * LambdaNode#body
      */
-    struct pm_node *body;
+    PM_NODE_ALIGNAS struct pm_node *body;
 } pm_lambda_node_t;
 
 /**
@@ -5615,7 +5530,6 @@ typedef struct pm_local_variable_and_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * LocalVariableAndWriteNode#name_loc
      */
@@ -5629,7 +5543,7 @@ typedef struct pm_local_variable_and_write_node {
     /**
      * LocalVariableAndWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * LocalVariableAndWriteNode#name
@@ -5658,7 +5572,6 @@ typedef struct pm_local_variable_operator_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * LocalVariableOperatorWriteNode#name_loc
      */
@@ -5672,7 +5585,7 @@ typedef struct pm_local_variable_operator_write_node {
     /**
      * LocalVariableOperatorWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * LocalVariableOperatorWriteNode#name
@@ -5706,7 +5619,6 @@ typedef struct pm_local_variable_or_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * LocalVariableOrWriteNode#name_loc
      */
@@ -5720,7 +5632,7 @@ typedef struct pm_local_variable_or_write_node {
     /**
      * LocalVariableOrWriteNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * LocalVariableOrWriteNode#name
@@ -5748,7 +5660,6 @@ typedef struct pm_local_variable_or_write_node {
 typedef struct pm_local_variable_read_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * LocalVariableReadNode#name
@@ -5798,7 +5709,6 @@ typedef struct pm_local_variable_target_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * LocalVariableTargetNode#name
      */
@@ -5825,7 +5735,6 @@ typedef struct pm_local_variable_target_node {
 typedef struct pm_local_variable_write_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * LocalVariableWriteNode#name
@@ -5876,7 +5785,7 @@ typedef struct pm_local_variable_write_node {
      *
      *     foo = foo
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * LocalVariableWriteNode#operator_loc
@@ -5918,7 +5827,6 @@ typedef struct pm_match_last_line_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * MatchLastLineNode#opening_loc
      */
@@ -5956,16 +5864,15 @@ typedef struct pm_match_predicate_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * MatchPredicateNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * MatchPredicateNode#pattern
      */
-    struct pm_node *pattern;
+    PM_NODE_ALIGNAS struct pm_node *pattern;
 
     /**
      * MatchPredicateNode#operator_loc
@@ -5989,7 +5896,6 @@ typedef struct pm_match_required_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * MatchRequiredNode#value
      *
@@ -5998,7 +5904,7 @@ typedef struct pm_match_required_node {
      *     foo => bar
      *     ^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 
     /**
      * MatchRequiredNode#pattern
@@ -6047,7 +5953,7 @@ typedef struct pm_match_required_node {
      *
      *     foo => CONST
      */
-    struct pm_node *pattern;
+    PM_NODE_ALIGNAS struct pm_node *pattern;
 
     /**
      * MatchRequiredNode#operator_loc
@@ -6076,11 +5982,10 @@ typedef struct pm_match_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * MatchWriteNode#call
      */
-    struct pm_call_node *call;
+    PM_NODE_ALIGNAS struct pm_call_node *call;
 
     /**
      * MatchWriteNode#targets
@@ -6100,7 +6005,6 @@ typedef struct pm_match_write_node {
 typedef struct pm_missing_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_missing_node_t;
 
 /**
@@ -6119,7 +6023,6 @@ typedef struct pm_module_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ModuleNode#locals
      */
@@ -6133,12 +6036,12 @@ typedef struct pm_module_node {
     /**
      * ModuleNode#constant_path
      */
-    struct pm_node *constant_path;
+    PM_NODE_ALIGNAS struct pm_node *constant_path;
 
     /**
      * ModuleNode#body
      */
-    struct pm_node *body;
+    PM_NODE_ALIGNAS struct pm_node *body;
 
     /**
      * ModuleNode#end_keyword_loc
@@ -6171,7 +6074,6 @@ typedef struct pm_module_node {
 typedef struct pm_multi_target_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * MultiTargetNode#lefts
@@ -6206,7 +6108,7 @@ typedef struct pm_multi_target_node {
      *     a, (b,) = 1, 2, 3, 4
      *          ^
      */
-    struct pm_node *rest;
+    PM_NODE_ALIGNAS struct pm_node *rest;
 
     /**
      * MultiTargetNode#rights
@@ -6255,7 +6157,6 @@ typedef struct pm_multi_write_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * MultiWriteNode#lefts
      *
@@ -6289,7 +6190,7 @@ typedef struct pm_multi_write_node {
      *     a, b, = 1, 2, 3, 4
      *         ^
      */
-    struct pm_node *rest;
+    PM_NODE_ALIGNAS struct pm_node *rest;
 
     /**
      * MultiWriteNode#rights
@@ -6339,7 +6240,7 @@ typedef struct pm_multi_write_node {
      *     a, b, c = 1, 2, 3
      *               ^^^^^^^
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_multi_write_node_t;
 
 /**
@@ -6358,11 +6259,10 @@ typedef struct pm_next_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * NextNode#arguments
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * NextNode#keyword_loc
@@ -6385,7 +6285,6 @@ typedef struct pm_next_node {
 typedef struct pm_nil_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_nil_node_t;
 
 /**
@@ -6404,7 +6303,6 @@ typedef struct pm_nil_node {
 typedef struct pm_no_keywords_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * NoKeywordsParameterNode#operator_loc
@@ -6433,7 +6331,6 @@ typedef struct pm_numbered_parameters_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * NumberedParametersNode#maximum
      */
@@ -6455,7 +6352,6 @@ typedef struct pm_numbered_parameters_node {
 typedef struct pm_numbered_reference_read_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * NumberedReferenceReadNode#number
@@ -6491,7 +6387,6 @@ typedef struct pm_optional_keyword_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * OptionalKeywordParameterNode#name
      */
@@ -6505,7 +6400,7 @@ typedef struct pm_optional_keyword_parameter_node {
     /**
      * OptionalKeywordParameterNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_optional_keyword_parameter_node_t;
 
 /**
@@ -6528,7 +6423,6 @@ typedef struct pm_optional_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * OptionalParameterNode#name
      */
@@ -6547,7 +6441,7 @@ typedef struct pm_optional_parameter_node {
     /**
      * OptionalParameterNode#value
      */
-    struct pm_node *value;
+    PM_NODE_ALIGNAS struct pm_node *value;
 } pm_optional_parameter_node_t;
 
 /**
@@ -6566,7 +6460,6 @@ typedef struct pm_or_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * OrNode#left
      *
@@ -6578,7 +6471,7 @@ typedef struct pm_or_node {
      *     1 || 2
      *     ^
      */
-    struct pm_node *left;
+    PM_NODE_ALIGNAS struct pm_node *left;
 
     /**
      * OrNode#right
@@ -6591,7 +6484,7 @@ typedef struct pm_or_node {
      *     1 or 2
      *          ^
      */
-    struct pm_node *right;
+    PM_NODE_ALIGNAS struct pm_node *right;
 
     /**
      * OrNode#operator_loc
@@ -6621,7 +6514,6 @@ typedef struct pm_parameters_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ParametersNode#requireds
      */
@@ -6635,7 +6527,7 @@ typedef struct pm_parameters_node {
     /**
      * ParametersNode#rest
      */
-    struct pm_node *rest;
+    PM_NODE_ALIGNAS struct pm_node *rest;
 
     /**
      * ParametersNode#posts
@@ -6650,12 +6542,12 @@ typedef struct pm_parameters_node {
     /**
      * ParametersNode#keyword_rest
      */
-    struct pm_node *keyword_rest;
+    PM_NODE_ALIGNAS struct pm_node *keyword_rest;
 
     /**
      * ParametersNode#block
      */
-    struct pm_block_parameter_node *block;
+    PM_NODE_ALIGNAS struct pm_block_parameter_node *block;
 } pm_parameters_node_t;
 
 /**
@@ -6677,11 +6569,10 @@ typedef struct pm_parentheses_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ParenthesesNode#body
      */
-    struct pm_node *body;
+    PM_NODE_ALIGNAS struct pm_node *body;
 
     /**
      * ParenthesesNode#opening_loc
@@ -6710,7 +6601,6 @@ typedef struct pm_pinned_expression_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * PinnedExpressionNode#expression
      *
@@ -6719,7 +6609,7 @@ typedef struct pm_pinned_expression_node {
      *     foo in ^(bar)
      *              ^^^
      */
-    struct pm_node *expression;
+    PM_NODE_ALIGNAS struct pm_node *expression;
 
     /**
      * PinnedExpressionNode#operator_loc
@@ -6768,7 +6658,6 @@ typedef struct pm_pinned_variable_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * PinnedVariableNode#variable
      *
@@ -6777,7 +6666,7 @@ typedef struct pm_pinned_variable_node {
      *     foo in ^bar
      *             ^^^
      */
-    struct pm_node *variable;
+    PM_NODE_ALIGNAS struct pm_node *variable;
 
     /**
      * PinnedVariableNode#operator_loc
@@ -6806,11 +6695,10 @@ typedef struct pm_post_execution_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * PostExecutionNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * PostExecutionNode#keyword_loc
@@ -6844,11 +6732,10 @@ typedef struct pm_pre_execution_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * PreExecutionNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * PreExecutionNode#keyword_loc
@@ -6879,7 +6766,6 @@ typedef struct pm_program_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ProgramNode#locals
      */
@@ -6888,7 +6774,7 @@ typedef struct pm_program_node {
     /**
      * ProgramNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 } pm_program_node_t;
 
 /**
@@ -6913,7 +6799,6 @@ typedef struct pm_range_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * RangeNode#left
      *
@@ -6925,7 +6810,7 @@ typedef struct pm_range_node {
      *     hello...goodbye
      *     ^^^^^
      */
-    struct pm_node *left;
+    PM_NODE_ALIGNAS struct pm_node *left;
 
     /**
      * RangeNode#right
@@ -6939,7 +6824,7 @@ typedef struct pm_range_node {
      *         ^^^
      * If neither right-hand or left-hand side was included, this will be a MissingNode.
      */
-    struct pm_node *right;
+    PM_NODE_ALIGNAS struct pm_node *right;
 
     /**
      * RangeNode#operator_loc
@@ -6970,7 +6855,6 @@ typedef struct pm_range_node {
 typedef struct pm_rational_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * RationalNode#numerator
@@ -7006,7 +6890,6 @@ typedef struct pm_rational_node {
 typedef struct pm_redo_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_redo_node_t;
 
 /**
@@ -7037,7 +6920,6 @@ typedef struct pm_redo_node {
 typedef struct pm_regular_expression_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * RegularExpressionNode#opening_loc
@@ -7080,7 +6962,6 @@ typedef struct pm_required_keyword_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * RequiredKeywordParameterNode#name
      */
@@ -7112,7 +6993,6 @@ typedef struct pm_required_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * RequiredParameterNode#name
      */
@@ -7135,11 +7015,10 @@ typedef struct pm_rescue_modifier_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * RescueModifierNode#expression
      */
-    struct pm_node *expression;
+    PM_NODE_ALIGNAS struct pm_node *expression;
 
     /**
      * RescueModifierNode#keyword_loc
@@ -7149,7 +7028,7 @@ typedef struct pm_rescue_modifier_node {
     /**
      * RescueModifierNode#rescue_expression
      */
-    struct pm_node *rescue_expression;
+    PM_NODE_ALIGNAS struct pm_node *rescue_expression;
 } pm_rescue_modifier_node_t;
 
 /**
@@ -7173,7 +7052,6 @@ typedef struct pm_rescue_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * RescueNode#keyword_loc
      */
@@ -7192,7 +7070,7 @@ typedef struct pm_rescue_node {
     /**
      * RescueNode#reference
      */
-    struct pm_node *reference;
+    PM_NODE_ALIGNAS struct pm_node *reference;
 
     /**
      * RescueNode#then_keyword_loc
@@ -7202,12 +7080,12 @@ typedef struct pm_rescue_node {
     /**
      * RescueNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * RescueNode#subsequent
      */
-    struct pm_rescue_node *subsequent;
+    PM_NODE_ALIGNAS struct pm_rescue_node *subsequent;
 } pm_rescue_node_t;
 
 /**
@@ -7229,7 +7107,6 @@ typedef struct pm_rescue_node {
 typedef struct pm_rest_parameter_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * RestParameterNode#name
@@ -7262,7 +7139,6 @@ typedef struct pm_rest_parameter_node {
 typedef struct pm_retry_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_retry_node_t;
 
 /**
@@ -7281,7 +7157,6 @@ typedef struct pm_return_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ReturnNode#keyword_loc
      */
@@ -7290,7 +7165,7 @@ typedef struct pm_return_node {
     /**
      * ReturnNode#arguments
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 } pm_return_node_t;
 
 /**
@@ -7308,7 +7183,6 @@ typedef struct pm_return_node {
 typedef struct pm_self_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_self_node_t;
 
 /**
@@ -7333,13 +7207,12 @@ typedef struct pm_shareable_constant_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * ShareableConstantNode#write
      *
      * The constant write that should be modified with the shareability state.
      */
-    struct pm_node *write;
+    PM_NODE_ALIGNAS struct pm_node *write;
 } pm_shareable_constant_node_t;
 
 /**
@@ -7357,7 +7230,6 @@ typedef struct pm_shareable_constant_node {
 typedef struct pm_singleton_class_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * SingletonClassNode#locals
@@ -7377,12 +7249,12 @@ typedef struct pm_singleton_class_node {
     /**
      * SingletonClassNode#expression
      */
-    struct pm_node *expression;
+    PM_NODE_ALIGNAS struct pm_node *expression;
 
     /**
      * SingletonClassNode#body
      */
-    struct pm_node *body;
+    PM_NODE_ALIGNAS struct pm_node *body;
 
     /**
      * SingletonClassNode#end_keyword_loc
@@ -7405,7 +7277,6 @@ typedef struct pm_singleton_class_node {
 typedef struct pm_source_encoding_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_source_encoding_node_t;
 
 /**
@@ -7430,7 +7301,6 @@ typedef struct pm_source_file_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * SourceFileNode#filepath
      *
@@ -7454,7 +7324,6 @@ typedef struct pm_source_file_node {
 typedef struct pm_source_line_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_source_line_node_t;
 
 /**
@@ -7473,7 +7342,6 @@ typedef struct pm_splat_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * SplatNode#operator_loc
      */
@@ -7482,7 +7350,7 @@ typedef struct pm_splat_node {
     /**
      * SplatNode#expression
      */
-    struct pm_node *expression;
+    PM_NODE_ALIGNAS struct pm_node *expression;
 } pm_splat_node_t;
 
 /**
@@ -7500,7 +7368,6 @@ typedef struct pm_splat_node {
 typedef struct pm_statements_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * StatementsNode#body
@@ -7535,7 +7402,6 @@ typedef struct pm_statements_node {
 typedef struct pm_string_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * StringNode#opening_loc
@@ -7579,7 +7445,6 @@ typedef struct pm_super_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * SuperNode#keyword_loc
      */
@@ -7595,7 +7460,7 @@ typedef struct pm_super_node {
      *
      * Can be only `nil` when there are empty parentheses, like `super()`.
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * SuperNode#rparen_loc
@@ -7605,7 +7470,7 @@ typedef struct pm_super_node {
     /**
      * SuperNode#block
      */
-    struct pm_node *block;
+    PM_NODE_ALIGNAS struct pm_node *block;
 } pm_super_node_t;
 
 /**
@@ -7631,7 +7496,6 @@ typedef struct pm_super_node {
 typedef struct pm_symbol_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * SymbolNode#opening_loc
@@ -7669,7 +7533,6 @@ typedef struct pm_symbol_node {
 typedef struct pm_true_node {
     /** The embedded base node. */
     pm_node_t base;
-
 } pm_true_node_t;
 
 /**
@@ -7687,7 +7550,6 @@ typedef struct pm_true_node {
 typedef struct pm_undef_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * UndefNode#names
@@ -7719,7 +7581,6 @@ typedef struct pm_unless_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * UnlessNode#keyword_loc
      *
@@ -7744,7 +7605,7 @@ typedef struct pm_unless_node {
      *     bar unless cond
      *                ^^^^
      */
-    struct pm_node *predicate;
+    PM_NODE_ALIGNAS struct pm_node *predicate;
 
     /**
      * UnlessNode#then_keyword_loc
@@ -7765,7 +7626,7 @@ typedef struct pm_unless_node {
      *     unless cond then bar end
      *                      ^^^
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 
     /**
      * UnlessNode#else_clause
@@ -7775,7 +7636,7 @@ typedef struct pm_unless_node {
      *     unless cond then bar else baz end
      *                          ^^^^^^^^
      */
-    struct pm_else_node *else_clause;
+    PM_NODE_ALIGNAS struct pm_else_node *else_clause;
 
     /**
      * UnlessNode#end_keyword_loc
@@ -7810,7 +7671,6 @@ typedef struct pm_until_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * UntilNode#keyword_loc
      */
@@ -7829,12 +7689,12 @@ typedef struct pm_until_node {
     /**
      * UntilNode#predicate
      */
-    struct pm_node *predicate;
+    PM_NODE_ALIGNAS struct pm_node *predicate;
 
     /**
      * UntilNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 } pm_until_node_t;
 
 /**
@@ -7855,7 +7715,6 @@ typedef struct pm_when_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * WhenNode#keyword_loc
      */
@@ -7874,7 +7733,7 @@ typedef struct pm_when_node {
     /**
      * WhenNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 } pm_when_node_t;
 
 /**
@@ -7899,7 +7758,6 @@ typedef struct pm_while_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * WhileNode#keyword_loc
      */
@@ -7918,12 +7776,12 @@ typedef struct pm_while_node {
     /**
      * WhileNode#predicate
      */
-    struct pm_node *predicate;
+    PM_NODE_ALIGNAS struct pm_node *predicate;
 
     /**
      * WhileNode#statements
      */
-    struct pm_statements_node *statements;
+    PM_NODE_ALIGNAS struct pm_statements_node *statements;
 } pm_while_node_t;
 
 /**
@@ -7945,7 +7803,6 @@ typedef struct pm_while_node {
 typedef struct pm_x_string_node {
     /** The embedded base node. */
     pm_node_t base;
-
 
     /**
      * XStringNode#opening_loc
@@ -7984,7 +7841,6 @@ typedef struct pm_yield_node {
     /** The embedded base node. */
     pm_node_t base;
 
-
     /**
      * YieldNode#keyword_loc
      */
@@ -7998,7 +7854,7 @@ typedef struct pm_yield_node {
     /**
      * YieldNode#arguments
      */
-    struct pm_arguments_node *arguments;
+    PM_NODE_ALIGNAS struct pm_arguments_node *arguments;
 
     /**
      * YieldNode#rparen_loc

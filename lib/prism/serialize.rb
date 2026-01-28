@@ -21,7 +21,7 @@ module Prism
 
     # The minor version of prism that we are expecting to find in the serialized
     # strings.
-    MINOR_VERSION = 8
+    MINOR_VERSION = 9
 
     # The patch version of prism that we are expecting to find in the serialized
     # strings.
@@ -2388,8 +2388,6 @@ module Prism
       :USTAR_STAR,
       :WORDS_SEP,
       :__END__,
-      :MISSING,
-      :NOT_PROVIDED,
     ].freeze
 
     private_constant :MAJOR_VERSION, :MINOR_VERSION, :PATCH_VERSION

@@ -3008,10 +3008,8 @@ pm_dump_json_constant(pm_buffer_t *buffer, const pm_parser_t *parser, pm_constan
 }
 
 static void
-pm_dump_json_location(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_location_t *location) {
-    uint32_t start = (uint32_t) (location->start - parser->start);
-    uint32_t end = (uint32_t) (location->end - parser->start);
-    pm_buffer_append_format(buffer, "{\"start\":%" PRIu32 ",\"end\":%" PRIu32 "}", start, end);
+pm_dump_json_location(pm_buffer_t *buffer, const pm_location_t *location) {
+    pm_buffer_append_format(buffer, "{\"start\":%" PRIu32 ",\"length\":%" PRIu32 "}", location->start, location->length);
 }
 
 /**
@@ -3024,7 +3022,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"AliasGlobalVariableNode\",\"location\":", 45);
 
             const pm_alias_global_variable_node_t *cast = (const pm_alias_global_variable_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the new_name field
             pm_buffer_append_byte(buffer, ',');
@@ -3039,7 +3037,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3048,7 +3046,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"AliasMethodNode\",\"location\":", 37);
 
             const pm_alias_method_node_t *cast = (const pm_alias_method_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the new_name field
             pm_buffer_append_byte(buffer, ',');
@@ -3063,7 +3061,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3072,7 +3070,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"AlternationPatternNode\",\"location\":", 44);
 
             const pm_alternation_pattern_node_t *cast = (const pm_alternation_pattern_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the left field
             pm_buffer_append_byte(buffer, ',');
@@ -3087,7 +3085,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3096,7 +3094,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"AndNode\",\"location\":", 29);
 
             const pm_and_node_t *cast = (const pm_and_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the left field
             pm_buffer_append_byte(buffer, ',');
@@ -3111,7 +3109,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3120,7 +3118,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ArgumentsNode\",\"location\":", 35);
 
             const pm_arguments_node_t *cast = (const pm_arguments_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ArgumentsNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -3173,7 +3171,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ArrayNode\",\"location\":", 31);
 
             const pm_array_node_t *cast = (const pm_array_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ArrayNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -3202,8 +3200,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3211,8 +3209,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3224,7 +3222,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ArrayPatternNode\",\"location\":", 38);
 
             const pm_array_pattern_node_t *cast = (const pm_array_pattern_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the constant field
             pm_buffer_append_byte(buffer, ',');
@@ -3271,8 +3269,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3280,8 +3278,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3293,7 +3291,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"AssocNode\",\"location\":", 31);
 
             const pm_assoc_node_t *cast = (const pm_assoc_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the key field
             pm_buffer_append_byte(buffer, ',');
@@ -3308,8 +3306,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            if (cast->operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            if (cast->operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3321,7 +3319,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"AssocSplatNode\",\"location\":", 36);
 
             const pm_assoc_splat_node_t *cast = (const pm_assoc_splat_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -3335,7 +3333,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3344,7 +3342,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"BackReferenceReadNode\",\"location\":", 43);
 
             const pm_back_reference_read_node_t *cast = (const pm_back_reference_read_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -3358,13 +3356,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"BeginNode\",\"location\":", 31);
 
             const pm_begin_node_t *cast = (const pm_begin_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the begin_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"begin_keyword_loc\":", 20);
-            if (cast->begin_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->begin_keyword_loc);
+            if (cast->begin_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->begin_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3408,8 +3406,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            if (cast->end_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            if (cast->end_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->end_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3421,7 +3419,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"BlockArgumentNode\",\"location\":", 39);
 
             const pm_block_argument_node_t *cast = (const pm_block_argument_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the expression field
             pm_buffer_append_byte(buffer, ',');
@@ -3435,7 +3433,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3444,7 +3442,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"BlockLocalVariableNode\",\"location\":", 44);
 
             const pm_block_local_variable_node_t *cast = (const pm_block_local_variable_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParameterFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -3470,7 +3468,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"BlockNode\",\"location\":", 31);
 
             const pm_block_node_t *cast = (const pm_block_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the locals field
             pm_buffer_append_byte(buffer, ',');
@@ -3505,12 +3503,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3519,7 +3517,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"BlockParameterNode\",\"location\":", 40);
 
             const pm_block_parameter_node_t *cast = (const pm_block_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParameterFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -3545,8 +3543,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            if (cast->name_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->name_loc);
+            if (cast->name_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->name_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3554,7 +3552,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3563,7 +3561,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"BlockParametersNode\",\"location\":", 41);
 
             const pm_block_parameters_node_t *cast = (const pm_block_parameters_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the parameters field
             pm_buffer_append_byte(buffer, ',');
@@ -3589,8 +3587,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3598,8 +3596,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3611,7 +3609,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"BreakNode\",\"location\":", 31);
 
             const pm_break_node_t *cast = (const pm_break_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the arguments field
             pm_buffer_append_byte(buffer, ',');
@@ -3625,7 +3623,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3634,7 +3632,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"CallAndWriteNode\",\"location\":", 38);
 
             const pm_call_and_write_node_t *cast = (const pm_call_and_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -3675,8 +3673,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the call_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"call_operator_loc\":", 20);
-            if (cast->call_operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->call_operator_loc);
+            if (cast->call_operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->call_operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3684,8 +3682,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the message_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"message_loc\":", 14);
-            if (cast->message_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->message_loc);
+            if (cast->message_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->message_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3703,7 +3701,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -3717,7 +3715,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"CallNode\",\"location\":", 30);
 
             const pm_call_node_t *cast = (const pm_call_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -3758,8 +3756,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the call_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"call_operator_loc\":", 20);
-            if (cast->call_operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->call_operator_loc);
+            if (cast->call_operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->call_operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3772,8 +3770,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the message_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"message_loc\":", 14);
-            if (cast->message_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->message_loc);
+            if (cast->message_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->message_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3781,8 +3779,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3799,8 +3797,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3808,8 +3806,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the equal_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"equal_loc\":", 12);
-            if (cast->equal_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->equal_loc);
+            if (cast->equal_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->equal_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3830,7 +3828,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"CallOperatorWriteNode\",\"location\":", 43);
 
             const pm_call_operator_write_node_t *cast = (const pm_call_operator_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -3871,8 +3869,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the call_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"call_operator_loc\":", 20);
-            if (cast->call_operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->call_operator_loc);
+            if (cast->call_operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->call_operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3880,8 +3878,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the message_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"message_loc\":", 14);
-            if (cast->message_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->message_loc);
+            if (cast->message_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->message_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3904,7 +3902,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the binary_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"binary_operator_loc\":", 22);
-            pm_dump_json_location(buffer, parser, &cast->binary_operator_loc);
+            pm_dump_json_location(buffer, &cast->binary_operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -3918,7 +3916,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"CallOrWriteNode\",\"location\":", 37);
 
             const pm_call_or_write_node_t *cast = (const pm_call_or_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -3959,8 +3957,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the call_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"call_operator_loc\":", 20);
-            if (cast->call_operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->call_operator_loc);
+            if (cast->call_operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->call_operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3968,8 +3966,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the message_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"message_loc\":", 14);
-            if (cast->message_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->message_loc);
+            if (cast->message_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->message_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -3987,7 +3985,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4001,7 +3999,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"CallTargetNode\",\"location\":", 36);
 
             const pm_call_target_node_t *cast = (const pm_call_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -4038,7 +4036,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the call_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"call_operator_loc\":", 20);
-            pm_dump_json_location(buffer, parser, &cast->call_operator_loc);
+            pm_dump_json_location(buffer, &cast->call_operator_loc);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4048,7 +4046,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the message_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"message_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->message_loc);
+            pm_dump_json_location(buffer, &cast->message_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4057,7 +4055,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"CapturePatternNode\",\"location\":", 40);
 
             const pm_capture_pattern_node_t *cast = (const pm_capture_pattern_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4072,7 +4070,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4081,7 +4079,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"CaseMatchNode\",\"location\":", 35);
 
             const pm_case_match_node_t *cast = (const pm_case_match_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the predicate field
             pm_buffer_append_byte(buffer, ',');
@@ -4116,12 +4114,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the case_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"case_keyword_loc\":", 19);
-            pm_dump_json_location(buffer, parser, &cast->case_keyword_loc);
+            pm_dump_json_location(buffer, &cast->case_keyword_loc);
 
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            pm_dump_json_location(buffer, &cast->end_keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4130,7 +4128,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"CaseNode\",\"location\":", 30);
 
             const pm_case_node_t *cast = (const pm_case_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the predicate field
             pm_buffer_append_byte(buffer, ',');
@@ -4165,12 +4163,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the case_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"case_keyword_loc\":", 19);
-            pm_dump_json_location(buffer, parser, &cast->case_keyword_loc);
+            pm_dump_json_location(buffer, &cast->case_keyword_loc);
 
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            pm_dump_json_location(buffer, &cast->end_keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4179,7 +4177,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ClassNode\",\"location\":", 31);
 
             const pm_class_node_t *cast = (const pm_class_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the locals field
             pm_buffer_append_byte(buffer, ',');
@@ -4196,7 +4194,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the class_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"class_keyword_loc\":", 20);
-            pm_dump_json_location(buffer, parser, &cast->class_keyword_loc);
+            pm_dump_json_location(buffer, &cast->class_keyword_loc);
 
             // Dump the constant_path field
             pm_buffer_append_byte(buffer, ',');
@@ -4206,8 +4204,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the inheritance_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"inheritance_operator_loc\":", 27);
-            if (cast->inheritance_operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->inheritance_operator_loc);
+            if (cast->inheritance_operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->inheritance_operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4233,7 +4231,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            pm_dump_json_location(buffer, &cast->end_keyword_loc);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4247,7 +4245,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ClassVariableAndWriteNode\",\"location\":", 47);
 
             const pm_class_variable_and_write_node_t *cast = (const pm_class_variable_and_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4257,12 +4255,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4276,7 +4274,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ClassVariableOperatorWriteNode\",\"location\":", 52);
 
             const pm_class_variable_operator_write_node_t *cast = (const pm_class_variable_operator_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4286,12 +4284,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the binary_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"binary_operator_loc\":", 22);
-            pm_dump_json_location(buffer, parser, &cast->binary_operator_loc);
+            pm_dump_json_location(buffer, &cast->binary_operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4310,7 +4308,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ClassVariableOrWriteNode\",\"location\":", 46);
 
             const pm_class_variable_or_write_node_t *cast = (const pm_class_variable_or_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4320,12 +4318,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4339,7 +4337,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ClassVariableReadNode\",\"location\":", 43);
 
             const pm_class_variable_read_node_t *cast = (const pm_class_variable_read_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4353,7 +4351,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ClassVariableTargetNode\",\"location\":", 45);
 
             const pm_class_variable_target_node_t *cast = (const pm_class_variable_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4367,7 +4365,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ClassVariableWriteNode\",\"location\":", 44);
 
             const pm_class_variable_write_node_t *cast = (const pm_class_variable_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4377,7 +4375,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4387,7 +4385,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4396,7 +4394,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantAndWriteNode\",\"location\":", 42);
 
             const pm_constant_and_write_node_t *cast = (const pm_constant_and_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4406,12 +4404,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4425,7 +4423,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantOperatorWriteNode\",\"location\":", 47);
 
             const pm_constant_operator_write_node_t *cast = (const pm_constant_operator_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4435,12 +4433,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the binary_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"binary_operator_loc\":", 22);
-            pm_dump_json_location(buffer, parser, &cast->binary_operator_loc);
+            pm_dump_json_location(buffer, &cast->binary_operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4459,7 +4457,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantOrWriteNode\",\"location\":", 41);
 
             const pm_constant_or_write_node_t *cast = (const pm_constant_or_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4469,12 +4467,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4488,7 +4486,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantPathAndWriteNode\",\"location\":", 46);
 
             const pm_constant_path_and_write_node_t *cast = (const pm_constant_path_and_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the target field
             pm_buffer_append_byte(buffer, ',');
@@ -4498,7 +4496,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4512,7 +4510,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantPathNode\",\"location\":", 38);
 
             const pm_constant_path_node_t *cast = (const pm_constant_path_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the parent field
             pm_buffer_append_byte(buffer, ',');
@@ -4535,12 +4533,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the delimiter_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"delimiter_loc\":", 16);
-            pm_dump_json_location(buffer, parser, &cast->delimiter_loc);
+            pm_dump_json_location(buffer, &cast->delimiter_loc);
 
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4549,7 +4547,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantPathOperatorWriteNode\",\"location\":", 51);
 
             const pm_constant_path_operator_write_node_t *cast = (const pm_constant_path_operator_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the target field
             pm_buffer_append_byte(buffer, ',');
@@ -4559,7 +4557,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the binary_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"binary_operator_loc\":", 22);
-            pm_dump_json_location(buffer, parser, &cast->binary_operator_loc);
+            pm_dump_json_location(buffer, &cast->binary_operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4578,7 +4576,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantPathOrWriteNode\",\"location\":", 45);
 
             const pm_constant_path_or_write_node_t *cast = (const pm_constant_path_or_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the target field
             pm_buffer_append_byte(buffer, ',');
@@ -4588,7 +4586,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4602,7 +4600,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantPathTargetNode\",\"location\":", 44);
 
             const pm_constant_path_target_node_t *cast = (const pm_constant_path_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the parent field
             pm_buffer_append_byte(buffer, ',');
@@ -4625,12 +4623,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the delimiter_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"delimiter_loc\":", 16);
-            pm_dump_json_location(buffer, parser, &cast->delimiter_loc);
+            pm_dump_json_location(buffer, &cast->delimiter_loc);
 
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4639,7 +4637,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantPathWriteNode\",\"location\":", 43);
 
             const pm_constant_path_write_node_t *cast = (const pm_constant_path_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the target field
             pm_buffer_append_byte(buffer, ',');
@@ -4649,7 +4647,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4663,7 +4661,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantReadNode\",\"location\":", 38);
 
             const pm_constant_read_node_t *cast = (const pm_constant_read_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4677,7 +4675,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantTargetNode\",\"location\":", 40);
 
             const pm_constant_target_node_t *cast = (const pm_constant_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4691,7 +4689,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ConstantWriteNode\",\"location\":", 39);
 
             const pm_constant_write_node_t *cast = (const pm_constant_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4701,7 +4699,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -4711,7 +4709,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4720,7 +4718,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"DefNode\",\"location\":", 29);
 
             const pm_def_node_t *cast = (const pm_def_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -4730,7 +4728,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the receiver field
             pm_buffer_append_byte(buffer, ',');
@@ -4774,13 +4772,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the def_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"def_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->def_keyword_loc);
+            pm_dump_json_location(buffer, &cast->def_keyword_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            if (cast->operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            if (cast->operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4788,8 +4786,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the lparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"lparen_loc\":", 13);
-            if (cast->lparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->lparen_loc);
+            if (cast->lparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->lparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4797,8 +4795,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the rparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"rparen_loc\":", 13);
-            if (cast->rparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->rparen_loc);
+            if (cast->rparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->rparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4806,8 +4804,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the equal_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"equal_loc\":", 12);
-            if (cast->equal_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->equal_loc);
+            if (cast->equal_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->equal_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4815,8 +4813,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            if (cast->end_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            if (cast->end_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->end_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4828,13 +4826,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"DefinedNode\",\"location\":", 33);
 
             const pm_defined_node_t *cast = (const pm_defined_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the lparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"lparen_loc\":", 13);
-            if (cast->lparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->lparen_loc);
+            if (cast->lparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->lparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4847,8 +4845,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the rparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"rparen_loc\":", 13);
-            if (cast->rparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->rparen_loc);
+            if (cast->rparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->rparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4856,7 +4854,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4865,12 +4863,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ElseNode\",\"location\":", 30);
 
             const pm_else_node_t *cast = (const pm_else_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the else_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"else_keyword_loc\":", 19);
-            pm_dump_json_location(buffer, parser, &cast->else_keyword_loc);
+            pm_dump_json_location(buffer, &cast->else_keyword_loc);
 
             // Dump the statements field
             pm_buffer_append_byte(buffer, ',');
@@ -4884,8 +4882,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            if (cast->end_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            if (cast->end_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->end_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -4897,12 +4895,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"EmbeddedStatementsNode\",\"location\":", 44);
 
             const pm_embedded_statements_node_t *cast = (const pm_embedded_statements_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the statements field
             pm_buffer_append_byte(buffer, ',');
@@ -4916,7 +4914,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4925,12 +4923,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"EmbeddedVariableNode\",\"location\":", 42);
 
             const pm_embedded_variable_node_t *cast = (const pm_embedded_variable_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the variable field
             pm_buffer_append_byte(buffer, ',');
@@ -4944,12 +4942,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"EnsureNode\",\"location\":", 32);
 
             const pm_ensure_node_t *cast = (const pm_ensure_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ensure_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"ensure_keyword_loc\":", 21);
-            pm_dump_json_location(buffer, parser, &cast->ensure_keyword_loc);
+            pm_dump_json_location(buffer, &cast->ensure_keyword_loc);
 
             // Dump the statements field
             pm_buffer_append_byte(buffer, ',');
@@ -4963,7 +4961,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            pm_dump_json_location(buffer, &cast->end_keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4972,7 +4970,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"FalseNode\",\"location\":", 31);
 
             const pm_false_node_t *cast = (const pm_false_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4981,7 +4979,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"FindPatternNode\",\"location\":", 37);
 
             const pm_find_pattern_node_t *cast = (const pm_find_pattern_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the constant field
             pm_buffer_append_byte(buffer, ',');
@@ -5017,8 +5015,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5026,8 +5024,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5039,7 +5037,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"FlipFlopNode\",\"location\":", 34);
 
             const pm_flip_flop_node_t *cast = (const pm_flip_flop_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the RangeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -5074,7 +5072,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -5083,7 +5081,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"FloatNode\",\"location\":", 31);
 
             const pm_float_node_t *cast = (const pm_float_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5097,7 +5095,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ForNode\",\"location\":", 29);
 
             const pm_for_node_t *cast = (const pm_for_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the index field
             pm_buffer_append_byte(buffer, ',');
@@ -5121,18 +5119,18 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the for_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"for_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->for_keyword_loc);
+            pm_dump_json_location(buffer, &cast->for_keyword_loc);
 
             // Dump the in_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"in_keyword_loc\":", 17);
-            pm_dump_json_location(buffer, parser, &cast->in_keyword_loc);
+            pm_dump_json_location(buffer, &cast->in_keyword_loc);
 
             // Dump the do_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"do_keyword_loc\":", 17);
-            if (cast->do_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->do_keyword_loc);
+            if (cast->do_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->do_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5140,7 +5138,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            pm_dump_json_location(buffer, &cast->end_keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -5149,7 +5147,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ForwardingArgumentsNode\",\"location\":", 45);
 
             const pm_forwarding_arguments_node_t *cast = (const pm_forwarding_arguments_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -5158,7 +5156,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ForwardingParameterNode\",\"location\":", 45);
 
             const pm_forwarding_parameter_node_t *cast = (const pm_forwarding_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -5167,7 +5165,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ForwardingSuperNode\",\"location\":", 41);
 
             const pm_forwarding_super_node_t *cast = (const pm_forwarding_super_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the block field
             pm_buffer_append_byte(buffer, ',');
@@ -5185,7 +5183,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"GlobalVariableAndWriteNode\",\"location\":", 48);
 
             const pm_global_variable_and_write_node_t *cast = (const pm_global_variable_and_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5195,12 +5193,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5214,7 +5212,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"GlobalVariableOperatorWriteNode\",\"location\":", 53);
 
             const pm_global_variable_operator_write_node_t *cast = (const pm_global_variable_operator_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5224,12 +5222,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the binary_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"binary_operator_loc\":", 22);
-            pm_dump_json_location(buffer, parser, &cast->binary_operator_loc);
+            pm_dump_json_location(buffer, &cast->binary_operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5248,7 +5246,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"GlobalVariableOrWriteNode\",\"location\":", 47);
 
             const pm_global_variable_or_write_node_t *cast = (const pm_global_variable_or_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5258,12 +5256,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5277,7 +5275,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"GlobalVariableReadNode\",\"location\":", 44);
 
             const pm_global_variable_read_node_t *cast = (const pm_global_variable_read_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5291,7 +5289,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"GlobalVariableTargetNode\",\"location\":", 46);
 
             const pm_global_variable_target_node_t *cast = (const pm_global_variable_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5305,7 +5303,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"GlobalVariableWriteNode\",\"location\":", 45);
 
             const pm_global_variable_write_node_t *cast = (const pm_global_variable_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5315,7 +5313,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5325,7 +5323,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -5334,12 +5332,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"HashNode\",\"location\":", 30);
 
             const pm_hash_node_t *cast = (const pm_hash_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the elements field
             pm_buffer_append_byte(buffer, ',');
@@ -5356,7 +5354,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -5365,7 +5363,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"HashPatternNode\",\"location\":", 37);
 
             const pm_hash_pattern_node_t *cast = (const pm_hash_pattern_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the constant field
             pm_buffer_append_byte(buffer, ',');
@@ -5400,8 +5398,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5409,8 +5407,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5422,13 +5420,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"IfNode\",\"location\":", 28);
 
             const pm_if_node_t *cast = (const pm_if_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the if_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"if_keyword_loc\":", 17);
-            if (cast->if_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->if_keyword_loc);
+            if (cast->if_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->if_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5441,8 +5439,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the then_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"then_keyword_loc\":", 19);
-            if (cast->then_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->then_keyword_loc);
+            if (cast->then_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->then_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5468,8 +5466,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            if (cast->end_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            if (cast->end_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->end_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5481,7 +5479,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ImaginaryNode\",\"location\":", 35);
 
             const pm_imaginary_node_t *cast = (const pm_imaginary_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the numeric field
             pm_buffer_append_byte(buffer, ',');
@@ -5495,7 +5493,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ImplicitNode\",\"location\":", 34);
 
             const pm_implicit_node_t *cast = (const pm_implicit_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5509,7 +5507,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ImplicitRestNode\",\"location\":", 38);
 
             const pm_implicit_rest_node_t *cast = (const pm_implicit_rest_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -5518,7 +5516,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InNode\",\"location\":", 28);
 
             const pm_in_node_t *cast = (const pm_in_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the pattern field
             pm_buffer_append_byte(buffer, ',');
@@ -5537,13 +5535,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the in_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"in_loc\":", 9);
-            pm_dump_json_location(buffer, parser, &cast->in_loc);
+            pm_dump_json_location(buffer, &cast->in_loc);
 
             // Dump the then_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"then_loc\":", 11);
-            if (cast->then_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->then_loc);
+            if (cast->then_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->then_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5555,7 +5553,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"IndexAndWriteNode\",\"location\":", 39);
 
             const pm_index_and_write_node_t *cast = (const pm_index_and_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -5596,8 +5594,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the call_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"call_operator_loc\":", 20);
-            if (cast->call_operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->call_operator_loc);
+            if (cast->call_operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->call_operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5605,7 +5603,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the arguments field
             pm_buffer_append_byte(buffer, ',');
@@ -5619,7 +5617,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             // Dump the block field
             pm_buffer_append_byte(buffer, ',');
@@ -5633,7 +5631,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5647,7 +5645,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"IndexOperatorWriteNode\",\"location\":", 44);
 
             const pm_index_operator_write_node_t *cast = (const pm_index_operator_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -5688,8 +5686,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the call_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"call_operator_loc\":", 20);
-            if (cast->call_operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->call_operator_loc);
+            if (cast->call_operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->call_operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5697,7 +5695,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the arguments field
             pm_buffer_append_byte(buffer, ',');
@@ -5711,7 +5709,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             // Dump the block field
             pm_buffer_append_byte(buffer, ',');
@@ -5730,7 +5728,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the binary_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"binary_operator_loc\":", 22);
-            pm_dump_json_location(buffer, parser, &cast->binary_operator_loc);
+            pm_dump_json_location(buffer, &cast->binary_operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5744,7 +5742,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"IndexOrWriteNode\",\"location\":", 38);
 
             const pm_index_or_write_node_t *cast = (const pm_index_or_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -5785,8 +5783,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the call_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"call_operator_loc\":", 20);
-            if (cast->call_operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->call_operator_loc);
+            if (cast->call_operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->call_operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -5794,7 +5792,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the arguments field
             pm_buffer_append_byte(buffer, ',');
@@ -5808,7 +5806,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             // Dump the block field
             pm_buffer_append_byte(buffer, ',');
@@ -5822,7 +5820,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5836,7 +5834,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"IndexTargetNode\",\"location\":", 37);
 
             const pm_index_target_node_t *cast = (const pm_index_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the CallNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -5873,7 +5871,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the arguments field
             pm_buffer_append_byte(buffer, ',');
@@ -5887,7 +5885,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             // Dump the block field
             pm_buffer_append_byte(buffer, ',');
@@ -5905,7 +5903,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InstanceVariableAndWriteNode\",\"location\":", 50);
 
             const pm_instance_variable_and_write_node_t *cast = (const pm_instance_variable_and_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5915,12 +5913,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5934,7 +5932,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InstanceVariableOperatorWriteNode\",\"location\":", 55);
 
             const pm_instance_variable_operator_write_node_t *cast = (const pm_instance_variable_operator_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5944,12 +5942,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the binary_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"binary_operator_loc\":", 22);
-            pm_dump_json_location(buffer, parser, &cast->binary_operator_loc);
+            pm_dump_json_location(buffer, &cast->binary_operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5968,7 +5966,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InstanceVariableOrWriteNode\",\"location\":", 49);
 
             const pm_instance_variable_or_write_node_t *cast = (const pm_instance_variable_or_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -5978,12 +5976,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -5997,7 +5995,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InstanceVariableReadNode\",\"location\":", 46);
 
             const pm_instance_variable_read_node_t *cast = (const pm_instance_variable_read_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -6011,7 +6009,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InstanceVariableTargetNode\",\"location\":", 48);
 
             const pm_instance_variable_target_node_t *cast = (const pm_instance_variable_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -6025,7 +6023,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InstanceVariableWriteNode\",\"location\":", 47);
 
             const pm_instance_variable_write_node_t *cast = (const pm_instance_variable_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -6035,7 +6033,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -6045,7 +6043,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6054,7 +6052,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"IntegerNode\",\"location\":", 33);
 
             const pm_integer_node_t *cast = (const pm_integer_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the IntegerBaseFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -6095,7 +6093,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InterpolatedMatchLastLineNode\",\"location\":", 51);
 
             const pm_interpolated_match_last_line_node_t *cast = (const pm_interpolated_match_last_line_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the RegularExpressionFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -6162,7 +6160,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the parts field
             pm_buffer_append_byte(buffer, ',');
@@ -6179,7 +6177,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6188,7 +6186,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InterpolatedRegularExpressionNode\",\"location\":", 55);
 
             const pm_interpolated_regular_expression_node_t *cast = (const pm_interpolated_regular_expression_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the RegularExpressionFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -6255,7 +6253,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the parts field
             pm_buffer_append_byte(buffer, ',');
@@ -6272,7 +6270,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6281,7 +6279,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InterpolatedStringNode\",\"location\":", 44);
 
             const pm_interpolated_string_node_t *cast = (const pm_interpolated_string_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the InterpolatedStringNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -6303,8 +6301,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -6324,8 +6322,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -6337,13 +6335,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InterpolatedSymbolNode\",\"location\":", 44);
 
             const pm_interpolated_symbol_node_t *cast = (const pm_interpolated_symbol_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -6363,8 +6361,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -6376,12 +6374,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"InterpolatedXStringNode\",\"location\":", 45);
 
             const pm_interpolated_x_string_node_t *cast = (const pm_interpolated_x_string_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the parts field
             pm_buffer_append_byte(buffer, ',');
@@ -6398,7 +6396,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6407,7 +6405,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ItLocalVariableReadNode\",\"location\":", 45);
 
             const pm_it_local_variable_read_node_t *cast = (const pm_it_local_variable_read_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6416,7 +6414,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ItParametersNode\",\"location\":", 38);
 
             const pm_it_parameters_node_t *cast = (const pm_it_parameters_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6425,7 +6423,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"KeywordHashNode\",\"location\":", 37);
 
             const pm_keyword_hash_node_t *cast = (const pm_keyword_hash_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the KeywordHashNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -6458,7 +6456,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"KeywordRestParameterNode\",\"location\":", 46);
 
             const pm_keyword_rest_parameter_node_t *cast = (const pm_keyword_rest_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParameterFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -6484,8 +6482,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            if (cast->name_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->name_loc);
+            if (cast->name_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->name_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -6493,7 +6491,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6502,7 +6500,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"LambdaNode\",\"location\":", 32);
 
             const pm_lambda_node_t *cast = (const pm_lambda_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the locals field
             pm_buffer_append_byte(buffer, ',');
@@ -6519,17 +6517,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             // Dump the parameters field
             pm_buffer_append_byte(buffer, ',');
@@ -6556,17 +6554,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"LocalVariableAndWriteNode\",\"location\":", 47);
 
             const pm_local_variable_and_write_node_t *cast = (const pm_local_variable_and_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -6590,17 +6588,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"LocalVariableOperatorWriteNode\",\"location\":", 52);
 
             const pm_local_variable_operator_write_node_t *cast = (const pm_local_variable_operator_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the binary_operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"binary_operator_loc\":", 22);
-            pm_dump_json_location(buffer, parser, &cast->binary_operator_loc);
+            pm_dump_json_location(buffer, &cast->binary_operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -6629,17 +6627,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"LocalVariableOrWriteNode\",\"location\":", 46);
 
             const pm_local_variable_or_write_node_t *cast = (const pm_local_variable_or_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -6663,7 +6661,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"LocalVariableReadNode\",\"location\":", 43);
 
             const pm_local_variable_read_node_t *cast = (const pm_local_variable_read_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -6682,7 +6680,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"LocalVariableTargetNode\",\"location\":", 45);
 
             const pm_local_variable_target_node_t *cast = (const pm_local_variable_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -6701,7 +6699,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"LocalVariableWriteNode\",\"location\":", 44);
 
             const pm_local_variable_write_node_t *cast = (const pm_local_variable_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -6716,7 +6714,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -6726,7 +6724,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6735,7 +6733,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"MatchLastLineNode\",\"location\":", 39);
 
             const pm_match_last_line_node_t *cast = (const pm_match_last_line_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the RegularExpressionFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -6802,17 +6800,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the content_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"content_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->content_loc);
+            pm_dump_json_location(buffer, &cast->content_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             // Dump the unescaped field
             pm_buffer_append_byte(buffer, ',');
@@ -6829,7 +6827,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"MatchPredicateNode\",\"location\":", 40);
 
             const pm_match_predicate_node_t *cast = (const pm_match_predicate_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -6844,7 +6842,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6853,7 +6851,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"MatchRequiredNode\",\"location\":", 39);
 
             const pm_match_required_node_t *cast = (const pm_match_required_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -6868,7 +6866,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6877,7 +6875,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"MatchWriteNode\",\"location\":", 36);
 
             const pm_match_write_node_t *cast = (const pm_match_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the call field
             pm_buffer_append_byte(buffer, ',');
@@ -6903,7 +6901,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"MissingNode\",\"location\":", 33);
 
             const pm_missing_node_t *cast = (const pm_missing_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -6912,7 +6910,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ModuleNode\",\"location\":", 32);
 
             const pm_module_node_t *cast = (const pm_module_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the locals field
             pm_buffer_append_byte(buffer, ',');
@@ -6929,7 +6927,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the module_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"module_keyword_loc\":", 21);
-            pm_dump_json_location(buffer, parser, &cast->module_keyword_loc);
+            pm_dump_json_location(buffer, &cast->module_keyword_loc);
 
             // Dump the constant_path field
             pm_buffer_append_byte(buffer, ',');
@@ -6948,7 +6946,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            pm_dump_json_location(buffer, &cast->end_keyword_loc);
 
             // Dump the name field
             pm_buffer_append_byte(buffer, ',');
@@ -6962,7 +6960,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"MultiTargetNode\",\"location\":", 37);
 
             const pm_multi_target_node_t *cast = (const pm_multi_target_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the lefts field
             pm_buffer_append_byte(buffer, ',');
@@ -7000,8 +6998,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the lparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"lparen_loc\":", 13);
-            if (cast->lparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->lparen_loc);
+            if (cast->lparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->lparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -7009,8 +7007,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the rparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"rparen_loc\":", 13);
-            if (cast->rparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->rparen_loc);
+            if (cast->rparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->rparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -7022,7 +7020,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"MultiWriteNode\",\"location\":", 36);
 
             const pm_multi_write_node_t *cast = (const pm_multi_write_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the lefts field
             pm_buffer_append_byte(buffer, ',');
@@ -7060,8 +7058,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the lparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"lparen_loc\":", 13);
-            if (cast->lparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->lparen_loc);
+            if (cast->lparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->lparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -7069,8 +7067,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the rparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"rparen_loc\":", 13);
-            if (cast->rparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->rparen_loc);
+            if (cast->rparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->rparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -7078,7 +7076,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -7092,7 +7090,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"NextNode\",\"location\":", 30);
 
             const pm_next_node_t *cast = (const pm_next_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the arguments field
             pm_buffer_append_byte(buffer, ',');
@@ -7106,7 +7104,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7115,7 +7113,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"NilNode\",\"location\":", 29);
 
             const pm_nil_node_t *cast = (const pm_nil_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7124,17 +7122,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"NoKeywordsParameterNode\",\"location\":", 45);
 
             const pm_no_keywords_parameter_node_t *cast = (const pm_no_keywords_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7143,7 +7141,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"NumberedParametersNode\",\"location\":", 44);
 
             const pm_numbered_parameters_node_t *cast = (const pm_numbered_parameters_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the maximum field
             pm_buffer_append_byte(buffer, ',');
@@ -7157,7 +7155,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"NumberedReferenceReadNode\",\"location\":", 47);
 
             const pm_numbered_reference_read_node_t *cast = (const pm_numbered_reference_read_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the number field
             pm_buffer_append_byte(buffer, ',');
@@ -7171,7 +7169,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"OptionalKeywordParameterNode\",\"location\":", 50);
 
             const pm_optional_keyword_parameter_node_t *cast = (const pm_optional_keyword_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParameterFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7193,7 +7191,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -7207,7 +7205,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"OptionalParameterNode\",\"location\":", 43);
 
             const pm_optional_parameter_node_t *cast = (const pm_optional_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParameterFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7229,12 +7227,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the value field
             pm_buffer_append_byte(buffer, ',');
@@ -7248,7 +7246,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"OrNode\",\"location\":", 28);
 
             const pm_or_node_t *cast = (const pm_or_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the left field
             pm_buffer_append_byte(buffer, ',');
@@ -7263,7 +7261,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7272,7 +7270,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ParametersNode\",\"location\":", 36);
 
             const pm_parameters_node_t *cast = (const pm_parameters_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the requireds field
             pm_buffer_append_byte(buffer, ',');
@@ -7356,7 +7354,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ParenthesesNode\",\"location\":", 37);
 
             const pm_parentheses_node_t *cast = (const pm_parentheses_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParenthesesNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7382,12 +7380,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7396,7 +7394,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"PinnedExpressionNode\",\"location\":", 42);
 
             const pm_pinned_expression_node_t *cast = (const pm_pinned_expression_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the expression field
             pm_buffer_append_byte(buffer, ',');
@@ -7406,17 +7404,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the lparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"lparen_loc\":", 13);
-            pm_dump_json_location(buffer, parser, &cast->lparen_loc);
+            pm_dump_json_location(buffer, &cast->lparen_loc);
 
             // Dump the rparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"rparen_loc\":", 13);
-            pm_dump_json_location(buffer, parser, &cast->rparen_loc);
+            pm_dump_json_location(buffer, &cast->rparen_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7425,7 +7423,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"PinnedVariableNode\",\"location\":", 40);
 
             const pm_pinned_variable_node_t *cast = (const pm_pinned_variable_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the variable field
             pm_buffer_append_byte(buffer, ',');
@@ -7435,7 +7433,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7444,7 +7442,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"PostExecutionNode\",\"location\":", 39);
 
             const pm_post_execution_node_t *cast = (const pm_post_execution_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the statements field
             pm_buffer_append_byte(buffer, ',');
@@ -7458,17 +7456,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7477,7 +7475,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"PreExecutionNode\",\"location\":", 38);
 
             const pm_pre_execution_node_t *cast = (const pm_pre_execution_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the statements field
             pm_buffer_append_byte(buffer, ',');
@@ -7491,17 +7489,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7510,7 +7508,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ProgramNode\",\"location\":", 33);
 
             const pm_program_node_t *cast = (const pm_program_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the locals field
             pm_buffer_append_byte(buffer, ',');
@@ -7536,7 +7534,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RangeNode\",\"location\":", 31);
 
             const pm_range_node_t *cast = (const pm_range_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the RangeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7571,7 +7569,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7580,7 +7578,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RationalNode\",\"location\":", 34);
 
             const pm_rational_node_t *cast = (const pm_rational_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the IntegerBaseFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7626,7 +7624,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RedoNode\",\"location\":", 30);
 
             const pm_redo_node_t *cast = (const pm_redo_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7635,7 +7633,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RegularExpressionNode\",\"location\":", 43);
 
             const pm_regular_expression_node_t *cast = (const pm_regular_expression_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the RegularExpressionFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7702,17 +7700,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the content_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"content_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->content_loc);
+            pm_dump_json_location(buffer, &cast->content_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             // Dump the unescaped field
             pm_buffer_append_byte(buffer, ',');
@@ -7729,7 +7727,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RequiredKeywordParameterNode\",\"location\":", 50);
 
             const pm_required_keyword_parameter_node_t *cast = (const pm_required_keyword_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParameterFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7751,7 +7749,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            pm_dump_json_location(buffer, parser, &cast->name_loc);
+            pm_dump_json_location(buffer, &cast->name_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7760,7 +7758,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RequiredParameterNode\",\"location\":", 43);
 
             const pm_required_parameter_node_t *cast = (const pm_required_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParameterFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7786,7 +7784,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RescueModifierNode\",\"location\":", 40);
 
             const pm_rescue_modifier_node_t *cast = (const pm_rescue_modifier_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the expression field
             pm_buffer_append_byte(buffer, ',');
@@ -7796,7 +7794,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the rescue_expression field
             pm_buffer_append_byte(buffer, ',');
@@ -7810,12 +7808,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RescueNode\",\"location\":", 32);
 
             const pm_rescue_node_t *cast = (const pm_rescue_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the exceptions field
             pm_buffer_append_byte(buffer, ',');
@@ -7832,8 +7830,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            if (cast->operator_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            if (cast->operator_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->operator_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -7850,8 +7848,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the then_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"then_keyword_loc\":", 19);
-            if (cast->then_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->then_keyword_loc);
+            if (cast->then_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->then_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -7881,7 +7879,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RestParameterNode\",\"location\":", 39);
 
             const pm_rest_parameter_node_t *cast = (const pm_rest_parameter_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ParameterFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -7907,8 +7905,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the name_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"name_loc\":", 11);
-            if (cast->name_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->name_loc);
+            if (cast->name_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->name_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -7916,7 +7914,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7925,7 +7923,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"RetryNode\",\"location\":", 31);
 
             const pm_retry_node_t *cast = (const pm_retry_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7934,12 +7932,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ReturnNode\",\"location\":", 32);
 
             const pm_return_node_t *cast = (const pm_return_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the arguments field
             pm_buffer_append_byte(buffer, ',');
@@ -7957,7 +7955,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"SelfNode\",\"location\":", 30);
 
             const pm_self_node_t *cast = (const pm_self_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -7966,7 +7964,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"ShareableConstantNode\",\"location\":", 43);
 
             const pm_shareable_constant_node_t *cast = (const pm_shareable_constant_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the ShareableConstantNodeFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -8002,7 +8000,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"SingletonClassNode\",\"location\":", 40);
 
             const pm_singleton_class_node_t *cast = (const pm_singleton_class_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the locals field
             pm_buffer_append_byte(buffer, ',');
@@ -8019,12 +8017,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the class_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"class_keyword_loc\":", 20);
-            pm_dump_json_location(buffer, parser, &cast->class_keyword_loc);
+            pm_dump_json_location(buffer, &cast->class_keyword_loc);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the expression field
             pm_buffer_append_byte(buffer, ',');
@@ -8043,7 +8041,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            pm_dump_json_location(buffer, &cast->end_keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -8052,7 +8050,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"SourceEncodingNode\",\"location\":", 40);
 
             const pm_source_encoding_node_t *cast = (const pm_source_encoding_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -8061,7 +8059,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"SourceFileNode\",\"location\":", 36);
 
             const pm_source_file_node_t *cast = (const pm_source_file_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the StringFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -8105,7 +8103,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"SourceLineNode\",\"location\":", 36);
 
             const pm_source_line_node_t *cast = (const pm_source_line_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -8114,12 +8112,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"SplatNode\",\"location\":", 31);
 
             const pm_splat_node_t *cast = (const pm_splat_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the operator_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"operator_loc\":", 15);
-            pm_dump_json_location(buffer, parser, &cast->operator_loc);
+            pm_dump_json_location(buffer, &cast->operator_loc);
 
             // Dump the expression field
             pm_buffer_append_byte(buffer, ',');
@@ -8137,7 +8135,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"StatementsNode\",\"location\":", 36);
 
             const pm_statements_node_t *cast = (const pm_statements_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the body field
             pm_buffer_append_byte(buffer, ',');
@@ -8158,7 +8156,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"StringNode\",\"location\":", 32);
 
             const pm_string_node_t *cast = (const pm_string_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the StringFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -8190,8 +8188,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8199,13 +8197,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the content_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"content_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->content_loc);
+            pm_dump_json_location(buffer, &cast->content_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8225,18 +8223,18 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"SuperNode\",\"location\":", 31);
 
             const pm_super_node_t *cast = (const pm_super_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the lparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"lparen_loc\":", 13);
-            if (cast->lparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->lparen_loc);
+            if (cast->lparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->lparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8253,8 +8251,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the rparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"rparen_loc\":", 13);
-            if (cast->rparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->rparen_loc);
+            if (cast->rparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->rparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8275,7 +8273,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"SymbolNode\",\"location\":", 32);
 
             const pm_symbol_node_t *cast = (const pm_symbol_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the SymbolFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -8302,8 +8300,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            if (cast->opening_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            if (cast->opening_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->opening_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8311,8 +8309,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the value_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"value_loc\":", 12);
-            if (cast->value_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->value_loc);
+            if (cast->value_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->value_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8320,8 +8318,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8341,7 +8339,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"TrueNode\",\"location\":", 30);
 
             const pm_true_node_t *cast = (const pm_true_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -8350,7 +8348,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"UndefNode\",\"location\":", 31);
 
             const pm_undef_node_t *cast = (const pm_undef_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the names field
             pm_buffer_append_byte(buffer, ',');
@@ -8367,7 +8365,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -8376,12 +8374,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"UnlessNode\",\"location\":", 32);
 
             const pm_unless_node_t *cast = (const pm_unless_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the predicate field
             pm_buffer_append_byte(buffer, ',');
@@ -8391,8 +8389,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the then_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"then_keyword_loc\":", 19);
-            if (cast->then_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->then_keyword_loc);
+            if (cast->then_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->then_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8418,8 +8416,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the end_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"end_keyword_loc\":", 18);
-            if (cast->end_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->end_keyword_loc);
+            if (cast->end_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->end_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8431,7 +8429,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"UntilNode\",\"location\":", 31);
 
             const pm_until_node_t *cast = (const pm_until_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the LoopFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -8448,13 +8446,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the do_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"do_keyword_loc\":", 17);
-            if (cast->do_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->do_keyword_loc);
+            if (cast->do_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->do_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8462,8 +8460,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8489,12 +8487,12 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"WhenNode\",\"location\":", 30);
 
             const pm_when_node_t *cast = (const pm_when_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the conditions field
             pm_buffer_append_byte(buffer, ',');
@@ -8511,8 +8509,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the then_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"then_keyword_loc\":", 19);
-            if (cast->then_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->then_keyword_loc);
+            if (cast->then_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->then_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8533,7 +8531,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"WhileNode\",\"location\":", 31);
 
             const pm_while_node_t *cast = (const pm_while_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the LoopFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -8550,13 +8548,13 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the do_keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"do_keyword_loc\":", 17);
-            if (cast->do_keyword_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->do_keyword_loc);
+            if (cast->do_keyword_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->do_keyword_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8564,8 +8562,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            if (cast->closing_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            if (cast->closing_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->closing_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8591,7 +8589,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"XStringNode\",\"location\":", 33);
 
             const pm_x_string_node_t *cast = (const pm_x_string_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the EncodingFlags field
             pm_buffer_append_byte(buffer, ',');
@@ -8613,17 +8611,17 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the opening_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"opening_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->opening_loc);
+            pm_dump_json_location(buffer, &cast->opening_loc);
 
             // Dump the content_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"content_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->content_loc);
+            pm_dump_json_location(buffer, &cast->content_loc);
 
             // Dump the closing_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"closing_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->closing_loc);
+            pm_dump_json_location(buffer, &cast->closing_loc);
 
             // Dump the unescaped field
             pm_buffer_append_byte(buffer, ',');
@@ -8640,18 +8638,18 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_string(buffer, "{\"type\":\"YieldNode\",\"location\":", 31);
 
             const pm_yield_node_t *cast = (const pm_yield_node_t *) node;
-            pm_dump_json_location(buffer, parser, &cast->base.location);
+            pm_dump_json_location(buffer, &cast->base.location);
 
             // Dump the keyword_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"keyword_loc\":", 14);
-            pm_dump_json_location(buffer, parser, &cast->keyword_loc);
+            pm_dump_json_location(buffer, &cast->keyword_loc);
 
             // Dump the lparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"lparen_loc\":", 13);
-            if (cast->lparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->lparen_loc);
+            if (cast->lparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->lparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
@@ -8668,8 +8666,8 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the rparen_loc field
             pm_buffer_append_byte(buffer, ',');
             pm_buffer_append_string(buffer, "\"rparen_loc\":", 13);
-            if (cast->rparen_loc.start != NULL) {
-                pm_dump_json_location(buffer, parser, &cast->rparen_loc);
+            if (cast->rparen_loc.length != 0) {
+                pm_dump_json_location(buffer, &cast->rparen_loc);
             } else {
                 pm_buffer_append_string(buffer, "null", 4);
             }
