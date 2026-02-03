@@ -91,25 +91,25 @@ typedef enum pm_token_type {
     /** &&= */
     PM_TOKEN_AMPERSAND_AMPERSAND_EQUAL,
 
-    /** &. */
+    /** &\. */
     PM_TOKEN_AMPERSAND_DOT,
 
     /** &= */
     PM_TOKEN_AMPERSAND_EQUAL,
 
-    /** ` */
+    /** \` */
     PM_TOKEN_BACKTICK,
 
     /** a back reference */
     PM_TOKEN_BACK_REFERENCE,
 
-    /** ! or !@ */
+    /** \! or \!@ */
     PM_TOKEN_BANG,
 
-    /** != */
+    /** \!= */
     PM_TOKEN_BANG_EQUAL,
 
-    /** !~ */
+    /** \!~ */
     PM_TOKEN_BANG_TILDE,
 
     /** { */
@@ -154,13 +154,13 @@ typedef enum pm_token_type {
     /** a constant */
     PM_TOKEN_CONSTANT,
 
-    /** the . call operator */
+    /** the \. call operator */
     PM_TOKEN_DOT,
 
-    /** the .. range operator */
+    /** the \.\. range operator */
     PM_TOKEN_DOT_DOT,
 
-    /** the ... range operator or forwarding parameter */
+    /** the \.\.\. range operator or forwarding parameter */
     PM_TOKEN_DOT_DOT_DOT,
 
     /** =begin */
@@ -172,10 +172,10 @@ typedef enum pm_token_type {
     /** a line inside of embedded documentation */
     PM_TOKEN_EMBDOC_LINE,
 
-    /** #{ */
+    /** \#{ */
     PM_TOKEN_EMBEXPR_BEGIN,
 
-    /** # */
+    /** \# */
     PM_TOKEN_EMBVAR,
 
     /** = */
@@ -187,7 +187,7 @@ typedef enum pm_token_type {
     /** === */
     PM_TOKEN_EQUAL_EQUAL_EQUAL,
 
-    /** => */
+    /** =\> */
     PM_TOKEN_EQUAL_GREATER,
 
     /** =~ */
@@ -208,16 +208,16 @@ typedef enum pm_token_type {
     /** a global variable */
     PM_TOKEN_GLOBAL_VARIABLE,
 
-    /** > */
+    /** \> */
     PM_TOKEN_GREATER,
 
-    /** >= */
+    /** \>= */
     PM_TOKEN_GREATER_EQUAL,
 
-    /** >> */
+    /** \>\> */
     PM_TOKEN_GREATER_GREATER,
 
-    /** >>= */
+    /** \>\>= */
     PM_TOKEN_GREATER_GREATER_EQUAL,
 
     /** the end of a heredoc */
@@ -352,13 +352,13 @@ typedef enum pm_token_type {
     /** yield */
     PM_TOKEN_KEYWORD_YIELD,
 
-    /** __ENCODING__ */
+    /** \_\_ENCODING\_\_ */
     PM_TOKEN_KEYWORD___ENCODING__,
 
-    /** __FILE__ */
+    /** \_\_FILE\_\_ */
     PM_TOKEN_KEYWORD___FILE__,
 
-    /** __LINE__ */
+    /** \_\_LINE\_\_ */
     PM_TOKEN_KEYWORD___LINE__,
 
     /** a label */
@@ -370,31 +370,31 @@ typedef enum pm_token_type {
     /** { */
     PM_TOKEN_LAMBDA_BEGIN,
 
-    /** < */
+    /** \< */
     PM_TOKEN_LESS,
 
-    /** <= */
+    /** \<= */
     PM_TOKEN_LESS_EQUAL,
 
-    /** <=> */
+    /** \<=\> */
     PM_TOKEN_LESS_EQUAL_GREATER,
 
-    /** << */
+    /** \<\< */
     PM_TOKEN_LESS_LESS,
 
-    /** <<= */
+    /** \<\<= */
     PM_TOKEN_LESS_LESS_EQUAL,
 
     /** a method name */
     PM_TOKEN_METHOD_NAME,
 
-    /** - */
+    /** \- */
     PM_TOKEN_MINUS,
 
-    /** -= */
+    /** \-= */
     PM_TOKEN_MINUS_EQUAL,
 
-    /** -> */
+    /** \-\> */
     PM_TOKEN_MINUS_GREATER,
 
     /** a numbered reference to a capture group in the previous regular expression match */
@@ -406,25 +406,25 @@ typedef enum pm_token_type {
     /** ( for a parentheses node */
     PM_TOKEN_PARENTHESIS_LEFT_PARENTHESES,
 
-    /** % */
+    /** \% */
     PM_TOKEN_PERCENT,
 
-    /** %= */
+    /** \%= */
     PM_TOKEN_PERCENT_EQUAL,
 
-    /** %i */
+    /** \%i */
     PM_TOKEN_PERCENT_LOWER_I,
 
-    /** %w */
+    /** \%w */
     PM_TOKEN_PERCENT_LOWER_W,
 
-    /** %x */
+    /** \%x */
     PM_TOKEN_PERCENT_LOWER_X,
 
-    /** %I */
+    /** \%I */
     PM_TOKEN_PERCENT_UPPER_I,
 
-    /** %W */
+    /** \%W */
     PM_TOKEN_PERCENT_UPPER_W,
 
     /** |= */
@@ -436,10 +436,10 @@ typedef enum pm_token_type {
     /** ||= */
     PM_TOKEN_PIPE_PIPE_EQUAL,
 
-    /** + */
+    /** \+ */
     PM_TOKEN_PLUS,
 
-    /** += */
+    /** \+= */
     PM_TOKEN_PLUS_EQUAL,
 
     /** ? */
@@ -457,16 +457,16 @@ typedef enum pm_token_type {
     /** /= */
     PM_TOKEN_SLASH_EQUAL,
 
-    /** * */
+    /** \* */
     PM_TOKEN_STAR,
 
-    /** *= */
+    /** \*= */
     PM_TOKEN_STAR_EQUAL,
 
-    /** ** */
+    /** \*\* */
     PM_TOKEN_STAR_STAR,
 
-    /** **= */
+    /** \*\*= */
     PM_TOKEN_STAR_STAR_EQUAL,
 
     /** the beginning of a string */
@@ -490,25 +490,25 @@ typedef enum pm_token_type {
     /** unary :: */
     PM_TOKEN_UCOLON_COLON,
 
-    /** unary .. operator */
+    /** unary \.\. operator */
     PM_TOKEN_UDOT_DOT,
 
-    /** unary ... operator */
+    /** unary \.\.\. operator */
     PM_TOKEN_UDOT_DOT_DOT,
 
-    /** -@ */
+    /** \-@ */
     PM_TOKEN_UMINUS,
 
-    /** -@ for a number */
+    /** \-@ for a number */
     PM_TOKEN_UMINUS_NUM,
 
-    /** +@ */
+    /** \+@ */
     PM_TOKEN_UPLUS,
 
-    /** unary * */
+    /** unary \* */
     PM_TOKEN_USTAR,
 
-    /** unary ** */
+    /** unary \*\* */
     PM_TOKEN_USTAR_STAR,
 
     /** a separator between words in a list */
