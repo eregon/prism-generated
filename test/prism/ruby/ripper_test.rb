@@ -37,6 +37,9 @@ module Prism
       ]
     end
 
+    # https://bugs.ruby-lang.org/issues/21669
+    incorrect << "4.1/void_value.txt"
+
     # Skip these tests that we haven't implemented yet.
     omitted_sexp_raw = [
       "bom_leading_space.txt",
@@ -138,6 +141,17 @@ module Prism
 
       assert_equal(%i[on_int on_sp on_op], Translation::Ripper::Lexer.new("1 +").lex.map { |token| token[1] })
       assert_raise(SyntaxError) { Translation::Ripper::Lexer.new("1 +").lex(raise_errors: true) }
+    end
+
+
+    # On syntax invalid code the output doesn't always match up
+    # In these cases we just want to make sure that it doesn't raise.
+    def test_lex_invalid_syntax
+      assert_nothing_raised do
+        Translation::Ripper.lex('scan/\p{alpha}/')
+      end
+
+      assert_equal(Ripper.lex('if;)'), Translation::Ripper.lex('if;)'))
     end
 
     def test_tokenize
