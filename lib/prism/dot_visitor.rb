@@ -116,8 +116,7 @@ module Prism
       digraph.to_dot
     end
 
-    # Visit a AliasGlobalVariableNode node.
-    def visit_alias_global_variable_node(node)
+    def visit_alias_global_variable_node(node) # :nodoc:
       table = Table.new("AliasGlobalVariableNode")
       id = node_id(node)
 
@@ -141,8 +140,7 @@ module Prism
       super
     end
 
-    # Visit a AliasMethodNode node.
-    def visit_alias_method_node(node)
+    def visit_alias_method_node(node) # :nodoc:
       table = Table.new("AliasMethodNode")
       id = node_id(node)
 
@@ -166,8 +164,7 @@ module Prism
       super
     end
 
-    # Visit a AlternationPatternNode node.
-    def visit_alternation_pattern_node(node)
+    def visit_alternation_pattern_node(node) # :nodoc:
       table = Table.new("AlternationPatternNode")
       id = node_id(node)
 
@@ -191,8 +188,7 @@ module Prism
       super
     end
 
-    # Visit a AndNode node.
-    def visit_and_node(node)
+    def visit_and_node(node) # :nodoc:
       table = Table.new("AndNode")
       id = node_id(node)
 
@@ -216,8 +212,7 @@ module Prism
       super
     end
 
-    # Visit a ArgumentsNode node.
-    def visit_arguments_node(node)
+    def visit_arguments_node(node) # :nodoc:
       table = Table.new("ArgumentsNode")
       id = node_id(node)
 
@@ -246,8 +241,7 @@ module Prism
       super
     end
 
-    # Visit a ArrayNode node.
-    def visit_array_node(node)
+    def visit_array_node(node) # :nodoc:
       table = Table.new("ArrayNode")
       id = node_id(node)
 
@@ -286,8 +280,7 @@ module Prism
       super
     end
 
-    # Visit a ArrayPatternNode node.
-    def visit_array_pattern_node(node)
+    def visit_array_pattern_node(node) # :nodoc:
       table = Table.new("ArrayPatternNode")
       id = node_id(node)
 
@@ -348,8 +341,7 @@ module Prism
       super
     end
 
-    # Visit a AssocNode node.
-    def visit_assoc_node(node)
+    def visit_assoc_node(node) # :nodoc:
       table = Table.new("AssocNode")
       id = node_id(node)
 
@@ -375,8 +367,7 @@ module Prism
       super
     end
 
-    # Visit a AssocSplatNode node.
-    def visit_assoc_splat_node(node)
+    def visit_assoc_splat_node(node) # :nodoc:
       table = Table.new("AssocSplatNode")
       id = node_id(node)
 
@@ -398,8 +389,7 @@ module Prism
       super
     end
 
-    # Visit a BackReferenceReadNode node.
-    def visit_back_reference_read_node(node)
+    def visit_back_reference_read_node(node) # :nodoc:
       table = Table.new("BackReferenceReadNode")
       id = node_id(node)
 
@@ -415,8 +405,7 @@ module Prism
       super
     end
 
-    # Visit a BeginNode node.
-    def visit_begin_node(node)
+    def visit_begin_node(node) # :nodoc:
       table = Table.new("BeginNode")
       id = node_id(node)
 
@@ -463,8 +452,7 @@ module Prism
       super
     end
 
-    # Visit a BlockArgumentNode node.
-    def visit_block_argument_node(node)
+    def visit_block_argument_node(node) # :nodoc:
       table = Table.new("BlockArgumentNode")
       id = node_id(node)
 
@@ -486,8 +474,7 @@ module Prism
       super
     end
 
-    # Visit a BlockLocalVariableNode node.
-    def visit_block_local_variable_node(node)
+    def visit_block_local_variable_node(node) # :nodoc:
       table = Table.new("BlockLocalVariableNode")
       id = node_id(node)
 
@@ -506,8 +493,7 @@ module Prism
       super
     end
 
-    # Visit a BlockNode node.
-    def visit_block_node(node)
+    def visit_block_node(node) # :nodoc:
       table = Table.new("BlockNode")
       id = node_id(node)
 
@@ -541,8 +527,7 @@ module Prism
       super
     end
 
-    # Visit a BlockParameterNode node.
-    def visit_block_parameter_node(node)
+    def visit_block_parameter_node(node) # :nodoc:
       table = Table.new("BlockParameterNode")
       id = node_id(node)
 
@@ -569,8 +554,7 @@ module Prism
       super
     end
 
-    # Visit a BlockParametersNode node.
-    def visit_block_parameters_node(node)
+    def visit_block_parameters_node(node) # :nodoc:
       table = Table.new("BlockParametersNode")
       id = node_id(node)
 
@@ -612,8 +596,7 @@ module Prism
       super
     end
 
-    # Visit a BreakNode node.
-    def visit_break_node(node)
+    def visit_break_node(node) # :nodoc:
       table = Table.new("BreakNode")
       id = node_id(node)
 
@@ -635,8 +618,7 @@ module Prism
       super
     end
 
-    # Visit a CallAndWriteNode node.
-    def visit_call_and_write_node(node)
+    def visit_call_and_write_node(node) # :nodoc:
       table = Table.new("CallAndWriteNode")
       id = node_id(node)
 
@@ -681,8 +663,7 @@ module Prism
       super
     end
 
-    # Visit a CallNode node.
-    def visit_call_node(node)
+    def visit_call_node(node) # :nodoc:
       table = Table.new("CallNode")
       id = node_id(node)
 
@@ -744,8 +725,7 @@ module Prism
       super
     end
 
-    # Visit a CallOperatorWriteNode node.
-    def visit_call_operator_write_node(node)
+    def visit_call_operator_write_node(node) # :nodoc:
       table = Table.new("CallOperatorWriteNode")
       id = node_id(node)
 
@@ -793,8 +773,7 @@ module Prism
       super
     end
 
-    # Visit a CallOrWriteNode node.
-    def visit_call_or_write_node(node)
+    def visit_call_or_write_node(node) # :nodoc:
       table = Table.new("CallOrWriteNode")
       id = node_id(node)
 
@@ -839,8 +818,7 @@ module Prism
       super
     end
 
-    # Visit a CallTargetNode node.
-    def visit_call_target_node(node)
+    def visit_call_target_node(node) # :nodoc:
       table = Table.new("CallTargetNode")
       id = node_id(node)
 
@@ -869,8 +847,7 @@ module Prism
       super
     end
 
-    # Visit a CapturePatternNode node.
-    def visit_capture_pattern_node(node)
+    def visit_capture_pattern_node(node) # :nodoc:
       table = Table.new("CapturePatternNode")
       id = node_id(node)
 
@@ -894,8 +871,7 @@ module Prism
       super
     end
 
-    # Visit a CaseMatchNode node.
-    def visit_case_match_node(node)
+    def visit_case_match_node(node) # :nodoc:
       table = Table.new("CaseMatchNode")
       id = node_id(node)
 
@@ -939,8 +915,7 @@ module Prism
       super
     end
 
-    # Visit a CaseNode node.
-    def visit_case_node(node)
+    def visit_case_node(node) # :nodoc:
       table = Table.new("CaseNode")
       id = node_id(node)
 
@@ -984,8 +959,7 @@ module Prism
       super
     end
 
-    # Visit a ClassNode node.
-    def visit_class_node(node)
+    def visit_class_node(node) # :nodoc:
       table = Table.new("ClassNode")
       id = node_id(node)
 
@@ -1031,8 +1005,7 @@ module Prism
       super
     end
 
-    # Visit a ClassVariableAndWriteNode node.
-    def visit_class_variable_and_write_node(node)
+    def visit_class_variable_and_write_node(node) # :nodoc:
       table = Table.new("ClassVariableAndWriteNode")
       id = node_id(node)
 
@@ -1058,8 +1031,7 @@ module Prism
       super
     end
 
-    # Visit a ClassVariableOperatorWriteNode node.
-    def visit_class_variable_operator_write_node(node)
+    def visit_class_variable_operator_write_node(node) # :nodoc:
       table = Table.new("ClassVariableOperatorWriteNode")
       id = node_id(node)
 
@@ -1088,8 +1060,7 @@ module Prism
       super
     end
 
-    # Visit a ClassVariableOrWriteNode node.
-    def visit_class_variable_or_write_node(node)
+    def visit_class_variable_or_write_node(node) # :nodoc:
       table = Table.new("ClassVariableOrWriteNode")
       id = node_id(node)
 
@@ -1115,8 +1086,7 @@ module Prism
       super
     end
 
-    # Visit a ClassVariableReadNode node.
-    def visit_class_variable_read_node(node)
+    def visit_class_variable_read_node(node) # :nodoc:
       table = Table.new("ClassVariableReadNode")
       id = node_id(node)
 
@@ -1132,8 +1102,7 @@ module Prism
       super
     end
 
-    # Visit a ClassVariableTargetNode node.
-    def visit_class_variable_target_node(node)
+    def visit_class_variable_target_node(node) # :nodoc:
       table = Table.new("ClassVariableTargetNode")
       id = node_id(node)
 
@@ -1149,8 +1118,7 @@ module Prism
       super
     end
 
-    # Visit a ClassVariableWriteNode node.
-    def visit_class_variable_write_node(node)
+    def visit_class_variable_write_node(node) # :nodoc:
       table = Table.new("ClassVariableWriteNode")
       id = node_id(node)
 
@@ -1176,8 +1144,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantAndWriteNode node.
-    def visit_constant_and_write_node(node)
+    def visit_constant_and_write_node(node) # :nodoc:
       table = Table.new("ConstantAndWriteNode")
       id = node_id(node)
 
@@ -1203,8 +1170,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantOperatorWriteNode node.
-    def visit_constant_operator_write_node(node)
+    def visit_constant_operator_write_node(node) # :nodoc:
       table = Table.new("ConstantOperatorWriteNode")
       id = node_id(node)
 
@@ -1233,8 +1199,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantOrWriteNode node.
-    def visit_constant_or_write_node(node)
+    def visit_constant_or_write_node(node) # :nodoc:
       table = Table.new("ConstantOrWriteNode")
       id = node_id(node)
 
@@ -1260,8 +1225,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantPathAndWriteNode node.
-    def visit_constant_path_and_write_node(node)
+    def visit_constant_path_and_write_node(node) # :nodoc:
       table = Table.new("ConstantPathAndWriteNode")
       id = node_id(node)
 
@@ -1285,8 +1249,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantPathNode node.
-    def visit_constant_path_node(node)
+    def visit_constant_path_node(node) # :nodoc:
       table = Table.new("ConstantPathNode")
       id = node_id(node)
 
@@ -1314,8 +1277,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantPathOperatorWriteNode node.
-    def visit_constant_path_operator_write_node(node)
+    def visit_constant_path_operator_write_node(node) # :nodoc:
       table = Table.new("ConstantPathOperatorWriteNode")
       id = node_id(node)
 
@@ -1342,8 +1304,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantPathOrWriteNode node.
-    def visit_constant_path_or_write_node(node)
+    def visit_constant_path_or_write_node(node) # :nodoc:
       table = Table.new("ConstantPathOrWriteNode")
       id = node_id(node)
 
@@ -1367,8 +1328,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantPathTargetNode node.
-    def visit_constant_path_target_node(node)
+    def visit_constant_path_target_node(node) # :nodoc:
       table = Table.new("ConstantPathTargetNode")
       id = node_id(node)
 
@@ -1396,8 +1356,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantPathWriteNode node.
-    def visit_constant_path_write_node(node)
+    def visit_constant_path_write_node(node) # :nodoc:
       table = Table.new("ConstantPathWriteNode")
       id = node_id(node)
 
@@ -1421,8 +1380,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantReadNode node.
-    def visit_constant_read_node(node)
+    def visit_constant_read_node(node) # :nodoc:
       table = Table.new("ConstantReadNode")
       id = node_id(node)
 
@@ -1438,8 +1396,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantTargetNode node.
-    def visit_constant_target_node(node)
+    def visit_constant_target_node(node) # :nodoc:
       table = Table.new("ConstantTargetNode")
       id = node_id(node)
 
@@ -1455,8 +1412,7 @@ module Prism
       super
     end
 
-    # Visit a ConstantWriteNode node.
-    def visit_constant_write_node(node)
+    def visit_constant_write_node(node) # :nodoc:
       table = Table.new("ConstantWriteNode")
       id = node_id(node)
 
@@ -1482,8 +1438,7 @@ module Prism
       super
     end
 
-    # Visit a DefNode node.
-    def visit_def_node(node)
+    def visit_def_node(node) # :nodoc:
       table = Table.new("DefNode")
       id = node_id(node)
 
@@ -1551,8 +1506,7 @@ module Prism
       super
     end
 
-    # Visit a DefinedNode node.
-    def visit_defined_node(node)
+    def visit_defined_node(node) # :nodoc:
       table = Table.new("DefinedNode")
       id = node_id(node)
 
@@ -1582,8 +1536,7 @@ module Prism
       super
     end
 
-    # Visit a ElseNode node.
-    def visit_else_node(node)
+    def visit_else_node(node) # :nodoc:
       table = Table.new("ElseNode")
       id = node_id(node)
 
@@ -1610,8 +1563,7 @@ module Prism
       super
     end
 
-    # Visit a EmbeddedStatementsNode node.
-    def visit_embedded_statements_node(node)
+    def visit_embedded_statements_node(node) # :nodoc:
       table = Table.new("EmbeddedStatementsNode")
       id = node_id(node)
 
@@ -1636,8 +1588,7 @@ module Prism
       super
     end
 
-    # Visit a EmbeddedVariableNode node.
-    def visit_embedded_variable_node(node)
+    def visit_embedded_variable_node(node) # :nodoc:
       table = Table.new("EmbeddedVariableNode")
       id = node_id(node)
 
@@ -1657,8 +1608,7 @@ module Prism
       super
     end
 
-    # Visit a EnsureNode node.
-    def visit_ensure_node(node)
+    def visit_ensure_node(node) # :nodoc:
       table = Table.new("EnsureNode")
       id = node_id(node)
 
@@ -1683,8 +1633,7 @@ module Prism
       super
     end
 
-    # Visit a FalseNode node.
-    def visit_false_node(node)
+    def visit_false_node(node) # :nodoc:
       table = Table.new("FalseNode")
       id = node_id(node)
 
@@ -1697,8 +1646,7 @@ module Prism
       super
     end
 
-    # Visit a FindPatternNode node.
-    def visit_find_pattern_node(node)
+    def visit_find_pattern_node(node) # :nodoc:
       table = Table.new("FindPatternNode")
       id = node_id(node)
 
@@ -1748,8 +1696,7 @@ module Prism
       super
     end
 
-    # Visit a FlipFlopNode node.
-    def visit_flip_flop_node(node)
+    def visit_flip_flop_node(node) # :nodoc:
       table = Table.new("FlipFlopNode")
       id = node_id(node)
 
@@ -1780,8 +1727,7 @@ module Prism
       super
     end
 
-    # Visit a FloatNode node.
-    def visit_float_node(node)
+    def visit_float_node(node) # :nodoc:
       table = Table.new("FloatNode")
       id = node_id(node)
 
@@ -1797,8 +1743,7 @@ module Prism
       super
     end
 
-    # Visit a ForNode node.
-    def visit_for_node(node)
+    def visit_for_node(node) # :nodoc:
       table = Table.new("ForNode")
       id = node_id(node)
 
@@ -1839,8 +1784,7 @@ module Prism
       super
     end
 
-    # Visit a ForwardingArgumentsNode node.
-    def visit_forwarding_arguments_node(node)
+    def visit_forwarding_arguments_node(node) # :nodoc:
       table = Table.new("ForwardingArgumentsNode")
       id = node_id(node)
 
@@ -1853,8 +1797,7 @@ module Prism
       super
     end
 
-    # Visit a ForwardingParameterNode node.
-    def visit_forwarding_parameter_node(node)
+    def visit_forwarding_parameter_node(node) # :nodoc:
       table = Table.new("ForwardingParameterNode")
       id = node_id(node)
 
@@ -1867,8 +1810,7 @@ module Prism
       super
     end
 
-    # Visit a ForwardingSuperNode node.
-    def visit_forwarding_super_node(node)
+    def visit_forwarding_super_node(node) # :nodoc:
       table = Table.new("ForwardingSuperNode")
       id = node_id(node)
 
@@ -1887,8 +1829,7 @@ module Prism
       super
     end
 
-    # Visit a GlobalVariableAndWriteNode node.
-    def visit_global_variable_and_write_node(node)
+    def visit_global_variable_and_write_node(node) # :nodoc:
       table = Table.new("GlobalVariableAndWriteNode")
       id = node_id(node)
 
@@ -1914,8 +1855,7 @@ module Prism
       super
     end
 
-    # Visit a GlobalVariableOperatorWriteNode node.
-    def visit_global_variable_operator_write_node(node)
+    def visit_global_variable_operator_write_node(node) # :nodoc:
       table = Table.new("GlobalVariableOperatorWriteNode")
       id = node_id(node)
 
@@ -1944,8 +1884,7 @@ module Prism
       super
     end
 
-    # Visit a GlobalVariableOrWriteNode node.
-    def visit_global_variable_or_write_node(node)
+    def visit_global_variable_or_write_node(node) # :nodoc:
       table = Table.new("GlobalVariableOrWriteNode")
       id = node_id(node)
 
@@ -1971,8 +1910,7 @@ module Prism
       super
     end
 
-    # Visit a GlobalVariableReadNode node.
-    def visit_global_variable_read_node(node)
+    def visit_global_variable_read_node(node) # :nodoc:
       table = Table.new("GlobalVariableReadNode")
       id = node_id(node)
 
@@ -1988,8 +1926,7 @@ module Prism
       super
     end
 
-    # Visit a GlobalVariableTargetNode node.
-    def visit_global_variable_target_node(node)
+    def visit_global_variable_target_node(node) # :nodoc:
       table = Table.new("GlobalVariableTargetNode")
       id = node_id(node)
 
@@ -2005,8 +1942,7 @@ module Prism
       super
     end
 
-    # Visit a GlobalVariableWriteNode node.
-    def visit_global_variable_write_node(node)
+    def visit_global_variable_write_node(node) # :nodoc:
       table = Table.new("GlobalVariableWriteNode")
       id = node_id(node)
 
@@ -2032,8 +1968,7 @@ module Prism
       super
     end
 
-    # Visit a HashNode node.
-    def visit_hash_node(node)
+    def visit_hash_node(node) # :nodoc:
       table = Table.new("HashNode")
       id = node_id(node)
 
@@ -2065,8 +2000,7 @@ module Prism
       super
     end
 
-    # Visit a HashPatternNode node.
-    def visit_hash_pattern_node(node)
+    def visit_hash_pattern_node(node) # :nodoc:
       table = Table.new("HashPatternNode")
       id = node_id(node)
 
@@ -2114,8 +2048,7 @@ module Prism
       super
     end
 
-    # Visit a IfNode node.
-    def visit_if_node(node)
+    def visit_if_node(node) # :nodoc:
       table = Table.new("IfNode")
       id = node_id(node)
 
@@ -2159,8 +2092,7 @@ module Prism
       super
     end
 
-    # Visit a ImaginaryNode node.
-    def visit_imaginary_node(node)
+    def visit_imaginary_node(node) # :nodoc:
       table = Table.new("ImaginaryNode")
       id = node_id(node)
 
@@ -2177,8 +2109,7 @@ module Prism
       super
     end
 
-    # Visit a ImplicitNode node.
-    def visit_implicit_node(node)
+    def visit_implicit_node(node) # :nodoc:
       table = Table.new("ImplicitNode")
       id = node_id(node)
 
@@ -2195,8 +2126,7 @@ module Prism
       super
     end
 
-    # Visit a ImplicitRestNode node.
-    def visit_implicit_rest_node(node)
+    def visit_implicit_rest_node(node) # :nodoc:
       table = Table.new("ImplicitRestNode")
       id = node_id(node)
 
@@ -2209,8 +2139,7 @@ module Prism
       super
     end
 
-    # Visit a InNode node.
-    def visit_in_node(node)
+    def visit_in_node(node) # :nodoc:
       table = Table.new("InNode")
       id = node_id(node)
 
@@ -2241,8 +2170,7 @@ module Prism
       super
     end
 
-    # Visit a IndexAndWriteNode node.
-    def visit_index_and_write_node(node)
+    def visit_index_and_write_node(node) # :nodoc:
       table = Table.new("IndexAndWriteNode")
       id = node_id(node)
 
@@ -2294,8 +2222,7 @@ module Prism
       super
     end
 
-    # Visit a IndexOperatorWriteNode node.
-    def visit_index_operator_write_node(node)
+    def visit_index_operator_write_node(node) # :nodoc:
       table = Table.new("IndexOperatorWriteNode")
       id = node_id(node)
 
@@ -2350,8 +2277,7 @@ module Prism
       super
     end
 
-    # Visit a IndexOrWriteNode node.
-    def visit_index_or_write_node(node)
+    def visit_index_or_write_node(node) # :nodoc:
       table = Table.new("IndexOrWriteNode")
       id = node_id(node)
 
@@ -2403,8 +2329,7 @@ module Prism
       super
     end
 
-    # Visit a IndexTargetNode node.
-    def visit_index_target_node(node)
+    def visit_index_target_node(node) # :nodoc:
       table = Table.new("IndexTargetNode")
       id = node_id(node)
 
@@ -2442,8 +2367,7 @@ module Prism
       super
     end
 
-    # Visit a InstanceVariableAndWriteNode node.
-    def visit_instance_variable_and_write_node(node)
+    def visit_instance_variable_and_write_node(node) # :nodoc:
       table = Table.new("InstanceVariableAndWriteNode")
       id = node_id(node)
 
@@ -2469,8 +2393,7 @@ module Prism
       super
     end
 
-    # Visit a InstanceVariableOperatorWriteNode node.
-    def visit_instance_variable_operator_write_node(node)
+    def visit_instance_variable_operator_write_node(node) # :nodoc:
       table = Table.new("InstanceVariableOperatorWriteNode")
       id = node_id(node)
 
@@ -2499,8 +2422,7 @@ module Prism
       super
     end
 
-    # Visit a InstanceVariableOrWriteNode node.
-    def visit_instance_variable_or_write_node(node)
+    def visit_instance_variable_or_write_node(node) # :nodoc:
       table = Table.new("InstanceVariableOrWriteNode")
       id = node_id(node)
 
@@ -2526,8 +2448,7 @@ module Prism
       super
     end
 
-    # Visit a InstanceVariableReadNode node.
-    def visit_instance_variable_read_node(node)
+    def visit_instance_variable_read_node(node) # :nodoc:
       table = Table.new("InstanceVariableReadNode")
       id = node_id(node)
 
@@ -2543,8 +2464,7 @@ module Prism
       super
     end
 
-    # Visit a InstanceVariableTargetNode node.
-    def visit_instance_variable_target_node(node)
+    def visit_instance_variable_target_node(node) # :nodoc:
       table = Table.new("InstanceVariableTargetNode")
       id = node_id(node)
 
@@ -2560,8 +2480,7 @@ module Prism
       super
     end
 
-    # Visit a InstanceVariableWriteNode node.
-    def visit_instance_variable_write_node(node)
+    def visit_instance_variable_write_node(node) # :nodoc:
       table = Table.new("InstanceVariableWriteNode")
       id = node_id(node)
 
@@ -2587,8 +2506,7 @@ module Prism
       super
     end
 
-    # Visit a IntegerNode node.
-    def visit_integer_node(node)
+    def visit_integer_node(node) # :nodoc:
       table = Table.new("IntegerNode")
       id = node_id(node)
 
@@ -2607,8 +2525,7 @@ module Prism
       super
     end
 
-    # Visit a InterpolatedMatchLastLineNode node.
-    def visit_interpolated_match_last_line_node(node)
+    def visit_interpolated_match_last_line_node(node) # :nodoc:
       table = Table.new("InterpolatedMatchLastLineNode")
       id = node_id(node)
 
@@ -2643,8 +2560,7 @@ module Prism
       super
     end
 
-    # Visit a InterpolatedRegularExpressionNode node.
-    def visit_interpolated_regular_expression_node(node)
+    def visit_interpolated_regular_expression_node(node) # :nodoc:
       table = Table.new("InterpolatedRegularExpressionNode")
       id = node_id(node)
 
@@ -2679,8 +2595,7 @@ module Prism
       super
     end
 
-    # Visit a InterpolatedStringNode node.
-    def visit_interpolated_string_node(node)
+    def visit_interpolated_string_node(node) # :nodoc:
       table = Table.new("InterpolatedStringNode")
       id = node_id(node)
 
@@ -2719,8 +2634,7 @@ module Prism
       super
     end
 
-    # Visit a InterpolatedSymbolNode node.
-    def visit_interpolated_symbol_node(node)
+    def visit_interpolated_symbol_node(node) # :nodoc:
       table = Table.new("InterpolatedSymbolNode")
       id = node_id(node)
 
@@ -2756,8 +2670,7 @@ module Prism
       super
     end
 
-    # Visit a InterpolatedXStringNode node.
-    def visit_interpolated_x_string_node(node)
+    def visit_interpolated_x_string_node(node) # :nodoc:
       table = Table.new("InterpolatedXStringNode")
       id = node_id(node)
 
@@ -2789,8 +2702,7 @@ module Prism
       super
     end
 
-    # Visit a ItLocalVariableReadNode node.
-    def visit_it_local_variable_read_node(node)
+    def visit_it_local_variable_read_node(node) # :nodoc:
       table = Table.new("ItLocalVariableReadNode")
       id = node_id(node)
 
@@ -2803,8 +2715,7 @@ module Prism
       super
     end
 
-    # Visit a ItParametersNode node.
-    def visit_it_parameters_node(node)
+    def visit_it_parameters_node(node) # :nodoc:
       table = Table.new("ItParametersNode")
       id = node_id(node)
 
@@ -2817,8 +2728,7 @@ module Prism
       super
     end
 
-    # Visit a KeywordHashNode node.
-    def visit_keyword_hash_node(node)
+    def visit_keyword_hash_node(node) # :nodoc:
       table = Table.new("KeywordHashNode")
       id = node_id(node)
 
@@ -2847,8 +2757,7 @@ module Prism
       super
     end
 
-    # Visit a KeywordRestParameterNode node.
-    def visit_keyword_rest_parameter_node(node)
+    def visit_keyword_rest_parameter_node(node) # :nodoc:
       table = Table.new("KeywordRestParameterNode")
       id = node_id(node)
 
@@ -2875,8 +2784,7 @@ module Prism
       super
     end
 
-    # Visit a LambdaNode node.
-    def visit_lambda_node(node)
+    def visit_lambda_node(node) # :nodoc:
       table = Table.new("LambdaNode")
       id = node_id(node)
 
@@ -2913,8 +2821,7 @@ module Prism
       super
     end
 
-    # Visit a LocalVariableAndWriteNode node.
-    def visit_local_variable_and_write_node(node)
+    def visit_local_variable_and_write_node(node) # :nodoc:
       table = Table.new("LocalVariableAndWriteNode")
       id = node_id(node)
 
@@ -2943,8 +2850,7 @@ module Prism
       super
     end
 
-    # Visit a LocalVariableOperatorWriteNode node.
-    def visit_local_variable_operator_write_node(node)
+    def visit_local_variable_operator_write_node(node) # :nodoc:
       table = Table.new("LocalVariableOperatorWriteNode")
       id = node_id(node)
 
@@ -2976,8 +2882,7 @@ module Prism
       super
     end
 
-    # Visit a LocalVariableOrWriteNode node.
-    def visit_local_variable_or_write_node(node)
+    def visit_local_variable_or_write_node(node) # :nodoc:
       table = Table.new("LocalVariableOrWriteNode")
       id = node_id(node)
 
@@ -3006,8 +2911,7 @@ module Prism
       super
     end
 
-    # Visit a LocalVariableReadNode node.
-    def visit_local_variable_read_node(node)
+    def visit_local_variable_read_node(node) # :nodoc:
       table = Table.new("LocalVariableReadNode")
       id = node_id(node)
 
@@ -3026,8 +2930,7 @@ module Prism
       super
     end
 
-    # Visit a LocalVariableTargetNode node.
-    def visit_local_variable_target_node(node)
+    def visit_local_variable_target_node(node) # :nodoc:
       table = Table.new("LocalVariableTargetNode")
       id = node_id(node)
 
@@ -3046,8 +2949,7 @@ module Prism
       super
     end
 
-    # Visit a LocalVariableWriteNode node.
-    def visit_local_variable_write_node(node)
+    def visit_local_variable_write_node(node) # :nodoc:
       table = Table.new("LocalVariableWriteNode")
       id = node_id(node)
 
@@ -3076,8 +2978,7 @@ module Prism
       super
     end
 
-    # Visit a MatchLastLineNode node.
-    def visit_match_last_line_node(node)
+    def visit_match_last_line_node(node) # :nodoc:
       table = Table.new("MatchLastLineNode")
       id = node_id(node)
 
@@ -3105,8 +3006,7 @@ module Prism
       super
     end
 
-    # Visit a MatchPredicateNode node.
-    def visit_match_predicate_node(node)
+    def visit_match_predicate_node(node) # :nodoc:
       table = Table.new("MatchPredicateNode")
       id = node_id(node)
 
@@ -3130,8 +3030,7 @@ module Prism
       super
     end
 
-    # Visit a MatchRequiredNode node.
-    def visit_match_required_node(node)
+    def visit_match_required_node(node) # :nodoc:
       table = Table.new("MatchRequiredNode")
       id = node_id(node)
 
@@ -3155,8 +3054,7 @@ module Prism
       super
     end
 
-    # Visit a MatchWriteNode node.
-    def visit_match_write_node(node)
+    def visit_match_write_node(node) # :nodoc:
       table = Table.new("MatchWriteNode")
       id = node_id(node)
 
@@ -3186,8 +3084,7 @@ module Prism
       super
     end
 
-    # Visit a MissingNode node.
-    def visit_missing_node(node)
+    def visit_missing_node(node) # :nodoc:
       table = Table.new("MissingNode")
       id = node_id(node)
 
@@ -3200,8 +3097,7 @@ module Prism
       super
     end
 
-    # Visit a ModuleNode node.
-    def visit_module_node(node)
+    def visit_module_node(node) # :nodoc:
       table = Table.new("ModuleNode")
       id = node_id(node)
 
@@ -3236,8 +3132,7 @@ module Prism
       super
     end
 
-    # Visit a MultiTargetNode node.
-    def visit_multi_target_node(node)
+    def visit_multi_target_node(node) # :nodoc:
       table = Table.new("MultiTargetNode")
       id = node_id(node)
 
@@ -3292,8 +3187,7 @@ module Prism
       super
     end
 
-    # Visit a MultiWriteNode node.
-    def visit_multi_write_node(node)
+    def visit_multi_write_node(node) # :nodoc:
       table = Table.new("MultiWriteNode")
       id = node_id(node)
 
@@ -3355,8 +3249,7 @@ module Prism
       super
     end
 
-    # Visit a NextNode node.
-    def visit_next_node(node)
+    def visit_next_node(node) # :nodoc:
       table = Table.new("NextNode")
       id = node_id(node)
 
@@ -3378,8 +3271,7 @@ module Prism
       super
     end
 
-    # Visit a NilNode node.
-    def visit_nil_node(node)
+    def visit_nil_node(node) # :nodoc:
       table = Table.new("NilNode")
       id = node_id(node)
 
@@ -3392,8 +3284,7 @@ module Prism
       super
     end
 
-    # Visit a NoKeywordsParameterNode node.
-    def visit_no_keywords_parameter_node(node)
+    def visit_no_keywords_parameter_node(node) # :nodoc:
       table = Table.new("NoKeywordsParameterNode")
       id = node_id(node)
 
@@ -3412,8 +3303,7 @@ module Prism
       super
     end
 
-    # Visit a NumberedParametersNode node.
-    def visit_numbered_parameters_node(node)
+    def visit_numbered_parameters_node(node) # :nodoc:
       table = Table.new("NumberedParametersNode")
       id = node_id(node)
 
@@ -3429,8 +3319,7 @@ module Prism
       super
     end
 
-    # Visit a NumberedReferenceReadNode node.
-    def visit_numbered_reference_read_node(node)
+    def visit_numbered_reference_read_node(node) # :nodoc:
       table = Table.new("NumberedReferenceReadNode")
       id = node_id(node)
 
@@ -3446,8 +3335,7 @@ module Prism
       super
     end
 
-    # Visit a OptionalKeywordParameterNode node.
-    def visit_optional_keyword_parameter_node(node)
+    def visit_optional_keyword_parameter_node(node) # :nodoc:
       table = Table.new("OptionalKeywordParameterNode")
       id = node_id(node)
 
@@ -3473,8 +3361,7 @@ module Prism
       super
     end
 
-    # Visit a OptionalParameterNode node.
-    def visit_optional_parameter_node(node)
+    def visit_optional_parameter_node(node) # :nodoc:
       table = Table.new("OptionalParameterNode")
       id = node_id(node)
 
@@ -3503,8 +3390,7 @@ module Prism
       super
     end
 
-    # Visit a OrNode node.
-    def visit_or_node(node)
+    def visit_or_node(node) # :nodoc:
       table = Table.new("OrNode")
       id = node_id(node)
 
@@ -3528,8 +3414,7 @@ module Prism
       super
     end
 
-    # Visit a ParametersNode node.
-    def visit_parameters_node(node)
+    def visit_parameters_node(node) # :nodoc:
       table = Table.new("ParametersNode")
       id = node_id(node)
 
@@ -3612,8 +3497,7 @@ module Prism
       super
     end
 
-    # Visit a ParenthesesNode node.
-    def visit_parentheses_node(node)
+    def visit_parentheses_node(node) # :nodoc:
       table = Table.new("ParenthesesNode")
       id = node_id(node)
 
@@ -3641,8 +3525,7 @@ module Prism
       super
     end
 
-    # Visit a PinnedExpressionNode node.
-    def visit_pinned_expression_node(node)
+    def visit_pinned_expression_node(node) # :nodoc:
       table = Table.new("PinnedExpressionNode")
       id = node_id(node)
 
@@ -3668,8 +3551,7 @@ module Prism
       super
     end
 
-    # Visit a PinnedVariableNode node.
-    def visit_pinned_variable_node(node)
+    def visit_pinned_variable_node(node) # :nodoc:
       table = Table.new("PinnedVariableNode")
       id = node_id(node)
 
@@ -3689,8 +3571,7 @@ module Prism
       super
     end
 
-    # Visit a PostExecutionNode node.
-    def visit_post_execution_node(node)
+    def visit_post_execution_node(node) # :nodoc:
       table = Table.new("PostExecutionNode")
       id = node_id(node)
 
@@ -3718,8 +3599,7 @@ module Prism
       super
     end
 
-    # Visit a PreExecutionNode node.
-    def visit_pre_execution_node(node)
+    def visit_pre_execution_node(node) # :nodoc:
       table = Table.new("PreExecutionNode")
       id = node_id(node)
 
@@ -3747,8 +3627,7 @@ module Prism
       super
     end
 
-    # Visit a ProgramNode node.
-    def visit_program_node(node)
+    def visit_program_node(node) # :nodoc:
       table = Table.new("ProgramNode")
       id = node_id(node)
 
@@ -3768,8 +3647,7 @@ module Prism
       super
     end
 
-    # Visit a RangeNode node.
-    def visit_range_node(node)
+    def visit_range_node(node) # :nodoc:
       table = Table.new("RangeNode")
       id = node_id(node)
 
@@ -3800,8 +3678,7 @@ module Prism
       super
     end
 
-    # Visit a RationalNode node.
-    def visit_rational_node(node)
+    def visit_rational_node(node) # :nodoc:
       table = Table.new("RationalNode")
       id = node_id(node)
 
@@ -3823,8 +3700,7 @@ module Prism
       super
     end
 
-    # Visit a RedoNode node.
-    def visit_redo_node(node)
+    def visit_redo_node(node) # :nodoc:
       table = Table.new("RedoNode")
       id = node_id(node)
 
@@ -3837,8 +3713,7 @@ module Prism
       super
     end
 
-    # Visit a RegularExpressionNode node.
-    def visit_regular_expression_node(node)
+    def visit_regular_expression_node(node) # :nodoc:
       table = Table.new("RegularExpressionNode")
       id = node_id(node)
 
@@ -3866,8 +3741,7 @@ module Prism
       super
     end
 
-    # Visit a RequiredKeywordParameterNode node.
-    def visit_required_keyword_parameter_node(node)
+    def visit_required_keyword_parameter_node(node) # :nodoc:
       table = Table.new("RequiredKeywordParameterNode")
       id = node_id(node)
 
@@ -3889,8 +3763,7 @@ module Prism
       super
     end
 
-    # Visit a RequiredParameterNode node.
-    def visit_required_parameter_node(node)
+    def visit_required_parameter_node(node) # :nodoc:
       table = Table.new("RequiredParameterNode")
       id = node_id(node)
 
@@ -3909,8 +3782,7 @@ module Prism
       super
     end
 
-    # Visit a RescueModifierNode node.
-    def visit_rescue_modifier_node(node)
+    def visit_rescue_modifier_node(node) # :nodoc:
       table = Table.new("RescueModifierNode")
       id = node_id(node)
 
@@ -3934,8 +3806,7 @@ module Prism
       super
     end
 
-    # Visit a RescueNode node.
-    def visit_rescue_node(node)
+    def visit_rescue_node(node) # :nodoc:
       table = Table.new("RescueNode")
       id = node_id(node)
 
@@ -3992,8 +3863,7 @@ module Prism
       super
     end
 
-    # Visit a RestParameterNode node.
-    def visit_rest_parameter_node(node)
+    def visit_rest_parameter_node(node) # :nodoc:
       table = Table.new("RestParameterNode")
       id = node_id(node)
 
@@ -4020,8 +3890,7 @@ module Prism
       super
     end
 
-    # Visit a RetryNode node.
-    def visit_retry_node(node)
+    def visit_retry_node(node) # :nodoc:
       table = Table.new("RetryNode")
       id = node_id(node)
 
@@ -4034,8 +3903,7 @@ module Prism
       super
     end
 
-    # Visit a ReturnNode node.
-    def visit_return_node(node)
+    def visit_return_node(node) # :nodoc:
       table = Table.new("ReturnNode")
       id = node_id(node)
 
@@ -4057,8 +3925,7 @@ module Prism
       super
     end
 
-    # Visit a SelfNode node.
-    def visit_self_node(node)
+    def visit_self_node(node) # :nodoc:
       table = Table.new("SelfNode")
       id = node_id(node)
 
@@ -4071,8 +3938,7 @@ module Prism
       super
     end
 
-    # Visit a ShareableConstantNode node.
-    def visit_shareable_constant_node(node)
+    def visit_shareable_constant_node(node) # :nodoc:
       table = Table.new("ShareableConstantNode")
       id = node_id(node)
 
@@ -4092,8 +3958,7 @@ module Prism
       super
     end
 
-    # Visit a SingletonClassNode node.
-    def visit_singleton_class_node(node)
+    def visit_singleton_class_node(node) # :nodoc:
       table = Table.new("SingletonClassNode")
       id = node_id(node)
 
@@ -4128,8 +3993,7 @@ module Prism
       super
     end
 
-    # Visit a SourceEncodingNode node.
-    def visit_source_encoding_node(node)
+    def visit_source_encoding_node(node) # :nodoc:
       table = Table.new("SourceEncodingNode")
       id = node_id(node)
 
@@ -4142,8 +4006,7 @@ module Prism
       super
     end
 
-    # Visit a SourceFileNode node.
-    def visit_source_file_node(node)
+    def visit_source_file_node(node) # :nodoc:
       table = Table.new("SourceFileNode")
       id = node_id(node)
 
@@ -4162,8 +4025,7 @@ module Prism
       super
     end
 
-    # Visit a SourceLineNode node.
-    def visit_source_line_node(node)
+    def visit_source_line_node(node) # :nodoc:
       table = Table.new("SourceLineNode")
       id = node_id(node)
 
@@ -4176,8 +4038,7 @@ module Prism
       super
     end
 
-    # Visit a SplatNode node.
-    def visit_splat_node(node)
+    def visit_splat_node(node) # :nodoc:
       table = Table.new("SplatNode")
       id = node_id(node)
 
@@ -4199,8 +4060,7 @@ module Prism
       super
     end
 
-    # Visit a StatementsNode node.
-    def visit_statements_node(node)
+    def visit_statements_node(node) # :nodoc:
       table = Table.new("StatementsNode")
       id = node_id(node)
 
@@ -4226,8 +4086,7 @@ module Prism
       super
     end
 
-    # Visit a StringNode node.
-    def visit_string_node(node)
+    def visit_string_node(node) # :nodoc:
       table = Table.new("StringNode")
       id = node_id(node)
 
@@ -4259,8 +4118,7 @@ module Prism
       super
     end
 
-    # Visit a SuperNode node.
-    def visit_super_node(node)
+    def visit_super_node(node) # :nodoc:
       table = Table.new("SuperNode")
       id = node_id(node)
 
@@ -4298,8 +4156,7 @@ module Prism
       super
     end
 
-    # Visit a SymbolNode node.
-    def visit_symbol_node(node)
+    def visit_symbol_node(node) # :nodoc:
       table = Table.new("SymbolNode")
       id = node_id(node)
 
@@ -4333,8 +4190,7 @@ module Prism
       super
     end
 
-    # Visit a TrueNode node.
-    def visit_true_node(node)
+    def visit_true_node(node) # :nodoc:
       table = Table.new("TrueNode")
       id = node_id(node)
 
@@ -4347,8 +4203,7 @@ module Prism
       super
     end
 
-    # Visit a UndefNode node.
-    def visit_undef_node(node)
+    def visit_undef_node(node) # :nodoc:
       table = Table.new("UndefNode")
       id = node_id(node)
 
@@ -4377,8 +4232,7 @@ module Prism
       super
     end
 
-    # Visit a UnlessNode node.
-    def visit_unless_node(node)
+    def visit_unless_node(node) # :nodoc:
       table = Table.new("UnlessNode")
       id = node_id(node)
 
@@ -4420,8 +4274,7 @@ module Prism
       super
     end
 
-    # Visit a UntilNode node.
-    def visit_until_node(node)
+    def visit_until_node(node) # :nodoc:
       table = Table.new("UntilNode")
       id = node_id(node)
 
@@ -4460,8 +4313,7 @@ module Prism
       super
     end
 
-    # Visit a WhenNode node.
-    def visit_when_node(node)
+    def visit_when_node(node) # :nodoc:
       table = Table.new("WhenNode")
       id = node_id(node)
 
@@ -4501,8 +4353,7 @@ module Prism
       super
     end
 
-    # Visit a WhileNode node.
-    def visit_while_node(node)
+    def visit_while_node(node) # :nodoc:
       table = Table.new("WhileNode")
       id = node_id(node)
 
@@ -4541,8 +4392,7 @@ module Prism
       super
     end
 
-    # Visit a XStringNode node.
-    def visit_x_string_node(node)
+    def visit_x_string_node(node) # :nodoc:
       table = Table.new("XStringNode")
       id = node_id(node)
 
@@ -4570,8 +4420,7 @@ module Prism
       super
     end
 
-    # Visit a YieldNode node.
-    def visit_yield_node(node)
+    def visit_yield_node(node) # :nodoc:
       table = Table.new("YieldNode")
       id = node_id(node)
 
@@ -4606,18 +4455,18 @@ module Prism
     private
 
     # Generate a unique node ID for a node throughout the digraph.
-    def node_id(node)
+    def node_id(node) # :nodoc:
       "Node_#{node.object_id}"
     end
 
     # Inspect a location to display the start and end line and columns in bytes.
-    def location_inspect(location)
+    def location_inspect(location) # :nodoc:
       "(#{location.start_line},#{location.start_column})-(#{location.end_line},#{location.end_column})"
     end
 
     # Inspect a node that has arguments_node_flags flags to display the flags as a
     # comma-separated list.
-    def arguments_node_flags_inspect(node)
+    def arguments_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "contains_forwarding" if node.contains_forwarding?
       flags << "contains_keywords" if node.contains_keywords?
@@ -4629,7 +4478,7 @@ module Prism
 
     # Inspect a node that has array_node_flags flags to display the flags as a
     # comma-separated list.
-    def array_node_flags_inspect(node)
+    def array_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "contains_splat" if node.contains_splat?
       flags.join(", ")
@@ -4637,7 +4486,7 @@ module Prism
 
     # Inspect a node that has call_node_flags flags to display the flags as a
     # comma-separated list.
-    def call_node_flags_inspect(node)
+    def call_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "safe_navigation" if node.safe_navigation?
       flags << "variable_call" if node.variable_call?
@@ -4648,7 +4497,7 @@ module Prism
 
     # Inspect a node that has encoding_flags flags to display the flags as a
     # comma-separated list.
-    def encoding_flags_inspect(node)
+    def encoding_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "forced_utf8_encoding" if node.forced_utf8_encoding?
       flags << "forced_binary_encoding" if node.forced_binary_encoding?
@@ -4657,7 +4506,7 @@ module Prism
 
     # Inspect a node that has integer_base_flags flags to display the flags as a
     # comma-separated list.
-    def integer_base_flags_inspect(node)
+    def integer_base_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "binary" if node.binary?
       flags << "decimal" if node.decimal?
@@ -4668,7 +4517,7 @@ module Prism
 
     # Inspect a node that has interpolated_string_node_flags flags to display the flags as a
     # comma-separated list.
-    def interpolated_string_node_flags_inspect(node)
+    def interpolated_string_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "frozen" if node.frozen?
       flags << "mutable" if node.mutable?
@@ -4677,7 +4526,7 @@ module Prism
 
     # Inspect a node that has keyword_hash_node_flags flags to display the flags as a
     # comma-separated list.
-    def keyword_hash_node_flags_inspect(node)
+    def keyword_hash_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "symbol_keys" if node.symbol_keys?
       flags.join(", ")
@@ -4685,7 +4534,7 @@ module Prism
 
     # Inspect a node that has loop_flags flags to display the flags as a
     # comma-separated list.
-    def loop_flags_inspect(node)
+    def loop_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "begin_modifier" if node.begin_modifier?
       flags.join(", ")
@@ -4693,7 +4542,7 @@ module Prism
 
     # Inspect a node that has parameter_flags flags to display the flags as a
     # comma-separated list.
-    def parameter_flags_inspect(node)
+    def parameter_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "repeated_parameter" if node.repeated_parameter?
       flags.join(", ")
@@ -4701,7 +4550,7 @@ module Prism
 
     # Inspect a node that has parentheses_node_flags flags to display the flags as a
     # comma-separated list.
-    def parentheses_node_flags_inspect(node)
+    def parentheses_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "multiple_statements" if node.multiple_statements?
       flags.join(", ")
@@ -4709,7 +4558,7 @@ module Prism
 
     # Inspect a node that has range_flags flags to display the flags as a
     # comma-separated list.
-    def range_flags_inspect(node)
+    def range_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "exclude_end" if node.exclude_end?
       flags.join(", ")
@@ -4717,7 +4566,7 @@ module Prism
 
     # Inspect a node that has regular_expression_flags flags to display the flags as a
     # comma-separated list.
-    def regular_expression_flags_inspect(node)
+    def regular_expression_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "ignore_case" if node.ignore_case?
       flags << "extended" if node.extended?
@@ -4735,7 +4584,7 @@ module Prism
 
     # Inspect a node that has shareable_constant_node_flags flags to display the flags as a
     # comma-separated list.
-    def shareable_constant_node_flags_inspect(node)
+    def shareable_constant_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "literal" if node.literal?
       flags << "experimental_everything" if node.experimental_everything?
@@ -4745,7 +4594,7 @@ module Prism
 
     # Inspect a node that has string_flags flags to display the flags as a
     # comma-separated list.
-    def string_flags_inspect(node)
+    def string_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "forced_utf8_encoding" if node.forced_utf8_encoding?
       flags << "forced_binary_encoding" if node.forced_binary_encoding?
@@ -4756,7 +4605,7 @@ module Prism
 
     # Inspect a node that has symbol_flags flags to display the flags as a
     # comma-separated list.
-    def symbol_flags_inspect(node)
+    def symbol_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "forced_utf8_encoding" if node.forced_utf8_encoding?
       flags << "forced_binary_encoding" if node.forced_binary_encoding?

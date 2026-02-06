@@ -52,1240 +52,930 @@ module Prism
     end
 
     # Register a listener for one or more events.
-    #
-    # def register: (Listener, *Symbol) -> void
     def register(listener, *events)
       register_events(listener, events)
     end
 
     # Register all public methods of a listener that match the pattern
     # `on_<node_name>_(enter|leave)`.
-    #
-    # def register_public_methods: (Listener) -> void
     def register_public_methods(listener)
       register_events(listener, listener.public_methods(false).grep(/\Aon_.+_(?:enter|leave)\z/))
     end
 
     # Register a listener for the given events.
-    private def register_events(listener, events)
+    private def register_events(listener, events) # :nodoc:
       events.each { |event| (listeners[event] ||= []) << listener }
     end
 
     # Walks `root` dispatching events to all registered listeners.
-    #
-    # def dispatch: (Node) -> void
     alias dispatch visit
 
     # Dispatches a single event for `node` to all registered listeners.
-    #
-    # def dispatch_once: (Node) -> void
     def dispatch_once(node)
       node.accept(DispatchOnce.new(listeners))
     end
 
-    # Dispatch enter and leave events for AliasGlobalVariableNode nodes and continue
-    # walking the tree.
-    def visit_alias_global_variable_node(node)
+    def visit_alias_global_variable_node(node) # :nodoc:
       listeners[:on_alias_global_variable_node_enter]&.each { |listener| listener.on_alias_global_variable_node_enter(node) }
       super
       listeners[:on_alias_global_variable_node_leave]&.each { |listener| listener.on_alias_global_variable_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for AliasMethodNode nodes and continue
-    # walking the tree.
-    def visit_alias_method_node(node)
+    def visit_alias_method_node(node) # :nodoc:
       listeners[:on_alias_method_node_enter]&.each { |listener| listener.on_alias_method_node_enter(node) }
       super
       listeners[:on_alias_method_node_leave]&.each { |listener| listener.on_alias_method_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for AlternationPatternNode nodes and continue
-    # walking the tree.
-    def visit_alternation_pattern_node(node)
+    def visit_alternation_pattern_node(node) # :nodoc:
       listeners[:on_alternation_pattern_node_enter]&.each { |listener| listener.on_alternation_pattern_node_enter(node) }
       super
       listeners[:on_alternation_pattern_node_leave]&.each { |listener| listener.on_alternation_pattern_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for AndNode nodes and continue
-    # walking the tree.
-    def visit_and_node(node)
+    def visit_and_node(node) # :nodoc:
       listeners[:on_and_node_enter]&.each { |listener| listener.on_and_node_enter(node) }
       super
       listeners[:on_and_node_leave]&.each { |listener| listener.on_and_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ArgumentsNode nodes and continue
-    # walking the tree.
-    def visit_arguments_node(node)
+    def visit_arguments_node(node) # :nodoc:
       listeners[:on_arguments_node_enter]&.each { |listener| listener.on_arguments_node_enter(node) }
       super
       listeners[:on_arguments_node_leave]&.each { |listener| listener.on_arguments_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ArrayNode nodes and continue
-    # walking the tree.
-    def visit_array_node(node)
+    def visit_array_node(node) # :nodoc:
       listeners[:on_array_node_enter]&.each { |listener| listener.on_array_node_enter(node) }
       super
       listeners[:on_array_node_leave]&.each { |listener| listener.on_array_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ArrayPatternNode nodes and continue
-    # walking the tree.
-    def visit_array_pattern_node(node)
+    def visit_array_pattern_node(node) # :nodoc:
       listeners[:on_array_pattern_node_enter]&.each { |listener| listener.on_array_pattern_node_enter(node) }
       super
       listeners[:on_array_pattern_node_leave]&.each { |listener| listener.on_array_pattern_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for AssocNode nodes and continue
-    # walking the tree.
-    def visit_assoc_node(node)
+    def visit_assoc_node(node) # :nodoc:
       listeners[:on_assoc_node_enter]&.each { |listener| listener.on_assoc_node_enter(node) }
       super
       listeners[:on_assoc_node_leave]&.each { |listener| listener.on_assoc_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for AssocSplatNode nodes and continue
-    # walking the tree.
-    def visit_assoc_splat_node(node)
+    def visit_assoc_splat_node(node) # :nodoc:
       listeners[:on_assoc_splat_node_enter]&.each { |listener| listener.on_assoc_splat_node_enter(node) }
       super
       listeners[:on_assoc_splat_node_leave]&.each { |listener| listener.on_assoc_splat_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for BackReferenceReadNode nodes and continue
-    # walking the tree.
-    def visit_back_reference_read_node(node)
+    def visit_back_reference_read_node(node) # :nodoc:
       listeners[:on_back_reference_read_node_enter]&.each { |listener| listener.on_back_reference_read_node_enter(node) }
       super
       listeners[:on_back_reference_read_node_leave]&.each { |listener| listener.on_back_reference_read_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for BeginNode nodes and continue
-    # walking the tree.
-    def visit_begin_node(node)
+    def visit_begin_node(node) # :nodoc:
       listeners[:on_begin_node_enter]&.each { |listener| listener.on_begin_node_enter(node) }
       super
       listeners[:on_begin_node_leave]&.each { |listener| listener.on_begin_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for BlockArgumentNode nodes and continue
-    # walking the tree.
-    def visit_block_argument_node(node)
+    def visit_block_argument_node(node) # :nodoc:
       listeners[:on_block_argument_node_enter]&.each { |listener| listener.on_block_argument_node_enter(node) }
       super
       listeners[:on_block_argument_node_leave]&.each { |listener| listener.on_block_argument_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for BlockLocalVariableNode nodes and continue
-    # walking the tree.
-    def visit_block_local_variable_node(node)
+    def visit_block_local_variable_node(node) # :nodoc:
       listeners[:on_block_local_variable_node_enter]&.each { |listener| listener.on_block_local_variable_node_enter(node) }
       super
       listeners[:on_block_local_variable_node_leave]&.each { |listener| listener.on_block_local_variable_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for BlockNode nodes and continue
-    # walking the tree.
-    def visit_block_node(node)
+    def visit_block_node(node) # :nodoc:
       listeners[:on_block_node_enter]&.each { |listener| listener.on_block_node_enter(node) }
       super
       listeners[:on_block_node_leave]&.each { |listener| listener.on_block_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for BlockParameterNode nodes and continue
-    # walking the tree.
-    def visit_block_parameter_node(node)
+    def visit_block_parameter_node(node) # :nodoc:
       listeners[:on_block_parameter_node_enter]&.each { |listener| listener.on_block_parameter_node_enter(node) }
       super
       listeners[:on_block_parameter_node_leave]&.each { |listener| listener.on_block_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for BlockParametersNode nodes and continue
-    # walking the tree.
-    def visit_block_parameters_node(node)
+    def visit_block_parameters_node(node) # :nodoc:
       listeners[:on_block_parameters_node_enter]&.each { |listener| listener.on_block_parameters_node_enter(node) }
       super
       listeners[:on_block_parameters_node_leave]&.each { |listener| listener.on_block_parameters_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for BreakNode nodes and continue
-    # walking the tree.
-    def visit_break_node(node)
+    def visit_break_node(node) # :nodoc:
       listeners[:on_break_node_enter]&.each { |listener| listener.on_break_node_enter(node) }
       super
       listeners[:on_break_node_leave]&.each { |listener| listener.on_break_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for CallAndWriteNode nodes and continue
-    # walking the tree.
-    def visit_call_and_write_node(node)
+    def visit_call_and_write_node(node) # :nodoc:
       listeners[:on_call_and_write_node_enter]&.each { |listener| listener.on_call_and_write_node_enter(node) }
       super
       listeners[:on_call_and_write_node_leave]&.each { |listener| listener.on_call_and_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for CallNode nodes and continue
-    # walking the tree.
-    def visit_call_node(node)
+    def visit_call_node(node) # :nodoc:
       listeners[:on_call_node_enter]&.each { |listener| listener.on_call_node_enter(node) }
       super
       listeners[:on_call_node_leave]&.each { |listener| listener.on_call_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for CallOperatorWriteNode nodes and continue
-    # walking the tree.
-    def visit_call_operator_write_node(node)
+    def visit_call_operator_write_node(node) # :nodoc:
       listeners[:on_call_operator_write_node_enter]&.each { |listener| listener.on_call_operator_write_node_enter(node) }
       super
       listeners[:on_call_operator_write_node_leave]&.each { |listener| listener.on_call_operator_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for CallOrWriteNode nodes and continue
-    # walking the tree.
-    def visit_call_or_write_node(node)
+    def visit_call_or_write_node(node) # :nodoc:
       listeners[:on_call_or_write_node_enter]&.each { |listener| listener.on_call_or_write_node_enter(node) }
       super
       listeners[:on_call_or_write_node_leave]&.each { |listener| listener.on_call_or_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for CallTargetNode nodes and continue
-    # walking the tree.
-    def visit_call_target_node(node)
+    def visit_call_target_node(node) # :nodoc:
       listeners[:on_call_target_node_enter]&.each { |listener| listener.on_call_target_node_enter(node) }
       super
       listeners[:on_call_target_node_leave]&.each { |listener| listener.on_call_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for CapturePatternNode nodes and continue
-    # walking the tree.
-    def visit_capture_pattern_node(node)
+    def visit_capture_pattern_node(node) # :nodoc:
       listeners[:on_capture_pattern_node_enter]&.each { |listener| listener.on_capture_pattern_node_enter(node) }
       super
       listeners[:on_capture_pattern_node_leave]&.each { |listener| listener.on_capture_pattern_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for CaseMatchNode nodes and continue
-    # walking the tree.
-    def visit_case_match_node(node)
+    def visit_case_match_node(node) # :nodoc:
       listeners[:on_case_match_node_enter]&.each { |listener| listener.on_case_match_node_enter(node) }
       super
       listeners[:on_case_match_node_leave]&.each { |listener| listener.on_case_match_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for CaseNode nodes and continue
-    # walking the tree.
-    def visit_case_node(node)
+    def visit_case_node(node) # :nodoc:
       listeners[:on_case_node_enter]&.each { |listener| listener.on_case_node_enter(node) }
       super
       listeners[:on_case_node_leave]&.each { |listener| listener.on_case_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ClassNode nodes and continue
-    # walking the tree.
-    def visit_class_node(node)
+    def visit_class_node(node) # :nodoc:
       listeners[:on_class_node_enter]&.each { |listener| listener.on_class_node_enter(node) }
       super
       listeners[:on_class_node_leave]&.each { |listener| listener.on_class_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ClassVariableAndWriteNode nodes and continue
-    # walking the tree.
-    def visit_class_variable_and_write_node(node)
+    def visit_class_variable_and_write_node(node) # :nodoc:
       listeners[:on_class_variable_and_write_node_enter]&.each { |listener| listener.on_class_variable_and_write_node_enter(node) }
       super
       listeners[:on_class_variable_and_write_node_leave]&.each { |listener| listener.on_class_variable_and_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ClassVariableOperatorWriteNode nodes and continue
-    # walking the tree.
-    def visit_class_variable_operator_write_node(node)
+    def visit_class_variable_operator_write_node(node) # :nodoc:
       listeners[:on_class_variable_operator_write_node_enter]&.each { |listener| listener.on_class_variable_operator_write_node_enter(node) }
       super
       listeners[:on_class_variable_operator_write_node_leave]&.each { |listener| listener.on_class_variable_operator_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ClassVariableOrWriteNode nodes and continue
-    # walking the tree.
-    def visit_class_variable_or_write_node(node)
+    def visit_class_variable_or_write_node(node) # :nodoc:
       listeners[:on_class_variable_or_write_node_enter]&.each { |listener| listener.on_class_variable_or_write_node_enter(node) }
       super
       listeners[:on_class_variable_or_write_node_leave]&.each { |listener| listener.on_class_variable_or_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ClassVariableReadNode nodes and continue
-    # walking the tree.
-    def visit_class_variable_read_node(node)
+    def visit_class_variable_read_node(node) # :nodoc:
       listeners[:on_class_variable_read_node_enter]&.each { |listener| listener.on_class_variable_read_node_enter(node) }
       super
       listeners[:on_class_variable_read_node_leave]&.each { |listener| listener.on_class_variable_read_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ClassVariableTargetNode nodes and continue
-    # walking the tree.
-    def visit_class_variable_target_node(node)
+    def visit_class_variable_target_node(node) # :nodoc:
       listeners[:on_class_variable_target_node_enter]&.each { |listener| listener.on_class_variable_target_node_enter(node) }
       super
       listeners[:on_class_variable_target_node_leave]&.each { |listener| listener.on_class_variable_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ClassVariableWriteNode nodes and continue
-    # walking the tree.
-    def visit_class_variable_write_node(node)
+    def visit_class_variable_write_node(node) # :nodoc:
       listeners[:on_class_variable_write_node_enter]&.each { |listener| listener.on_class_variable_write_node_enter(node) }
       super
       listeners[:on_class_variable_write_node_leave]&.each { |listener| listener.on_class_variable_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantAndWriteNode nodes and continue
-    # walking the tree.
-    def visit_constant_and_write_node(node)
+    def visit_constant_and_write_node(node) # :nodoc:
       listeners[:on_constant_and_write_node_enter]&.each { |listener| listener.on_constant_and_write_node_enter(node) }
       super
       listeners[:on_constant_and_write_node_leave]&.each { |listener| listener.on_constant_and_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantOperatorWriteNode nodes and continue
-    # walking the tree.
-    def visit_constant_operator_write_node(node)
+    def visit_constant_operator_write_node(node) # :nodoc:
       listeners[:on_constant_operator_write_node_enter]&.each { |listener| listener.on_constant_operator_write_node_enter(node) }
       super
       listeners[:on_constant_operator_write_node_leave]&.each { |listener| listener.on_constant_operator_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantOrWriteNode nodes and continue
-    # walking the tree.
-    def visit_constant_or_write_node(node)
+    def visit_constant_or_write_node(node) # :nodoc:
       listeners[:on_constant_or_write_node_enter]&.each { |listener| listener.on_constant_or_write_node_enter(node) }
       super
       listeners[:on_constant_or_write_node_leave]&.each { |listener| listener.on_constant_or_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantPathAndWriteNode nodes and continue
-    # walking the tree.
-    def visit_constant_path_and_write_node(node)
+    def visit_constant_path_and_write_node(node) # :nodoc:
       listeners[:on_constant_path_and_write_node_enter]&.each { |listener| listener.on_constant_path_and_write_node_enter(node) }
       super
       listeners[:on_constant_path_and_write_node_leave]&.each { |listener| listener.on_constant_path_and_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantPathNode nodes and continue
-    # walking the tree.
-    def visit_constant_path_node(node)
+    def visit_constant_path_node(node) # :nodoc:
       listeners[:on_constant_path_node_enter]&.each { |listener| listener.on_constant_path_node_enter(node) }
       super
       listeners[:on_constant_path_node_leave]&.each { |listener| listener.on_constant_path_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantPathOperatorWriteNode nodes and continue
-    # walking the tree.
-    def visit_constant_path_operator_write_node(node)
+    def visit_constant_path_operator_write_node(node) # :nodoc:
       listeners[:on_constant_path_operator_write_node_enter]&.each { |listener| listener.on_constant_path_operator_write_node_enter(node) }
       super
       listeners[:on_constant_path_operator_write_node_leave]&.each { |listener| listener.on_constant_path_operator_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantPathOrWriteNode nodes and continue
-    # walking the tree.
-    def visit_constant_path_or_write_node(node)
+    def visit_constant_path_or_write_node(node) # :nodoc:
       listeners[:on_constant_path_or_write_node_enter]&.each { |listener| listener.on_constant_path_or_write_node_enter(node) }
       super
       listeners[:on_constant_path_or_write_node_leave]&.each { |listener| listener.on_constant_path_or_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantPathTargetNode nodes and continue
-    # walking the tree.
-    def visit_constant_path_target_node(node)
+    def visit_constant_path_target_node(node) # :nodoc:
       listeners[:on_constant_path_target_node_enter]&.each { |listener| listener.on_constant_path_target_node_enter(node) }
       super
       listeners[:on_constant_path_target_node_leave]&.each { |listener| listener.on_constant_path_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantPathWriteNode nodes and continue
-    # walking the tree.
-    def visit_constant_path_write_node(node)
+    def visit_constant_path_write_node(node) # :nodoc:
       listeners[:on_constant_path_write_node_enter]&.each { |listener| listener.on_constant_path_write_node_enter(node) }
       super
       listeners[:on_constant_path_write_node_leave]&.each { |listener| listener.on_constant_path_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantReadNode nodes and continue
-    # walking the tree.
-    def visit_constant_read_node(node)
+    def visit_constant_read_node(node) # :nodoc:
       listeners[:on_constant_read_node_enter]&.each { |listener| listener.on_constant_read_node_enter(node) }
       super
       listeners[:on_constant_read_node_leave]&.each { |listener| listener.on_constant_read_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantTargetNode nodes and continue
-    # walking the tree.
-    def visit_constant_target_node(node)
+    def visit_constant_target_node(node) # :nodoc:
       listeners[:on_constant_target_node_enter]&.each { |listener| listener.on_constant_target_node_enter(node) }
       super
       listeners[:on_constant_target_node_leave]&.each { |listener| listener.on_constant_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ConstantWriteNode nodes and continue
-    # walking the tree.
-    def visit_constant_write_node(node)
+    def visit_constant_write_node(node) # :nodoc:
       listeners[:on_constant_write_node_enter]&.each { |listener| listener.on_constant_write_node_enter(node) }
       super
       listeners[:on_constant_write_node_leave]&.each { |listener| listener.on_constant_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for DefNode nodes and continue
-    # walking the tree.
-    def visit_def_node(node)
+    def visit_def_node(node) # :nodoc:
       listeners[:on_def_node_enter]&.each { |listener| listener.on_def_node_enter(node) }
       super
       listeners[:on_def_node_leave]&.each { |listener| listener.on_def_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for DefinedNode nodes and continue
-    # walking the tree.
-    def visit_defined_node(node)
+    def visit_defined_node(node) # :nodoc:
       listeners[:on_defined_node_enter]&.each { |listener| listener.on_defined_node_enter(node) }
       super
       listeners[:on_defined_node_leave]&.each { |listener| listener.on_defined_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ElseNode nodes and continue
-    # walking the tree.
-    def visit_else_node(node)
+    def visit_else_node(node) # :nodoc:
       listeners[:on_else_node_enter]&.each { |listener| listener.on_else_node_enter(node) }
       super
       listeners[:on_else_node_leave]&.each { |listener| listener.on_else_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for EmbeddedStatementsNode nodes and continue
-    # walking the tree.
-    def visit_embedded_statements_node(node)
+    def visit_embedded_statements_node(node) # :nodoc:
       listeners[:on_embedded_statements_node_enter]&.each { |listener| listener.on_embedded_statements_node_enter(node) }
       super
       listeners[:on_embedded_statements_node_leave]&.each { |listener| listener.on_embedded_statements_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for EmbeddedVariableNode nodes and continue
-    # walking the tree.
-    def visit_embedded_variable_node(node)
+    def visit_embedded_variable_node(node) # :nodoc:
       listeners[:on_embedded_variable_node_enter]&.each { |listener| listener.on_embedded_variable_node_enter(node) }
       super
       listeners[:on_embedded_variable_node_leave]&.each { |listener| listener.on_embedded_variable_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for EnsureNode nodes and continue
-    # walking the tree.
-    def visit_ensure_node(node)
+    def visit_ensure_node(node) # :nodoc:
       listeners[:on_ensure_node_enter]&.each { |listener| listener.on_ensure_node_enter(node) }
       super
       listeners[:on_ensure_node_leave]&.each { |listener| listener.on_ensure_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for FalseNode nodes and continue
-    # walking the tree.
-    def visit_false_node(node)
+    def visit_false_node(node) # :nodoc:
       listeners[:on_false_node_enter]&.each { |listener| listener.on_false_node_enter(node) }
       super
       listeners[:on_false_node_leave]&.each { |listener| listener.on_false_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for FindPatternNode nodes and continue
-    # walking the tree.
-    def visit_find_pattern_node(node)
+    def visit_find_pattern_node(node) # :nodoc:
       listeners[:on_find_pattern_node_enter]&.each { |listener| listener.on_find_pattern_node_enter(node) }
       super
       listeners[:on_find_pattern_node_leave]&.each { |listener| listener.on_find_pattern_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for FlipFlopNode nodes and continue
-    # walking the tree.
-    def visit_flip_flop_node(node)
+    def visit_flip_flop_node(node) # :nodoc:
       listeners[:on_flip_flop_node_enter]&.each { |listener| listener.on_flip_flop_node_enter(node) }
       super
       listeners[:on_flip_flop_node_leave]&.each { |listener| listener.on_flip_flop_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for FloatNode nodes and continue
-    # walking the tree.
-    def visit_float_node(node)
+    def visit_float_node(node) # :nodoc:
       listeners[:on_float_node_enter]&.each { |listener| listener.on_float_node_enter(node) }
       super
       listeners[:on_float_node_leave]&.each { |listener| listener.on_float_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ForNode nodes and continue
-    # walking the tree.
-    def visit_for_node(node)
+    def visit_for_node(node) # :nodoc:
       listeners[:on_for_node_enter]&.each { |listener| listener.on_for_node_enter(node) }
       super
       listeners[:on_for_node_leave]&.each { |listener| listener.on_for_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ForwardingArgumentsNode nodes and continue
-    # walking the tree.
-    def visit_forwarding_arguments_node(node)
+    def visit_forwarding_arguments_node(node) # :nodoc:
       listeners[:on_forwarding_arguments_node_enter]&.each { |listener| listener.on_forwarding_arguments_node_enter(node) }
       super
       listeners[:on_forwarding_arguments_node_leave]&.each { |listener| listener.on_forwarding_arguments_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ForwardingParameterNode nodes and continue
-    # walking the tree.
-    def visit_forwarding_parameter_node(node)
+    def visit_forwarding_parameter_node(node) # :nodoc:
       listeners[:on_forwarding_parameter_node_enter]&.each { |listener| listener.on_forwarding_parameter_node_enter(node) }
       super
       listeners[:on_forwarding_parameter_node_leave]&.each { |listener| listener.on_forwarding_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ForwardingSuperNode nodes and continue
-    # walking the tree.
-    def visit_forwarding_super_node(node)
+    def visit_forwarding_super_node(node) # :nodoc:
       listeners[:on_forwarding_super_node_enter]&.each { |listener| listener.on_forwarding_super_node_enter(node) }
       super
       listeners[:on_forwarding_super_node_leave]&.each { |listener| listener.on_forwarding_super_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for GlobalVariableAndWriteNode nodes and continue
-    # walking the tree.
-    def visit_global_variable_and_write_node(node)
+    def visit_global_variable_and_write_node(node) # :nodoc:
       listeners[:on_global_variable_and_write_node_enter]&.each { |listener| listener.on_global_variable_and_write_node_enter(node) }
       super
       listeners[:on_global_variable_and_write_node_leave]&.each { |listener| listener.on_global_variable_and_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for GlobalVariableOperatorWriteNode nodes and continue
-    # walking the tree.
-    def visit_global_variable_operator_write_node(node)
+    def visit_global_variable_operator_write_node(node) # :nodoc:
       listeners[:on_global_variable_operator_write_node_enter]&.each { |listener| listener.on_global_variable_operator_write_node_enter(node) }
       super
       listeners[:on_global_variable_operator_write_node_leave]&.each { |listener| listener.on_global_variable_operator_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for GlobalVariableOrWriteNode nodes and continue
-    # walking the tree.
-    def visit_global_variable_or_write_node(node)
+    def visit_global_variable_or_write_node(node) # :nodoc:
       listeners[:on_global_variable_or_write_node_enter]&.each { |listener| listener.on_global_variable_or_write_node_enter(node) }
       super
       listeners[:on_global_variable_or_write_node_leave]&.each { |listener| listener.on_global_variable_or_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for GlobalVariableReadNode nodes and continue
-    # walking the tree.
-    def visit_global_variable_read_node(node)
+    def visit_global_variable_read_node(node) # :nodoc:
       listeners[:on_global_variable_read_node_enter]&.each { |listener| listener.on_global_variable_read_node_enter(node) }
       super
       listeners[:on_global_variable_read_node_leave]&.each { |listener| listener.on_global_variable_read_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for GlobalVariableTargetNode nodes and continue
-    # walking the tree.
-    def visit_global_variable_target_node(node)
+    def visit_global_variable_target_node(node) # :nodoc:
       listeners[:on_global_variable_target_node_enter]&.each { |listener| listener.on_global_variable_target_node_enter(node) }
       super
       listeners[:on_global_variable_target_node_leave]&.each { |listener| listener.on_global_variable_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for GlobalVariableWriteNode nodes and continue
-    # walking the tree.
-    def visit_global_variable_write_node(node)
+    def visit_global_variable_write_node(node) # :nodoc:
       listeners[:on_global_variable_write_node_enter]&.each { |listener| listener.on_global_variable_write_node_enter(node) }
       super
       listeners[:on_global_variable_write_node_leave]&.each { |listener| listener.on_global_variable_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for HashNode nodes and continue
-    # walking the tree.
-    def visit_hash_node(node)
+    def visit_hash_node(node) # :nodoc:
       listeners[:on_hash_node_enter]&.each { |listener| listener.on_hash_node_enter(node) }
       super
       listeners[:on_hash_node_leave]&.each { |listener| listener.on_hash_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for HashPatternNode nodes and continue
-    # walking the tree.
-    def visit_hash_pattern_node(node)
+    def visit_hash_pattern_node(node) # :nodoc:
       listeners[:on_hash_pattern_node_enter]&.each { |listener| listener.on_hash_pattern_node_enter(node) }
       super
       listeners[:on_hash_pattern_node_leave]&.each { |listener| listener.on_hash_pattern_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for IfNode nodes and continue
-    # walking the tree.
-    def visit_if_node(node)
+    def visit_if_node(node) # :nodoc:
       listeners[:on_if_node_enter]&.each { |listener| listener.on_if_node_enter(node) }
       super
       listeners[:on_if_node_leave]&.each { |listener| listener.on_if_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ImaginaryNode nodes and continue
-    # walking the tree.
-    def visit_imaginary_node(node)
+    def visit_imaginary_node(node) # :nodoc:
       listeners[:on_imaginary_node_enter]&.each { |listener| listener.on_imaginary_node_enter(node) }
       super
       listeners[:on_imaginary_node_leave]&.each { |listener| listener.on_imaginary_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ImplicitNode nodes and continue
-    # walking the tree.
-    def visit_implicit_node(node)
+    def visit_implicit_node(node) # :nodoc:
       listeners[:on_implicit_node_enter]&.each { |listener| listener.on_implicit_node_enter(node) }
       super
       listeners[:on_implicit_node_leave]&.each { |listener| listener.on_implicit_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ImplicitRestNode nodes and continue
-    # walking the tree.
-    def visit_implicit_rest_node(node)
+    def visit_implicit_rest_node(node) # :nodoc:
       listeners[:on_implicit_rest_node_enter]&.each { |listener| listener.on_implicit_rest_node_enter(node) }
       super
       listeners[:on_implicit_rest_node_leave]&.each { |listener| listener.on_implicit_rest_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InNode nodes and continue
-    # walking the tree.
-    def visit_in_node(node)
+    def visit_in_node(node) # :nodoc:
       listeners[:on_in_node_enter]&.each { |listener| listener.on_in_node_enter(node) }
       super
       listeners[:on_in_node_leave]&.each { |listener| listener.on_in_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for IndexAndWriteNode nodes and continue
-    # walking the tree.
-    def visit_index_and_write_node(node)
+    def visit_index_and_write_node(node) # :nodoc:
       listeners[:on_index_and_write_node_enter]&.each { |listener| listener.on_index_and_write_node_enter(node) }
       super
       listeners[:on_index_and_write_node_leave]&.each { |listener| listener.on_index_and_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for IndexOperatorWriteNode nodes and continue
-    # walking the tree.
-    def visit_index_operator_write_node(node)
+    def visit_index_operator_write_node(node) # :nodoc:
       listeners[:on_index_operator_write_node_enter]&.each { |listener| listener.on_index_operator_write_node_enter(node) }
       super
       listeners[:on_index_operator_write_node_leave]&.each { |listener| listener.on_index_operator_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for IndexOrWriteNode nodes and continue
-    # walking the tree.
-    def visit_index_or_write_node(node)
+    def visit_index_or_write_node(node) # :nodoc:
       listeners[:on_index_or_write_node_enter]&.each { |listener| listener.on_index_or_write_node_enter(node) }
       super
       listeners[:on_index_or_write_node_leave]&.each { |listener| listener.on_index_or_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for IndexTargetNode nodes and continue
-    # walking the tree.
-    def visit_index_target_node(node)
+    def visit_index_target_node(node) # :nodoc:
       listeners[:on_index_target_node_enter]&.each { |listener| listener.on_index_target_node_enter(node) }
       super
       listeners[:on_index_target_node_leave]&.each { |listener| listener.on_index_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InstanceVariableAndWriteNode nodes and continue
-    # walking the tree.
-    def visit_instance_variable_and_write_node(node)
+    def visit_instance_variable_and_write_node(node) # :nodoc:
       listeners[:on_instance_variable_and_write_node_enter]&.each { |listener| listener.on_instance_variable_and_write_node_enter(node) }
       super
       listeners[:on_instance_variable_and_write_node_leave]&.each { |listener| listener.on_instance_variable_and_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InstanceVariableOperatorWriteNode nodes and continue
-    # walking the tree.
-    def visit_instance_variable_operator_write_node(node)
+    def visit_instance_variable_operator_write_node(node) # :nodoc:
       listeners[:on_instance_variable_operator_write_node_enter]&.each { |listener| listener.on_instance_variable_operator_write_node_enter(node) }
       super
       listeners[:on_instance_variable_operator_write_node_leave]&.each { |listener| listener.on_instance_variable_operator_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InstanceVariableOrWriteNode nodes and continue
-    # walking the tree.
-    def visit_instance_variable_or_write_node(node)
+    def visit_instance_variable_or_write_node(node) # :nodoc:
       listeners[:on_instance_variable_or_write_node_enter]&.each { |listener| listener.on_instance_variable_or_write_node_enter(node) }
       super
       listeners[:on_instance_variable_or_write_node_leave]&.each { |listener| listener.on_instance_variable_or_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InstanceVariableReadNode nodes and continue
-    # walking the tree.
-    def visit_instance_variable_read_node(node)
+    def visit_instance_variable_read_node(node) # :nodoc:
       listeners[:on_instance_variable_read_node_enter]&.each { |listener| listener.on_instance_variable_read_node_enter(node) }
       super
       listeners[:on_instance_variable_read_node_leave]&.each { |listener| listener.on_instance_variable_read_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InstanceVariableTargetNode nodes and continue
-    # walking the tree.
-    def visit_instance_variable_target_node(node)
+    def visit_instance_variable_target_node(node) # :nodoc:
       listeners[:on_instance_variable_target_node_enter]&.each { |listener| listener.on_instance_variable_target_node_enter(node) }
       super
       listeners[:on_instance_variable_target_node_leave]&.each { |listener| listener.on_instance_variable_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InstanceVariableWriteNode nodes and continue
-    # walking the tree.
-    def visit_instance_variable_write_node(node)
+    def visit_instance_variable_write_node(node) # :nodoc:
       listeners[:on_instance_variable_write_node_enter]&.each { |listener| listener.on_instance_variable_write_node_enter(node) }
       super
       listeners[:on_instance_variable_write_node_leave]&.each { |listener| listener.on_instance_variable_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for IntegerNode nodes and continue
-    # walking the tree.
-    def visit_integer_node(node)
+    def visit_integer_node(node) # :nodoc:
       listeners[:on_integer_node_enter]&.each { |listener| listener.on_integer_node_enter(node) }
       super
       listeners[:on_integer_node_leave]&.each { |listener| listener.on_integer_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InterpolatedMatchLastLineNode nodes and continue
-    # walking the tree.
-    def visit_interpolated_match_last_line_node(node)
+    def visit_interpolated_match_last_line_node(node) # :nodoc:
       listeners[:on_interpolated_match_last_line_node_enter]&.each { |listener| listener.on_interpolated_match_last_line_node_enter(node) }
       super
       listeners[:on_interpolated_match_last_line_node_leave]&.each { |listener| listener.on_interpolated_match_last_line_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InterpolatedRegularExpressionNode nodes and continue
-    # walking the tree.
-    def visit_interpolated_regular_expression_node(node)
+    def visit_interpolated_regular_expression_node(node) # :nodoc:
       listeners[:on_interpolated_regular_expression_node_enter]&.each { |listener| listener.on_interpolated_regular_expression_node_enter(node) }
       super
       listeners[:on_interpolated_regular_expression_node_leave]&.each { |listener| listener.on_interpolated_regular_expression_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InterpolatedStringNode nodes and continue
-    # walking the tree.
-    def visit_interpolated_string_node(node)
+    def visit_interpolated_string_node(node) # :nodoc:
       listeners[:on_interpolated_string_node_enter]&.each { |listener| listener.on_interpolated_string_node_enter(node) }
       super
       listeners[:on_interpolated_string_node_leave]&.each { |listener| listener.on_interpolated_string_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InterpolatedSymbolNode nodes and continue
-    # walking the tree.
-    def visit_interpolated_symbol_node(node)
+    def visit_interpolated_symbol_node(node) # :nodoc:
       listeners[:on_interpolated_symbol_node_enter]&.each { |listener| listener.on_interpolated_symbol_node_enter(node) }
       super
       listeners[:on_interpolated_symbol_node_leave]&.each { |listener| listener.on_interpolated_symbol_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for InterpolatedXStringNode nodes and continue
-    # walking the tree.
-    def visit_interpolated_x_string_node(node)
+    def visit_interpolated_x_string_node(node) # :nodoc:
       listeners[:on_interpolated_x_string_node_enter]&.each { |listener| listener.on_interpolated_x_string_node_enter(node) }
       super
       listeners[:on_interpolated_x_string_node_leave]&.each { |listener| listener.on_interpolated_x_string_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ItLocalVariableReadNode nodes and continue
-    # walking the tree.
-    def visit_it_local_variable_read_node(node)
+    def visit_it_local_variable_read_node(node) # :nodoc:
       listeners[:on_it_local_variable_read_node_enter]&.each { |listener| listener.on_it_local_variable_read_node_enter(node) }
       super
       listeners[:on_it_local_variable_read_node_leave]&.each { |listener| listener.on_it_local_variable_read_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ItParametersNode nodes and continue
-    # walking the tree.
-    def visit_it_parameters_node(node)
+    def visit_it_parameters_node(node) # :nodoc:
       listeners[:on_it_parameters_node_enter]&.each { |listener| listener.on_it_parameters_node_enter(node) }
       super
       listeners[:on_it_parameters_node_leave]&.each { |listener| listener.on_it_parameters_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for KeywordHashNode nodes and continue
-    # walking the tree.
-    def visit_keyword_hash_node(node)
+    def visit_keyword_hash_node(node) # :nodoc:
       listeners[:on_keyword_hash_node_enter]&.each { |listener| listener.on_keyword_hash_node_enter(node) }
       super
       listeners[:on_keyword_hash_node_leave]&.each { |listener| listener.on_keyword_hash_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for KeywordRestParameterNode nodes and continue
-    # walking the tree.
-    def visit_keyword_rest_parameter_node(node)
+    def visit_keyword_rest_parameter_node(node) # :nodoc:
       listeners[:on_keyword_rest_parameter_node_enter]&.each { |listener| listener.on_keyword_rest_parameter_node_enter(node) }
       super
       listeners[:on_keyword_rest_parameter_node_leave]&.each { |listener| listener.on_keyword_rest_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for LambdaNode nodes and continue
-    # walking the tree.
-    def visit_lambda_node(node)
+    def visit_lambda_node(node) # :nodoc:
       listeners[:on_lambda_node_enter]&.each { |listener| listener.on_lambda_node_enter(node) }
       super
       listeners[:on_lambda_node_leave]&.each { |listener| listener.on_lambda_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for LocalVariableAndWriteNode nodes and continue
-    # walking the tree.
-    def visit_local_variable_and_write_node(node)
+    def visit_local_variable_and_write_node(node) # :nodoc:
       listeners[:on_local_variable_and_write_node_enter]&.each { |listener| listener.on_local_variable_and_write_node_enter(node) }
       super
       listeners[:on_local_variable_and_write_node_leave]&.each { |listener| listener.on_local_variable_and_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for LocalVariableOperatorWriteNode nodes and continue
-    # walking the tree.
-    def visit_local_variable_operator_write_node(node)
+    def visit_local_variable_operator_write_node(node) # :nodoc:
       listeners[:on_local_variable_operator_write_node_enter]&.each { |listener| listener.on_local_variable_operator_write_node_enter(node) }
       super
       listeners[:on_local_variable_operator_write_node_leave]&.each { |listener| listener.on_local_variable_operator_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for LocalVariableOrWriteNode nodes and continue
-    # walking the tree.
-    def visit_local_variable_or_write_node(node)
+    def visit_local_variable_or_write_node(node) # :nodoc:
       listeners[:on_local_variable_or_write_node_enter]&.each { |listener| listener.on_local_variable_or_write_node_enter(node) }
       super
       listeners[:on_local_variable_or_write_node_leave]&.each { |listener| listener.on_local_variable_or_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for LocalVariableReadNode nodes and continue
-    # walking the tree.
-    def visit_local_variable_read_node(node)
+    def visit_local_variable_read_node(node) # :nodoc:
       listeners[:on_local_variable_read_node_enter]&.each { |listener| listener.on_local_variable_read_node_enter(node) }
       super
       listeners[:on_local_variable_read_node_leave]&.each { |listener| listener.on_local_variable_read_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for LocalVariableTargetNode nodes and continue
-    # walking the tree.
-    def visit_local_variable_target_node(node)
+    def visit_local_variable_target_node(node) # :nodoc:
       listeners[:on_local_variable_target_node_enter]&.each { |listener| listener.on_local_variable_target_node_enter(node) }
       super
       listeners[:on_local_variable_target_node_leave]&.each { |listener| listener.on_local_variable_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for LocalVariableWriteNode nodes and continue
-    # walking the tree.
-    def visit_local_variable_write_node(node)
+    def visit_local_variable_write_node(node) # :nodoc:
       listeners[:on_local_variable_write_node_enter]&.each { |listener| listener.on_local_variable_write_node_enter(node) }
       super
       listeners[:on_local_variable_write_node_leave]&.each { |listener| listener.on_local_variable_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for MatchLastLineNode nodes and continue
-    # walking the tree.
-    def visit_match_last_line_node(node)
+    def visit_match_last_line_node(node) # :nodoc:
       listeners[:on_match_last_line_node_enter]&.each { |listener| listener.on_match_last_line_node_enter(node) }
       super
       listeners[:on_match_last_line_node_leave]&.each { |listener| listener.on_match_last_line_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for MatchPredicateNode nodes and continue
-    # walking the tree.
-    def visit_match_predicate_node(node)
+    def visit_match_predicate_node(node) # :nodoc:
       listeners[:on_match_predicate_node_enter]&.each { |listener| listener.on_match_predicate_node_enter(node) }
       super
       listeners[:on_match_predicate_node_leave]&.each { |listener| listener.on_match_predicate_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for MatchRequiredNode nodes and continue
-    # walking the tree.
-    def visit_match_required_node(node)
+    def visit_match_required_node(node) # :nodoc:
       listeners[:on_match_required_node_enter]&.each { |listener| listener.on_match_required_node_enter(node) }
       super
       listeners[:on_match_required_node_leave]&.each { |listener| listener.on_match_required_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for MatchWriteNode nodes and continue
-    # walking the tree.
-    def visit_match_write_node(node)
+    def visit_match_write_node(node) # :nodoc:
       listeners[:on_match_write_node_enter]&.each { |listener| listener.on_match_write_node_enter(node) }
       super
       listeners[:on_match_write_node_leave]&.each { |listener| listener.on_match_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for MissingNode nodes and continue
-    # walking the tree.
-    def visit_missing_node(node)
+    def visit_missing_node(node) # :nodoc:
       listeners[:on_missing_node_enter]&.each { |listener| listener.on_missing_node_enter(node) }
       super
       listeners[:on_missing_node_leave]&.each { |listener| listener.on_missing_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ModuleNode nodes and continue
-    # walking the tree.
-    def visit_module_node(node)
+    def visit_module_node(node) # :nodoc:
       listeners[:on_module_node_enter]&.each { |listener| listener.on_module_node_enter(node) }
       super
       listeners[:on_module_node_leave]&.each { |listener| listener.on_module_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for MultiTargetNode nodes and continue
-    # walking the tree.
-    def visit_multi_target_node(node)
+    def visit_multi_target_node(node) # :nodoc:
       listeners[:on_multi_target_node_enter]&.each { |listener| listener.on_multi_target_node_enter(node) }
       super
       listeners[:on_multi_target_node_leave]&.each { |listener| listener.on_multi_target_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for MultiWriteNode nodes and continue
-    # walking the tree.
-    def visit_multi_write_node(node)
+    def visit_multi_write_node(node) # :nodoc:
       listeners[:on_multi_write_node_enter]&.each { |listener| listener.on_multi_write_node_enter(node) }
       super
       listeners[:on_multi_write_node_leave]&.each { |listener| listener.on_multi_write_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for NextNode nodes and continue
-    # walking the tree.
-    def visit_next_node(node)
+    def visit_next_node(node) # :nodoc:
       listeners[:on_next_node_enter]&.each { |listener| listener.on_next_node_enter(node) }
       super
       listeners[:on_next_node_leave]&.each { |listener| listener.on_next_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for NilNode nodes and continue
-    # walking the tree.
-    def visit_nil_node(node)
+    def visit_nil_node(node) # :nodoc:
       listeners[:on_nil_node_enter]&.each { |listener| listener.on_nil_node_enter(node) }
       super
       listeners[:on_nil_node_leave]&.each { |listener| listener.on_nil_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for NoKeywordsParameterNode nodes and continue
-    # walking the tree.
-    def visit_no_keywords_parameter_node(node)
+    def visit_no_keywords_parameter_node(node) # :nodoc:
       listeners[:on_no_keywords_parameter_node_enter]&.each { |listener| listener.on_no_keywords_parameter_node_enter(node) }
       super
       listeners[:on_no_keywords_parameter_node_leave]&.each { |listener| listener.on_no_keywords_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for NumberedParametersNode nodes and continue
-    # walking the tree.
-    def visit_numbered_parameters_node(node)
+    def visit_numbered_parameters_node(node) # :nodoc:
       listeners[:on_numbered_parameters_node_enter]&.each { |listener| listener.on_numbered_parameters_node_enter(node) }
       super
       listeners[:on_numbered_parameters_node_leave]&.each { |listener| listener.on_numbered_parameters_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for NumberedReferenceReadNode nodes and continue
-    # walking the tree.
-    def visit_numbered_reference_read_node(node)
+    def visit_numbered_reference_read_node(node) # :nodoc:
       listeners[:on_numbered_reference_read_node_enter]&.each { |listener| listener.on_numbered_reference_read_node_enter(node) }
       super
       listeners[:on_numbered_reference_read_node_leave]&.each { |listener| listener.on_numbered_reference_read_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for OptionalKeywordParameterNode nodes and continue
-    # walking the tree.
-    def visit_optional_keyword_parameter_node(node)
+    def visit_optional_keyword_parameter_node(node) # :nodoc:
       listeners[:on_optional_keyword_parameter_node_enter]&.each { |listener| listener.on_optional_keyword_parameter_node_enter(node) }
       super
       listeners[:on_optional_keyword_parameter_node_leave]&.each { |listener| listener.on_optional_keyword_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for OptionalParameterNode nodes and continue
-    # walking the tree.
-    def visit_optional_parameter_node(node)
+    def visit_optional_parameter_node(node) # :nodoc:
       listeners[:on_optional_parameter_node_enter]&.each { |listener| listener.on_optional_parameter_node_enter(node) }
       super
       listeners[:on_optional_parameter_node_leave]&.each { |listener| listener.on_optional_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for OrNode nodes and continue
-    # walking the tree.
-    def visit_or_node(node)
+    def visit_or_node(node) # :nodoc:
       listeners[:on_or_node_enter]&.each { |listener| listener.on_or_node_enter(node) }
       super
       listeners[:on_or_node_leave]&.each { |listener| listener.on_or_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ParametersNode nodes and continue
-    # walking the tree.
-    def visit_parameters_node(node)
+    def visit_parameters_node(node) # :nodoc:
       listeners[:on_parameters_node_enter]&.each { |listener| listener.on_parameters_node_enter(node) }
       super
       listeners[:on_parameters_node_leave]&.each { |listener| listener.on_parameters_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ParenthesesNode nodes and continue
-    # walking the tree.
-    def visit_parentheses_node(node)
+    def visit_parentheses_node(node) # :nodoc:
       listeners[:on_parentheses_node_enter]&.each { |listener| listener.on_parentheses_node_enter(node) }
       super
       listeners[:on_parentheses_node_leave]&.each { |listener| listener.on_parentheses_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for PinnedExpressionNode nodes and continue
-    # walking the tree.
-    def visit_pinned_expression_node(node)
+    def visit_pinned_expression_node(node) # :nodoc:
       listeners[:on_pinned_expression_node_enter]&.each { |listener| listener.on_pinned_expression_node_enter(node) }
       super
       listeners[:on_pinned_expression_node_leave]&.each { |listener| listener.on_pinned_expression_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for PinnedVariableNode nodes and continue
-    # walking the tree.
-    def visit_pinned_variable_node(node)
+    def visit_pinned_variable_node(node) # :nodoc:
       listeners[:on_pinned_variable_node_enter]&.each { |listener| listener.on_pinned_variable_node_enter(node) }
       super
       listeners[:on_pinned_variable_node_leave]&.each { |listener| listener.on_pinned_variable_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for PostExecutionNode nodes and continue
-    # walking the tree.
-    def visit_post_execution_node(node)
+    def visit_post_execution_node(node) # :nodoc:
       listeners[:on_post_execution_node_enter]&.each { |listener| listener.on_post_execution_node_enter(node) }
       super
       listeners[:on_post_execution_node_leave]&.each { |listener| listener.on_post_execution_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for PreExecutionNode nodes and continue
-    # walking the tree.
-    def visit_pre_execution_node(node)
+    def visit_pre_execution_node(node) # :nodoc:
       listeners[:on_pre_execution_node_enter]&.each { |listener| listener.on_pre_execution_node_enter(node) }
       super
       listeners[:on_pre_execution_node_leave]&.each { |listener| listener.on_pre_execution_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ProgramNode nodes and continue
-    # walking the tree.
-    def visit_program_node(node)
+    def visit_program_node(node) # :nodoc:
       listeners[:on_program_node_enter]&.each { |listener| listener.on_program_node_enter(node) }
       super
       listeners[:on_program_node_leave]&.each { |listener| listener.on_program_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RangeNode nodes and continue
-    # walking the tree.
-    def visit_range_node(node)
+    def visit_range_node(node) # :nodoc:
       listeners[:on_range_node_enter]&.each { |listener| listener.on_range_node_enter(node) }
       super
       listeners[:on_range_node_leave]&.each { |listener| listener.on_range_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RationalNode nodes and continue
-    # walking the tree.
-    def visit_rational_node(node)
+    def visit_rational_node(node) # :nodoc:
       listeners[:on_rational_node_enter]&.each { |listener| listener.on_rational_node_enter(node) }
       super
       listeners[:on_rational_node_leave]&.each { |listener| listener.on_rational_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RedoNode nodes and continue
-    # walking the tree.
-    def visit_redo_node(node)
+    def visit_redo_node(node) # :nodoc:
       listeners[:on_redo_node_enter]&.each { |listener| listener.on_redo_node_enter(node) }
       super
       listeners[:on_redo_node_leave]&.each { |listener| listener.on_redo_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RegularExpressionNode nodes and continue
-    # walking the tree.
-    def visit_regular_expression_node(node)
+    def visit_regular_expression_node(node) # :nodoc:
       listeners[:on_regular_expression_node_enter]&.each { |listener| listener.on_regular_expression_node_enter(node) }
       super
       listeners[:on_regular_expression_node_leave]&.each { |listener| listener.on_regular_expression_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RequiredKeywordParameterNode nodes and continue
-    # walking the tree.
-    def visit_required_keyword_parameter_node(node)
+    def visit_required_keyword_parameter_node(node) # :nodoc:
       listeners[:on_required_keyword_parameter_node_enter]&.each { |listener| listener.on_required_keyword_parameter_node_enter(node) }
       super
       listeners[:on_required_keyword_parameter_node_leave]&.each { |listener| listener.on_required_keyword_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RequiredParameterNode nodes and continue
-    # walking the tree.
-    def visit_required_parameter_node(node)
+    def visit_required_parameter_node(node) # :nodoc:
       listeners[:on_required_parameter_node_enter]&.each { |listener| listener.on_required_parameter_node_enter(node) }
       super
       listeners[:on_required_parameter_node_leave]&.each { |listener| listener.on_required_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RescueModifierNode nodes and continue
-    # walking the tree.
-    def visit_rescue_modifier_node(node)
+    def visit_rescue_modifier_node(node) # :nodoc:
       listeners[:on_rescue_modifier_node_enter]&.each { |listener| listener.on_rescue_modifier_node_enter(node) }
       super
       listeners[:on_rescue_modifier_node_leave]&.each { |listener| listener.on_rescue_modifier_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RescueNode nodes and continue
-    # walking the tree.
-    def visit_rescue_node(node)
+    def visit_rescue_node(node) # :nodoc:
       listeners[:on_rescue_node_enter]&.each { |listener| listener.on_rescue_node_enter(node) }
       super
       listeners[:on_rescue_node_leave]&.each { |listener| listener.on_rescue_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RestParameterNode nodes and continue
-    # walking the tree.
-    def visit_rest_parameter_node(node)
+    def visit_rest_parameter_node(node) # :nodoc:
       listeners[:on_rest_parameter_node_enter]&.each { |listener| listener.on_rest_parameter_node_enter(node) }
       super
       listeners[:on_rest_parameter_node_leave]&.each { |listener| listener.on_rest_parameter_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for RetryNode nodes and continue
-    # walking the tree.
-    def visit_retry_node(node)
+    def visit_retry_node(node) # :nodoc:
       listeners[:on_retry_node_enter]&.each { |listener| listener.on_retry_node_enter(node) }
       super
       listeners[:on_retry_node_leave]&.each { |listener| listener.on_retry_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ReturnNode nodes and continue
-    # walking the tree.
-    def visit_return_node(node)
+    def visit_return_node(node) # :nodoc:
       listeners[:on_return_node_enter]&.each { |listener| listener.on_return_node_enter(node) }
       super
       listeners[:on_return_node_leave]&.each { |listener| listener.on_return_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for SelfNode nodes and continue
-    # walking the tree.
-    def visit_self_node(node)
+    def visit_self_node(node) # :nodoc:
       listeners[:on_self_node_enter]&.each { |listener| listener.on_self_node_enter(node) }
       super
       listeners[:on_self_node_leave]&.each { |listener| listener.on_self_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for ShareableConstantNode nodes and continue
-    # walking the tree.
-    def visit_shareable_constant_node(node)
+    def visit_shareable_constant_node(node) # :nodoc:
       listeners[:on_shareable_constant_node_enter]&.each { |listener| listener.on_shareable_constant_node_enter(node) }
       super
       listeners[:on_shareable_constant_node_leave]&.each { |listener| listener.on_shareable_constant_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for SingletonClassNode nodes and continue
-    # walking the tree.
-    def visit_singleton_class_node(node)
+    def visit_singleton_class_node(node) # :nodoc:
       listeners[:on_singleton_class_node_enter]&.each { |listener| listener.on_singleton_class_node_enter(node) }
       super
       listeners[:on_singleton_class_node_leave]&.each { |listener| listener.on_singleton_class_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for SourceEncodingNode nodes and continue
-    # walking the tree.
-    def visit_source_encoding_node(node)
+    def visit_source_encoding_node(node) # :nodoc:
       listeners[:on_source_encoding_node_enter]&.each { |listener| listener.on_source_encoding_node_enter(node) }
       super
       listeners[:on_source_encoding_node_leave]&.each { |listener| listener.on_source_encoding_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for SourceFileNode nodes and continue
-    # walking the tree.
-    def visit_source_file_node(node)
+    def visit_source_file_node(node) # :nodoc:
       listeners[:on_source_file_node_enter]&.each { |listener| listener.on_source_file_node_enter(node) }
       super
       listeners[:on_source_file_node_leave]&.each { |listener| listener.on_source_file_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for SourceLineNode nodes and continue
-    # walking the tree.
-    def visit_source_line_node(node)
+    def visit_source_line_node(node) # :nodoc:
       listeners[:on_source_line_node_enter]&.each { |listener| listener.on_source_line_node_enter(node) }
       super
       listeners[:on_source_line_node_leave]&.each { |listener| listener.on_source_line_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for SplatNode nodes and continue
-    # walking the tree.
-    def visit_splat_node(node)
+    def visit_splat_node(node) # :nodoc:
       listeners[:on_splat_node_enter]&.each { |listener| listener.on_splat_node_enter(node) }
       super
       listeners[:on_splat_node_leave]&.each { |listener| listener.on_splat_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for StatementsNode nodes and continue
-    # walking the tree.
-    def visit_statements_node(node)
+    def visit_statements_node(node) # :nodoc:
       listeners[:on_statements_node_enter]&.each { |listener| listener.on_statements_node_enter(node) }
       super
       listeners[:on_statements_node_leave]&.each { |listener| listener.on_statements_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for StringNode nodes and continue
-    # walking the tree.
-    def visit_string_node(node)
+    def visit_string_node(node) # :nodoc:
       listeners[:on_string_node_enter]&.each { |listener| listener.on_string_node_enter(node) }
       super
       listeners[:on_string_node_leave]&.each { |listener| listener.on_string_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for SuperNode nodes and continue
-    # walking the tree.
-    def visit_super_node(node)
+    def visit_super_node(node) # :nodoc:
       listeners[:on_super_node_enter]&.each { |listener| listener.on_super_node_enter(node) }
       super
       listeners[:on_super_node_leave]&.each { |listener| listener.on_super_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for SymbolNode nodes and continue
-    # walking the tree.
-    def visit_symbol_node(node)
+    def visit_symbol_node(node) # :nodoc:
       listeners[:on_symbol_node_enter]&.each { |listener| listener.on_symbol_node_enter(node) }
       super
       listeners[:on_symbol_node_leave]&.each { |listener| listener.on_symbol_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for TrueNode nodes and continue
-    # walking the tree.
-    def visit_true_node(node)
+    def visit_true_node(node) # :nodoc:
       listeners[:on_true_node_enter]&.each { |listener| listener.on_true_node_enter(node) }
       super
       listeners[:on_true_node_leave]&.each { |listener| listener.on_true_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for UndefNode nodes and continue
-    # walking the tree.
-    def visit_undef_node(node)
+    def visit_undef_node(node) # :nodoc:
       listeners[:on_undef_node_enter]&.each { |listener| listener.on_undef_node_enter(node) }
       super
       listeners[:on_undef_node_leave]&.each { |listener| listener.on_undef_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for UnlessNode nodes and continue
-    # walking the tree.
-    def visit_unless_node(node)
+    def visit_unless_node(node) # :nodoc:
       listeners[:on_unless_node_enter]&.each { |listener| listener.on_unless_node_enter(node) }
       super
       listeners[:on_unless_node_leave]&.each { |listener| listener.on_unless_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for UntilNode nodes and continue
-    # walking the tree.
-    def visit_until_node(node)
+    def visit_until_node(node) # :nodoc:
       listeners[:on_until_node_enter]&.each { |listener| listener.on_until_node_enter(node) }
       super
       listeners[:on_until_node_leave]&.each { |listener| listener.on_until_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for WhenNode nodes and continue
-    # walking the tree.
-    def visit_when_node(node)
+    def visit_when_node(node) # :nodoc:
       listeners[:on_when_node_enter]&.each { |listener| listener.on_when_node_enter(node) }
       super
       listeners[:on_when_node_leave]&.each { |listener| listener.on_when_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for WhileNode nodes and continue
-    # walking the tree.
-    def visit_while_node(node)
+    def visit_while_node(node) # :nodoc:
       listeners[:on_while_node_enter]&.each { |listener| listener.on_while_node_enter(node) }
       super
       listeners[:on_while_node_leave]&.each { |listener| listener.on_while_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for XStringNode nodes and continue
-    # walking the tree.
-    def visit_x_string_node(node)
+    def visit_x_string_node(node) # :nodoc:
       listeners[:on_x_string_node_enter]&.each { |listener| listener.on_x_string_node_enter(node) }
       super
       listeners[:on_x_string_node_leave]&.each { |listener| listener.on_x_string_node_leave(node) }
     end
 
-    # Dispatch enter and leave events for YieldNode nodes and continue
-    # walking the tree.
-    def visit_yield_node(node)
+    def visit_yield_node(node) # :nodoc:
       listeners[:on_yield_node_enter]&.each { |listener| listener.on_yield_node_enter(node) }
       super
       listeners[:on_yield_node_leave]&.each { |listener| listener.on_yield_node_leave(node) }

@@ -172,7 +172,7 @@ module Prism
 
     # Similar to inspect, but respects the current level of indentation given by
     # the pretty print object.
-    def pretty_print(q)
+    def pretty_print(q) # :nodoc:
       q.seplist(inspect.chomp.each_line, -> { q.breakable }) do |line|
         q.text(line.chomp)
       end
@@ -379,8 +379,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, new_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode, old_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode, keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
     end
 
@@ -396,7 +395,7 @@ module Prism
     #                ^^^^
     attr_reader :old_name
 
-    # The location of the `alias` keyword.
+    # The Location of the `alias` keyword.
     #
     #     alias $foo $bar
     #     ^^^^^
@@ -417,8 +416,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -494,8 +492,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, new_name: SymbolNode | InterpolatedSymbolNode, old_name: SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode, keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
     end
 
@@ -523,7 +520,7 @@ module Prism
     #                     ^^^^^^^^^
     attr_reader :old_name
 
-    # Represents the location of the `alias` keyword.
+    # Represents the Location of the `alias` keyword.
     #
     #     alias foo bar
     #     ^^^^^
@@ -544,8 +541,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -621,8 +617,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node, right: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
@@ -638,7 +633,7 @@ module Prism
     #                  ^^^
     attr_reader :right
 
-    # Represents the alternation operator location.
+    # Represents the alternation operator Location.
     #
     #     foo => bar | baz
     #                ^
@@ -659,8 +654,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -736,8 +730,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node, right: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
@@ -759,7 +752,7 @@ module Prism
     #           ^
     attr_reader :right
 
-    # The location of the `and` keyword or the `&&` operator.
+    # The Location of the `and` keyword or the `&&` operator.
     #
     #     left and right
     #          ^^^
@@ -780,8 +773,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -854,8 +846,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, arguments: Array[Prism::node] }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, arguments: arguments }
     end
 
@@ -890,8 +881,7 @@ module Prism
     #         ^^^^^^^^
     attr_reader :arguments
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -966,8 +956,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, elements: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, elements: elements, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -979,7 +968,7 @@ module Prism
     # Represent the list of zero or more [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression) within the array.
     attr_reader :elements
 
-    # Represents the optional source location for the opening token.
+    # Represents the optional source Location for the opening token.
     #
     #     [1,2,3]                 # "["
     #     %w[foo bar baz]         # "%w["
@@ -1003,7 +992,7 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # Represents the optional source location for the closing token.
+    # Represents the optional source Location for the closing token.
     #
     #     [1,2,3]                 # "]"
     #     %w[foo bar baz]         # "]"
@@ -1037,8 +1026,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -1138,8 +1126,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, requireds: Array[Prism::node], rest: Prism::node?, posts: Array[Prism::node], opening_loc: Location?, closing_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, constant: constant, requireds: requireds, rest: rest, posts: posts, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -1173,7 +1160,7 @@ module Prism
     #                  ^^^
     attr_reader :posts
 
-    # Represents the opening location of the array pattern.
+    # Represents the opening Location of the array pattern.
     #
     #     foo in [1, 2]
     #            ^
@@ -1195,7 +1182,7 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # Represents the closing location of the array pattern.
+    # Represents the closing Location of the array pattern.
     #
     #     foo in [1, 2]
     #                 ^
@@ -1227,8 +1214,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -1309,8 +1295,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, key: Prism::node, value: Prism::node, operator_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, key: key, value: value, operator_loc: operator_loc }
     end
 
@@ -1335,7 +1320,7 @@ module Prism
     #          ^
     attr_reader :value
 
-    # The location of the `=>` operator, if present.
+    # The Location of the `=>` operator, if present.
     #
     #     { foo => bar }
     #           ^^
@@ -1362,8 +1347,7 @@ module Prism
       operator_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -1439,8 +1423,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node?, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value, operator_loc: operator_loc }
     end
 
@@ -1450,7 +1433,7 @@ module Prism
     #         ^^^
     attr_reader :value
 
-    # The location of the `**` operator.
+    # The Location of the `**` operator.
     #
     #     { **x }
     #       ^^
@@ -1471,8 +1454,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -1543,8 +1525,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
@@ -1555,8 +1536,7 @@ module Prism
     #     $+ # name `:$+`
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -1642,12 +1622,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, begin_keyword_loc: Location?, statements: StatementsNode?, rescue_clause: RescueNode?, else_clause: ElseNode?, ensure_clause: EnsureNode?, end_keyword_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, begin_keyword_loc: begin_keyword_loc, statements: statements, rescue_clause: rescue_clause, else_clause: else_clause, ensure_clause: ensure_clause, end_keyword_loc: end_keyword_loc }
     end
 
-    # Represents the location of the `begin` keyword.
+    # Represents the Location of the `begin` keyword.
     #
     #     begin x end
     #     ^^^^^
@@ -1693,7 +1672,7 @@ module Prism
     #              ^^^^^^^^
     attr_reader :ensure_clause
 
-    # Represents the location of the `end` keyword.
+    # Represents the Location of the `end` keyword.
     #
     #     begin x end
     #             ^^^
@@ -1725,8 +1704,7 @@ module Prism
       end_keyword_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -1805,8 +1783,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, expression: Prism::node?, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, expression: expression, operator_loc: operator_loc }
     end
 
@@ -1816,7 +1793,7 @@ module Prism
     #         ^^^^^
     attr_reader :expression
 
-    # Represents the location of the `&` operator.
+    # Represents the Location of the `&` operator.
     #
     #     foo(&args)
     #         ^
@@ -1837,8 +1814,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -1909,8 +1885,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
@@ -1925,8 +1900,7 @@ module Prism
     #            ^
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -2006,8 +1980,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, body: StatementsNode | BeginNode | nil, opening_loc: Location, closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, parameters: parameters, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -2033,7 +2006,7 @@ module Prism
     #                          ^^^^^^
     attr_reader :body
 
-    # Represents the location of the opening `{` or `do`.
+    # Represents the Location of the opening `{` or `do`.
     #
     #     [1, 2, 3].each { |i| puts x }
     #                    ^
@@ -2049,7 +2022,7 @@ module Prism
       repository.enter(node_id, :opening_loc)
     end
 
-    # Represents the location of the closing `}` or `end`.
+    # Represents the Location of the closing `}` or `end`.
     #
     #     [1, 2, 3].each { |i| puts x }
     #                                 ^
@@ -2075,8 +2048,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -2154,8 +2126,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol?, name_loc: Location?, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
     end
 
@@ -2171,7 +2142,7 @@ module Prism
     #     end
     attr_reader :name
 
-    # Represents the location of the block parameter name.
+    # Represents the Location of the block parameter name.
     #
     #     def a(&b)
     #            ^
@@ -2193,7 +2164,7 @@ module Prism
       repository.enter(node_id, :name_loc) unless @name_loc.nil?
     end
 
-    # Represents the location of the `&` operator.
+    # Represents the Location of the `&` operator.
     #
     #     def a(&b)
     #           ^
@@ -2215,8 +2186,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -2301,8 +2271,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, parameters: ParametersNode?, locals: Array[BlockLocalVariableNode], opening_loc: Location?, closing_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, parameters: parameters, locals: locals, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -2326,7 +2295,7 @@ module Prism
     #     end
     attr_reader :locals
 
-    # Represents the opening location of the block parameters.
+    # Represents the opening Location of the block parameters.
     #
     #     -> (a, b = 1; local) { }
     #        ^
@@ -2352,7 +2321,7 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # Represents the closing location of the block parameters.
+    # Represents the closing Location of the block parameters.
     #
     #     -> (a, b = 1; local) { }
     #                        ^
@@ -2388,8 +2357,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -2467,8 +2435,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, arguments: ArgumentsNode?, keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, arguments: arguments, keyword_loc: keyword_loc }
     end
 
@@ -2478,7 +2445,7 @@ module Prism
     #           ^^^
     attr_reader :arguments
 
-    # The location of the `break` keyword.
+    # The Location of the `break` keyword.
     #
     #     break foo
     #     ^^^^^
@@ -2499,8 +2466,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -2582,8 +2548,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, message_loc: Location?, read_name: Symbol, write_name: Symbol, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, operator_loc: operator_loc, value: value }
     end
 
@@ -2613,7 +2578,7 @@ module Prism
     #     ^^^
     attr_reader :receiver
 
-    # Represents the location of the call operator.
+    # Represents the Location of the call operator.
     #
     #     foo.bar &&= value
     #        ^
@@ -2635,7 +2600,7 @@ module Prism
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
 
-    # Represents the location of the message.
+    # Represents the Location of the message.
     #
     #     foo.bar &&= value
     #         ^^^
@@ -2669,7 +2634,7 @@ module Prism
     #         ^^^
     attr_reader :write_name
 
-    # Represents the location of the operator.
+    # Represents the Location of the operator.
     #
     #     foo.bar &&= value
     #             ^^^
@@ -2706,8 +2671,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -2814,8 +2778,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, name: Symbol, message_loc: Location?, opening_loc: Location?, arguments: ArgumentsNode?, closing_loc: Location?, equal_loc: Location?, block: BlockNode | BlockArgumentNode | nil }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, name: name, message_loc: message_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, equal_loc: equal_loc, block: block }
     end
 
@@ -2851,7 +2814,7 @@ module Prism
     #     ^^^
     attr_reader :receiver
 
-    # Represents the location of the call operator.
+    # Represents the Location of the call operator.
     #
     #     foo.bar
     #        ^
@@ -2882,7 +2845,7 @@ module Prism
     #     ^^^
     attr_reader :name
 
-    # Represents the location of the message.
+    # Represents the Location of the message.
     #
     #     foo.bar
     #         ^^^
@@ -2904,7 +2867,8 @@ module Prism
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
 
-    # Represents the location of the left parenthesis.
+    # Represents the Location of the left parenthesis.
+    #
     #     foo(bar)
     #        ^
     def opening_loc
@@ -2931,7 +2895,7 @@ module Prism
     #         ^^^
     attr_reader :arguments
 
-    # Represents the location of the right parenthesis.
+    # Represents the Location of the right parenthesis.
     #
     #     foo(bar)
     #            ^
@@ -2953,7 +2917,7 @@ module Prism
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
 
-    # Represents the location of the equal sign, in the case that this is an attribute write.
+    # Represents the Location of the equal sign, in the case that this is an attribute write.
     #
     #     foo.bar = value
     #             ^
@@ -3009,8 +2973,7 @@ module Prism
       equal_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -3101,8 +3064,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, message_loc: Location?, read_name: Symbol, write_name: Symbol, binary_operator: Symbol, binary_operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, binary_operator: binary_operator, binary_operator_loc: binary_operator_loc, value: value }
     end
 
@@ -3132,7 +3094,7 @@ module Prism
     #     ^^^
     attr_reader :receiver
 
-    # Represents the location of the call operator.
+    # Represents the Location of the call operator.
     #
     #     foo.bar += value
     #        ^
@@ -3154,7 +3116,7 @@ module Prism
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
 
-    # Represents the location of the message.
+    # Represents the Location of the message.
     #
     #     foo.bar += value
     #         ^^^
@@ -3194,7 +3156,7 @@ module Prism
     #             ^
     attr_reader :binary_operator
 
-    # Represents the location of the binary operator.
+    # Represents the Location of the binary operator.
     #
     #     foo.bar += value
     #             ^^
@@ -3226,8 +3188,7 @@ module Prism
       message_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -3316,8 +3277,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, message_loc: Location?, read_name: Symbol, write_name: Symbol, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, operator_loc: operator_loc, value: value }
     end
 
@@ -3347,7 +3307,7 @@ module Prism
     #     ^^^
     attr_reader :receiver
 
-    # Represents the location of the call operator.
+    # Represents the Location of the call operator.
     #
     #     foo.bar ||= value
     #        ^
@@ -3369,7 +3329,7 @@ module Prism
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
 
-    # Represents the location of the message.
+    # Represents the Location of the message.
     #
     #     foo.bar ||= value
     #         ^^^
@@ -3403,7 +3363,7 @@ module Prism
     #         ^^^
     attr_reader :write_name
 
-    # Represents the location of the operator.
+    # Represents the Location of the operator.
     #
     #     foo.bar ||= value
     #             ^^^
@@ -3440,8 +3400,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -3530,8 +3489,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node, call_operator_loc: Location, name: Symbol, message_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, name: name, message_loc: message_loc }
     end
 
@@ -3561,7 +3519,7 @@ module Prism
     #     ^^^
     attr_reader :receiver
 
-    # Represents the location of the call operator.
+    # Represents the Location of the call operator.
     #
     #     foo.bar = 1
     #        ^
@@ -3583,7 +3541,7 @@ module Prism
     #     ^^^
     attr_reader :name
 
-    # Represents the location of the message.
+    # Represents the Location of the message.
     #
     #     foo.bar = 1
     #         ^^^
@@ -3609,8 +3567,7 @@ module Prism
       message_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -3688,8 +3645,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node, target: LocalVariableTargetNode, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value, target: target, operator_loc: operator_loc }
     end
 
@@ -3705,7 +3661,7 @@ module Prism
     #     ^^^
     attr_reader :target
 
-    # Represents the location of the `=>` operator.
+    # Represents the Location of the `=>` operator.
     #
     #     foo => bar
     #         ^^
@@ -3726,8 +3682,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -3812,8 +3767,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[InNode], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
@@ -3835,7 +3789,7 @@ module Prism
     #                          ^^^^
     attr_reader :else_clause
 
-    # Represents the location of the `case` keyword.
+    # Represents the Location of the `case` keyword.
     #
     #     case true; in false; end
     #     ^^^^
@@ -3851,7 +3805,7 @@ module Prism
       repository.enter(node_id, :case_keyword_loc)
     end
 
-    # Represents the location of the `end` keyword.
+    # Represents the Location of the `end` keyword.
     #
     #     case true; in false; end
     #                          ^^^
@@ -3877,8 +3831,7 @@ module Prism
       end_keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -3966,8 +3919,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, predicate: Prism::node?, conditions: Array[WhenNode], else_clause: ElseNode?, case_keyword_loc: Location, end_keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
@@ -3989,7 +3941,7 @@ module Prism
     #                            ^^^^
     attr_reader :else_clause
 
-    # Represents the location of the `case` keyword.
+    # Represents the Location of the `case` keyword.
     #
     #     case true; when false; end
     #     ^^^^
@@ -4005,7 +3957,7 @@ module Prism
       repository.enter(node_id, :case_keyword_loc)
     end
 
-    # Represents the location of the `end` keyword.
+    # Represents the Location of the `end` keyword.
     #
     #     case true; when false; end
     #                            ^^^
@@ -4031,8 +3983,7 @@ module Prism
       end_keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -4121,15 +4072,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], class_keyword_loc: Location, constant_path: ConstantReadNode | ConstantPathNode | CallNode, inheritance_operator_loc: Location?, superclass: Prism::node?, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, class_keyword_loc: class_keyword_loc, constant_path: constant_path, inheritance_operator_loc: inheritance_operator_loc, superclass: superclass, body: body, end_keyword_loc: end_keyword_loc, name: name }
     end
 
     # attr_reader locals: Array[Symbol]
     attr_reader :locals
 
-    # Represents the location of the `class` keyword.
+    # Represents the Location of the `class` keyword.
     #
     #     class Foo end
     #     ^^^^^
@@ -4148,7 +4098,7 @@ module Prism
     # attr_reader constant_path: ConstantReadNode | ConstantPathNode | CallNode
     attr_reader :constant_path
 
-    # Represents the location of the `<` operator.
+    # Represents the Location of the `<` operator.
     #
     #     class Foo < Bar
     #               ^
@@ -4183,7 +4133,7 @@ module Prism
     #       ^^^
     attr_reader :body
 
-    # Represents the location of the `end` keyword.
+    # Represents the Location of the `end` keyword.
     #
     #     class Foo end
     #               ^^^
@@ -4219,8 +4169,7 @@ module Prism
       end_keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -4302,8 +4251,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -4313,7 +4261,7 @@ module Prism
     #     ^^^^^^^^
     attr_reader :name
 
-    # Represents the location of the variable name.
+    # Represents the Location of the variable name.
     #
     #     @@target &&= value
     #     ^^^^^^^^
@@ -4329,7 +4277,7 @@ module Prism
       repository.enter(node_id, :name_loc)
     end
 
-    # Represents the location of the `&&=` operator.
+    # Represents the Location of the `&&=` operator.
     #
     #     @@target &&= value
     #              ^^^
@@ -4356,8 +4304,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -4435,8 +4382,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
@@ -4475,8 +4421,7 @@ module Prism
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -4554,8 +4499,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -4596,8 +4540,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -4670,8 +4613,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
@@ -4682,8 +4624,7 @@ module Prism
     #     @@_test # name `:@@_test`
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -4753,16 +4694,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
     # attr_reader name: Symbol
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -4836,8 +4775,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
@@ -4848,7 +4786,7 @@ module Prism
     #     @@_test = :test # name `@@_test`
     attr_reader :name
 
-    # The location of the variable name.
+    # The Location of the variable name.
     #
     #     @@foo = :bar
     #     ^^^^^
@@ -4873,7 +4811,7 @@ module Prism
     #              ^^^
     attr_reader :value
 
-    # The location of the `=` operator.
+    # The Location of the `=` operator.
     #
     #     @@foo = :bar
     #           ^
@@ -4894,8 +4832,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -4972,8 +4909,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -5014,8 +4950,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -5093,8 +5028,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
@@ -5133,8 +5067,7 @@ module Prism
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -5212,8 +5145,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -5254,8 +5186,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -5332,8 +5263,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, target: ConstantPathNode, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
     end
 
@@ -5361,8 +5291,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -5440,8 +5369,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, parent: Prism::node?, name: Symbol?, delimiter_loc: Location, name_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, parent: parent, name: name, delimiter_loc: delimiter_loc, name_loc: name_loc }
     end
 
@@ -5460,7 +5388,7 @@ module Prism
     # The name of the constant being accessed. This could be `nil` in the event of a syntax error.
     attr_reader :name
 
-    # The location of the `::` delimiter.
+    # The Location of the `::` delimiter.
     #
     #     ::Foo
     #     ^^
@@ -5479,7 +5407,7 @@ module Prism
       repository.enter(node_id, :delimiter_loc)
     end
 
-    # The location of the name of the constant.
+    # The Location of the name of the constant.
     #
     #     ::Foo
     #       ^^^
@@ -5503,8 +5431,7 @@ module Prism
       delimiter_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -5582,8 +5509,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, target: ConstantPathNode, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, target: target, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
@@ -5609,8 +5535,7 @@ module Prism
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -5687,8 +5612,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, target: ConstantPathNode, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
     end
 
@@ -5716,8 +5640,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -5795,8 +5718,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, parent: Prism::node?, name: Symbol?, delimiter_loc: Location, name_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, parent: parent, name: name, delimiter_loc: delimiter_loc, name_loc: name_loc }
     end
 
@@ -5837,8 +5759,7 @@ module Prism
       delimiter_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -5921,8 +5842,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, target: ConstantPathNode, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
     end
 
@@ -5935,7 +5855,7 @@ module Prism
     #     ^^^^^
     attr_reader :target
 
-    # The location of the `=` operator.
+    # The Location of the `=` operator.
     #
     #     ::ABC = 123
     #           ^
@@ -5962,8 +5882,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -6035,8 +5954,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
@@ -6047,8 +5965,7 @@ module Prism
     #     SOME_CONSTANT  # name `:SOME_CONSTANT`
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -6118,16 +6035,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
     # attr_reader name: Symbol
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -6201,8 +6116,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
@@ -6213,7 +6127,7 @@ module Prism
     #     XYZ = 1    # name `:XYZ`
     attr_reader :name
 
-    # The location of the constant name.
+    # The Location of the constant name.
     #
     #     FOO = 1
     #     ^^^
@@ -6238,7 +6152,7 @@ module Prism
     #               ^^^^^^^^^
     attr_reader :value
 
-    # The location of the `=` operator.
+    # The Location of the `=` operator.
     #
     #     FOO = :bar
     #         ^
@@ -6259,8 +6173,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -6352,8 +6265,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, receiver: Prism::node?, parameters: ParametersNode?, body: StatementsNode | BeginNode | nil, locals: Array[Symbol], def_keyword_loc: Location, operator_loc: Location?, lparen_loc: Location?, rparen_loc: Location?, equal_loc: Location?, end_keyword_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, receiver: receiver, parameters: parameters, body: body, locals: locals, def_keyword_loc: def_keyword_loc, operator_loc: operator_loc, lparen_loc: lparen_loc, rparen_loc: rparen_loc, equal_loc: equal_loc, end_keyword_loc: end_keyword_loc }
     end
 
@@ -6523,8 +6435,7 @@ module Prism
       end_keyword_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -6610,8 +6521,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lparen_loc: Location?, value: Prism::node, rparen_loc: Location?, keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, lparen_loc: lparen_loc, value: value, rparen_loc: rparen_loc, keyword_loc: keyword_loc }
     end
 
@@ -6684,8 +6594,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -6763,8 +6672,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, else_keyword_loc: Location, statements: StatementsNode?, end_keyword_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, else_keyword_loc: else_keyword_loc, statements: statements, end_keyword_loc: end_keyword_loc }
     end
 
@@ -6813,8 +6721,7 @@ module Prism
       end_keyword_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -6891,8 +6798,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, statements: StatementsNode?, closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, statements: statements, closing_loc: closing_loc }
     end
 
@@ -6935,8 +6841,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7010,8 +6915,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, variable: InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, operator_loc: operator_loc, variable: variable }
     end
 
@@ -7036,8 +6940,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7117,8 +7020,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, ensure_keyword_loc: Location, statements: StatementsNode?, end_keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, ensure_keyword_loc: ensure_keyword_loc, statements: statements, end_keyword_loc: end_keyword_loc }
     end
 
@@ -7161,8 +7063,7 @@ module Prism
       end_keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7233,13 +7134,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7331,8 +7230,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, left: SplatNode, requireds: Array[Prism::node], right: SplatNode | MissingNode, opening_loc: Location?, closing_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, constant: constant, left: left, requireds: requireds, right: right, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -7369,7 +7267,7 @@ module Prism
     #                           ^^^^
     attr_reader :right
 
-    # The location of the opening brace.
+    # The Location of the opening brace.
     #
     #     foo in [*bar, baz, *qux]
     #            ^
@@ -7394,7 +7292,7 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # The location of the closing brace.
+    # The Location of the closing brace.
     #
     #     foo in [*bar, baz, *qux]
     #                            ^
@@ -7429,8 +7327,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7513,8 +7410,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node?, right: Prism::node?, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
@@ -7547,8 +7443,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7621,16 +7516,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Float }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value }
     end
 
     # The value of the floating point number as a Float.
     attr_reader :value
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7713,8 +7606,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, index: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode, collection: Prism::node, statements: StatementsNode?, for_keyword_loc: Location, in_keyword_loc: Location, do_keyword_loc: Location?, end_keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, index: index, collection: collection, statements: statements, for_keyword_loc: for_keyword_loc, in_keyword_loc: in_keyword_loc, do_keyword_loc: do_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
@@ -7738,7 +7630,7 @@ module Prism
     #     end
     attr_reader :statements
 
-    # The location of the `for` keyword.
+    # The Location of the `for` keyword.
     #
     #     for i in a end
     #     ^^^
@@ -7754,7 +7646,7 @@ module Prism
       repository.enter(node_id, :for_keyword_loc)
     end
 
-    # The location of the `in` keyword.
+    # The Location of the `in` keyword.
     #
     #     for i in a end
     #           ^^
@@ -7770,7 +7662,7 @@ module Prism
       repository.enter(node_id, :in_keyword_loc)
     end
 
-    # The location of the `do` keyword, if present.
+    # The Location of the `do` keyword, if present.
     #
     #     for i in a do end
     #                ^^
@@ -7792,7 +7684,7 @@ module Prism
       repository.enter(node_id, :do_keyword_loc) unless @do_keyword_loc.nil?
     end
 
-    # The location of the `end` keyword.
+    # The Location of the `end` keyword.
     #
     #     for i in a end
     #                ^^^
@@ -7828,8 +7720,7 @@ module Prism
       end_keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7906,13 +7797,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -7981,13 +7870,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8064,16 +7951,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, block: BlockNode? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, block: block }
     end
 
     # All other arguments are forwarded as normal, except the original block is replaced with the new block.
     attr_reader :block
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8147,8 +8032,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -8189,8 +8073,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8268,8 +8151,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
@@ -8308,8 +8190,7 @@ module Prism
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8387,8 +8268,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -8429,8 +8309,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8503,8 +8382,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
@@ -8515,8 +8393,7 @@ module Prism
     #     $_Test # name `:$_Test`
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8586,16 +8463,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
     # attr_reader name: Symbol
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8669,8 +8544,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
@@ -8681,7 +8555,7 @@ module Prism
     #     $_Test = 123 # name `:$_Test`
     attr_reader :name
 
-    # The location of the global variable's name.
+    # The Location of the global variable's name.
     #
     #     $foo = :bar
     #     ^^^^
@@ -8706,7 +8580,7 @@ module Prism
     #             ^^^
     attr_reader :value
 
-    # The location of the `=` operator.
+    # The Location of the `=` operator.
     #
     #     $foo = :bar
     #          ^
@@ -8727,8 +8601,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8804,12 +8677,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, elements: Array[AssocNode | AssocSplatNode], closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, elements: elements, closing_loc: closing_loc }
     end
 
-    # The location of the opening brace.
+    # The Location of the opening brace.
     #
     #     { a => b }
     #     ^
@@ -8834,7 +8706,7 @@ module Prism
     #       ^^^^^
     attr_reader :elements
 
-    # The location of the closing brace.
+    # The Location of the closing brace.
     #
     #     { a => b }
     #              ^
@@ -8860,8 +8732,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -8954,8 +8825,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, constant: ConstantPathNode | ConstantReadNode | nil, elements: Array[AssocNode], rest: AssocSplatNode | NoKeywordsParameterNode | nil, opening_loc: Location?, closing_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, constant: constant, elements: elements, rest: rest, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -8986,7 +8856,7 @@ module Prism
     #                        ^^^^^
     attr_reader :rest
 
-    # The location of the opening brace.
+    # The Location of the opening brace.
     #
     #     foo => { a: 1 }
     #            ^
@@ -9011,7 +8881,7 @@ module Prism
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
 
-    # The location of the closing brace.
+    # The Location of the closing brace.
     #
     #     foo => { a: 1 }
     #                   ^
@@ -9046,8 +8916,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -9140,12 +9009,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, if_keyword_loc: Location?, predicate: Prism::node, then_keyword_loc: Location?, statements: StatementsNode?, subsequent: ElseNode | IfNode | nil, end_keyword_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, if_keyword_loc: if_keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, subsequent: subsequent, end_keyword_loc: end_keyword_loc }
     end
 
-    # The location of the `if` keyword if present.
+    # The Location of the `if` keyword if present.
     #
     #     bar if foo
     #         ^^
@@ -9183,7 +9051,7 @@ module Prism
     #     ^^^
     attr_reader :predicate
 
-    # The location of the `then` keyword (if present) or the `?` in a ternary expression, `nil` otherwise.
+    # The Location of the `then` keyword (if present) or the `?` in a ternary expression, `nil` otherwise.
     #
     #     if foo then bar end
     #            ^^^^
@@ -9233,7 +9101,7 @@ module Prism
     #                     ^^^^^^^^^^^^
     attr_reader :subsequent
 
-    # The location of the `end` keyword if present, `nil` otherwise.
+    # The Location of the `end` keyword if present, `nil` otherwise.
     #
     #     if foo
     #       bar
@@ -9272,8 +9140,7 @@ module Prism
       end_keyword_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -9349,16 +9216,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, numeric: FloatNode | IntegerNode | RationalNode }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, numeric: numeric }
     end
 
     # attr_reader numeric: FloatNode | IntegerNode | RationalNode
     attr_reader :numeric
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -9435,16 +9300,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value }
     end
 
     # attr_reader value: LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode
     attr_reader :value
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -9522,13 +9385,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -9605,8 +9466,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, pattern: Prism::node, statements: StatementsNode?, in_loc: Location, then_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, pattern: pattern, statements: statements, in_loc: in_loc, then_loc: then_loc }
     end
 
@@ -9658,8 +9518,7 @@ module Prism
       then_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -9748,8 +9607,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, operator_loc: operator_loc, value: value }
     end
 
@@ -9863,8 +9721,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -9959,8 +9816,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, binary_operator: Symbol, binary_operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, binary_operator: binary_operator, binary_operator_loc: binary_operator_loc, value: value }
     end
 
@@ -10072,8 +9928,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -10168,8 +10023,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node?, call_operator_loc: Location?, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode?, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, operator_loc: operator_loc, value: value }
     end
 
@@ -10283,8 +10137,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -10381,8 +10234,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, receiver: Prism::node, opening_loc: Location, arguments: ArgumentsNode?, closing_loc: Location, block: BlockArgumentNode? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block }
     end
 
@@ -10451,8 +10303,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -10531,8 +10382,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -10573,8 +10423,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -10652,8 +10501,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, binary_operator_loc: Location, value: Prism::node, binary_operator: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
@@ -10692,8 +10540,7 @@ module Prism
     # attr_reader binary_operator: Symbol
     attr_reader :binary_operator
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -10771,8 +10618,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -10813,8 +10659,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -10887,8 +10732,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
@@ -10899,8 +10743,7 @@ module Prism
     #     @_test # name `:@_test`
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -10970,16 +10813,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
     # attr_reader name: Symbol
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -11053,8 +10894,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
@@ -11065,7 +10905,7 @@ module Prism
     #     @_foo = "bar" # name `@_foo`
     attr_reader :name
 
-    # The location of the variable name.
+    # The Location of the variable name.
     #
     #     @_x = 1
     #     ^^^
@@ -11090,7 +10930,7 @@ module Prism
     #           ^^^^
     attr_reader :value
 
-    # The location of the `=` operator.
+    # The Location of the `=` operator.
     #
     #     @x = y
     #        ^
@@ -11111,8 +10951,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -11185,8 +11024,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value }
     end
 
@@ -11213,8 +11051,7 @@ module Prism
     # The value of the integer literal as a number.
     attr_reader :value
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -11288,8 +11125,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
@@ -11387,8 +11223,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -11465,8 +11300,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
@@ -11564,8 +11398,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -11642,8 +11475,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode], closing_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
@@ -11708,8 +11540,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -11786,8 +11617,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], closing_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
@@ -11842,8 +11672,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -11919,8 +11748,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
@@ -11963,8 +11791,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12036,13 +11863,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12110,13 +11935,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12186,8 +12009,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, elements: Array[AssocNode | AssocSplatNode] }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, elements: elements }
     end
 
@@ -12199,8 +12021,7 @@ module Prism
     # attr_reader elements: Array[AssocNode | AssocSplatNode]
     attr_reader :elements
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12275,8 +12096,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol?, name_loc: Location?, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
     end
 
@@ -12325,8 +12145,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12409,8 +12228,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], operator_loc: Location, opening_loc: Location, closing_loc: Location, parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, body: StatementsNode | BeginNode | nil }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, operator_loc: operator_loc, opening_loc: opening_loc, closing_loc: closing_loc, parameters: parameters, body: body }
     end
 
@@ -12477,8 +12295,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12559,8 +12376,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name_loc: Location, operator_loc: Location, value: Prism::node, name: Symbol, depth: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name_loc: name_loc, operator_loc: operator_loc, value: value, name: name, depth: depth }
     end
 
@@ -12604,8 +12420,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12685,8 +12500,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name_loc: Location, binary_operator_loc: Location, value: Prism::node, name: Symbol, binary_operator: Symbol, depth: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, name: name, binary_operator: binary_operator, depth: depth }
     end
 
@@ -12728,8 +12542,7 @@ module Prism
     # attr_reader depth: Integer
     attr_reader :depth
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12809,8 +12622,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name_loc: Location, operator_loc: Location, value: Prism::node, name: Symbol, depth: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name_loc: name_loc, operator_loc: operator_loc, value: value, name: name, depth: depth }
     end
 
@@ -12854,8 +12666,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -12930,8 +12741,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, depth: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, depth: depth }
     end
 
@@ -12955,8 +12765,7 @@ module Prism
     # The specific rules for calculating the depth may differ from individual Ruby implementations, as they are not specified by the language. For more information, see [the Prism documentation](https://github.com/ruby/prism/blob/main/docs/local_variable_depth.md).
     attr_reader :depth
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -13031,8 +12840,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, depth: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, depth: depth }
     end
 
@@ -13042,8 +12850,7 @@ module Prism
     # attr_reader depth: Integer
     attr_reader :depth
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -13119,8 +12926,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, depth: Integer, name_loc: Location, value: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, depth: depth, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
@@ -13140,7 +12946,7 @@ module Prism
     # The specific rules for calculating the depth may differ from individual Ruby implementations, as they are not specified by the language. For more information, see [the Prism documentation](https://github.com/ruby/prism/blob/main/docs/local_variable_depth.md).
     attr_reader :depth
 
-    # The location of the variable name.
+    # The Location of the variable name.
     #
     #     foo = :bar
     #     ^^^
@@ -13169,7 +12975,7 @@ module Prism
     #     foo = foo
     attr_reader :value
 
-    # The location of the `=` operator.
+    # The Location of the `=` operator.
     #
     #     x = :y
     #       ^
@@ -13190,8 +12996,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -13268,8 +13073,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, content_loc: Location, closing_loc: Location, unescaped: String }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
@@ -13385,8 +13189,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -13464,8 +13267,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node, pattern: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value, pattern: pattern, operator_loc: operator_loc }
     end
 
@@ -13493,8 +13295,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -13570,8 +13371,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, value: Prism::node, pattern: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value, pattern: pattern, operator_loc: operator_loc }
     end
 
@@ -13626,7 +13426,7 @@ module Prism
     #     foo => CONST
     attr_reader :pattern
 
-    # The location of the operator.
+    # The Location of the operator.
     #
     #     foo => bar
     #         ^^
@@ -13647,8 +13447,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -13723,8 +13522,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, call: CallNode, targets: Array[LocalVariableTargetNode] }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, call: call, targets: targets }
     end
 
@@ -13734,8 +13532,7 @@ module Prism
     # attr_reader targets: Array[LocalVariableTargetNode]
     attr_reader :targets
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -13803,13 +13600,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -13888,8 +13683,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], module_keyword_loc: Location, constant_path: ConstantReadNode | ConstantPathNode | MissingNode, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, module_keyword_loc: module_keyword_loc, constant_path: constant_path, body: body, end_keyword_loc: end_keyword_loc, name: name }
     end
 
@@ -13941,8 +13735,7 @@ module Prism
       end_keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14034,8 +13827,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], rest: ImplicitRestNode | SplatNode | nil, rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], lparen_loc: Location?, rparen_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, lefts: lefts, rest: rest, rights: rights, lparen_loc: lparen_loc, rparen_loc: rparen_loc }
     end
 
@@ -14072,7 +13864,7 @@ module Prism
     #            ^^^^
     attr_reader :rights
 
-    # The location of the opening parenthesis.
+    # The Location of the opening parenthesis.
     #
     #     a, (b, c) = 1, 2, 3
     #        ^
@@ -14094,7 +13886,7 @@ module Prism
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
 
-    # The location of the closing parenthesis.
+    # The Location of the closing parenthesis.
     #
     #     a, (b, c) = 1, 2, 3
     #             ^
@@ -14126,8 +13918,7 @@ module Prism
       rparen_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14218,8 +14009,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], rest: ImplicitRestNode | SplatNode | nil, rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], lparen_loc: Location?, rparen_loc: Location?, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, lefts: lefts, rest: rest, rights: rights, lparen_loc: lparen_loc, rparen_loc: rparen_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -14256,7 +14046,7 @@ module Prism
     #           ^^^^
     attr_reader :rights
 
-    # The location of the opening parenthesis.
+    # The Location of the opening parenthesis.
     #
     #     (a, b, c) = 1, 2, 3
     #     ^
@@ -14278,7 +14068,7 @@ module Prism
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
 
-    # The location of the closing parenthesis.
+    # The Location of the closing parenthesis.
     #
     #     (a, b, c) = 1, 2, 3
     #             ^
@@ -14300,7 +14090,7 @@ module Prism
       repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
 
-    # The location of the operator.
+    # The Location of the operator.
     #
     #     a, b, c = 1, 2, 3
     #             ^
@@ -14337,8 +14127,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14420,8 +14209,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, arguments: ArgumentsNode?, keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, arguments: arguments, keyword_loc: keyword_loc }
     end
 
@@ -14446,8 +14234,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14517,13 +14304,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14594,8 +14379,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, operator_loc: operator_loc, keyword_loc: keyword_loc }
     end
 
@@ -14635,8 +14419,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14707,16 +14490,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, maximum: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, maximum: maximum }
     end
 
     # attr_reader maximum: Integer
     attr_reader :maximum
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14786,8 +14567,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, number: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, number: number }
     end
 
@@ -14800,8 +14580,7 @@ module Prism
     #     $4294967296 # number `0`
     attr_reader :number
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14875,8 +14654,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value }
     end
 
@@ -14904,8 +14682,7 @@ module Prism
     # attr_reader value: Prism::node
     attr_reader :value
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -14983,8 +14760,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location, operator_loc: Location, value: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
@@ -15030,8 +14806,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -15109,8 +14884,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node, right: Prism::node, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
@@ -15132,7 +14906,7 @@ module Prism
     #          ^
     attr_reader :right
 
-    # The location of the `or` keyword or the `||` operator.
+    # The Location of the `or` keyword or the `||` operator.
     #
     #     left or right
     #          ^^
@@ -15153,8 +14927,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -15248,8 +15021,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, requireds: Array[RequiredParameterNode | MultiTargetNode], optionals: Array[OptionalParameterNode], rest: RestParameterNode | ImplicitRestNode | nil, posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode], keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode], keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil, block: BlockParameterNode? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, requireds: requireds, optionals: optionals, rest: rest, posts: posts, keywords: keywords, keyword_rest: keyword_rest, block: block }
     end
 
@@ -15274,8 +15046,7 @@ module Prism
     # attr_reader block: BlockParameterNode?
     attr_reader :block
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -15360,8 +15131,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, body: Prism::node?, opening_loc: Location, closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -15409,8 +15179,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -15487,8 +15256,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, expression: Prism::node, operator_loc: Location, lparen_loc: Location, rparen_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, expression: expression, operator_loc: operator_loc, lparen_loc: lparen_loc, rparen_loc: rparen_loc }
     end
 
@@ -15498,7 +15266,7 @@ module Prism
     #              ^^^
     attr_reader :expression
 
-    # The location of the `^` operator
+    # The Location of the `^` operator
     #
     #     foo in ^(bar)
     #            ^
@@ -15514,7 +15282,7 @@ module Prism
       repository.enter(node_id, :operator_loc)
     end
 
-    # The location of the opening parenthesis.
+    # The Location of the opening parenthesis.
     #
     #     foo in ^(bar)
     #             ^
@@ -15530,7 +15298,7 @@ module Prism
       repository.enter(node_id, :lparen_loc)
     end
 
-    # The location of the closing parenthesis.
+    # The Location of the closing parenthesis.
     #
     #     foo in ^(bar)
     #                 ^
@@ -15561,8 +15329,7 @@ module Prism
       rparen_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -15637,8 +15404,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, variable: LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, variable: variable, operator_loc: operator_loc }
     end
 
@@ -15648,7 +15414,7 @@ module Prism
     #             ^^^
     attr_reader :variable
 
-    # The location of the `^` operator
+    # The Location of the `^` operator
     #
     #     foo in ^bar
     #            ^
@@ -15669,8 +15435,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -15747,8 +15512,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, statements: StatementsNode?, keyword_loc: Location, opening_loc: Location, closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, statements: statements, keyword_loc: keyword_loc, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -15809,8 +15573,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -15889,8 +15652,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, statements: StatementsNode?, keyword_loc: Location, opening_loc: Location, closing_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, statements: statements, keyword_loc: keyword_loc, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
@@ -15951,8 +15713,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16024,8 +15785,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], statements: StatementsNode }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, statements: statements }
     end
 
@@ -16035,8 +15795,7 @@ module Prism
     # attr_reader statements: StatementsNode
     attr_reader :statements
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16118,8 +15877,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, left: Prism::node?, right: Prism::node?, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
@@ -16147,7 +15905,7 @@ module Prism
     # If neither right-hand or left-hand side was included, this will be a MissingNode.
     attr_reader :right
 
-    # The location of the `..` or `...` operator.
+    # The Location of the `..` or `...` operator.
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
@@ -16165,8 +15923,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16240,8 +15997,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, numerator: Integer, denominator: Integer }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, numerator: numerator, denominator: denominator }
     end
 
@@ -16275,8 +16031,7 @@ module Prism
     #     1.5r # denominator 2
     attr_reader :denominator
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16347,13 +16102,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16425,8 +16178,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, content_loc: Location, closing_loc: Location, unescaped: String }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
@@ -16542,8 +16294,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16619,8 +16370,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol, name_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc }
     end
 
@@ -16645,8 +16395,7 @@ module Prism
       repository.enter(node_id, :name_loc)
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16719,8 +16468,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
@@ -16732,8 +16480,7 @@ module Prism
     # attr_reader name: Symbol
     attr_reader :name
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16808,8 +16555,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, expression: Prism::node, keyword_loc: Location, rescue_expression: Prism::node }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, expression: expression, keyword_loc: keyword_loc, rescue_expression: rescue_expression }
     end
 
@@ -16837,8 +16583,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -16930,8 +16675,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, exceptions: Array[Prism::node], operator_loc: Location?, reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, then_keyword_loc: Location?, statements: StatementsNode?, subsequent: RescueNode? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, exceptions: exceptions, operator_loc: operator_loc, reference: reference, then_keyword_loc: then_keyword_loc, statements: statements, subsequent: subsequent }
     end
 
@@ -17013,8 +16757,7 @@ module Prism
       then_keyword_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17094,8 +16837,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, name: Symbol?, name_loc: Location?, operator_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
     end
 
@@ -17144,8 +16886,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17217,13 +16958,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17296,8 +17035,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, arguments: ArgumentsNode? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, arguments: arguments }
     end
 
@@ -17322,8 +17060,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17393,13 +17130,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17470,8 +17205,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, write: ConstantWriteNode | ConstantAndWriteNode | ConstantOrWriteNode | ConstantOperatorWriteNode | ConstantPathWriteNode | ConstantPathAndWriteNode | ConstantPathOrWriteNode | ConstantPathOperatorWriteNode }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, write: write }
     end
 
@@ -17493,8 +17227,7 @@ module Prism
     # The constant write that should be modified with the shareability state.
     attr_reader :write
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17575,8 +17308,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, locals: Array[Symbol], class_keyword_loc: Location, operator_loc: Location, expression: Prism::node, body: StatementsNode | BeginNode | nil, end_keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, class_keyword_loc: class_keyword_loc, operator_loc: operator_loc, expression: expression, body: body, end_keyword_loc: end_keyword_loc }
     end
 
@@ -17643,8 +17375,7 @@ module Prism
       end_keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17719,13 +17450,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17794,8 +17523,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, filepath: String }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, filepath: filepath }
     end
 
@@ -17819,11 +17547,10 @@ module Prism
       flags.anybits?(StringFlags::MUTABLE)
     end
 
-    # Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism::parse*` APIs.
+    # Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism.parse*` APIs.
     attr_reader :filepath
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17893,13 +17620,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -17972,8 +17697,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, expression: Prism::node? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, operator_loc: operator_loc, expression: expression }
     end
 
@@ -17998,8 +17722,7 @@ module Prism
       operator_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -18071,16 +17794,14 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, body: Array[Prism::node] }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, body: body }
     end
 
     # attr_reader body: Array[Prism::node]
     attr_reader :body
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -18160,8 +17881,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, content_loc: Location, closing_loc: Location?, unescaped: String }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
@@ -18254,8 +17974,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -18343,8 +18062,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, lparen_loc: Location?, arguments: ArgumentsNode?, rparen_loc: Location?, block: BlockNode | BlockArgumentNode | nil }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, lparen_loc: lparen_loc, arguments: arguments, rparen_loc: rparen_loc, block: block }
     end
 
@@ -18420,8 +18138,7 @@ module Prism
       rparen_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -18501,8 +18218,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location?, value_loc: Location?, closing_loc: Location?, unescaped: String }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, value_loc: value_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
@@ -18596,8 +18312,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -18670,13 +18385,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -18747,8 +18460,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, names: Array[SymbolNode | InterpolatedSymbolNode], keyword_loc: Location }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, names: names, keyword_loc: keyword_loc }
     end
 
@@ -18773,8 +18485,7 @@ module Prism
       keyword_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -18861,12 +18572,11 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, predicate: Prism::node, then_keyword_loc: Location?, statements: StatementsNode?, else_clause: ElseNode?, end_keyword_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, else_clause: else_clause, end_keyword_loc: end_keyword_loc }
     end
 
-    # The location of the `unless` keyword.
+    # The Location of the `unless` keyword.
     #
     #     unless cond then bar end
     #     ^^^^^^
@@ -18894,7 +18604,7 @@ module Prism
     #                ^^^^
     attr_reader :predicate
 
-    # The location of the `then` keyword, if present.
+    # The Location of the `then` keyword, if present.
     #
     #     unless cond then bar end
     #                 ^^^^
@@ -18929,7 +18639,7 @@ module Prism
     #                          ^^^^^^^^
     attr_reader :else_clause
 
-    # The location of the `end` keyword, if present.
+    # The Location of the `end` keyword, if present.
     #
     #     unless cond then bar end
     #                          ^^^
@@ -18966,8 +18676,7 @@ module Prism
       end_keyword_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -19054,8 +18763,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, do_keyword_loc: Location?, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, do_keyword_loc: do_keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
     end
 
@@ -19136,8 +18844,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -19222,8 +18929,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, conditions: Array[Prism::node], then_keyword_loc: Location?, statements: StatementsNode? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, conditions: conditions, then_keyword_loc: then_keyword_loc, statements: statements }
     end
 
@@ -19275,8 +18981,7 @@ module Prism
       then_keyword_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -19362,8 +19067,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, do_keyword_loc: Location?, closing_loc: Location?, predicate: Prism::node, statements: StatementsNode? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, do_keyword_loc: do_keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
     end
 
@@ -19444,8 +19148,7 @@ module Prism
       closing_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -19523,8 +19226,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, opening_loc: Location, content_loc: Location, closing_loc: Location, unescaped: String }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
@@ -19595,8 +19297,7 @@ module Prism
       closing_loc.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
@@ -19676,8 +19377,7 @@ module Prism
     # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
-    # def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, keyword_loc: Location, lparen_loc: Location?, arguments: ArgumentsNode?, rparen_loc: Location? }
-    def deconstruct_keys(keys)
+    def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, lparen_loc: lparen_loc, arguments: arguments, rparen_loc: rparen_loc }
     end
 
@@ -19750,8 +19450,7 @@ module Prism
       rparen_loc&.slice
     end
 
-    # def inspect -> String
-    def inspect
+    def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 

@@ -14,7 +14,7 @@ require_relative "polyfill/unpack1"
 
 module Prism
   # A module responsible for deserializing parse results.
-  module Serialize
+  module Serialize # :nodoc:
     # The major version of prism that we are expecting to find in the serialized
     # strings.
     MAJOR_VERSION = 1

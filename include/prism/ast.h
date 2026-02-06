@@ -1152,7 +1152,7 @@ typedef struct pm_alias_global_variable_node {
     /**
      * AliasGlobalVariableNode#keyword_loc
      *
-     * The location of the `alias` keyword.
+     * The Location of the `alias` keyword.
      *
      *     alias $foo $bar
      *     ^^^^^
@@ -1211,7 +1211,7 @@ typedef struct pm_alias_method_node {
     /**
      * AliasMethodNode#keyword_loc
      *
-     * Represents the location of the `alias` keyword.
+     * Represents the Location of the `alias` keyword.
      *
      *     alias foo bar
      *     ^^^^^
@@ -1258,7 +1258,7 @@ typedef struct pm_alternation_pattern_node {
     /**
      * AlternationPatternNode#operator_loc
      *
-     * Represents the alternation operator location.
+     * Represents the alternation operator Location.
      *
      *     foo => bar | baz
      *                ^
@@ -1311,7 +1311,7 @@ typedef struct pm_and_node {
     /**
      * AndNode#operator_loc
      *
-     * The location of the `and` keyword or the `&&` operator.
+     * The Location of the `and` keyword or the `&&` operator.
      *
      *     left and right
      *          ^^^
@@ -1382,7 +1382,7 @@ typedef struct pm_array_node {
     /**
      * ArrayNode#opening_loc
      *
-     * Represents the optional source location for the opening token.
+     * Represents the optional source Location for the opening token.
      *
      *     [1,2,3]                 # "["
      *     %w[foo bar baz]         # "%w["
@@ -1394,7 +1394,7 @@ typedef struct pm_array_node {
     /**
      * ArrayNode#closing_loc
      *
-     * Represents the optional source location for the closing token.
+     * Represents the optional source Location for the closing token.
      *
      *     [1,2,3]                 # "]"
      *     %w[foo bar baz]         # "]"
@@ -1481,7 +1481,7 @@ typedef struct pm_array_pattern_node {
     /**
      * ArrayPatternNode#opening_loc
      *
-     * Represents the opening location of the array pattern.
+     * Represents the opening Location of the array pattern.
      *
      *     foo in [1, 2]
      *            ^
@@ -1491,7 +1491,7 @@ typedef struct pm_array_pattern_node {
     /**
      * ArrayPatternNode#closing_loc
      *
-     * Represents the closing location of the array pattern.
+     * Represents the closing Location of the array pattern.
      *
      *     foo in [1, 2]
      *                 ^
@@ -1547,7 +1547,7 @@ typedef struct pm_assoc_node {
     /**
      * AssocNode#operator_loc
      *
-     * The location of the `=>` operator, if present.
+     * The Location of the `=>` operator, if present.
      *
      *     { foo => bar }
      *           ^^
@@ -1584,7 +1584,7 @@ typedef struct pm_assoc_splat_node {
     /**
      * AssocSplatNode#operator_loc
      *
-     * The location of the `**` operator.
+     * The Location of the `**` operator.
      *
      *     { **x }
      *       ^^
@@ -1641,7 +1641,7 @@ typedef struct pm_begin_node {
     /**
      * BeginNode#begin_keyword_loc
      *
-     * Represents the location of the `begin` keyword.
+     * Represents the Location of the `begin` keyword.
      *
      *     begin x end
      *     ^^^^^
@@ -1691,7 +1691,7 @@ typedef struct pm_begin_node {
     /**
      * BeginNode#end_keyword_loc
      *
-     * Represents the location of the `end` keyword.
+     * Represents the Location of the `end` keyword.
      *
      *     begin x end
      *             ^^^
@@ -1728,7 +1728,7 @@ typedef struct pm_block_argument_node {
     /**
      * BlockArgumentNode#operator_loc
      *
-     * Represents the location of the `&` operator.
+     * Represents the Location of the `&` operator.
      *
      *     foo(&args)
      *         ^
@@ -1819,7 +1819,7 @@ typedef struct pm_block_node {
     /**
      * BlockNode#opening_loc
      *
-     * Represents the location of the opening `{` or `do`.
+     * Represents the Location of the opening `{` or `do`.
      *
      *     [1, 2, 3].each { |i| puts x }
      *                    ^
@@ -1829,7 +1829,7 @@ typedef struct pm_block_node {
     /**
      * BlockNode#closing_loc
      *
-     * Represents the location of the closing `}` or `end`.
+     * Represents the Location of the closing `}` or `end`.
      *
      *     [1, 2, 3].each { |i| puts x }
      *                                 ^
@@ -1871,7 +1871,7 @@ typedef struct pm_block_parameter_node {
     /**
      * BlockParameterNode#name_loc
      *
-     * Represents the location of the block parameter name.
+     * Represents the Location of the block parameter name.
      *
      *     def a(&b)
      *            ^
@@ -1881,7 +1881,7 @@ typedef struct pm_block_parameter_node {
     /**
      * BlockParameterNode#operator_loc
      *
-     * Represents the location of the `&` operator.
+     * Represents the Location of the `&` operator.
      *
      *     def a(&b)
      *           ^
@@ -1941,7 +1941,7 @@ typedef struct pm_block_parameters_node {
     /**
      * BlockParametersNode#opening_loc
      *
-     * Represents the opening location of the block parameters.
+     * Represents the opening Location of the block parameters.
      *
      *     -> (a, b = 1; local) { }
      *        ^
@@ -1955,7 +1955,7 @@ typedef struct pm_block_parameters_node {
     /**
      * BlockParametersNode#closing_loc
      *
-     * Represents the closing location of the block parameters.
+     * Represents the closing Location of the block parameters.
      *
      *     -> (a, b = 1; local) { }
      *                        ^
@@ -1996,7 +1996,7 @@ typedef struct pm_break_node {
     /**
      * BreakNode#keyword_loc
      *
-     * The location of the `break` keyword.
+     * The Location of the `break` keyword.
      *
      *     break foo
      *     ^^^^^
@@ -2039,7 +2039,7 @@ typedef struct pm_call_and_write_node {
     /**
      * CallAndWriteNode#call_operator_loc
      *
-     * Represents the location of the call operator.
+     * Represents the Location of the call operator.
      *
      *     foo.bar &&= value
      *        ^
@@ -2049,7 +2049,7 @@ typedef struct pm_call_and_write_node {
     /**
      * CallAndWriteNode#message_loc
      *
-     * Represents the location of the message.
+     * Represents the Location of the message.
      *
      *     foo.bar &&= value
      *         ^^^
@@ -2079,7 +2079,7 @@ typedef struct pm_call_and_write_node {
     /**
      * CallAndWriteNode#operator_loc
      *
-     * Represents the location of the operator.
+     * Represents the Location of the operator.
      *
      *     foo.bar &&= value
      *             ^^^
@@ -2153,7 +2153,7 @@ typedef struct pm_call_node {
     /**
      * CallNode#call_operator_loc
      *
-     * Represents the location of the call operator.
+     * Represents the Location of the call operator.
      *
      *     foo.bar
      *        ^
@@ -2176,7 +2176,7 @@ typedef struct pm_call_node {
     /**
      * CallNode#message_loc
      *
-     * Represents the location of the message.
+     * Represents the Location of the message.
      *
      *     foo.bar
      *         ^^^
@@ -2186,7 +2186,8 @@ typedef struct pm_call_node {
     /**
      * CallNode#opening_loc
      *
-     * Represents the location of the left parenthesis.
+     * Represents the Location of the left parenthesis.
+     *
      *     foo(bar)
      *        ^
      */
@@ -2205,7 +2206,7 @@ typedef struct pm_call_node {
     /**
      * CallNode#closing_loc
      *
-     * Represents the location of the right parenthesis.
+     * Represents the Location of the right parenthesis.
      *
      *     foo(bar)
      *            ^
@@ -2215,7 +2216,7 @@ typedef struct pm_call_node {
     /**
      * CallNode#equal_loc
      *
-     * Represents the location of the equal sign, in the case that this is an attribute write.
+     * Represents the Location of the equal sign, in the case that this is an attribute write.
      *
      *     foo.bar = value
      *             ^
@@ -2271,7 +2272,7 @@ typedef struct pm_call_operator_write_node {
     /**
      * CallOperatorWriteNode#call_operator_loc
      *
-     * Represents the location of the call operator.
+     * Represents the Location of the call operator.
      *
      *     foo.bar += value
      *        ^
@@ -2281,7 +2282,7 @@ typedef struct pm_call_operator_write_node {
     /**
      * CallOperatorWriteNode#message_loc
      *
-     * Represents the location of the message.
+     * Represents the Location of the message.
      *
      *     foo.bar += value
      *         ^^^
@@ -2321,7 +2322,7 @@ typedef struct pm_call_operator_write_node {
     /**
      * CallOperatorWriteNode#binary_operator_loc
      *
-     * Represents the location of the binary operator.
+     * Represents the Location of the binary operator.
      *
      *     foo.bar += value
      *             ^^
@@ -2374,7 +2375,7 @@ typedef struct pm_call_or_write_node {
     /**
      * CallOrWriteNode#call_operator_loc
      *
-     * Represents the location of the call operator.
+     * Represents the Location of the call operator.
      *
      *     foo.bar ||= value
      *        ^
@@ -2384,7 +2385,7 @@ typedef struct pm_call_or_write_node {
     /**
      * CallOrWriteNode#message_loc
      *
-     * Represents the location of the message.
+     * Represents the Location of the message.
      *
      *     foo.bar ||= value
      *         ^^^
@@ -2414,7 +2415,7 @@ typedef struct pm_call_or_write_node {
     /**
      * CallOrWriteNode#operator_loc
      *
-     * Represents the location of the operator.
+     * Represents the Location of the operator.
      *
      *     foo.bar ||= value
      *             ^^^
@@ -2475,7 +2476,7 @@ typedef struct pm_call_target_node {
     /**
      * CallTargetNode#call_operator_loc
      *
-     * Represents the location of the call operator.
+     * Represents the Location of the call operator.
      *
      *     foo.bar = 1
      *        ^
@@ -2495,7 +2496,7 @@ typedef struct pm_call_target_node {
     /**
      * CallTargetNode#message_loc
      *
-     * Represents the location of the message.
+     * Represents the Location of the message.
      *
      *     foo.bar = 1
      *         ^^^
@@ -2542,7 +2543,7 @@ typedef struct pm_capture_pattern_node {
     /**
      * CapturePatternNode#operator_loc
      *
-     * Represents the location of the `=>` operator.
+     * Represents the Location of the `=>` operator.
      *
      *     foo => bar
      *         ^^
@@ -2601,7 +2602,7 @@ typedef struct pm_case_match_node {
     /**
      * CaseMatchNode#case_keyword_loc
      *
-     * Represents the location of the `case` keyword.
+     * Represents the Location of the `case` keyword.
      *
      *     case true; in false; end
      *     ^^^^
@@ -2611,7 +2612,7 @@ typedef struct pm_case_match_node {
     /**
      * CaseMatchNode#end_keyword_loc
      *
-     * Represents the location of the `end` keyword.
+     * Represents the Location of the `end` keyword.
      *
      *     case true; in false; end
      *                          ^^^
@@ -2670,7 +2671,7 @@ typedef struct pm_case_node {
     /**
      * CaseNode#case_keyword_loc
      *
-     * Represents the location of the `case` keyword.
+     * Represents the Location of the `case` keyword.
      *
      *     case true; when false; end
      *     ^^^^
@@ -2680,7 +2681,7 @@ typedef struct pm_case_node {
     /**
      * CaseNode#end_keyword_loc
      *
-     * Represents the location of the `end` keyword.
+     * Represents the Location of the `end` keyword.
      *
      *     case true; when false; end
      *                            ^^^
@@ -2712,7 +2713,7 @@ typedef struct pm_class_node {
     /**
      * ClassNode#class_keyword_loc
      *
-     * Represents the location of the `class` keyword.
+     * Represents the Location of the `class` keyword.
      *
      *     class Foo end
      *     ^^^^^
@@ -2727,7 +2728,7 @@ typedef struct pm_class_node {
     /**
      * ClassNode#inheritance_operator_loc
      *
-     * Represents the location of the `<` operator.
+     * Represents the Location of the `<` operator.
      *
      *     class Foo < Bar
      *               ^
@@ -2758,7 +2759,7 @@ typedef struct pm_class_node {
     /**
      * ClassNode#end_keyword_loc
      *
-     * Represents the location of the `end` keyword.
+     * Represents the Location of the `end` keyword.
      *
      *     class Foo end
      *               ^^^
@@ -2804,7 +2805,7 @@ typedef struct pm_class_variable_and_write_node {
     /**
      * ClassVariableAndWriteNode#name_loc
      *
-     * Represents the location of the variable name.
+     * Represents the Location of the variable name.
      *
      *     @@target &&= value
      *     ^^^^^^^^
@@ -2814,7 +2815,7 @@ typedef struct pm_class_variable_and_write_node {
     /**
      * ClassVariableAndWriteNode#operator_loc
      *
-     * Represents the location of the `&&=` operator.
+     * Represents the Location of the `&&=` operator.
      *
      *     @@target &&= value
      *              ^^^
@@ -2991,7 +2992,7 @@ typedef struct pm_class_variable_write_node {
     /**
      * ClassVariableWriteNode#name_loc
      *
-     * The location of the variable name.
+     * The Location of the variable name.
      *
      *     @@foo = :bar
      *     ^^^^^
@@ -3014,7 +3015,7 @@ typedef struct pm_class_variable_write_node {
     /**
      * ClassVariableWriteNode#operator_loc
      *
-     * The location of the `=` operator.
+     * The Location of the `=` operator.
      *
      *     @@foo = :bar
      *           ^
@@ -3212,7 +3213,7 @@ typedef struct pm_constant_path_node {
     /**
      * ConstantPathNode#delimiter_loc
      *
-     * The location of the `::` delimiter.
+     * The Location of the `::` delimiter.
      *
      *     ::Foo
      *     ^^
@@ -3225,7 +3226,7 @@ typedef struct pm_constant_path_node {
     /**
      * ConstantPathNode#name_loc
      *
-     * The location of the name of the constant.
+     * The Location of the name of the constant.
      *
      *     ::Foo
      *       ^^^
@@ -3380,7 +3381,7 @@ typedef struct pm_constant_path_write_node {
     /**
      * ConstantPathWriteNode#operator_loc
      *
-     * The location of the `=` operator.
+     * The Location of the `=` operator.
      *
      *     ::ABC = 123
      *           ^
@@ -3478,7 +3479,7 @@ typedef struct pm_constant_write_node {
     /**
      * ConstantWriteNode#name_loc
      *
-     * The location of the constant name.
+     * The Location of the constant name.
      *
      *     FOO = 1
      *     ^^^
@@ -3501,7 +3502,7 @@ typedef struct pm_constant_write_node {
     /**
      * ConstantWriteNode#operator_loc
      *
-     * The location of the `=` operator.
+     * The Location of the `=` operator.
      *
      *     FOO = :bar
      *         ^
@@ -3845,7 +3846,7 @@ typedef struct pm_find_pattern_node {
     /**
      * FindPatternNode#opening_loc
      *
-     * The location of the opening brace.
+     * The Location of the opening brace.
      *
      *     foo in [*bar, baz, *qux]
      *            ^
@@ -3858,7 +3859,7 @@ typedef struct pm_find_pattern_node {
     /**
      * FindPatternNode#closing_loc
      *
-     * The location of the closing brace.
+     * The Location of the closing brace.
      *
      *     foo in [*bar, baz, *qux]
      *                            ^
@@ -3979,7 +3980,7 @@ typedef struct pm_for_node {
     /**
      * ForNode#for_keyword_loc
      *
-     * The location of the `for` keyword.
+     * The Location of the `for` keyword.
      *
      *     for i in a end
      *     ^^^
@@ -3989,7 +3990,7 @@ typedef struct pm_for_node {
     /**
      * ForNode#in_keyword_loc
      *
-     * The location of the `in` keyword.
+     * The Location of the `in` keyword.
      *
      *     for i in a end
      *           ^^
@@ -3999,7 +4000,7 @@ typedef struct pm_for_node {
     /**
      * ForNode#do_keyword_loc
      *
-     * The location of the `do` keyword, if present.
+     * The Location of the `do` keyword, if present.
      *
      *     for i in a do end
      *                ^^
@@ -4009,7 +4010,7 @@ typedef struct pm_for_node {
     /**
      * ForNode#end_keyword_loc
      *
-     * The location of the `end` keyword.
+     * The Location of the `end` keyword.
      *
      *     for i in a end
      *                ^^^
@@ -4279,7 +4280,7 @@ typedef struct pm_global_variable_write_node {
     /**
      * GlobalVariableWriteNode#name_loc
      *
-     * The location of the global variable's name.
+     * The Location of the global variable's name.
      *
      *     $foo = :bar
      *     ^^^^
@@ -4302,7 +4303,7 @@ typedef struct pm_global_variable_write_node {
     /**
      * GlobalVariableWriteNode#operator_loc
      *
-     * The location of the `=` operator.
+     * The Location of the `=` operator.
      *
      *     $foo = :bar
      *          ^
@@ -4329,7 +4330,7 @@ typedef struct pm_hash_node {
     /**
      * HashNode#opening_loc
      *
-     * The location of the opening brace.
+     * The Location of the opening brace.
      *
      *     { a => b }
      *     ^
@@ -4352,7 +4353,7 @@ typedef struct pm_hash_node {
     /**
      * HashNode#closing_loc
      *
-     * The location of the closing brace.
+     * The Location of the closing brace.
      *
      *     { a => b }
      *              ^
@@ -4427,7 +4428,7 @@ typedef struct pm_hash_pattern_node {
     /**
      * HashPatternNode#opening_loc
      *
-     * The location of the opening brace.
+     * The Location of the opening brace.
      *
      *     foo => { a: 1 }
      *            ^
@@ -4440,7 +4441,7 @@ typedef struct pm_hash_pattern_node {
     /**
      * HashPatternNode#closing_loc
      *
-     * The location of the closing brace.
+     * The Location of the closing brace.
      *
      *     foo => { a: 1 }
      *                   ^
@@ -4476,7 +4477,7 @@ typedef struct pm_if_node {
     /**
      * IfNode#if_keyword_loc
      *
-     * The location of the `if` keyword if present.
+     * The Location of the `if` keyword if present.
      *
      *     bar if foo
      *         ^^
@@ -4506,7 +4507,7 @@ typedef struct pm_if_node {
     /**
      * IfNode#then_keyword_loc
      *
-     * The location of the `then` keyword (if present) or the `?` in a ternary expression, `nil` otherwise.
+     * The Location of the `then` keyword (if present) or the `?` in a ternary expression, `nil` otherwise.
      *
      *     if foo then bar end
      *            ^^^^
@@ -4552,7 +4553,7 @@ typedef struct pm_if_node {
     /**
      * IfNode#end_keyword_loc
      *
-     * The location of the `end` keyword if present, `nil` otherwise.
+     * The Location of the `end` keyword if present, `nil` otherwise.
      *
      *     if foo
      *       bar
@@ -5121,7 +5122,7 @@ typedef struct pm_instance_variable_write_node {
     /**
      * InstanceVariableWriteNode#name_loc
      *
-     * The location of the variable name.
+     * The Location of the variable name.
      *
      *     @_x = 1
      *     ^^^
@@ -5144,7 +5145,7 @@ typedef struct pm_instance_variable_write_node {
     /**
      * InstanceVariableWriteNode#operator_loc
      *
-     * The location of the `=` operator.
+     * The Location of the `=` operator.
      *
      *     @x = y
      *        ^
@@ -5763,7 +5764,7 @@ typedef struct pm_local_variable_write_node {
     /**
      * LocalVariableWriteNode#name_loc
      *
-     * The location of the variable name.
+     * The Location of the variable name.
      *
      *     foo = :bar
      *     ^^^
@@ -5790,7 +5791,7 @@ typedef struct pm_local_variable_write_node {
     /**
      * LocalVariableWriteNode#operator_loc
      *
-     * The location of the `=` operator.
+     * The Location of the `=` operator.
      *
      *     x = :y
      *       ^
@@ -5958,7 +5959,7 @@ typedef struct pm_match_required_node {
     /**
      * MatchRequiredNode#operator_loc
      *
-     * The location of the operator.
+     * The Location of the operator.
      *
      *     foo => bar
      *         ^^
@@ -6123,7 +6124,7 @@ typedef struct pm_multi_target_node {
     /**
      * MultiTargetNode#lparen_loc
      *
-     * The location of the opening parenthesis.
+     * The Location of the opening parenthesis.
      *
      *     a, (b, c) = 1, 2, 3
      *        ^
@@ -6133,7 +6134,7 @@ typedef struct pm_multi_target_node {
     /**
      * MultiTargetNode#rparen_loc
      *
-     * The location of the closing parenthesis.
+     * The Location of the closing parenthesis.
      *
      *     a, (b, c) = 1, 2, 3
      *             ^
@@ -6205,7 +6206,7 @@ typedef struct pm_multi_write_node {
     /**
      * MultiWriteNode#lparen_loc
      *
-     * The location of the opening parenthesis.
+     * The Location of the opening parenthesis.
      *
      *     (a, b, c) = 1, 2, 3
      *     ^
@@ -6215,7 +6216,7 @@ typedef struct pm_multi_write_node {
     /**
      * MultiWriteNode#rparen_loc
      *
-     * The location of the closing parenthesis.
+     * The Location of the closing parenthesis.
      *
      *     (a, b, c) = 1, 2, 3
      *             ^
@@ -6225,7 +6226,7 @@ typedef struct pm_multi_write_node {
     /**
      * MultiWriteNode#operator_loc
      *
-     * The location of the operator.
+     * The Location of the operator.
      *
      *     a, b, c = 1, 2, 3
      *             ^
@@ -6489,7 +6490,7 @@ typedef struct pm_or_node {
     /**
      * OrNode#operator_loc
      *
-     * The location of the `or` keyword or the `||` operator.
+     * The Location of the `or` keyword or the `||` operator.
      *
      *     left or right
      *          ^^
@@ -6614,7 +6615,7 @@ typedef struct pm_pinned_expression_node {
     /**
      * PinnedExpressionNode#operator_loc
      *
-     * The location of the `^` operator
+     * The Location of the `^` operator
      *
      *     foo in ^(bar)
      *            ^
@@ -6624,7 +6625,7 @@ typedef struct pm_pinned_expression_node {
     /**
      * PinnedExpressionNode#lparen_loc
      *
-     * The location of the opening parenthesis.
+     * The Location of the opening parenthesis.
      *
      *     foo in ^(bar)
      *             ^
@@ -6634,7 +6635,7 @@ typedef struct pm_pinned_expression_node {
     /**
      * PinnedExpressionNode#rparen_loc
      *
-     * The location of the closing parenthesis.
+     * The Location of the closing parenthesis.
      *
      *     foo in ^(bar)
      *                 ^
@@ -6671,7 +6672,7 @@ typedef struct pm_pinned_variable_node {
     /**
      * PinnedVariableNode#operator_loc
      *
-     * The location of the `^` operator
+     * The Location of the `^` operator
      *
      *     foo in ^bar
      *            ^
@@ -6829,7 +6830,7 @@ typedef struct pm_range_node {
     /**
      * RangeNode#operator_loc
      *
-     * The location of the `..` or `...` operator.
+     * The Location of the `..` or `...` operator.
      */
     pm_location_t operator_loc;
 } pm_range_node_t;
@@ -7304,7 +7305,7 @@ typedef struct pm_source_file_node {
     /**
      * SourceFileNode#filepath
      *
-     * Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism::parse*` APIs.
+     * Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism.parse*` APIs.
      */
     pm_string_t filepath;
 } pm_source_file_node_t;
@@ -7584,7 +7585,7 @@ typedef struct pm_unless_node {
     /**
      * UnlessNode#keyword_loc
      *
-     * The location of the `unless` keyword.
+     * The Location of the `unless` keyword.
      *
      *     unless cond then bar end
      *     ^^^^^^
@@ -7610,7 +7611,7 @@ typedef struct pm_unless_node {
     /**
      * UnlessNode#then_keyword_loc
      *
-     * The location of the `then` keyword, if present.
+     * The Location of the `then` keyword, if present.
      *
      *     unless cond then bar end
      *                 ^^^^
@@ -7641,7 +7642,7 @@ typedef struct pm_unless_node {
     /**
      * UnlessNode#end_keyword_loc
      *
-     * The location of the `end` keyword, if present.
+     * The Location of the `end` keyword, if present.
      *
      *     unless cond then bar end
      *                          ^^^

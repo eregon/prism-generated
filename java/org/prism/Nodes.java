@@ -10325,7 +10325,7 @@ public abstract class Nodes {
         public final short flags;
         /**
          * <pre>
-         * Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism::parse*` APIs.
+         * Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism.parse*` APIs.
          * </pre>
          */
         public final byte[] filepath;
