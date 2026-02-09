@@ -9,12 +9,14 @@ if you are looking to modify the template
 ++
 =end
 
+# :markup: markdown
+
 module Prism
   # This represents a node in the tree. It is the parent class of all of the
   # various node types.
   class Node
     # A pointer to the source that this node was created from.
-    attr_reader :source
+    attr_reader :source # :nodoc:
     private :source
 
     # A unique identifier for this node. This is used in a very specific
@@ -41,98 +43,107 @@ module Prism
       repository.enter(node_id, :location)
     end
 
-    # Delegates to the start_line of the associated location object.
+    # --------------------------------------------------------------------------
+    # :section: Location Delegators
+    # These methods provide convenient access to the underlying Location object.
+    # --------------------------------------------------------------------------
+
+    # Delegates to [`start_line`](rdoc-ref:Location#start_line) of the associated location object.
     def start_line
       location.start_line
     end
 
-    # Delegates to the end_line of the associated location object.
+    # Delegates to [`end_line`](rdoc-ref:Location#end_line) of the associated location object.
     def end_line
       location.end_line
     end
 
-    # The start offset of the node in the source. This method is effectively a
-    # delegate method to the location object.
+    # Delegates to [`start_offset`](rdoc-ref:Location#start_offset) of the associated location object.
     def start_offset
       location = @location
       location.is_a?(Location) ? location.start_offset : location >> 32
     end
 
-    # The end offset of the node in the source. This method is effectively a
-    # delegate method to the location object.
+    # Delegates to [`end_offset`](rdoc-ref:Location#end_offset) of the associated location object.
     def end_offset
       location = @location
       location.is_a?(Location) ? location.end_offset : ((location >> 32) + (location & 0xFFFFFFFF))
     end
 
-    # Delegates to the start_character_offset of the associated location object.
+    # Delegates to [`start_character_offset`](rdoc-ref:Location#start_character_offset)
+    # of the associated location object.
     def start_character_offset
       location.start_character_offset
     end
 
-    # Delegates to the end_character_offset of the associated location object.
+    # Delegates to [`end_character_offset`](rdoc-ref:Location#end_character_offset)
+    # of the associated location object.
     def end_character_offset
       location.end_character_offset
     end
 
-    # Delegates to the cached_start_code_units_offset of the associated location
-    # object.
+    # Delegates to [`cached_start_code_units_offset`](rdoc-ref:Location#cached_start_code_units_offset)
+    # of the associated location object.
     def cached_start_code_units_offset(cache)
       location.cached_start_code_units_offset(cache)
     end
 
-    # Delegates to the cached_end_code_units_offset of the associated location
-    # object.
+    # Delegates to [`cached_end_code_units_offset`](rdoc-ref:Location#cached_end_code_units_offset)
+    # of the associated location object.
     def cached_end_code_units_offset(cache)
       location.cached_end_code_units_offset(cache)
     end
 
-    # Delegates to the start_column of the associated location object.
+    # Delegates to [`start_column`](rdoc-ref:Location#start_column) of the associated location object.
     def start_column
       location.start_column
     end
 
-    # Delegates to the end_column of the associated location object.
+    # Delegates to [`end_column`](rdoc-ref:Location#end_column) of the associated location object.
     def end_column
       location.end_column
     end
 
-    # Delegates to the start_character_column of the associated location object.
+    # Delegates to [`start_character_column`](rdoc-ref:Location#start_character_column)
+    # of the associated location object.
     def start_character_column
       location.start_character_column
     end
 
-    # Delegates to the end_character_column of the associated location object.
+    # Delegates to [`end_character_column`](rdoc-ref:Location#end_character_column)
+    # of the associated location object.
     def end_character_column
       location.end_character_column
     end
 
-    # Delegates to the cached_start_code_units_column of the associated location
-    # object.
+    # Delegates to [`cached_start_code_units_column`](rdoc-ref:Location#cached_start_code_units_column)
+    # of the associated location object.
     def cached_start_code_units_column(cache)
       location.cached_start_code_units_column(cache)
     end
 
-    # Delegates to the cached_end_code_units_column of the associated location
-    # object.
+    # Delegates to [`cached_end_code_units_column`](rdoc-ref:Location#cached_end_code_units_column)
+    # of the associated location object.
     def cached_end_code_units_column(cache)
       location.cached_end_code_units_column(cache)
     end
 
-    # Delegates to the leading_comments of the associated location object.
+    # Delegates to [`leading_comments`](rdoc-ref:Location#leading_comments) of the associated location object.
     def leading_comments
       location.leading_comments
     end
 
-    # Delegates to the trailing_comments of the associated location object.
+    # Delegates to [`trailing_comments`](rdoc-ref:Location#trailing_comments) of the associated location object.
     def trailing_comments
       location.trailing_comments
     end
 
-    # Delegates to the comments of the associated location object.
+    # Delegates to [`comments`](rdoc-ref:Location#comments) of the associated location object.
     def comments
       location.comments
     end
+
+    # :section:
 
     # Returns all of the lines of the source code associated with this node.
     def source_lines
@@ -157,7 +168,7 @@ module Prism
 
     # An bitset of flags for this node. There are certain flags that are common
     # for all nodes, and then some nodes have specific flags.
-    attr_reader :flags
+    attr_reader :flags # :nodoc:
     protected :flags
 
     # Returns true if the node has the newline flag set.
@@ -259,10 +270,9 @@ module Prism
     end
 
     # --------------------------------------------------------------------------
-    # :section: Node interface
-    # These methods are effectively abstract methods that must be implemented by
-    # the various subclasses of Node. They are here to make it easier to work
-    # with typecheckers.
+    # :section: Node Interface
+    # These methods are effectively abstract methods that are implemented by
+    # the various subclasses of Node.
     # --------------------------------------------------------------------------
 
     # Accepts a visitor and calls back into the specialized visit function.
@@ -343,17 +353,28 @@ module Prism
       @keyword_loc = keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_alias_global_variable_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [new_name, old_name]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -361,40 +382,72 @@ module Prism
       yield old_name
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [new_name, old_name]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [new_name, old_name, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode, ?old_name: GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode, ?keyword_loc: Location) -> AliasGlobalVariableNode
+    # :call-seq:
+    #   copy(**fields) -> AliasGlobalVariableNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, new_name: self.new_name, old_name: self.old_name, keyword_loc: self.keyword_loc)
       AliasGlobalVariableNode.new(source, node_id, location, flags, new_name, old_name, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :alias_global_variable_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :alias_global_variable_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   new_name -> GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode
+    #
     # Represents the new name of the global variable that can be used after aliasing.
     #
     #     alias $foo $bar
     #           ^^^^
-    attr_reader :new_name
+    def new_name
+      @new_name
+    end
 
+    # :call-seq:
+    #   old_name -> GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode
+    #
     # Represents the old name of the global variable that can be used before aliasing.
     #
     #     alias $foo $bar
     #                ^^^^
-    attr_reader :old_name
+    def old_name
+      @old_name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
     # The Location of the `alias` keyword.
     #
     #     alias $foo $bar
@@ -405,34 +458,26 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # def keyword: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :alias_global_variable_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :alias_global_variable_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(AliasGlobalVariableNode) &&
         (new_name === other.new_name) &&
         (old_name === other.old_name) &&
@@ -456,17 +501,28 @@ module Prism
       @keyword_loc = keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_alias_method_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [new_name, old_name]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -474,28 +530,49 @@ module Prism
       yield old_name
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [new_name, old_name]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [new_name, old_name, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?new_name: SymbolNode | InterpolatedSymbolNode, ?old_name: SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode, ?keyword_loc: Location) -> AliasMethodNode
+    # :call-seq:
+    #   copy(**fields) -> AliasMethodNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, new_name: self.new_name, old_name: self.old_name, keyword_loc: self.keyword_loc)
       AliasMethodNode.new(source, node_id, location, flags, new_name, old_name, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :alias_method_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :alias_method_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   new_name -> SymbolNode | InterpolatedSymbolNode
+    #
     # Represents the new name of the method that will be aliased.
     #
     #     alias foo bar
@@ -506,8 +583,13 @@ module Prism
     #
     #     alias :"#{foo}" :"#{bar}"
     #           ^^^^^^^^^
-    attr_reader :new_name
+    def new_name
+      @new_name
+    end
 
+    # :call-seq:
+    #   old_name -> SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode
+    #
     # Represents the old name of the method that will be aliased.
     #
     #     alias foo bar
@@ -518,8 +600,14 @@ module Prism
     #
     #     alias :"#{foo}" :"#{bar}"
     #                     ^^^^^^^^^
-    attr_reader :old_name
+    def old_name
+      @old_name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
     # Represents the Location of the `alias` keyword.
     #
     #     alias foo bar
@@ -530,34 +618,26 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # def keyword: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :alias_method_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :alias_method_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(AliasMethodNode) &&
         (new_name === other.new_name) &&
         (old_name === other.old_name) &&
@@ -581,17 +661,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_alternation_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [left, right]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -599,40 +690,72 @@ module Prism
       yield right
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [left, right]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [left, right, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?left: Prism::node, ?right: Prism::node, ?operator_loc: Location) -> AlternationPatternNode
+    # :call-seq:
+    #   copy(**fields) -> AlternationPatternNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, left: self.left, right: self.right, operator_loc: self.operator_loc)
       AlternationPatternNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :alternation_pattern_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :alternation_pattern_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   left -> Node
+    #
     # Represents the left side of the expression.
     #
     #     foo => bar | baz
     #            ^^^
-    attr_reader :left
+    def left
+      @left
+    end
 
+    # :call-seq:
+    #   right -> Node
+    #
     # Represents the right side of the expression.
     #
     #     foo => bar | baz
     #                  ^^^
-    attr_reader :right
+    def right
+      @right
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # Represents the alternation operator Location.
     #
     #     foo => bar | baz
@@ -643,34 +766,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :alternation_pattern_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :alternation_pattern_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(AlternationPatternNode) &&
         (left === other.left) &&
         (right === other.right) &&
@@ -694,17 +809,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_and_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [left, right]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -712,28 +838,49 @@ module Prism
       yield right
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [left, right]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [left, right, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?left: Prism::node, ?right: Prism::node, ?operator_loc: Location) -> AndNode
+    # :call-seq:
+    #   copy(**fields) -> AndNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, left: self.left, right: self.right, operator_loc: self.operator_loc)
       AndNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :and_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :and_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   left -> Node
+    #
     # Represents the left side of the expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     left and right
@@ -741,8 +888,13 @@ module Prism
     #
     #     1 && 2
     #     ^
-    attr_reader :left
+    def left
+      @left
+    end
 
+    # :call-seq:
+    #   right -> Node
+    #
     # Represents the right side of the expression.
     #
     #     left && right
@@ -750,8 +902,14 @@ module Prism
     #
     #     1 and 2
     #           ^
-    attr_reader :right
+    def right
+      @right
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `and` keyword or the `&&` operator.
     #
     #     left and right
@@ -762,34 +920,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :and_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :and_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(AndNode) &&
         (left === other.left) &&
         (right === other.right) &&
@@ -811,93 +961,120 @@ module Prism
       @arguments = arguments
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_arguments_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*arguments]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       arguments.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*arguments]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*arguments] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?arguments: Array[Prism::node]) -> ArgumentsNode
+    # :call-seq:
+    #   copy(**fields) -> ArgumentsNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, arguments: self.arguments)
       ArgumentsNode.new(source, node_id, location, flags, arguments)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, arguments: arguments }
     end
 
-    # def contains_forwarding?: () -> bool
-    def contains_forwarding?
-      flags.anybits?(ArgumentsNodeFlags::CONTAINS_FORWARDING)
+    # See `Node#type`.
+    def type
+      :arguments_node
     end
 
-    # def contains_keywords?: () -> bool
-    def contains_keywords?
-      flags.anybits?(ArgumentsNodeFlags::CONTAINS_KEYWORDS)
+    # See `Node.type`.
+    def self.type
+      :arguments_node
     end
-
-    # def contains_keyword_splat?: () -> bool
-    def contains_keyword_splat?
-      flags.anybits?(ArgumentsNodeFlags::CONTAINS_KEYWORD_SPLAT)
-    end
-
-    # def contains_splat?: () -> bool
-    def contains_splat?
-      flags.anybits?(ArgumentsNodeFlags::CONTAINS_SPLAT)
-    end
-
-    # def contains_multiple_splats?: () -> bool
-    def contains_multiple_splats?
-      flags.anybits?(ArgumentsNodeFlags::CONTAINS_MULTIPLE_SPLATS)
-    end
-
-    # The list of arguments, if present. These can be any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
-    #
-    #     foo(bar, baz)
-    #         ^^^^^^^^
-    attr_reader :arguments
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :arguments_node
+    # :section:
+
+    # :category: Flags
+    # if the arguments contain forwarding
+    def contains_forwarding?
+      flags.anybits?(ArgumentsNodeFlags::CONTAINS_FORWARDING)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :arguments_node
+    # :category: Flags
+    # if the arguments contain keywords
+    def contains_keywords?
+      flags.anybits?(ArgumentsNodeFlags::CONTAINS_KEYWORDS)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # if the arguments contain a keyword splat
+    def contains_keyword_splat?
+      flags.anybits?(ArgumentsNodeFlags::CONTAINS_KEYWORD_SPLAT)
+    end
+
+    # :category: Flags
+    # if the arguments contain a splat
+    def contains_splat?
+      flags.anybits?(ArgumentsNodeFlags::CONTAINS_SPLAT)
+    end
+
+    # :category: Flags
+    # if the arguments contain multiple splats
+    def contains_multiple_splats?
+      flags.anybits?(ArgumentsNodeFlags::CONTAINS_MULTIPLE_SPLATS)
+    end
+
+    # :call-seq:
+    #   arguments -> Array[Node]
+    #
+    # The list of arguments, if present. These can be any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
+    #
+    #     foo(bar, baz)
+    #         ^^^^^^^^
+    def arguments
+      @arguments
+    end
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ArgumentsNode) &&
         (flags === other.flags) &&
         (arguments.length == other.arguments.length) &&
@@ -921,53 +1098,92 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_array_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*elements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       elements.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*elements]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*elements, *opening_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?elements: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayNode
+    # :call-seq:
+    #   copy(**fields) -> ArrayNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, elements: self.elements, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       ArrayNode.new(source, node_id, location, flags, elements, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, elements: elements, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # def contains_splat?: () -> bool
+    # See `Node#type`.
+    def type
+      :array_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :array_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # if array contains splat nodes
     def contains_splat?
       flags.anybits?(ArrayNodeFlags::CONTAINS_SPLAT)
     end
 
+    # :call-seq:
+    #   elements -> Array[Node]
+    #
     # Represent the list of zero or more [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression) within the array.
-    attr_reader :elements
+    def elements
+      @elements
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
     # Represents the optional source Location for the opening token.
     #
     #     [1,2,3]                 # "["
@@ -986,12 +1202,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
     # Represents the optional source Location for the closing token.
     #
     #     [1,2,3]                 # "]"
@@ -1010,39 +1230,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :array_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :array_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ArrayNode) &&
         (flags === other.flags) &&
         (elements.length == other.elements.length) &&
@@ -1083,17 +1297,28 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_array_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [constant, *requireds, rest, *posts]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -1103,7 +1328,7 @@ module Prism
       posts.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << constant if constant
@@ -1113,23 +1338,44 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*constant, *requireds, *rest, *posts, *opening_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
+    # :call-seq:
+    #   copy(**fields) -> ArrayPatternNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, requireds: self.requireds, rest: self.rest, posts: self.posts, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       ArrayPatternNode.new(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, constant: constant, requireds: requireds, rest: rest, posts: posts, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :array_pattern_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :array_pattern_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   constant -> ConstantPathNode | ConstantReadNode | nil
+    #
     # Represents the optional constant preceding the Array
     #
     #     foo in Bar[]
@@ -1140,26 +1386,47 @@ module Prism
     #
     #     foo in Bar::Baz[1, 2, 3]
     #            ^^^^^^^^
-    attr_reader :constant
+    def constant
+      @constant
+    end
 
+    # :call-seq:
+    #   requireds -> Array[Node]
+    #
     # Represents the required elements of the array pattern.
     #
     #     foo in [1, 2]
     #             ^  ^
-    attr_reader :requireds
+    def requireds
+      @requireds
+    end
 
+    # :call-seq:
+    #   rest -> Node | nil
+    #
     # Represents the rest element of the array pattern.
     #
     #     foo in *bar
     #            ^^^^
-    attr_reader :rest
+    def rest
+      @rest
+    end
 
+    # :call-seq:
+    #   posts -> Array[Node]
+    #
     # Represents the elements after the rest element of the array pattern.
     #
     #     foo in *bar, baz
     #                  ^^^
-    attr_reader :posts
+    def posts
+      @posts
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
     # Represents the opening Location of the array pattern.
     #
     #     foo in [1, 2]
@@ -1176,12 +1443,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
     # Represents the closing Location of the array pattern.
     #
     #     foo in [1, 2]
@@ -1198,39 +1469,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :array_pattern_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :array_pattern_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ArrayPatternNode) &&
         (constant === other.constant) &&
         (requireds.length == other.requireds.length) &&
@@ -1259,17 +1524,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_assoc_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [key, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -1277,28 +1553,49 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [key, value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [key, value, *operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?key: Prism::node, ?value: Prism::node, ?operator_loc: Location?) -> AssocNode
+    # :call-seq:
+    #   copy(**fields) -> AssocNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, key: self.key, value: self.value, operator_loc: self.operator_loc)
       AssocNode.new(source, node_id, location, flags, key, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, key: key, value: value, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :assoc_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :assoc_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   key -> Node
+    #
     # The key of the association. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     { a: b }
@@ -1309,8 +1606,13 @@ module Prism
     #
     #     { def a; end => 1 }
     #       ^^^^^^^^^^
-    attr_reader :key
+    def key
+      @key
+    end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # The value of the association, if present. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     { foo => bar }
@@ -1318,8 +1620,14 @@ module Prism
     #
     #     { x: 1 }
     #          ^
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location | nil
+    #
     # The Location of the `=>` operator, if present.
     #
     #     { foo => bar }
@@ -1336,34 +1644,25 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc) unless @operator_loc.nil?
     end
+    # :section: Slicing
 
-    # def operator: () -> String?
+    # :call-seq:
+    #   operator -> String | nil
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :assoc_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :assoc_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(AssocNode) &&
         (key === other.key) &&
         (value === other.value) &&
@@ -1386,53 +1685,91 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_assoc_splat_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value if value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << value if value
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*value, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node?, ?operator_loc: Location) -> AssocSplatNode
+    # :call-seq:
+    #   copy(**fields) -> AssocSplatNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value, operator_loc: self.operator_loc)
       AssocSplatNode.new(source, node_id, location, flags, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :assoc_splat_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :assoc_splat_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   value -> Node | nil
+    #
     # The value to be splatted, if present. Will be missing when keyword rest argument forwarding is used.
     #
     #     { **foo }
     #         ^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `**` operator.
     #
     #     { **x }
@@ -1443,34 +1780,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :assoc_splat_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :assoc_splat_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(AssocSplatNode) &&
         (value === other.value) &&
         (operator_loc.nil? == other.operator_loc.nil?)
@@ -1491,68 +1820,90 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_back_reference_read_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> BackReferenceReadNode
+    # :call-seq:
+    #   copy(**fields) -> BackReferenceReadNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       BackReferenceReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # The name of the back-reference variable, including the leading `$`.
-    #
-    #     $& # name `:$&`
-    #
-    #     $+ # name `:$+`
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :back_reference_read_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :back_reference_read_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :back_reference_read_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # The name of the back-reference variable, including the leading `$`.
+    #
+    #     $& # name `:$&`
+    #
+    #     $+ # name `:$+`
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :back_reference_read_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(BackReferenceReadNode) &&
         (name === other.name)
     end
@@ -1579,17 +1930,28 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_begin_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [statements, rescue_clause, else_clause, ensure_clause]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -1599,7 +1961,7 @@ module Prism
       yield ensure_clause if ensure_clause
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << statements if statements
@@ -1609,23 +1971,45 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*begin_keyword_loc, *statements, *rescue_clause, *else_clause, *ensure_clause, *end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?begin_keyword_loc: Location?, ?statements: StatementsNode?, ?rescue_clause: RescueNode?, ?else_clause: ElseNode?, ?ensure_clause: EnsureNode?, ?end_keyword_loc: Location?) -> BeginNode
+    # :call-seq:
+    #   copy(**fields) -> BeginNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, begin_keyword_loc: self.begin_keyword_loc, statements: self.statements, rescue_clause: self.rescue_clause, else_clause: self.else_clause, ensure_clause: self.ensure_clause, end_keyword_loc: self.end_keyword_loc)
       BeginNode.new(source, node_id, location, flags, begin_keyword_loc, statements, rescue_clause, else_clause, ensure_clause, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, begin_keyword_loc: begin_keyword_loc, statements: statements, rescue_clause: rescue_clause, else_clause: else_clause, ensure_clause: ensure_clause, end_keyword_loc: end_keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :begin_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :begin_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   begin_keyword_loc -> Location | nil
+    #
     # Represents the Location of the `begin` keyword.
     #
     #     begin x end
@@ -1642,36 +2026,60 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the begin_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_begin_keyword_loc(repository)
       repository.enter(node_id, :begin_keyword_loc) unless @begin_keyword_loc.nil?
     end
-
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
     # Represents the statements within the begin block.
     #
     #     begin x end
     #           ^
-    attr_reader :statements
+    def statements
+      @statements
+    end
 
+    # :call-seq:
+    #   rescue_clause -> RescueNode | nil
+    #
     # Represents the rescue clause within the begin block.
     #
     #     begin x; rescue y; end
     #              ^^^^^^^^
-    attr_reader :rescue_clause
+    def rescue_clause
+      @rescue_clause
+    end
 
+    # :call-seq:
+    #   else_clause -> ElseNode | nil
+    #
     # Represents the else clause within the begin block.
     #
     #     begin x; rescue y; else z; end
     #                        ^^^^^^
-    attr_reader :else_clause
+    def else_clause
+      @else_clause
+    end
 
+    # :call-seq:
+    #   ensure_clause -> EnsureNode | nil
+    #
     # Represents the ensure clause within the begin block.
     #
     #     begin x; ensure y; end
     #              ^^^^^^^^
-    attr_reader :ensure_clause
+    def ensure_clause
+      @ensure_clause
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location | nil
+    #
     # Represents the Location of the `end` keyword.
     #
     #     begin x end
@@ -1688,39 +2096,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
+    # :section: Slicing
 
-    # def begin_keyword: () -> String?
+    # :call-seq:
+    #   begin_keyword -> String | nil
+    #
+    # Slice the location of begin_keyword_loc from the source.
     def begin_keyword
       begin_keyword_loc&.slice
     end
 
-    # def end_keyword: () -> String?
+    # :call-seq:
+    #   end_keyword -> String | nil
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :begin_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :begin_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(BeginNode) &&
         (begin_keyword_loc.nil? == other.begin_keyword_loc.nil?) &&
         (statements === other.statements) &&
@@ -1746,53 +2148,91 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_block_argument_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [expression]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield expression if expression
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << expression if expression
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*expression, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?expression: Prism::node?, ?operator_loc: Location) -> BlockArgumentNode
+    # :call-seq:
+    #   copy(**fields) -> BlockArgumentNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, expression: self.expression, operator_loc: self.operator_loc)
       BlockArgumentNode.new(source, node_id, location, flags, expression, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, expression: expression, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :block_argument_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :block_argument_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   expression -> Node | nil
+    #
     # The expression that is being passed as a block argument. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo(&args)
     #         ^^^^^
-    attr_reader :expression
+    def expression
+      @expression
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # Represents the Location of the `&` operator.
     #
     #     foo(&args)
@@ -1803,34 +2243,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :block_argument_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :block_argument_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(BlockArgumentNode) &&
         (expression === other.expression) &&
         (operator_loc.nil? == other.operator_loc.nil?)
@@ -1851,72 +2283,95 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_block_local_variable_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> BlockLocalVariableNode
+    # :call-seq:
+    #   copy(**fields) -> BlockLocalVariableNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       BlockLocalVariableNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # def repeated_parameter?: () -> bool
-    def repeated_parameter?
-      flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
+    # See `Node#type`.
+    def type
+      :block_local_variable_node
     end
 
-    # The name of the block local variable.
-    #
-    #     a { |; b| } # name `:b`
-    #            ^
-    attr_reader :name
+    # See `Node.type`.
+    def self.type
+      :block_local_variable_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :block_local_variable_node
+    # :section:
+
+    # :category: Flags
+    # a parameter name that has been repeated in the method signature
+    def repeated_parameter?
+      flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :block_local_variable_node
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # The name of the block local variable.
+    #
+    #     a { |; b| } # name `:b`
+    #            ^
+    def name
+      @name
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(BlockLocalVariableNode) &&
         (flags === other.flags) &&
         (name === other.name)
@@ -1941,17 +2396,28 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_block_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [parameters, body]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -1959,7 +2425,7 @@ module Prism
       yield body if body
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << parameters if parameters
@@ -1967,29 +2433,55 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*parameters, *body, opening_loc, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, ?body: StatementsNode | BeginNode | nil, ?opening_loc: Location, ?closing_loc: Location) -> BlockNode
+    # :call-seq:
+    #   copy(**fields) -> BlockNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, parameters: self.parameters, body: self.body, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       BlockNode.new(source, node_id, location, flags, locals, parameters, body, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, parameters: parameters, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :block_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :block_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   locals -> Array[Symbol]
+    #
     # The local variables declared in the block.
     #
     #     [1, 2, 3].each { |i| puts x } # locals: [:i]
     #                       ^
-    attr_reader :locals
+    def locals
+      @locals
+    end
 
+    # :call-seq:
+    #   parameters -> BlockParametersNode | NumberedParametersNode | ItParametersNode | nil
+    #
     # The parameters of the block.
     #
     #     [1, 2, 3].each { |i| puts x }
@@ -1998,14 +2490,25 @@ module Prism
     #                    ^^^^^^^^^^^
     #     [1, 2, 3].each { puts it }
     #                    ^^^^^^^^^^^
-    attr_reader :parameters
+    def parameters
+      @parameters
+    end
 
+    # :call-seq:
+    #   body -> StatementsNode | BeginNode | nil
+    #
     # The body of the block.
     #
     #     [1, 2, 3].each { |i| puts x }
     #                          ^^^^^^
-    attr_reader :body
+    def body
+      @body
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
     # Represents the Location of the opening `{` or `do`.
     #
     #     [1, 2, 3].each { |i| puts x }
@@ -2016,12 +2519,17 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
     # Represents the Location of the closing `}` or `end`.
     #
     #     [1, 2, 3].each { |i| puts x }
@@ -2032,39 +2540,34 @@ module Prism
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc)
     end
 
-    # def opening: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc.slice
     end
 
-    # def closing: () -> String
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :block_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :block_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(BlockNode) &&
         (locals.length == other.locals.length) &&
         locals.zip(other.locals).all? { |left, right| left === right } &&
@@ -2092,56 +2595,95 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_block_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*name_loc, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol?, ?name_loc: Location?, ?operator_loc: Location) -> BlockParameterNode
+    # :call-seq:
+    #   copy(**fields) -> BlockParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc)
       BlockParameterNode.new(source, node_id, location, flags, name, name_loc, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
     end
 
-    # def repeated_parameter?: () -> bool
+    # See `Node#type`.
+    def type
+      :block_parameter_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :block_parameter_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # a parameter name that has been repeated in the method signature
     def repeated_parameter?
       flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
+    # :call-seq:
+    #   name -> Symbol | nil
+    #
     # The name of the block parameter.
     #
     #     def a(&b) # name `:b`
     #            ^
     #     end
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location | nil
+    #
     # Represents the Location of the block parameter name.
     #
     #     def a(&b)
@@ -2158,12 +2700,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc) unless @name_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # Represents the Location of the `&` operator.
     #
     #     def a(&b)
@@ -2175,34 +2721,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :block_parameter_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :block_parameter_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(BlockParameterNode) &&
         (flags === other.flags) &&
         (name === other.name) &&
@@ -2232,17 +2770,28 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_block_parameters_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [parameters, *locals]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -2250,7 +2799,7 @@ module Prism
       locals.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << parameters if parameters
@@ -2258,23 +2807,44 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*parameters, *locals, *opening_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?parameters: ParametersNode?, ?locals: Array[BlockLocalVariableNode], ?opening_loc: Location?, ?closing_loc: Location?) -> BlockParametersNode
+    # :call-seq:
+    #   copy(**fields) -> BlockParametersNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, parameters: self.parameters, locals: self.locals, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       BlockParametersNode.new(source, node_id, location, flags, parameters, locals, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, parameters: parameters, locals: locals, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :block_parameters_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :block_parameters_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   parameters -> ParametersNode | nil
+    #
     # Represents the parameters of the block.
     #
     #     -> (a, b = 1; local) { }
@@ -2283,8 +2853,13 @@ module Prism
     #     foo do |a, b = 1; local|
     #             ^^^^^^^^
     #     end
-    attr_reader :parameters
+    def parameters
+      @parameters
+    end
 
+    # :call-seq:
+    #   locals -> Array[BlockLocalVariableNode]
+    #
     # Represents the local variables of the block.
     #
     #     -> (a, b = 1; local) { }
@@ -2293,8 +2868,14 @@ module Prism
     #     foo do |a, b = 1; local|
     #                       ^^^^^
     #     end
-    attr_reader :locals
+    def locals
+      @locals
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
     # Represents the opening Location of the block parameters.
     #
     #     -> (a, b = 1; local) { }
@@ -2315,12 +2896,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
     # Represents the closing Location of the block parameters.
     #
     #     -> (a, b = 1; local) { }
@@ -2341,39 +2926,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :block_parameters_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :block_parameters_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(BlockParametersNode) &&
         (parameters === other.parameters) &&
         (locals.length == other.locals.length) &&
@@ -2398,53 +2977,91 @@ module Prism
       @keyword_loc = keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_break_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [arguments]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield arguments if arguments
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << arguments if arguments
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*arguments, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?arguments: ArgumentsNode?, ?keyword_loc: Location) -> BreakNode
+    # :call-seq:
+    #   copy(**fields) -> BreakNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, arguments: self.arguments, keyword_loc: self.keyword_loc)
       BreakNode.new(source, node_id, location, flags, arguments, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, arguments: arguments, keyword_loc: keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :break_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :break_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
     # The arguments to the break statement, if present. These can be any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     break foo
     #           ^^^
-    attr_reader :arguments
+    def arguments
+      @arguments
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
     # The Location of the `break` keyword.
     #
     #     break foo
@@ -2455,34 +3072,26 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # def keyword: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :break_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :break_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(BreakNode) &&
         (arguments === other.arguments) &&
         (keyword_loc.nil? == other.keyword_loc.nil?)
@@ -2509,17 +3118,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_call_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -2527,7 +3147,7 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver if receiver
@@ -2535,49 +3155,80 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*receiver, *call_operator_loc, *message_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?message_loc: Location?, ?read_name: Symbol, ?write_name: Symbol, ?operator_loc: Location, ?value: Prism::node) -> CallAndWriteNode
+    # :call-seq:
+    #   copy(**fields) -> CallAndWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, message_loc: self.message_loc, read_name: self.read_name, write_name: self.write_name, operator_loc: self.operator_loc, value: self.value)
       CallAndWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, message_loc, read_name, write_name, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, operator_loc: operator_loc, value: value }
     end
 
-    # def safe_navigation?: () -> bool
+    # See `Node#type`.
+    def type
+      :call_and_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :call_and_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # &. operator
     def safe_navigation?
       flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # def variable_call?: () -> bool
+    # :category: Flags
+    # a call that could have been a local variable
     def variable_call?
       flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # def attribute_write?: () -> bool
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
     def attribute_write?
       flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
     end
 
-    # def ignore_visibility?: () -> bool
+    # :category: Flags
+    # a call that ignores method visibility
     def ignore_visibility?
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
+    # :call-seq:
+    #   receiver -> Node | nil
+    #
     # The object that the method is being called on. This can be either `nil` or any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo.bar &&= value
     #     ^^^
-    attr_reader :receiver
+    def receiver
+      @receiver
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   call_operator_loc -> Location | nil
+    #
     # Represents the Location of the call operator.
     #
     #     foo.bar &&= value
@@ -2594,12 +3245,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the call_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_call_operator_loc(repository)
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   message_loc -> Location | nil
+    #
     # Represents the Location of the message.
     #
     #     foo.bar &&= value
@@ -2616,24 +3271,38 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the message_loc location using the given saved source so that
     # it can be retrieved later.
     def save_message_loc(repository)
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
-
+    # :call-seq:
+    #   read_name -> Symbol
+    #
     # Represents the name of the method being called.
     #
     #     foo.bar &&= value # read_name `:bar`
     #         ^^^
-    attr_reader :read_name
+    def read_name
+      @read_name
+    end
 
+    # :call-seq:
+    #   write_name -> Symbol
+    #
     # Represents the name of the method being written to.
     #
     #     foo.bar &&= value # write_name `:bar=`
     #         ^^^
-    attr_reader :write_name
+    def write_name
+      @write_name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # Represents the Location of the operator.
     #
     #     foo.bar &&= value
@@ -2644,50 +3313,53 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # Represents the value being assigned.
     #
     #     foo.bar &&= value
     #                 ^^^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
-    # def call_operator: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   call_operator -> String | nil
+    #
+    # Slice the location of call_operator_loc from the source.
     def call_operator
       call_operator_loc&.slice
     end
 
-    # def message: () -> String?
+    # :call-seq:
+    #   message -> String | nil
+    #
+    # Slice the location of message_loc from the source.
     def message
       message_loc&.slice
     end
 
-    # def operator: () -> String
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :call_and_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :call_and_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(CallAndWriteNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -2737,17 +3409,28 @@ module Prism
       @block = block
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_call_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, arguments, block]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -2756,7 +3439,7 @@ module Prism
       yield block if block
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver if receiver
@@ -2765,43 +3448,68 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*receiver, *call_operator_loc, *message_loc, *opening_loc, *arguments, *closing_loc, *equal_loc, *block] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?name: Symbol, ?message_loc: Location?, ?opening_loc: Location?, ?arguments: ArgumentsNode?, ?closing_loc: Location?, ?equal_loc: Location?, ?block: BlockNode | BlockArgumentNode | nil) -> CallNode
+    # :call-seq:
+    #   copy(**fields) -> CallNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, name: self.name, message_loc: self.message_loc, opening_loc: self.opening_loc, arguments: self.arguments, closing_loc: self.closing_loc, equal_loc: self.equal_loc, block: self.block)
       CallNode.new(source, node_id, location, flags, receiver, call_operator_loc, name, message_loc, opening_loc, arguments, closing_loc, equal_loc, block)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, name: name, message_loc: message_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, equal_loc: equal_loc, block: block }
     end
 
-    # def safe_navigation?: () -> bool
+    # See `Node#type`.
+    def type
+      :call_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :call_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # &. operator
     def safe_navigation?
       flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # def variable_call?: () -> bool
+    # :category: Flags
+    # a call that could have been a local variable
     def variable_call?
       flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # def attribute_write?: () -> bool
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
     def attribute_write?
       flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
     end
 
-    # def ignore_visibility?: () -> bool
+    # :category: Flags
+    # a call that ignores method visibility
     def ignore_visibility?
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
+    # :call-seq:
+    #   receiver -> Node | nil
+    #
     # The object that the method is being called on. This can be either `nil` or any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo.bar
@@ -2812,8 +3520,14 @@ module Prism
     #
     #     foo + bar
     #     ^^^
-    attr_reader :receiver
+    def receiver
+      @receiver
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   call_operator_loc -> Location | nil
+    #
     # Represents the Location of the call operator.
     #
     #     foo.bar
@@ -2833,18 +3547,27 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the call_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_call_operator_loc(repository)
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
-
+    # :call-seq:
+    #   name -> Symbol
+    #
     # Represents the name of the method being called.
     #
     #     foo.bar # name `:foo`
     #     ^^^
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   message_loc -> Location | nil
+    #
     # Represents the Location of the message.
     #
     #     foo.bar
@@ -2861,12 +3584,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the message_loc location using the given saved source so that
     # it can be retrieved later.
     def save_message_loc(repository)
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
     # Represents the Location of the left parenthesis.
     #
     #     foo(bar)
@@ -2883,18 +3610,27 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
-
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
     # Represents the arguments to the method call. These can be any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo(bar)
     #         ^^^
-    attr_reader :arguments
+    def arguments
+      @arguments
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
     # Represents the Location of the right parenthesis.
     #
     #     foo(bar)
@@ -2911,12 +3647,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   equal_loc -> Location | nil
+    #
     # Represents the Location of the equal sign, in the case that this is an attribute write.
     #
     #     foo.bar = value
@@ -2936,60 +3676,68 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the equal_loc location using the given saved source so that
     # it can be retrieved later.
     def save_equal_loc(repository)
       repository.enter(node_id, :equal_loc) unless @equal_loc.nil?
     end
-
+    # :call-seq:
+    #   block -> BlockNode | BlockArgumentNode | nil
+    #
     # Represents the block that is being passed to the method.
     #
     #     foo { |a| a }
     #         ^^^^^^^^^
-    attr_reader :block
+    def block
+      @block
+    end
 
-    # def call_operator: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   call_operator -> String | nil
+    #
+    # Slice the location of call_operator_loc from the source.
     def call_operator
       call_operator_loc&.slice
     end
 
-    # def message: () -> String?
+    # :call-seq:
+    #   message -> String | nil
+    #
+    # Slice the location of message_loc from the source.
     def message
       message_loc&.slice
     end
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    # def equal: () -> String?
+    # :call-seq:
+    #   equal -> String | nil
+    #
+    # Slice the location of equal_loc from the source.
     def equal
       equal_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :call_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :call_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(CallNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -3025,17 +3773,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_call_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -3043,7 +3802,7 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver if receiver
@@ -3051,49 +3810,80 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*receiver, *call_operator_loc, *message_loc, binary_operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?message_loc: Location?, ?read_name: Symbol, ?write_name: Symbol, ?binary_operator: Symbol, ?binary_operator_loc: Location, ?value: Prism::node) -> CallOperatorWriteNode
+    # :call-seq:
+    #   copy(**fields) -> CallOperatorWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, message_loc: self.message_loc, read_name: self.read_name, write_name: self.write_name, binary_operator: self.binary_operator, binary_operator_loc: self.binary_operator_loc, value: self.value)
       CallOperatorWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, message_loc, read_name, write_name, binary_operator, binary_operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, binary_operator: binary_operator, binary_operator_loc: binary_operator_loc, value: value }
     end
 
-    # def safe_navigation?: () -> bool
+    # See `Node#type`.
+    def type
+      :call_operator_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :call_operator_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # &. operator
     def safe_navigation?
       flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # def variable_call?: () -> bool
+    # :category: Flags
+    # a call that could have been a local variable
     def variable_call?
       flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # def attribute_write?: () -> bool
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
     def attribute_write?
       flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
     end
 
-    # def ignore_visibility?: () -> bool
+    # :category: Flags
+    # a call that ignores method visibility
     def ignore_visibility?
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
+    # :call-seq:
+    #   receiver -> Node | nil
+    #
     # The object that the method is being called on. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo.bar += value
     #     ^^^
-    attr_reader :receiver
+    def receiver
+      @receiver
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   call_operator_loc -> Location | nil
+    #
     # Represents the Location of the call operator.
     #
     #     foo.bar += value
@@ -3110,12 +3900,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the call_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_call_operator_loc(repository)
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   message_loc -> Location | nil
+    #
     # Represents the Location of the message.
     #
     #     foo.bar += value
@@ -3132,30 +3926,49 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the message_loc location using the given saved source so that
     # it can be retrieved later.
     def save_message_loc(repository)
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
-
+    # :call-seq:
+    #   read_name -> Symbol
+    #
     # Represents the name of the method being called.
     #
     #     foo.bar += value # read_name `:bar`
     #         ^^^
-    attr_reader :read_name
+    def read_name
+      @read_name
+    end
 
+    # :call-seq:
+    #   write_name -> Symbol
+    #
     # Represents the name of the method being written to.
     #
     #     foo.bar += value # write_name `:bar=`
     #         ^^^
-    attr_reader :write_name
+    def write_name
+      @write_name
+    end
 
+    # :call-seq:
+    #   binary_operator -> Symbol
+    #
     # Represents the binary operator being used.
     #
     #     foo.bar += value # binary_operator `:+`
     #             ^
-    attr_reader :binary_operator
+    def binary_operator
+      @binary_operator
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   binary_operator_loc -> Location
+    #
     # Represents the Location of the binary operator.
     #
     #     foo.bar += value
@@ -3166,45 +3979,45 @@ module Prism
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the binary_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_binary_operator_loc(repository)
       repository.enter(node_id, :binary_operator_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # Represents the value being assigned.
     #
     #     foo.bar += value
     #                ^^^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
-    # def call_operator: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   call_operator -> String | nil
+    #
+    # Slice the location of call_operator_loc from the source.
     def call_operator
       call_operator_loc&.slice
     end
 
-    # def message: () -> String?
+    # :call-seq:
+    #   message -> String | nil
+    #
+    # Slice the location of message_loc from the source.
     def message
       message_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :call_operator_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :call_operator_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(CallOperatorWriteNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -3238,17 +4051,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_call_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -3256,7 +4080,7 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver if receiver
@@ -3264,49 +4088,80 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*receiver, *call_operator_loc, *message_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?message_loc: Location?, ?read_name: Symbol, ?write_name: Symbol, ?operator_loc: Location, ?value: Prism::node) -> CallOrWriteNode
+    # :call-seq:
+    #   copy(**fields) -> CallOrWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, message_loc: self.message_loc, read_name: self.read_name, write_name: self.write_name, operator_loc: self.operator_loc, value: self.value)
       CallOrWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, message_loc, read_name, write_name, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, operator_loc: operator_loc, value: value }
     end
 
-    # def safe_navigation?: () -> bool
+    # See `Node#type`.
+    def type
+      :call_or_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :call_or_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # &. operator
     def safe_navigation?
       flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # def variable_call?: () -> bool
+    # :category: Flags
+    # a call that could have been a local variable
     def variable_call?
       flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # def attribute_write?: () -> bool
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
     def attribute_write?
       flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
     end
 
-    # def ignore_visibility?: () -> bool
+    # :category: Flags
+    # a call that ignores method visibility
     def ignore_visibility?
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
+    # :call-seq:
+    #   receiver -> Node | nil
+    #
     # The object that the method is being called on. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo.bar ||= value
     #     ^^^
-    attr_reader :receiver
+    def receiver
+      @receiver
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   call_operator_loc -> Location | nil
+    #
     # Represents the Location of the call operator.
     #
     #     foo.bar ||= value
@@ -3323,12 +4178,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the call_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_call_operator_loc(repository)
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   message_loc -> Location | nil
+    #
     # Represents the Location of the message.
     #
     #     foo.bar ||= value
@@ -3345,24 +4204,38 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the message_loc location using the given saved source so that
     # it can be retrieved later.
     def save_message_loc(repository)
       repository.enter(node_id, :message_loc) unless @message_loc.nil?
     end
-
+    # :call-seq:
+    #   read_name -> Symbol
+    #
     # Represents the name of the method being called.
     #
     #     foo.bar ||= value # read_name `:bar`
     #         ^^^
-    attr_reader :read_name
+    def read_name
+      @read_name
+    end
 
+    # :call-seq:
+    #   write_name -> Symbol
+    #
     # Represents the name of the method being written to.
     #
     #     foo.bar ||= value # write_name `:bar=`
     #         ^^^
-    attr_reader :write_name
+    def write_name
+      @write_name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # Represents the Location of the operator.
     #
     #     foo.bar ||= value
@@ -3373,50 +4246,53 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # Represents the value being assigned.
     #
     #     foo.bar ||= value
     #                 ^^^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
-    # def call_operator: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   call_operator -> String | nil
+    #
+    # Slice the location of call_operator_loc from the source.
     def call_operator
       call_operator_loc&.slice
     end
 
-    # def message: () -> String?
+    # :call-seq:
+    #   message -> String | nil
+    #
+    # Slice the location of message_loc from the source.
     def message
       message_loc&.slice
     end
 
-    # def operator: () -> String
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :call_or_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :call_or_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(CallOrWriteNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -3454,71 +4330,113 @@ module Prism
       @message_loc = message_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_call_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield receiver
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [receiver]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [receiver, call_operator_loc, message_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node, ?call_operator_loc: Location, ?name: Symbol, ?message_loc: Location) -> CallTargetNode
+    # :call-seq:
+    #   copy(**fields) -> CallTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, name: self.name, message_loc: self.message_loc)
       CallTargetNode.new(source, node_id, location, flags, receiver, call_operator_loc, name, message_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, name: name, message_loc: message_loc }
     end
 
-    # def safe_navigation?: () -> bool
+    # See `Node#type`.
+    def type
+      :call_target_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :call_target_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # &. operator
     def safe_navigation?
       flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # def variable_call?: () -> bool
+    # :category: Flags
+    # a call that could have been a local variable
     def variable_call?
       flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # def attribute_write?: () -> bool
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
     def attribute_write?
       flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
     end
 
-    # def ignore_visibility?: () -> bool
+    # :category: Flags
+    # a call that ignores method visibility
     def ignore_visibility?
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
+    # :call-seq:
+    #   receiver -> Node
+    #
     # The object that the method is being called on. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo.bar = 1
     #     ^^^
-    attr_reader :receiver
+    def receiver
+      @receiver
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   call_operator_loc -> Location
+    #
     # Represents the Location of the call operator.
     #
     #     foo.bar = 1
@@ -3529,18 +4447,28 @@ module Prism
       @call_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the call_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_call_operator_loc(repository)
       repository.enter(node_id, :call_operator_loc)
     end
 
+    # :call-seq:
+    #   name -> Symbol
+    #
     # Represents the name of the method being called.
     #
     #     foo.bar = 1 # name `:foo`
     #     ^^^
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   message_loc -> Location
+    #
     # Represents the Location of the message.
     #
     #     foo.bar = 1
@@ -3551,39 +4479,34 @@ module Prism
       @message_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the message_loc location using the given saved source so that
     # it can be retrieved later.
     def save_message_loc(repository)
       repository.enter(node_id, :message_loc)
     end
 
-    # def call_operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   call_operator -> String
+    #
+    # Slice the location of call_operator_loc from the source.
     def call_operator
       call_operator_loc.slice
     end
 
-    # def message: () -> String
+    # :call-seq:
+    #   message -> String
+    #
+    # Slice the location of message_loc from the source.
     def message
       message_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :call_target_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :call_target_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(CallTargetNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -3609,17 +4532,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_capture_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value, target]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -3627,40 +4561,72 @@ module Prism
       yield target
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value, target]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [value, target, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node, ?target: LocalVariableTargetNode, ?operator_loc: Location) -> CapturePatternNode
+    # :call-seq:
+    #   copy(**fields) -> CapturePatternNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value, target: self.target, operator_loc: self.operator_loc)
       CapturePatternNode.new(source, node_id, location, flags, value, target, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value, target: target, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :capture_pattern_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :capture_pattern_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   value -> Node
+    #
     # Represents the value to capture.
     #
     #     foo => bar
     #            ^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :call-seq:
+    #   target -> LocalVariableTargetNode
+    #
     # Represents the target of the capture.
     #
     #     foo => bar
     #     ^^^
-    attr_reader :target
+    def target
+      @target
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # Represents the Location of the `=>` operator.
     #
     #     foo => bar
@@ -3671,34 +4637,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :capture_pattern_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :capture_pattern_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(CapturePatternNode) &&
         (value === other.value) &&
         (target === other.target) &&
@@ -3726,17 +4684,28 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_case_match_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [predicate, *conditions, else_clause]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -3745,7 +4714,7 @@ module Prism
       yield else_clause if else_clause
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << predicate if predicate
@@ -3754,41 +4723,78 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*predicate, *conditions, *else_clause, case_keyword_loc, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[InNode], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseMatchNode
+    # :call-seq:
+    #   copy(**fields) -> CaseMatchNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, predicate: self.predicate, conditions: self.conditions, else_clause: self.else_clause, case_keyword_loc: self.case_keyword_loc, end_keyword_loc: self.end_keyword_loc)
       CaseMatchNode.new(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :case_match_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :case_match_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   predicate -> Node | nil
+    #
     # Represents the predicate of the case match. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     case true; in false; end
     #     ^^^^
-    attr_reader :predicate
+    def predicate
+      @predicate
+    end
 
+    # :call-seq:
+    #   conditions -> Array[InNode]
+    #
     # Represents the conditions of the case match.
     #
     #     case true; in false; end
     #                ^^^^^^^^
-    attr_reader :conditions
+    def conditions
+      @conditions
+    end
 
+    # :call-seq:
+    #   else_clause -> ElseNode | nil
+    #
     # Represents the else clause of the case match.
     #
     #     case true; in false; else; end
     #                          ^^^^
-    attr_reader :else_clause
+    def else_clause
+      @else_clause
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   case_keyword_loc -> Location
+    #
     # Represents the Location of the `case` keyword.
     #
     #     case true; in false; end
@@ -3799,12 +4805,17 @@ module Prism
       @case_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the case_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_case_keyword_loc(repository)
       repository.enter(node_id, :case_keyword_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location
+    #
     # Represents the Location of the `end` keyword.
     #
     #     case true; in false; end
@@ -3815,39 +4826,34 @@ module Prism
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc)
     end
 
-    # def case_keyword: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   case_keyword -> String
+    #
+    # Slice the location of case_keyword_loc from the source.
     def case_keyword
       case_keyword_loc.slice
     end
 
-    # def end_keyword: () -> String
+    # :call-seq:
+    #   end_keyword -> String
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :case_match_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :case_match_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(CaseMatchNode) &&
         (predicate === other.predicate) &&
         (conditions.length == other.conditions.length) &&
@@ -3878,17 +4884,28 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_case_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [predicate, *conditions, else_clause]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -3897,7 +4914,7 @@ module Prism
       yield else_clause if else_clause
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << predicate if predicate
@@ -3906,41 +4923,78 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*predicate, *conditions, *else_clause, case_keyword_loc, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?predicate: Prism::node?, ?conditions: Array[WhenNode], ?else_clause: ElseNode?, ?case_keyword_loc: Location, ?end_keyword_loc: Location) -> CaseNode
+    # :call-seq:
+    #   copy(**fields) -> CaseNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, predicate: self.predicate, conditions: self.conditions, else_clause: self.else_clause, case_keyword_loc: self.case_keyword_loc, end_keyword_loc: self.end_keyword_loc)
       CaseNode.new(source, node_id, location, flags, predicate, conditions, else_clause, case_keyword_loc, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :case_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :case_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   predicate -> Node | nil
+    #
     # Represents the predicate of the case statement. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     case true; when false; end
     #          ^^^^
-    attr_reader :predicate
+    def predicate
+      @predicate
+    end
 
+    # :call-seq:
+    #   conditions -> Array[WhenNode]
+    #
     # Represents the conditions of the case statement.
     #
     #     case true; when false; end
     #                ^^^^^^^^^^
-    attr_reader :conditions
+    def conditions
+      @conditions
+    end
 
+    # :call-seq:
+    #   else_clause -> ElseNode | nil
+    #
     # Represents the else clause of the case statement.
     #
     #     case true; when false; else; end
     #                            ^^^^
-    attr_reader :else_clause
+    def else_clause
+      @else_clause
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   case_keyword_loc -> Location
+    #
     # Represents the Location of the `case` keyword.
     #
     #     case true; when false; end
@@ -3951,12 +5005,17 @@ module Prism
       @case_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the case_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_case_keyword_loc(repository)
       repository.enter(node_id, :case_keyword_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location
+    #
     # Represents the Location of the `end` keyword.
     #
     #     case true; when false; end
@@ -3967,39 +5026,34 @@ module Prism
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc)
     end
 
-    # def case_keyword: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   case_keyword -> String
+    #
+    # Slice the location of case_keyword_loc from the source.
     def case_keyword
       case_keyword_loc.slice
     end
 
-    # def end_keyword: () -> String
+    # :call-seq:
+    #   end_keyword -> String
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :case_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :case_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(CaseNode) &&
         (predicate === other.predicate) &&
         (conditions.length == other.conditions.length) &&
@@ -4031,17 +5085,28 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_class_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [constant_path, superclass, body]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -4050,7 +5115,7 @@ module Prism
       yield body if body
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << constant_path
@@ -4059,26 +5124,53 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [class_keyword_loc, constant_path, *inheritance_operator_loc, *superclass, *body, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?class_keyword_loc: Location, ?constant_path: ConstantReadNode | ConstantPathNode | CallNode, ?inheritance_operator_loc: Location?, ?superclass: Prism::node?, ?body: StatementsNode | BeginNode | nil, ?end_keyword_loc: Location, ?name: Symbol) -> ClassNode
+    # :call-seq:
+    #   copy(**fields) -> ClassNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, class_keyword_loc: self.class_keyword_loc, constant_path: self.constant_path, inheritance_operator_loc: self.inheritance_operator_loc, superclass: self.superclass, body: self.body, end_keyword_loc: self.end_keyword_loc, name: self.name)
       ClassNode.new(source, node_id, location, flags, locals, class_keyword_loc, constant_path, inheritance_operator_loc, superclass, body, end_keyword_loc, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, class_keyword_loc: class_keyword_loc, constant_path: constant_path, inheritance_operator_loc: inheritance_operator_loc, superclass: superclass, body: body, end_keyword_loc: end_keyword_loc, name: name }
     end
 
-    # attr_reader locals: Array[Symbol]
-    attr_reader :locals
+    # See `Node#type`.
+    def type
+      :class_node
+    end
 
+    # See `Node.type`.
+    def self.type
+      :class_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   locals -> Array[Symbol]
+    #
+    # Returns the `locals` attribute.
+    def locals
+      @locals
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   class_keyword_loc -> Location
+    #
     # Represents the Location of the `class` keyword.
     #
     #     class Foo end
@@ -4089,15 +5181,25 @@ module Prism
       @class_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the class_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_class_keyword_loc(repository)
       repository.enter(node_id, :class_keyword_loc)
     end
 
-    # attr_reader constant_path: ConstantReadNode | ConstantPathNode | CallNode
-    attr_reader :constant_path
+    # :call-seq:
+    #   constant_path -> ConstantReadNode | ConstantPathNode | CallNode
+    #
+    # Returns the `constant_path` attribute.
+    def constant_path
+      @constant_path
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   inheritance_operator_loc -> Location | nil
+    #
     # Represents the Location of the `<` operator.
     #
     #     class Foo < Bar
@@ -4114,25 +5216,39 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the inheritance_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_inheritance_operator_loc(repository)
       repository.enter(node_id, :inheritance_operator_loc) unless @inheritance_operator_loc.nil?
     end
-
+    # :call-seq:
+    #   superclass -> Node | nil
+    #
     # Represents the superclass of the class.
     #
     #     class Foo < Bar
     #                 ^^^
-    attr_reader :superclass
+    def superclass
+      @superclass
+    end
 
+    # :call-seq:
+    #   body -> StatementsNode | BeginNode | nil
+    #
     # Represents the body of the class.
     #
     #     class Foo
     #       foo
     #       ^^^
-    attr_reader :body
+    def body
+      @body
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location
+    #
     # Represents the Location of the `end` keyword.
     #
     #     class Foo end
@@ -4143,49 +5259,52 @@ module Prism
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc)
     end
 
+    # :call-seq:
+    #   name -> Symbol
+    #
     # The name of the class.
     #
     #     class Foo end # name `:Foo`
-    attr_reader :name
+    def name
+      @name
+    end
 
-    # def class_keyword: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   class_keyword -> String
+    #
+    # Slice the location of class_keyword_loc from the source.
     def class_keyword
       class_keyword_loc.slice
     end
 
-    # def inheritance_operator: () -> String?
+    # :call-seq:
+    #   inheritance_operator -> String | nil
+    #
+    # Slice the location of inheritance_operator_loc from the source.
     def inheritance_operator
       inheritance_operator_loc&.slice
     end
 
-    # def end_keyword: () -> String
+    # :call-seq:
+    #   end_keyword -> String
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :class_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :class_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ClassNode) &&
         (locals.length == other.locals.length) &&
         locals.zip(other.locals).all? { |left, right| left === right } &&
@@ -4216,51 +5335,89 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_class_variable_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> ClassVariableAndWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ClassVariableAndWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       ClassVariableAndWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
+    # See `Node#type`.
+    def type
+      :class_variable_and_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :class_variable_and_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
     # The name of the class variable, which is a `@@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
     #
     #     @@target &&= value # name `:@@target`
     #     ^^^^^^^^
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
     # Represents the Location of the variable name.
     #
     #     @@target &&= value
@@ -4271,12 +5428,17 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # Represents the Location of the `&&=` operator.
     #
     #     @@target &&= value
@@ -4287,40 +5449,37 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # Represents the value being assigned. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     @@target &&= value
     #                  ^^^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :class_variable_and_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :class_variable_and_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ClassVariableAndWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -4347,97 +5506,139 @@ module Prism
       @binary_operator = binary_operator
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_class_variable_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, binary_operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?binary_operator_loc: Location, ?value: Prism::node, ?binary_operator: Symbol) -> ClassVariableOperatorWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ClassVariableOperatorWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator)
       ClassVariableOperatorWriteNode.new(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :class_variable_operator_write_node
+    end
 
-    # attr_reader name_loc: Location
+    # See `Node.type`.
+    def self.type
+      :class_variable_operator_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
-    # attr_reader binary_operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   binary_operator_loc -> Location
+    #
+    # Returns the Location represented by `binary_operator_loc`.
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the binary_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_binary_operator_loc(repository)
       repository.enter(node_id, :binary_operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader binary_operator: Symbol
-    attr_reader :binary_operator
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :class_variable_operator_write_node
+    # :call-seq:
+    #   binary_operator -> Symbol
+    #
+    # Returns the `binary_operator` attribute.
+    def binary_operator
+      @binary_operator
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :class_variable_operator_write_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ClassVariableOperatorWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -4464,99 +5665,139 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_class_variable_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> ClassVariableOrWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ClassVariableOrWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       ClassVariableOrWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :class_variable_or_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :class_variable_or_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :class_variable_or_write_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :class_variable_or_write_node
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ClassVariableOrWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -4579,68 +5820,90 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_class_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> ClassVariableReadNode
+    # :call-seq:
+    #   copy(**fields) -> ClassVariableReadNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       ClassVariableReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # The name of the class variable, which is a `@@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
-    #
-    #     @@abc   # name `:@@abc`
-    #
-    #     @@_test # name `:@@_test`
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :class_variable_read_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :class_variable_read_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :class_variable_read_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # The name of the class variable, which is a `@@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
+    #
+    #     @@abc   # name `:@@abc`
+    #
+    #     @@_test # name `:@@_test`
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :class_variable_read_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ClassVariableReadNode) &&
         (name === other.name)
     end
@@ -4660,64 +5923,86 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_class_variable_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> ClassVariableTargetNode
+    # :call-seq:
+    #   copy(**fields) -> ClassVariableTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       ClassVariableTargetNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :class_variable_target_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :class_variable_target_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :class_variable_target_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :class_variable_target_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ClassVariableTargetNode) &&
         (name === other.name)
     end
@@ -4740,52 +6025,90 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_class_variable_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, value, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?value: Prism::node, ?operator_loc: Location) -> ClassVariableWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ClassVariableWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc)
       ClassVariableWriteNode.new(source, node_id, location, flags, name, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :class_variable_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :class_variable_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
     # The name of the class variable, which is a `@@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
     #
     #     @@abc = 123     # name `@@abc`
     #
     #     @@_test = :test # name `@@_test`
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
     # The Location of the variable name.
     #
     #     @@foo = :bar
@@ -4796,12 +6119,16 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # The value to write to the class variable. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     @@foo = :bar
@@ -4809,8 +6136,14 @@ module Prism
     #
     #     @@_xyz = 123
     #              ^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `=` operator.
     #
     #     @@foo = :bar
@@ -4821,34 +6154,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :class_variable_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :class_variable_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ClassVariableWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -4874,99 +6199,139 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> ConstantAndWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantAndWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       ConstantAndWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :constant_and_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :constant_and_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_and_write_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_and_write_node
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantAndWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -4993,97 +6358,139 @@ module Prism
       @binary_operator = binary_operator
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, binary_operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?binary_operator_loc: Location, ?value: Prism::node, ?binary_operator: Symbol) -> ConstantOperatorWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantOperatorWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator)
       ConstantOperatorWriteNode.new(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :constant_operator_write_node
+    end
 
-    # attr_reader name_loc: Location
+    # See `Node.type`.
+    def self.type
+      :constant_operator_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
-    # attr_reader binary_operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   binary_operator_loc -> Location
+    #
+    # Returns the Location represented by `binary_operator_loc`.
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the binary_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_binary_operator_loc(repository)
       repository.enter(node_id, :binary_operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader binary_operator: Symbol
-    attr_reader :binary_operator
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_operator_write_node
+    # :call-seq:
+    #   binary_operator -> Symbol
+    #
+    # Returns the `binary_operator` attribute.
+    def binary_operator
+      @binary_operator
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_operator_write_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantOperatorWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -5110,99 +6517,139 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> ConstantOrWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantOrWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       ConstantOrWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :constant_or_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :constant_or_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_or_write_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_or_write_node
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantOrWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -5227,17 +6674,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_path_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [target, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -5245,69 +6703,93 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [target, value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [target, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?target: ConstantPathNode, ?operator_loc: Location, ?value: Prism::node) -> ConstantPathAndWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantPathAndWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, target: self.target, operator_loc: self.operator_loc, value: self.value)
       ConstantPathAndWriteNode.new(source, node_id, location, flags, target, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader target: ConstantPathNode
-    attr_reader :target
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :constant_path_and_write_node
     end
 
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :constant_path_and_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_path_and_write_node
+    # :section:
+
+    # :call-seq:
+    #   target -> ConstantPathNode
+    #
+    # Returns the `target` attribute.
+    def target
+      @target
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_path_and_write_node
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantPathAndWriteNode) &&
         (target === other.target) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
@@ -5332,47 +6814,79 @@ module Prism
       @name_loc = name_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_path_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [parent]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield parent if parent
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << parent if parent
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*parent, delimiter_loc, name_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?parent: Prism::node?, ?name: Symbol?, ?delimiter_loc: Location, ?name_loc: Location) -> ConstantPathNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantPathNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, parent: self.parent, name: self.name, delimiter_loc: self.delimiter_loc, name_loc: self.name_loc)
       ConstantPathNode.new(source, node_id, location, flags, parent, name, delimiter_loc, name_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, parent: parent, name: name, delimiter_loc: delimiter_loc, name_loc: name_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :constant_path_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :constant_path_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   parent -> Node | nil
+    #
     # The left-hand node of the path, if present. It can be `nil` or any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression). It will be `nil` when the constant lookup is at the root of the module tree.
     #
     #     Foo::Bar
@@ -5383,11 +6897,22 @@ module Prism
     #
     #     a.b::C
     #     ^^^
-    attr_reader :parent
+    def parent
+      @parent
+    end
 
+    # :call-seq:
+    #   name -> Symbol | nil
+    #
     # The name of the constant being accessed. This could be `nil` in the event of a syntax error.
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   delimiter_loc -> Location
+    #
     # The Location of the `::` delimiter.
     #
     #     ::Foo
@@ -5401,12 +6926,17 @@ module Prism
       @delimiter_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the delimiter_loc location using the given saved source so that
     # it can be retrieved later.
     def save_delimiter_loc(repository)
       repository.enter(node_id, :delimiter_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
     # The Location of the name of the constant.
     #
     #     ::Foo
@@ -5420,34 +6950,26 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
-    # def delimiter: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   delimiter -> String
+    #
+    # Slice the location of delimiter_loc from the source.
     def delimiter
       delimiter_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_path_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_path_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ConstantPathNode) &&
         (parent === other.parent) &&
         (name === other.name) &&
@@ -5473,17 +6995,28 @@ module Prism
       @binary_operator = binary_operator
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_path_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [target, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -5491,67 +7024,93 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [target, value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [target, binary_operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?target: ConstantPathNode, ?binary_operator_loc: Location, ?value: Prism::node, ?binary_operator: Symbol) -> ConstantPathOperatorWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantPathOperatorWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, target: self.target, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator)
       ConstantPathOperatorWriteNode.new(source, node_id, location, flags, target, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, target: target, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
-    # attr_reader target: ConstantPathNode
-    attr_reader :target
+    # See `Node#type`.
+    def type
+      :constant_path_operator_write_node
+    end
 
-    # attr_reader binary_operator_loc: Location
+    # See `Node.type`.
+    def self.type
+      :constant_path_operator_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   target -> ConstantPathNode
+    #
+    # Returns the `target` attribute.
+    def target
+      @target
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   binary_operator_loc -> Location
+    #
+    # Returns the Location represented by `binary_operator_loc`.
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the binary_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_binary_operator_loc(repository)
       repository.enter(node_id, :binary_operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader binary_operator: Symbol
-    attr_reader :binary_operator
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_path_operator_write_node
+    # :call-seq:
+    #   binary_operator -> Symbol
+    #
+    # Returns the `binary_operator` attribute.
+    def binary_operator
+      @binary_operator
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_path_operator_write_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantPathOperatorWriteNode) &&
         (target === other.target) &&
         (binary_operator_loc.nil? == other.binary_operator_loc.nil?) &&
@@ -5576,17 +7135,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_path_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [target, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -5594,69 +7164,93 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [target, value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [target, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?target: ConstantPathNode, ?operator_loc: Location, ?value: Prism::node) -> ConstantPathOrWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantPathOrWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, target: self.target, operator_loc: self.operator_loc, value: self.value)
       ConstantPathOrWriteNode.new(source, node_id, location, flags, target, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader target: ConstantPathNode
-    attr_reader :target
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :constant_path_or_write_node
     end
 
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :constant_path_or_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_path_or_write_node
+    # :section:
+
+    # :call-seq:
+    #   target -> ConstantPathNode
+    #
+    # Returns the `target` attribute.
+    def target
+      @target
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_path_or_write_node
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantPathOrWriteNode) &&
         (target === other.target) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
@@ -5681,101 +7275,141 @@ module Prism
       @name_loc = name_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_path_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [parent]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield parent if parent
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << parent if parent
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*parent, delimiter_loc, name_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?parent: Prism::node?, ?name: Symbol?, ?delimiter_loc: Location, ?name_loc: Location) -> ConstantPathTargetNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantPathTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, parent: self.parent, name: self.name, delimiter_loc: self.delimiter_loc, name_loc: self.name_loc)
       ConstantPathTargetNode.new(source, node_id, location, flags, parent, name, delimiter_loc, name_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, parent: parent, name: name, delimiter_loc: delimiter_loc, name_loc: name_loc }
     end
 
-    # attr_reader parent: Prism::node?
-    attr_reader :parent
-
-    # attr_reader name: Symbol?
-    attr_reader :name
-
-    # attr_reader delimiter_loc: Location
-    def delimiter_loc
-      location = @delimiter_loc
-      return location if location.is_a?(Location)
-      @delimiter_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :constant_path_target_node
     end
 
-    # Save the delimiter_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_delimiter_loc(repository)
-      repository.enter(node_id, :delimiter_loc)
-    end
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # def delimiter: () -> String
-    def delimiter
-      delimiter_loc.slice
+    # See `Node.type`.
+    def self.type
+      :constant_path_target_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_path_target_node
+    # :section:
+
+    # :call-seq:
+    #   parent -> Node | nil
+    #
+    # Returns the `parent` attribute.
+    def parent
+      @parent
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_path_target_node
+    # :call-seq:
+    #   name -> Symbol | nil
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   delimiter_loc -> Location
+    #
+    # Returns the Location represented by `delimiter_loc`.
+    def delimiter_loc
+      location = @delimiter_loc
+      return location if location.is_a?(Location)
+      @delimiter_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the delimiter_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_delimiter_loc(repository)
+      repository.enter(node_id, :delimiter_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   delimiter -> String
+    #
+    # Slice the location of delimiter_loc from the source.
+    def delimiter
+      delimiter_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantPathTargetNode) &&
         (parent === other.parent) &&
         (name === other.name) &&
@@ -5806,17 +7440,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_path_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [target, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -5824,28 +7469,49 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [target, value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [target, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?target: ConstantPathNode, ?operator_loc: Location, ?value: Prism::node) -> ConstantPathWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantPathWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, target: self.target, operator_loc: self.operator_loc, value: self.value)
       ConstantPathWriteNode.new(source, node_id, location, flags, target, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
     end
 
+    # See `Node#type`.
+    def type
+      :constant_path_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :constant_path_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   target -> ConstantPathNode
+    #
     # A node representing the constant path being written to.
     #
     #     Foo::Bar = 1
@@ -5853,8 +7519,14 @@ module Prism
     #
     #     ::Foo = :abc
     #     ^^^^^
-    attr_reader :target
+    def target
+      @target
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `=` operator.
     #
     #     ::ABC = 123
@@ -5865,40 +7537,37 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # The value to write to the constant path. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     FOO::BAR = :abc
     #                ^^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_path_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_path_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ConstantPathWriteNode) &&
         (target === other.target) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
@@ -5920,68 +7589,90 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_read_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> ConstantReadNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantReadNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       ConstantReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # The name of the [constant](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#constants).
-    #
-    #     X              # name `:X`
-    #
-    #     SOME_CONSTANT  # name `:SOME_CONSTANT`
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :constant_read_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :constant_read_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_read_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # The name of the [constant](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#constants).
+    #
+    #     X              # name `:X`
+    #
+    #     SOME_CONSTANT  # name `:SOME_CONSTANT`
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_read_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantReadNode) &&
         (name === other.name)
     end
@@ -6001,64 +7692,86 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> ConstantTargetNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       ConstantTargetNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :constant_target_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :constant_target_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_target_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_target_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ConstantTargetNode) &&
         (name === other.name)
     end
@@ -6081,52 +7794,90 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_constant_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, value, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?value: Prism::node, ?operator_loc: Location) -> ConstantWriteNode
+    # :call-seq:
+    #   copy(**fields) -> ConstantWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc)
       ConstantWriteNode.new(source, node_id, location, flags, name, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :constant_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :constant_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
     # The name of the [constant](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#constants).
     #
     #     Foo = :bar # name `:Foo`
     #
     #     XYZ = 1    # name `:XYZ`
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
     # The Location of the constant name.
     #
     #     FOO = 1
@@ -6137,12 +7888,16 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # The value to write to the constant. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     FOO = :bar
@@ -6150,8 +7905,14 @@ module Prism
     #
     #     MyClass = Class.new
     #               ^^^^^^^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `=` operator.
     #
     #     FOO = :bar
@@ -6162,34 +7923,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :constant_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :constant_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ConstantWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -6224,17 +7977,28 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_def_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, parameters, body]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -6243,7 +8007,7 @@ module Prism
       yield body if body
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver if receiver
@@ -6252,65 +8016,122 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, *receiver, *parameters, *body, def_keyword_loc, *operator_loc, *lparen_loc, *rparen_loc, *equal_loc, *end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?receiver: Prism::node?, ?parameters: ParametersNode?, ?body: StatementsNode | BeginNode | nil, ?locals: Array[Symbol], ?def_keyword_loc: Location, ?operator_loc: Location?, ?lparen_loc: Location?, ?rparen_loc: Location?, ?equal_loc: Location?, ?end_keyword_loc: Location?) -> DefNode
+    # :call-seq:
+    #   copy(**fields) -> DefNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, receiver: self.receiver, parameters: self.parameters, body: self.body, locals: self.locals, def_keyword_loc: self.def_keyword_loc, operator_loc: self.operator_loc, lparen_loc: self.lparen_loc, rparen_loc: self.rparen_loc, equal_loc: self.equal_loc, end_keyword_loc: self.end_keyword_loc)
       DefNode.new(source, node_id, location, flags, name, name_loc, receiver, parameters, body, locals, def_keyword_loc, operator_loc, lparen_loc, rparen_loc, equal_loc, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, receiver: receiver, parameters: parameters, body: body, locals: locals, def_keyword_loc: def_keyword_loc, operator_loc: operator_loc, lparen_loc: lparen_loc, rparen_loc: rparen_loc, equal_loc: equal_loc, end_keyword_loc: end_keyword_loc }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :def_node
+    end
 
-    # attr_reader name_loc: Location
+    # See `Node.type`.
+    def self.type
+      :def_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
-    # attr_reader receiver: Prism::node?
-    attr_reader :receiver
+    # :call-seq:
+    #   receiver -> Node | nil
+    #
+    # Returns the `receiver` attribute.
+    def receiver
+      @receiver
+    end
 
-    # attr_reader parameters: ParametersNode?
-    attr_reader :parameters
+    # :call-seq:
+    #   parameters -> ParametersNode | nil
+    #
+    # Returns the `parameters` attribute.
+    def parameters
+      @parameters
+    end
 
-    # attr_reader body: StatementsNode | BeginNode | nil
-    attr_reader :body
+    # :call-seq:
+    #   body -> StatementsNode | BeginNode | nil
+    #
+    # Returns the `body` attribute.
+    def body
+      @body
+    end
 
-    # attr_reader locals: Array[Symbol]
-    attr_reader :locals
+    # :call-seq:
+    #   locals -> Array[Symbol]
+    #
+    # Returns the `locals` attribute.
+    def locals
+      @locals
+    end
 
-    # attr_reader def_keyword_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   def_keyword_loc -> Location
+    #
+    # Returns the Location represented by `def_keyword_loc`.
     def def_keyword_loc
       location = @def_keyword_loc
       return location if location.is_a?(Location)
       @def_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the def_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_def_keyword_loc(repository)
       repository.enter(node_id, :def_keyword_loc)
     end
 
-    # attr_reader operator_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location | nil
+    #
+    # Returns the Location represented by `operator_loc`.
     def operator_loc
       location = @operator_loc
       case location
@@ -6323,13 +8144,17 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc) unless @operator_loc.nil?
     end
-
-    # attr_reader lparen_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   lparen_loc -> Location | nil
+    #
+    # Returns the Location represented by `lparen_loc`.
     def lparen_loc
       location = @lparen_loc
       case location
@@ -6342,13 +8167,17 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the lparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_lparen_loc(repository)
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
-
-    # attr_reader rparen_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   rparen_loc -> Location | nil
+    #
+    # Returns the Location represented by `rparen_loc`.
     def rparen_loc
       location = @rparen_loc
       case location
@@ -6361,13 +8190,17 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the rparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_rparen_loc(repository)
       repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
-
-    # attr_reader equal_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   equal_loc -> Location | nil
+    #
+    # Returns the Location represented by `equal_loc`.
     def equal_loc
       location = @equal_loc
       case location
@@ -6380,13 +8213,17 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the equal_loc location using the given saved source so that
     # it can be retrieved later.
     def save_equal_loc(repository)
       repository.enter(node_id, :equal_loc) unless @equal_loc.nil?
     end
-
-    # attr_reader end_keyword_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location | nil
+    #
+    # Returns the Location represented by `end_keyword_loc`.
     def end_keyword_loc
       location = @end_keyword_loc
       case location
@@ -6399,59 +8236,65 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
+    # :section: Slicing
 
-    # def def_keyword: () -> String
+    # :call-seq:
+    #   def_keyword -> String
+    #
+    # Slice the location of def_keyword_loc from the source.
     def def_keyword
       def_keyword_loc.slice
     end
 
-    # def operator: () -> String?
+    # :call-seq:
+    #   operator -> String | nil
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc&.slice
     end
 
-    # def lparen: () -> String?
+    # :call-seq:
+    #   lparen -> String | nil
+    #
+    # Slice the location of lparen_loc from the source.
     def lparen
       lparen_loc&.slice
     end
 
-    # def rparen: () -> String?
+    # :call-seq:
+    #   rparen -> String | nil
+    #
+    # Slice the location of rparen_loc from the source.
     def rparen
       rparen_loc&.slice
     end
 
-    # def equal: () -> String?
+    # :call-seq:
+    #   equal -> String | nil
+    #
+    # Slice the location of equal_loc from the source.
     def equal
       equal_loc&.slice
     end
 
-    # def end_keyword: () -> String?
+    # :call-seq:
+    #   end_keyword -> String | nil
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :def_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :def_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(DefNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -6486,46 +8329,79 @@ module Prism
       @keyword_loc = keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_defined_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*lparen_loc, value, *rparen_loc, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?lparen_loc: Location?, ?value: Prism::node, ?rparen_loc: Location?, ?keyword_loc: Location) -> DefinedNode
+    # :call-seq:
+    #   copy(**fields) -> DefinedNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, lparen_loc: self.lparen_loc, value: self.value, rparen_loc: self.rparen_loc, keyword_loc: self.keyword_loc)
       DefinedNode.new(source, node_id, location, flags, lparen_loc, value, rparen_loc, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, lparen_loc: lparen_loc, value: value, rparen_loc: rparen_loc, keyword_loc: keyword_loc }
     end
 
-    # attr_reader lparen_loc: Location?
+    # See `Node#type`.
+    def type
+      :defined_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :defined_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   lparen_loc -> Location | nil
+    #
+    # Returns the Location represented by `lparen_loc`.
     def lparen_loc
       location = @lparen_loc
       case location
@@ -6538,16 +8414,25 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the lparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_lparen_loc(repository)
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader rparen_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   rparen_loc -> Location | nil
+    #
+    # Returns the Location represented by `rparen_loc`.
     def rparen_loc
       location = @rparen_loc
       case location
@@ -6560,57 +8445,59 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the rparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_rparen_loc(repository)
       repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
-
-    # attr_reader keyword_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # def lparen: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   lparen -> String | nil
+    #
+    # Slice the location of lparen_loc from the source.
     def lparen
       lparen_loc&.slice
     end
 
-    # def rparen: () -> String?
+    # :call-seq:
+    #   rparen -> String | nil
+    #
+    # Slice the location of rparen_loc from the source.
     def rparen
       rparen_loc&.slice
     end
 
-    # def keyword: () -> String
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :defined_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :defined_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(DefinedNode) &&
         (lparen_loc.nil? == other.lparen_loc.nil?) &&
         (value === other.value) &&
@@ -6635,64 +8522,107 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_else_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << statements if statements
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [else_keyword_loc, *statements, *end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?else_keyword_loc: Location, ?statements: StatementsNode?, ?end_keyword_loc: Location?) -> ElseNode
+    # :call-seq:
+    #   copy(**fields) -> ElseNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, else_keyword_loc: self.else_keyword_loc, statements: self.statements, end_keyword_loc: self.end_keyword_loc)
       ElseNode.new(source, node_id, location, flags, else_keyword_loc, statements, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, else_keyword_loc: else_keyword_loc, statements: statements, end_keyword_loc: end_keyword_loc }
     end
 
-    # attr_reader else_keyword_loc: Location
+    # See `Node#type`.
+    def type
+      :else_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :else_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   else_keyword_loc -> Location
+    #
+    # Returns the Location represented by `else_keyword_loc`.
     def else_keyword_loc
       location = @else_keyword_loc
       return location if location.is_a?(Location)
       @else_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the else_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_else_keyword_loc(repository)
       repository.enter(node_id, :else_keyword_loc)
     end
 
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
+    end
 
-    # attr_reader end_keyword_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location | nil
+    #
+    # Returns the Location represented by `end_keyword_loc`.
     def end_keyword_loc
       location = @end_keyword_loc
       case location
@@ -6705,39 +8635,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
+    # :section: Slicing
 
-    # def else_keyword: () -> String
+    # :call-seq:
+    #   else_keyword -> String
+    #
+    # Slice the location of else_keyword_loc from the source.
     def else_keyword
       else_keyword_loc.slice
     end
 
-    # def end_keyword: () -> String?
+    # :call-seq:
+    #   end_keyword -> String | nil
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :else_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :else_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ElseNode) &&
         (else_keyword_loc.nil? == other.else_keyword_loc.nil?) &&
         (statements === other.statements) &&
@@ -6761,103 +8685,141 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_embedded_statements_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << statements if statements
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [opening_loc, *statements, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location, ?statements: StatementsNode?, ?closing_loc: Location) -> EmbeddedStatementsNode
+    # :call-seq:
+    #   copy(**fields) -> EmbeddedStatementsNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, statements: self.statements, closing_loc: self.closing_loc)
       EmbeddedStatementsNode.new(source, node_id, location, flags, opening_loc, statements, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, statements: statements, closing_loc: closing_loc }
     end
 
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :embedded_statements_node
     end
 
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :embedded_statements_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :embedded_statements_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :embedded_statements_node
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(EmbeddedStatementsNode) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
         (statements === other.statements) &&
@@ -6880,83 +8842,113 @@ module Prism
       @variable = variable
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_embedded_variable_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [variable]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield variable
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [variable]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [operator_loc, variable] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?operator_loc: Location, ?variable: InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode) -> EmbeddedVariableNode
+    # :call-seq:
+    #   copy(**fields) -> EmbeddedVariableNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, operator_loc: self.operator_loc, variable: self.variable)
       EmbeddedVariableNode.new(source, node_id, location, flags, operator_loc, variable)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, operator_loc: operator_loc, variable: variable }
     end
 
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :embedded_variable_node
     end
 
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader variable: InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode
-    attr_reader :variable
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :embedded_variable_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :embedded_variable_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :embedded_variable_node
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   variable -> InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode
+    #
+    # Returns the `variable` attribute.
+    def variable
+      @variable
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(EmbeddedVariableNode) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
         (variable === other.variable)
@@ -6983,103 +8975,141 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_ensure_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << statements if statements
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [ensure_keyword_loc, *statements, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?ensure_keyword_loc: Location, ?statements: StatementsNode?, ?end_keyword_loc: Location) -> EnsureNode
+    # :call-seq:
+    #   copy(**fields) -> EnsureNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, ensure_keyword_loc: self.ensure_keyword_loc, statements: self.statements, end_keyword_loc: self.end_keyword_loc)
       EnsureNode.new(source, node_id, location, flags, ensure_keyword_loc, statements, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, ensure_keyword_loc: ensure_keyword_loc, statements: statements, end_keyword_loc: end_keyword_loc }
     end
 
-    # attr_reader ensure_keyword_loc: Location
-    def ensure_keyword_loc
-      location = @ensure_keyword_loc
-      return location if location.is_a?(Location)
-      @ensure_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :ensure_node
     end
 
-    # Save the ensure_keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_ensure_keyword_loc(repository)
-      repository.enter(node_id, :ensure_keyword_loc)
-    end
-
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
-
-    # attr_reader end_keyword_loc: Location
-    def end_keyword_loc
-      location = @end_keyword_loc
-      return location if location.is_a?(Location)
-      @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the end_keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_end_keyword_loc(repository)
-      repository.enter(node_id, :end_keyword_loc)
-    end
-
-    # def ensure_keyword: () -> String
-    def ensure_keyword
-      ensure_keyword_loc.slice
-    end
-
-    # def end_keyword: () -> String
-    def end_keyword
-      end_keyword_loc.slice
+    # See `Node.type`.
+    def self.type
+      :ensure_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :ensure_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   ensure_keyword_loc -> Location
+    #
+    # Returns the Location represented by `ensure_keyword_loc`.
+    def ensure_keyword_loc
+      location = @ensure_keyword_loc
+      return location if location.is_a?(Location)
+      @ensure_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :ensure_node
+    # :category: Repository
+    # Save the ensure_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_ensure_keyword_loc(repository)
+      repository.enter(node_id, :ensure_keyword_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location
+    #
+    # Returns the Location represented by `end_keyword_loc`.
+    def end_keyword_loc
+      location = @end_keyword_loc
+      return location if location.is_a?(Location)
+      @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   ensure_keyword -> String
+    #
+    # Slice the location of ensure_keyword_loc from the source.
+    def ensure_keyword
+      ensure_keyword_loc.slice
+    end
+
+    # :call-seq:
+    #   end_keyword -> String
+    #
+    # Slice the location of end_keyword_loc from the source.
+    def end_keyword
+      end_keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(EnsureNode) &&
         (ensure_keyword_loc.nil? == other.ensure_keyword_loc.nil?) &&
         (statements === other.statements) &&
@@ -7100,61 +9130,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_false_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> FalseNode
+    # :call-seq:
+    #   copy(**fields) -> FalseNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       FalseNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :false_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :false_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(FalseNode)
     end
   end
@@ -7187,17 +9234,28 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_find_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [constant, left, *requireds, right]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -7207,7 +9265,7 @@ module Prism
       yield right
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << constant if constant
@@ -7217,29 +9275,55 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*constant, left, *requireds, right, *opening_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?left: SplatNode, ?requireds: Array[Prism::node], ?right: SplatNode | MissingNode, ?opening_loc: Location?, ?closing_loc: Location?) -> FindPatternNode
+    # :call-seq:
+    #   copy(**fields) -> FindPatternNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, left: self.left, requireds: self.requireds, right: self.right, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       FindPatternNode.new(source, node_id, location, flags, constant, left, requireds, right, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, constant: constant, left: left, requireds: requireds, right: right, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :find_pattern_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :find_pattern_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   constant -> ConstantPathNode | ConstantReadNode | nil
+    #
     # Represents the optional constant preceding the pattern
     #
     #     foo in Foo(*bar, baz, *qux)
     #            ^^^
-    attr_reader :constant
+    def constant
+      @constant
+    end
 
+    # :call-seq:
+    #   left -> SplatNode
+    #
     # Represents the first wildcard node in the pattern.
     #
     #     foo in *bar, baz, *qux
@@ -7247,8 +9331,13 @@ module Prism
     #
     #     foo in Foo(*bar, baz, *qux)
     #                ^^^^
-    attr_reader :left
+    def left
+      @left
+    end
 
+    # :call-seq:
+    #   requireds -> Array[Node]
+    #
     # Represents the nodes in between the wildcards.
     #
     #     foo in *bar, baz, *qux
@@ -7256,8 +9345,13 @@ module Prism
     #
     #     foo in Foo(*bar, baz, 1, *qux)
     #                      ^^^^^^
-    attr_reader :requireds
+    def requireds
+      @requireds
+    end
 
+    # :call-seq:
+    #   right -> SplatNode | MissingNode
+    #
     # Represents the second wildcard node in the pattern.
     #
     #     foo in *bar, baz, *qux
@@ -7265,8 +9359,14 @@ module Prism
     #
     #     foo in Foo(*bar, baz, *qux)
     #                           ^^^^
-    attr_reader :right
+    def right
+      @right
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
     # The Location of the opening brace.
     #
     #     foo in [*bar, baz, *qux]
@@ -7286,12 +9386,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
     # The Location of the closing brace.
     #
     #     foo in [*bar, baz, *qux]
@@ -7311,39 +9415,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :find_pattern_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :find_pattern_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(FindPatternNode) &&
         (constant === other.constant) &&
         (left === other.left) &&
@@ -7371,17 +9469,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_flip_flop_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [left, right]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -7389,7 +9498,7 @@ module Prism
       yield right if right
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << left if left
@@ -7397,69 +9506,94 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*left, *right, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?left: Prism::node?, ?right: Prism::node?, ?operator_loc: Location) -> FlipFlopNode
+    # :call-seq:
+    #   copy(**fields) -> FlipFlopNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, left: self.left, right: self.right, operator_loc: self.operator_loc)
       FlipFlopNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
-    # def exclude_end?: () -> bool
-    def exclude_end?
-      flags.anybits?(RangeFlags::EXCLUDE_END)
+    # See `Node#type`.
+    def type
+      :flip_flop_node
     end
 
-    # attr_reader left: Prism::node?
-    attr_reader :left
-
-    # attr_reader right: Prism::node?
-    attr_reader :right
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :flip_flop_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :flip_flop_node
+    # :section:
+
+    # :category: Flags
+    # ... operator
+    def exclude_end?
+      flags.anybits?(RangeFlags::EXCLUDE_END)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :flip_flop_node
+    # :call-seq:
+    #   left -> Node | nil
+    #
+    # Returns the `left` attribute.
+    def left
+      @left
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   right -> Node | nil
+    #
+    # Returns the `right` attribute.
+    def right
+      @right
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(FlipFlopNode) &&
         (flags === other.flags) &&
         (left === other.left) &&
@@ -7482,64 +9616,86 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_float_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Float) -> FloatNode
+    # :call-seq:
+    #   copy(**fields) -> FloatNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value)
       FloatNode.new(source, node_id, location, flags, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value }
     end
 
-    # The value of the floating point number as a Float.
-    attr_reader :value
+    # See `Node#type`.
+    def type
+      :float_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :float_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :float_node
+    # :section:
+
+    # :call-seq:
+    #   value -> Float
+    #
+    # The value of the floating point number as a Float.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :float_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(FloatNode) &&
         (value === other.value)
     end
@@ -7565,17 +9721,28 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_for_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [index, collection, statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -7584,7 +9751,7 @@ module Prism
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << index
@@ -7593,43 +9760,80 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [index, collection, *statements, for_keyword_loc, in_keyword_loc, *do_keyword_loc, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?index: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode, ?collection: Prism::node, ?statements: StatementsNode?, ?for_keyword_loc: Location, ?in_keyword_loc: Location, ?do_keyword_loc: Location?, ?end_keyword_loc: Location) -> ForNode
+    # :call-seq:
+    #   copy(**fields) -> ForNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, index: self.index, collection: self.collection, statements: self.statements, for_keyword_loc: self.for_keyword_loc, in_keyword_loc: self.in_keyword_loc, do_keyword_loc: self.do_keyword_loc, end_keyword_loc: self.end_keyword_loc)
       ForNode.new(source, node_id, location, flags, index, collection, statements, for_keyword_loc, in_keyword_loc, do_keyword_loc, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, index: index, collection: collection, statements: statements, for_keyword_loc: for_keyword_loc, in_keyword_loc: in_keyword_loc, do_keyword_loc: do_keyword_loc, end_keyword_loc: end_keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :for_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :for_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   index -> LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode
+    #
     # The index expression for `for` loops.
     #
     #     for i in a end
     #         ^
-    attr_reader :index
+    def index
+      @index
+    end
 
+    # :call-seq:
+    #   collection -> Node
+    #
     # The collection to iterate over.
     #
     #     for i in a end
     #              ^
-    attr_reader :collection
+    def collection
+      @collection
+    end
 
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
     # Represents the body of statements to execute for each iteration of the loop.
     #
     #     for i in a
     #       foo(i)
     #       ^^^^^^
     #     end
-    attr_reader :statements
+    def statements
+      @statements
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   for_keyword_loc -> Location
+    #
     # The Location of the `for` keyword.
     #
     #     for i in a end
@@ -7640,12 +9844,17 @@ module Prism
       @for_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the for_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_for_keyword_loc(repository)
       repository.enter(node_id, :for_keyword_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   in_keyword_loc -> Location
+    #
     # The Location of the `in` keyword.
     #
     #     for i in a end
@@ -7656,12 +9865,17 @@ module Prism
       @in_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the in_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_in_keyword_loc(repository)
       repository.enter(node_id, :in_keyword_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   do_keyword_loc -> Location | nil
+    #
     # The Location of the `do` keyword, if present.
     #
     #     for i in a do end
@@ -7678,12 +9892,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the do_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_do_keyword_loc(repository)
       repository.enter(node_id, :do_keyword_loc) unless @do_keyword_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location
+    #
     # The Location of the `end` keyword.
     #
     #     for i in a end
@@ -7694,49 +9912,50 @@ module Prism
       @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc)
     end
 
-    # def for_keyword: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   for_keyword -> String
+    #
+    # Slice the location of for_keyword_loc from the source.
     def for_keyword
       for_keyword_loc.slice
     end
 
-    # def in_keyword: () -> String
+    # :call-seq:
+    #   in_keyword -> String
+    #
+    # Slice the location of in_keyword_loc from the source.
     def in_keyword
       in_keyword_loc.slice
     end
 
-    # def do_keyword: () -> String?
+    # :call-seq:
+    #   do_keyword -> String | nil
+    #
+    # Slice the location of do_keyword_loc from the source.
     def do_keyword
       do_keyword_loc&.slice
     end
 
-    # def end_keyword: () -> String
+    # :call-seq:
+    #   end_keyword -> String
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :for_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :for_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(ForNode) &&
         (index === other.index) &&
         (collection === other.collection) &&
@@ -7763,61 +9982,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_forwarding_arguments_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> ForwardingArgumentsNode
+    # :call-seq:
+    #   copy(**fields) -> ForwardingArgumentsNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       ForwardingArgumentsNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :forwarding_arguments_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :forwarding_arguments_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ForwardingArgumentsNode)
     end
   end
@@ -7836,61 +10072,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_forwarding_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> ForwardingParameterNode
+    # :call-seq:
+    #   copy(**fields) -> ForwardingParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       ForwardingParameterNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :forwarding_parameter_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :forwarding_parameter_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ForwardingParameterNode)
     end
   end
@@ -7914,67 +10167,89 @@ module Prism
       @block = block
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_forwarding_super_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [block]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield block if block
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << block if block
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*block] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?block: BlockNode?) -> ForwardingSuperNode
+    # :call-seq:
+    #   copy(**fields) -> ForwardingSuperNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, block: self.block)
       ForwardingSuperNode.new(source, node_id, location, flags, block)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, block: block }
     end
 
-    # All other arguments are forwarded as normal, except the original block is replaced with the new block.
-    attr_reader :block
+    # See `Node#type`.
+    def type
+      :forwarding_super_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :forwarding_super_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :forwarding_super_node
+    # :section:
+
+    # :call-seq:
+    #   block -> BlockNode | nil
+    #
+    # All other arguments are forwarded as normal, except the original block is replaced with the new block.
+    def block
+      @block
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :forwarding_super_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ForwardingSuperNode) &&
         (block === other.block)
     end
@@ -7997,99 +10272,139 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_global_variable_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> GlobalVariableAndWriteNode
+    # :call-seq:
+    #   copy(**fields) -> GlobalVariableAndWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       GlobalVariableAndWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :global_variable_and_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :global_variable_and_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :global_variable_and_write_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :global_variable_and_write_node
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(GlobalVariableAndWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -8116,97 +10431,139 @@ module Prism
       @binary_operator = binary_operator
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_global_variable_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, binary_operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?binary_operator_loc: Location, ?value: Prism::node, ?binary_operator: Symbol) -> GlobalVariableOperatorWriteNode
+    # :call-seq:
+    #   copy(**fields) -> GlobalVariableOperatorWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator)
       GlobalVariableOperatorWriteNode.new(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :global_variable_operator_write_node
+    end
 
-    # attr_reader name_loc: Location
+    # See `Node.type`.
+    def self.type
+      :global_variable_operator_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
-    # attr_reader binary_operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   binary_operator_loc -> Location
+    #
+    # Returns the Location represented by `binary_operator_loc`.
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the binary_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_binary_operator_loc(repository)
       repository.enter(node_id, :binary_operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader binary_operator: Symbol
-    attr_reader :binary_operator
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :global_variable_operator_write_node
+    # :call-seq:
+    #   binary_operator -> Symbol
+    #
+    # Returns the `binary_operator` attribute.
+    def binary_operator
+      @binary_operator
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :global_variable_operator_write_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(GlobalVariableOperatorWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -8233,99 +10590,139 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_global_variable_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> GlobalVariableOrWriteNode
+    # :call-seq:
+    #   copy(**fields) -> GlobalVariableOrWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       GlobalVariableOrWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :global_variable_or_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :global_variable_or_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :global_variable_or_write_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :global_variable_or_write_node
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(GlobalVariableOrWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -8348,68 +10745,90 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_global_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> GlobalVariableReadNode
+    # :call-seq:
+    #   copy(**fields) -> GlobalVariableReadNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       GlobalVariableReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # The name of the global variable, which is a `$` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifier). Alternatively, it can be one of the special global variables designated by a symbol.
-    #
-    #     $foo   # name `:$foo`
-    #
-    #     $_Test # name `:$_Test`
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :global_variable_read_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :global_variable_read_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :global_variable_read_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # The name of the global variable, which is a `$` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifier). Alternatively, it can be one of the special global variables designated by a symbol.
+    #
+    #     $foo   # name `:$foo`
+    #
+    #     $_Test # name `:$_Test`
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :global_variable_read_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(GlobalVariableReadNode) &&
         (name === other.name)
     end
@@ -8429,64 +10848,86 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_global_variable_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> GlobalVariableTargetNode
+    # :call-seq:
+    #   copy(**fields) -> GlobalVariableTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       GlobalVariableTargetNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :global_variable_target_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :global_variable_target_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :global_variable_target_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :global_variable_target_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(GlobalVariableTargetNode) &&
         (name === other.name)
     end
@@ -8509,52 +10950,90 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_global_variable_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, value, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?value: Prism::node, ?operator_loc: Location) -> GlobalVariableWriteNode
+    # :call-seq:
+    #   copy(**fields) -> GlobalVariableWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc)
       GlobalVariableWriteNode.new(source, node_id, location, flags, name, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :global_variable_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :global_variable_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
     # The name of the global variable, which is a `$` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifier). Alternatively, it can be one of the special global variables designated by a symbol.
     #
     #     $foo = :bar  # name `:$foo`
     #
     #     $_Test = 123 # name `:$_Test`
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
     # The Location of the global variable's name.
     #
     #     $foo = :bar
@@ -8565,12 +11044,16 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # The value to write to the global variable. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     $foo = :bar
@@ -8578,8 +11061,14 @@ module Prism
     #
     #     $-xyz = 123
     #             ^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `=` operator.
     #
     #     $foo = :bar
@@ -8590,34 +11079,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :global_variable_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :global_variable_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(GlobalVariableWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -8642,45 +11123,78 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_hash_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*elements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       elements.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*elements]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [opening_loc, *elements, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location, ?elements: Array[AssocNode | AssocSplatNode], ?closing_loc: Location) -> HashNode
+    # :call-seq:
+    #   copy(**fields) -> HashNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, elements: self.elements, closing_loc: self.closing_loc)
       HashNode.new(source, node_id, location, flags, opening_loc, elements, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, elements: elements, closing_loc: closing_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :hash_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :hash_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
     # The Location of the opening brace.
     #
     #     { a => b }
@@ -8691,12 +11205,16 @@ module Prism
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc)
     end
 
+    # :call-seq:
+    #   elements -> Array[AssocNode | AssocSplatNode]
+    #
     # The elements of the hash. These can be either `AssocNode`s or `AssocSplatNode`s.
     #
     #     { a: b }
@@ -8704,8 +11222,14 @@ module Prism
     #
     #     { **foo }
     #       ^^^^^
-    attr_reader :elements
+    def elements
+      @elements
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
     # The Location of the closing brace.
     #
     #     { a => b }
@@ -8716,39 +11240,34 @@ module Prism
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc)
     end
 
-    # def opening: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc.slice
     end
 
-    # def closing: () -> String
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :hash_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :hash_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(HashNode) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
         (elements.length == other.elements.length) &&
@@ -8784,17 +11303,28 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_hash_pattern_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [constant, *elements, rest]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -8803,7 +11333,7 @@ module Prism
       yield rest if rest
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << constant if constant
@@ -8812,23 +11342,44 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*constant, *elements, *rest, *opening_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: ConstantPathNode | ConstantReadNode | nil, ?elements: Array[AssocNode], ?rest: AssocSplatNode | NoKeywordsParameterNode | nil, ?opening_loc: Location?, ?closing_loc: Location?) -> HashPatternNode
+    # :call-seq:
+    #   copy(**fields) -> HashPatternNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, elements: self.elements, rest: self.rest, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       HashPatternNode.new(source, node_id, location, flags, constant, elements, rest, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, constant: constant, elements: elements, rest: rest, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :hash_pattern_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :hash_pattern_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   constant -> ConstantPathNode | ConstantReadNode | nil
+    #
     # Represents the optional constant preceding the Hash.
     #
     #     foo => Bar[a: 1, b: 2]
@@ -8836,14 +11387,24 @@ module Prism
     #
     #     foo => Bar::Baz[a: 1, b: 2]
     #          ^^^^^^^^
-    attr_reader :constant
+    def constant
+      @constant
+    end
 
+    # :call-seq:
+    #   elements -> Array[AssocNode]
+    #
     # Represents the explicit named hash keys and values.
     #
     #     foo => { a: 1, b:, ** }
     #              ^^^^^^^^
-    attr_reader :elements
+    def elements
+      @elements
+    end
 
+    # :call-seq:
+    #   rest -> AssocSplatNode | NoKeywordsParameterNode | nil
+    #
     # Represents the rest of the Hash keys and values. This can be named, unnamed, or explicitly forbidden via `**nil`, this last one results in a `NoKeywordsParameterNode`.
     #
     #     foo => { a: 1, b:, **c }
@@ -8854,8 +11415,14 @@ module Prism
     #
     #     foo => { a: 1, b:, **nil }
     #                        ^^^^^
-    attr_reader :rest
+    def rest
+      @rest
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
     # The Location of the opening brace.
     #
     #     foo => { a: 1 }
@@ -8875,12 +11442,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
     # The Location of the closing brace.
     #
     #     foo => { a: 1 }
@@ -8900,39 +11471,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :hash_pattern_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :hash_pattern_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(HashPatternNode) &&
         (constant === other.constant) &&
         (elements.length == other.elements.length) &&
@@ -8968,17 +11533,28 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_if_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [predicate, statements, subsequent]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -8987,7 +11563,7 @@ module Prism
       yield subsequent if subsequent
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << predicate
@@ -8996,23 +11572,45 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*if_keyword_loc, predicate, *then_keyword_loc, *statements, *subsequent, *end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?if_keyword_loc: Location?, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?subsequent: ElseNode | IfNode | nil, ?end_keyword_loc: Location?) -> IfNode
+    # :call-seq:
+    #   copy(**fields) -> IfNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, if_keyword_loc: self.if_keyword_loc, predicate: self.predicate, then_keyword_loc: self.then_keyword_loc, statements: self.statements, subsequent: self.subsequent, end_keyword_loc: self.end_keyword_loc)
       IfNode.new(source, node_id, location, flags, if_keyword_loc, predicate, then_keyword_loc, statements, subsequent, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, if_keyword_loc: if_keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, subsequent: subsequent, end_keyword_loc: end_keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :if_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :if_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   if_keyword_loc -> Location | nil
+    #
     # The Location of the `if` keyword if present.
     #
     #     bar if foo
@@ -9031,12 +11629,15 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the if_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_if_keyword_loc(repository)
       repository.enter(node_id, :if_keyword_loc) unless @if_keyword_loc.nil?
     end
-
+    # :call-seq:
+    #   predicate -> Node
+    #
     # The node for the condition the `IfNode` is testing.
     #
     #     if foo
@@ -9049,8 +11650,14 @@ module Prism
     #
     #     foo ? bar : baz
     #     ^^^
-    attr_reader :predicate
+    def predicate
+      @predicate
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   then_keyword_loc -> Location | nil
+    #
     # The Location of the `then` keyword (if present) or the `?` in a ternary expression, `nil` otherwise.
     #
     #     if foo then bar end
@@ -9070,12 +11677,15 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the then_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_then_keyword_loc(repository)
       repository.enter(node_id, :then_keyword_loc) unless @then_keyword_loc.nil?
     end
-
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
     # Represents the body of statements that will be executed when the predicate is evaluated as truthy. Will be `nil` when no body is provided.
     #
     #     if foo
@@ -9084,8 +11694,13 @@ module Prism
     #       baz
     #       ^^^
     #     end
-    attr_reader :statements
+    def statements
+      @statements
+    end
 
+    # :call-seq:
+    #   subsequent -> ElseNode | IfNode | nil
+    #
     # Represents an `ElseNode` or an `IfNode` when there is an `else` or an `elsif` in the `if` statement.
     #
     #     if foo
@@ -9099,8 +11714,14 @@ module Prism
     #
     #     if foo then bar else baz end
     #                     ^^^^^^^^^^^^
-    attr_reader :subsequent
+    def subsequent
+      @subsequent
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location | nil
+    #
     # The Location of the `end` keyword if present, `nil` otherwise.
     #
     #     if foo
@@ -9119,44 +11740,41 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
+    # :section: Slicing
 
-    # def if_keyword: () -> String?
+    # :call-seq:
+    #   if_keyword -> String | nil
+    #
+    # Slice the location of if_keyword_loc from the source.
     def if_keyword
       if_keyword_loc&.slice
     end
 
-    # def then_keyword: () -> String?
+    # :call-seq:
+    #   then_keyword -> String | nil
+    #
+    # Slice the location of then_keyword_loc from the source.
     def then_keyword
       then_keyword_loc&.slice
     end
 
-    # def end_keyword: () -> String?
+    # :call-seq:
+    #   end_keyword -> String | nil
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :if_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :if_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(IfNode) &&
         (if_keyword_loc.nil? == other.if_keyword_loc.nil?) &&
         (predicate === other.predicate) &&
@@ -9181,65 +11799,87 @@ module Prism
       @numeric = numeric
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_imaginary_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [numeric]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield numeric
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [numeric]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [numeric] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?numeric: FloatNode | IntegerNode | RationalNode) -> ImaginaryNode
+    # :call-seq:
+    #   copy(**fields) -> ImaginaryNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, numeric: self.numeric)
       ImaginaryNode.new(source, node_id, location, flags, numeric)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, numeric: numeric }
     end
 
-    # attr_reader numeric: FloatNode | IntegerNode | RationalNode
-    attr_reader :numeric
+    # See `Node#type`.
+    def type
+      :imaginary_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :imaginary_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :imaginary_node
+    # :section:
+
+    # :call-seq:
+    #   numeric -> FloatNode | IntegerNode | RationalNode
+    #
+    # Returns the `numeric` attribute.
+    def numeric
+      @numeric
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :imaginary_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ImaginaryNode) &&
         (numeric === other.numeric)
     end
@@ -9265,65 +11905,87 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_implicit_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode) -> ImplicitNode
+    # :call-seq:
+    #   copy(**fields) -> ImplicitNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value)
       ImplicitNode.new(source, node_id, location, flags, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value }
     end
 
-    # attr_reader value: LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode
-    attr_reader :value
+    # See `Node#type`.
+    def type
+      :implicit_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :implicit_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :implicit_node
+    # :section:
+
+    # :call-seq:
+    #   value -> LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :implicit_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ImplicitNode) &&
         (value === other.value)
     end
@@ -9351,61 +12013,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_implicit_rest_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> ImplicitRestNode
+    # :call-seq:
+    #   copy(**fields) -> ImplicitRestNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       ImplicitRestNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :implicit_rest_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :implicit_rest_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ImplicitRestNode)
     end
   end
@@ -9427,17 +12106,28 @@ module Prism
       @then_loc = then_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_in_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [pattern, statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -9445,7 +12135,7 @@ module Prism
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << pattern
@@ -9453,43 +12143,80 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [pattern, *statements, in_loc, *then_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?pattern: Prism::node, ?statements: StatementsNode?, ?in_loc: Location, ?then_loc: Location?) -> InNode
+    # :call-seq:
+    #   copy(**fields) -> InNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, pattern: self.pattern, statements: self.statements, in_loc: self.in_loc, then_loc: self.then_loc)
       InNode.new(source, node_id, location, flags, pattern, statements, in_loc, then_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, pattern: pattern, statements: statements, in_loc: in_loc, then_loc: then_loc }
     end
 
-    # attr_reader pattern: Prism::node
-    attr_reader :pattern
+    # See `Node#type`.
+    def type
+      :in_node
+    end
 
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
+    # See `Node.type`.
+    def self.type
+      :in_node
+    end
 
-    # attr_reader in_loc: Location
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   pattern -> Node
+    #
+    # Returns the `pattern` attribute.
+    def pattern
+      @pattern
+    end
+
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   in_loc -> Location
+    #
+    # Returns the Location represented by `in_loc`.
     def in_loc
       location = @in_loc
       return location if location.is_a?(Location)
       @in_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the in_loc location using the given saved source so that
     # it can be retrieved later.
     def save_in_loc(repository)
       repository.enter(node_id, :in_loc)
     end
 
-    # attr_reader then_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   then_loc -> Location | nil
+    #
+    # Returns the Location represented by `then_loc`.
     def then_loc
       location = @then_loc
       case location
@@ -9502,39 +12229,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the then_loc location using the given saved source so that
     # it can be retrieved later.
     def save_then_loc(repository)
       repository.enter(node_id, :then_loc) unless @then_loc.nil?
     end
+    # :section: Slicing
 
-    # def in: () -> String
+    # :call-seq:
+    #   in -> String
+    #
+    # Slice the location of in_loc from the source.
     def in
       in_loc.slice
     end
 
-    # def then: () -> String?
+    # :call-seq:
+    #   then -> String | nil
+    #
+    # Slice the location of then_loc from the source.
     def then
       then_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :in_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :in_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(InNode) &&
         (pattern === other.pattern) &&
         (statements === other.statements) &&
@@ -9564,17 +12285,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_index_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, arguments, block, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -9584,7 +12316,7 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver if receiver
@@ -9594,47 +12326,78 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*receiver, *call_operator_loc, opening_loc, *arguments, closing_loc, *block, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: BlockArgumentNode?, ?operator_loc: Location, ?value: Prism::node) -> IndexAndWriteNode
+    # :call-seq:
+    #   copy(**fields) -> IndexAndWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, opening_loc: self.opening_loc, arguments: self.arguments, closing_loc: self.closing_loc, block: self.block, operator_loc: self.operator_loc, value: self.value)
       IndexAndWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, opening_loc, arguments, closing_loc, block, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, operator_loc: operator_loc, value: value }
     end
 
-    # def safe_navigation?: () -> bool
+    # See `Node#type`.
+    def type
+      :index_and_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :index_and_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # &. operator
     def safe_navigation?
       flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # def variable_call?: () -> bool
+    # :category: Flags
+    # a call that could have been a local variable
     def variable_call?
       flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # def attribute_write?: () -> bool
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
     def attribute_write?
       flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
     end
 
-    # def ignore_visibility?: () -> bool
+    # :category: Flags
+    # a call that ignores method visibility
     def ignore_visibility?
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
-    # attr_reader receiver: Prism::node?
-    attr_reader :receiver
+    # :call-seq:
+    #   receiver -> Node | nil
+    #
+    # Returns the `receiver` attribute.
+    def receiver
+      @receiver
+    end
 
-    # attr_reader call_operator_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   call_operator_loc -> Location | nil
+    #
+    # Returns the Location represented by `call_operator_loc`.
     def call_operator_loc
       location = @call_operator_loc
       case location
@@ -9647,97 +12410,127 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the call_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_call_operator_loc(repository)
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
-
-    # attr_reader opening_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
     def opening_loc
       location = @opening_loc
       return location if location.is_a?(Location)
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc)
     end
 
-    # attr_reader arguments: ArgumentsNode?
-    attr_reader :arguments
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
+    # Returns the `arguments` attribute.
+    def arguments
+      @arguments
+    end
 
-    # attr_reader closing_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc)
     end
 
-    # attr_reader block: BlockArgumentNode?
-    attr_reader :block
+    # :call-seq:
+    #   block -> BlockArgumentNode | nil
+    #
+    # Returns the `block` attribute.
+    def block
+      @block
+    end
 
-    # attr_reader operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
 
-    # def call_operator: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   call_operator -> String | nil
+    #
+    # Slice the location of call_operator_loc from the source.
     def call_operator
       call_operator_loc&.slice
     end
 
-    # def opening: () -> String
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc.slice
     end
 
-    # def closing: () -> String
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc.slice
     end
 
-    # def operator: () -> String
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :index_and_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :index_and_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(IndexAndWriteNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -9773,17 +12566,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_index_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, arguments, block, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -9793,7 +12597,7 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver if receiver
@@ -9803,47 +12607,78 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*receiver, *call_operator_loc, opening_loc, *arguments, closing_loc, *block, binary_operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: BlockArgumentNode?, ?binary_operator: Symbol, ?binary_operator_loc: Location, ?value: Prism::node) -> IndexOperatorWriteNode
+    # :call-seq:
+    #   copy(**fields) -> IndexOperatorWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, opening_loc: self.opening_loc, arguments: self.arguments, closing_loc: self.closing_loc, block: self.block, binary_operator: self.binary_operator, binary_operator_loc: self.binary_operator_loc, value: self.value)
       IndexOperatorWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, opening_loc, arguments, closing_loc, block, binary_operator, binary_operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, binary_operator: binary_operator, binary_operator_loc: binary_operator_loc, value: value }
     end
 
-    # def safe_navigation?: () -> bool
+    # See `Node#type`.
+    def type
+      :index_operator_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :index_operator_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # &. operator
     def safe_navigation?
       flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # def variable_call?: () -> bool
+    # :category: Flags
+    # a call that could have been a local variable
     def variable_call?
       flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # def attribute_write?: () -> bool
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
     def attribute_write?
       flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
     end
 
-    # def ignore_visibility?: () -> bool
+    # :category: Flags
+    # a call that ignores method visibility
     def ignore_visibility?
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
-    # attr_reader receiver: Prism::node?
-    attr_reader :receiver
+    # :call-seq:
+    #   receiver -> Node | nil
+    #
+    # Returns the `receiver` attribute.
+    def receiver
+      @receiver
+    end
 
-    # attr_reader call_operator_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   call_operator_loc -> Location | nil
+    #
+    # Returns the Location represented by `call_operator_loc`.
     def call_operator_loc
       location = @call_operator_loc
       case location
@@ -9856,95 +12691,127 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the call_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_call_operator_loc(repository)
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
-
-    # attr_reader opening_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
     def opening_loc
       location = @opening_loc
       return location if location.is_a?(Location)
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc)
     end
 
-    # attr_reader arguments: ArgumentsNode?
-    attr_reader :arguments
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
+    # Returns the `arguments` attribute.
+    def arguments
+      @arguments
+    end
 
-    # attr_reader closing_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc)
     end
 
-    # attr_reader block: BlockArgumentNode?
-    attr_reader :block
+    # :call-seq:
+    #   block -> BlockArgumentNode | nil
+    #
+    # Returns the `block` attribute.
+    def block
+      @block
+    end
 
-    # attr_reader binary_operator: Symbol
-    attr_reader :binary_operator
+    # :call-seq:
+    #   binary_operator -> Symbol
+    #
+    # Returns the `binary_operator` attribute.
+    def binary_operator
+      @binary_operator
+    end
 
-    # attr_reader binary_operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   binary_operator_loc -> Location
+    #
+    # Returns the Location represented by `binary_operator_loc`.
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the binary_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_binary_operator_loc(repository)
       repository.enter(node_id, :binary_operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
 
-    # def call_operator: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   call_operator -> String | nil
+    #
+    # Slice the location of call_operator_loc from the source.
     def call_operator
       call_operator_loc&.slice
     end
 
-    # def opening: () -> String
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc.slice
     end
 
-    # def closing: () -> String
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :index_operator_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :index_operator_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(IndexOperatorWriteNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -9980,17 +12847,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_index_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, arguments, block, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -10000,7 +12878,7 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver if receiver
@@ -10010,47 +12888,78 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*receiver, *call_operator_loc, opening_loc, *arguments, closing_loc, *block, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node?, ?call_operator_loc: Location?, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: BlockArgumentNode?, ?operator_loc: Location, ?value: Prism::node) -> IndexOrWriteNode
+    # :call-seq:
+    #   copy(**fields) -> IndexOrWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, call_operator_loc: self.call_operator_loc, opening_loc: self.opening_loc, arguments: self.arguments, closing_loc: self.closing_loc, block: self.block, operator_loc: self.operator_loc, value: self.value)
       IndexOrWriteNode.new(source, node_id, location, flags, receiver, call_operator_loc, opening_loc, arguments, closing_loc, block, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, operator_loc: operator_loc, value: value }
     end
 
-    # def safe_navigation?: () -> bool
+    # See `Node#type`.
+    def type
+      :index_or_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :index_or_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # &. operator
     def safe_navigation?
       flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # def variable_call?: () -> bool
+    # :category: Flags
+    # a call that could have been a local variable
     def variable_call?
       flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # def attribute_write?: () -> bool
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
     def attribute_write?
       flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
     end
 
-    # def ignore_visibility?: () -> bool
+    # :category: Flags
+    # a call that ignores method visibility
     def ignore_visibility?
       flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
     end
 
-    # attr_reader receiver: Prism::node?
-    attr_reader :receiver
+    # :call-seq:
+    #   receiver -> Node | nil
+    #
+    # Returns the `receiver` attribute.
+    def receiver
+      @receiver
+    end
 
-    # attr_reader call_operator_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   call_operator_loc -> Location | nil
+    #
+    # Returns the Location represented by `call_operator_loc`.
     def call_operator_loc
       location = @call_operator_loc
       case location
@@ -10063,97 +12972,127 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the call_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_call_operator_loc(repository)
       repository.enter(node_id, :call_operator_loc) unless @call_operator_loc.nil?
     end
-
-    # attr_reader opening_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
     def opening_loc
       location = @opening_loc
       return location if location.is_a?(Location)
       @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc)
     end
 
-    # attr_reader arguments: ArgumentsNode?
-    attr_reader :arguments
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
+    # Returns the `arguments` attribute.
+    def arguments
+      @arguments
+    end
 
-    # attr_reader closing_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       return location if location.is_a?(Location)
       @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc)
     end
 
-    # attr_reader block: BlockArgumentNode?
-    attr_reader :block
+    # :call-seq:
+    #   block -> BlockArgumentNode | nil
+    #
+    # Returns the `block` attribute.
+    def block
+      @block
+    end
 
-    # attr_reader operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
 
-    # def call_operator: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   call_operator -> String | nil
+    #
+    # Slice the location of call_operator_loc from the source.
     def call_operator
       call_operator_loc&.slice
     end
 
-    # def opening: () -> String
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc.slice
     end
 
-    # def closing: () -> String
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc.slice
     end
 
-    # def operator: () -> String
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :index_or_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :index_or_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(IndexOrWriteNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -10193,17 +13132,28 @@ module Prism
       @block = block
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_index_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [receiver, arguments, block]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -10212,7 +13162,7 @@ module Prism
       yield block if block
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << receiver
@@ -10221,105 +13171,146 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [receiver, opening_loc, *arguments, closing_loc, *block] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?receiver: Prism::node, ?opening_loc: Location, ?arguments: ArgumentsNode?, ?closing_loc: Location, ?block: BlockArgumentNode?) -> IndexTargetNode
+    # :call-seq:
+    #   copy(**fields) -> IndexTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, receiver: self.receiver, opening_loc: self.opening_loc, arguments: self.arguments, closing_loc: self.closing_loc, block: self.block)
       IndexTargetNode.new(source, node_id, location, flags, receiver, opening_loc, arguments, closing_loc, block)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, receiver: receiver, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block }
     end
 
-    # def safe_navigation?: () -> bool
-    def safe_navigation?
-      flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
+    # See `Node#type`.
+    def type
+      :index_target_node
     end
 
-    # def variable_call?: () -> bool
-    def variable_call?
-      flags.anybits?(CallNodeFlags::VARIABLE_CALL)
-    end
-
-    # def attribute_write?: () -> bool
-    def attribute_write?
-      flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
-    end
-
-    # def ignore_visibility?: () -> bool
-    def ignore_visibility?
-      flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
-    end
-
-    # attr_reader receiver: Prism::node
-    attr_reader :receiver
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader arguments: ArgumentsNode?
-    attr_reader :arguments
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # attr_reader block: BlockArgumentNode?
-    attr_reader :block
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :index_target_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :index_target_node
+    # :section:
+
+    # :category: Flags
+    # &. operator
+    def safe_navigation?
+      flags.anybits?(CallNodeFlags::SAFE_NAVIGATION)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :index_target_node
+    # :category: Flags
+    # a call that could have been a local variable
+    def variable_call?
+      flags.anybits?(CallNodeFlags::VARIABLE_CALL)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # a call that is an attribute write, so the value being written should be returned
+    def attribute_write?
+      flags.anybits?(CallNodeFlags::ATTRIBUTE_WRITE)
+    end
+
+    # :category: Flags
+    # a call that ignores method visibility
+    def ignore_visibility?
+      flags.anybits?(CallNodeFlags::IGNORE_VISIBILITY)
+    end
+
+    # :call-seq:
+    #   receiver -> Node
+    #
+    # Returns the `receiver` attribute.
+    def receiver
+      @receiver
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
+    # Returns the `arguments` attribute.
+    def arguments
+      @arguments
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :call-seq:
+    #   block -> BlockArgumentNode | nil
+    #
+    # Returns the `block` attribute.
+    def block
+      @block
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(IndexTargetNode) &&
         (flags === other.flags) &&
         (receiver === other.receiver) &&
@@ -10347,99 +13338,139 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_instance_variable_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> InstanceVariableAndWriteNode
+    # :call-seq:
+    #   copy(**fields) -> InstanceVariableAndWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       InstanceVariableAndWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :instance_variable_and_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :instance_variable_and_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :instance_variable_and_write_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :instance_variable_and_write_node
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(InstanceVariableAndWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -10466,97 +13497,139 @@ module Prism
       @binary_operator = binary_operator
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_instance_variable_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, binary_operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?binary_operator_loc: Location, ?value: Prism::node, ?binary_operator: Symbol) -> InstanceVariableOperatorWriteNode
+    # :call-seq:
+    #   copy(**fields) -> InstanceVariableOperatorWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, binary_operator: self.binary_operator)
       InstanceVariableOperatorWriteNode.new(source, node_id, location, flags, name, name_loc, binary_operator_loc, value, binary_operator)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :instance_variable_operator_write_node
+    end
 
-    # attr_reader name_loc: Location
+    # See `Node.type`.
+    def self.type
+      :instance_variable_operator_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
-    # attr_reader binary_operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   binary_operator_loc -> Location
+    #
+    # Returns the Location represented by `binary_operator_loc`.
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the binary_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_binary_operator_loc(repository)
       repository.enter(node_id, :binary_operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader binary_operator: Symbol
-    attr_reader :binary_operator
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :instance_variable_operator_write_node
+    # :call-seq:
+    #   binary_operator -> Symbol
+    #
+    # Returns the `binary_operator` attribute.
+    def binary_operator
+      @binary_operator
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :instance_variable_operator_write_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(InstanceVariableOperatorWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -10583,99 +13656,139 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_instance_variable_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> InstanceVariableOrWriteNode
+    # :call-seq:
+    #   copy(**fields) -> InstanceVariableOrWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       InstanceVariableOrWriteNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :instance_variable_or_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :instance_variable_or_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :instance_variable_or_write_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :instance_variable_or_write_node
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(InstanceVariableOrWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -10698,68 +13811,90 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_instance_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> InstanceVariableReadNode
+    # :call-seq:
+    #   copy(**fields) -> InstanceVariableReadNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       InstanceVariableReadNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # The name of the instance variable, which is a `@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
-    #
-    #     @x     # name `:@x`
-    #
-    #     @_test # name `:@_test`
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :instance_variable_read_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :instance_variable_read_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :instance_variable_read_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # The name of the instance variable, which is a `@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
+    #
+    #     @x     # name `:@x`
+    #
+    #     @_test # name `:@_test`
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :instance_variable_read_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(InstanceVariableReadNode) &&
         (name === other.name)
     end
@@ -10779,64 +13914,86 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_instance_variable_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> InstanceVariableTargetNode
+    # :call-seq:
+    #   copy(**fields) -> InstanceVariableTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       InstanceVariableTargetNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :instance_variable_target_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :instance_variable_target_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :instance_variable_target_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :instance_variable_target_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(InstanceVariableTargetNode) &&
         (name === other.name)
     end
@@ -10859,52 +14016,90 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_instance_variable_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, value, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?value: Prism::node, ?operator_loc: Location) -> InstanceVariableWriteNode
+    # :call-seq:
+    #   copy(**fields) -> InstanceVariableWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc)
       InstanceVariableWriteNode.new(source, node_id, location, flags, name, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :instance_variable_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :instance_variable_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
     # The name of the instance variable, which is a `@` followed by an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
     #
     #     @x = :y       # name `:@x`
     #
     #     @_foo = "bar" # name `@_foo`
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
     # The Location of the variable name.
     #
     #     @_x = 1
@@ -10915,12 +14110,16 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # The value to write to the instance variable. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     @foo = :bar
@@ -10928,8 +14127,14 @@ module Prism
     #
     #     @_x = 1234
     #           ^^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `=` operator.
     #
     #     @x = y
@@ -10940,34 +14145,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :instance_variable_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :instance_variable_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(InstanceVariableWriteNode) &&
         (name === other.name) &&
         (name_loc.nil? == other.name_loc.nil?) &&
@@ -10990,84 +14187,110 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_integer_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Integer) -> IntegerNode
+    # :call-seq:
+    #   copy(**fields) -> IntegerNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value)
       IntegerNode.new(source, node_id, location, flags, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value }
     end
 
-    # def binary?: () -> bool
-    def binary?
-      flags.anybits?(IntegerBaseFlags::BINARY)
+    # See `Node#type`.
+    def type
+      :integer_node
     end
 
-    # def decimal?: () -> bool
-    def decimal?
-      flags.anybits?(IntegerBaseFlags::DECIMAL)
+    # See `Node.type`.
+    def self.type
+      :integer_node
     end
-
-    # def octal?: () -> bool
-    def octal?
-      flags.anybits?(IntegerBaseFlags::OCTAL)
-    end
-
-    # def hexadecimal?: () -> bool
-    def hexadecimal?
-      flags.anybits?(IntegerBaseFlags::HEXADECIMAL)
-    end
-
-    # The value of the integer literal as a number.
-    attr_reader :value
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :integer_node
+    # :section:
+
+    # :category: Flags
+    # 0b prefix
+    def binary?
+      flags.anybits?(IntegerBaseFlags::BINARY)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :integer_node
+    # :category: Flags
+    # 0d or no prefix
+    def decimal?
+      flags.anybits?(IntegerBaseFlags::DECIMAL)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # 0o or 0 prefix
+    def octal?
+      flags.anybits?(IntegerBaseFlags::OCTAL)
+    end
+
+    # :category: Flags
+    # 0x prefix
+    def hexadecimal?
+      flags.anybits?(IntegerBaseFlags::HEXADECIMAL)
+    end
+
+    # :call-seq:
+    #   value -> Integer
+    #
+    # The value of the integer literal as a number.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(IntegerNode) &&
         (flags === other.flags) &&
         (value === other.value)
@@ -11090,156 +14313,205 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_interpolated_match_last_line_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*parts]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       parts.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*parts]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [opening_loc, *parts, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], ?closing_loc: Location) -> InterpolatedMatchLastLineNode
+    # :call-seq:
+    #   copy(**fields) -> InterpolatedMatchLastLineNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc)
       InterpolatedMatchLastLineNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
-    # def ignore_case?: () -> bool
-    def ignore_case?
-      flags.anybits?(RegularExpressionFlags::IGNORE_CASE)
+    # See `Node#type`.
+    def type
+      :interpolated_match_last_line_node
     end
 
-    # def extended?: () -> bool
-    def extended?
-      flags.anybits?(RegularExpressionFlags::EXTENDED)
-    end
-
-    # def multi_line?: () -> bool
-    def multi_line?
-      flags.anybits?(RegularExpressionFlags::MULTI_LINE)
-    end
-
-    # def once?: () -> bool
-    def once?
-      flags.anybits?(RegularExpressionFlags::ONCE)
-    end
-
-    # def euc_jp?: () -> bool
-    def euc_jp?
-      flags.anybits?(RegularExpressionFlags::EUC_JP)
-    end
-
-    # def ascii_8bit?: () -> bool
-    def ascii_8bit?
-      flags.anybits?(RegularExpressionFlags::ASCII_8BIT)
-    end
-
-    # def windows_31j?: () -> bool
-    def windows_31j?
-      flags.anybits?(RegularExpressionFlags::WINDOWS_31J)
-    end
-
-    # def utf_8?: () -> bool
-    def utf_8?
-      flags.anybits?(RegularExpressionFlags::UTF_8)
-    end
-
-    # def forced_utf8_encoding?: () -> bool
-    def forced_utf8_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_UTF8_ENCODING)
-    end
-
-    # def forced_binary_encoding?: () -> bool
-    def forced_binary_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_BINARY_ENCODING)
-    end
-
-    # def forced_us_ascii_encoding?: () -> bool
-    def forced_us_ascii_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_US_ASCII_ENCODING)
-    end
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
-    attr_reader :parts
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :interpolated_match_last_line_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :interpolated_match_last_line_node
+    # :section:
+
+    # :category: Flags
+    # i - ignores the case of characters when matching
+    def ignore_case?
+      flags.anybits?(RegularExpressionFlags::IGNORE_CASE)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :interpolated_match_last_line_node
+    # :category: Flags
+    # x - ignores whitespace and allows comments in regular expressions
+    def extended?
+      flags.anybits?(RegularExpressionFlags::EXTENDED)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # m - allows $ to match the end of lines within strings
+    def multi_line?
+      flags.anybits?(RegularExpressionFlags::MULTI_LINE)
+    end
+
+    # :category: Flags
+    # o - only interpolates values into the regular expression once
+    def once?
+      flags.anybits?(RegularExpressionFlags::ONCE)
+    end
+
+    # :category: Flags
+    # e - forces the EUC-JP encoding
+    def euc_jp?
+      flags.anybits?(RegularExpressionFlags::EUC_JP)
+    end
+
+    # :category: Flags
+    # n - forces the ASCII-8BIT encoding
+    def ascii_8bit?
+      flags.anybits?(RegularExpressionFlags::ASCII_8BIT)
+    end
+
+    # :category: Flags
+    # s - forces the Windows-31J encoding
+    def windows_31j?
+      flags.anybits?(RegularExpressionFlags::WINDOWS_31J)
+    end
+
+    # :category: Flags
+    # u - forces the UTF-8 encoding
+    def utf_8?
+      flags.anybits?(RegularExpressionFlags::UTF_8)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to UTF-8
+    def forced_utf8_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_UTF8_ENCODING)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to binary
+    def forced_binary_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_BINARY_ENCODING)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to US-ASCII
+    def forced_us_ascii_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_US_ASCII_ENCODING)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :call-seq:
+    #   parts -> Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
+    #
+    # Returns the `parts` attribute.
+    def parts
+      @parts
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(InterpolatedMatchLastLineNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
@@ -11265,156 +14537,205 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_interpolated_regular_expression_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*parts]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       parts.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*parts]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [opening_loc, *parts, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], ?closing_loc: Location) -> InterpolatedRegularExpressionNode
+    # :call-seq:
+    #   copy(**fields) -> InterpolatedRegularExpressionNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc)
       InterpolatedRegularExpressionNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
-    # def ignore_case?: () -> bool
-    def ignore_case?
-      flags.anybits?(RegularExpressionFlags::IGNORE_CASE)
+    # See `Node#type`.
+    def type
+      :interpolated_regular_expression_node
     end
 
-    # def extended?: () -> bool
-    def extended?
-      flags.anybits?(RegularExpressionFlags::EXTENDED)
-    end
-
-    # def multi_line?: () -> bool
-    def multi_line?
-      flags.anybits?(RegularExpressionFlags::MULTI_LINE)
-    end
-
-    # def once?: () -> bool
-    def once?
-      flags.anybits?(RegularExpressionFlags::ONCE)
-    end
-
-    # def euc_jp?: () -> bool
-    def euc_jp?
-      flags.anybits?(RegularExpressionFlags::EUC_JP)
-    end
-
-    # def ascii_8bit?: () -> bool
-    def ascii_8bit?
-      flags.anybits?(RegularExpressionFlags::ASCII_8BIT)
-    end
-
-    # def windows_31j?: () -> bool
-    def windows_31j?
-      flags.anybits?(RegularExpressionFlags::WINDOWS_31J)
-    end
-
-    # def utf_8?: () -> bool
-    def utf_8?
-      flags.anybits?(RegularExpressionFlags::UTF_8)
-    end
-
-    # def forced_utf8_encoding?: () -> bool
-    def forced_utf8_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_UTF8_ENCODING)
-    end
-
-    # def forced_binary_encoding?: () -> bool
-    def forced_binary_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_BINARY_ENCODING)
-    end
-
-    # def forced_us_ascii_encoding?: () -> bool
-    def forced_us_ascii_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_US_ASCII_ENCODING)
-    end
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
-    attr_reader :parts
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :interpolated_regular_expression_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :interpolated_regular_expression_node
+    # :section:
+
+    # :category: Flags
+    # i - ignores the case of characters when matching
+    def ignore_case?
+      flags.anybits?(RegularExpressionFlags::IGNORE_CASE)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :interpolated_regular_expression_node
+    # :category: Flags
+    # x - ignores whitespace and allows comments in regular expressions
+    def extended?
+      flags.anybits?(RegularExpressionFlags::EXTENDED)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # m - allows $ to match the end of lines within strings
+    def multi_line?
+      flags.anybits?(RegularExpressionFlags::MULTI_LINE)
+    end
+
+    # :category: Flags
+    # o - only interpolates values into the regular expression once
+    def once?
+      flags.anybits?(RegularExpressionFlags::ONCE)
+    end
+
+    # :category: Flags
+    # e - forces the EUC-JP encoding
+    def euc_jp?
+      flags.anybits?(RegularExpressionFlags::EUC_JP)
+    end
+
+    # :category: Flags
+    # n - forces the ASCII-8BIT encoding
+    def ascii_8bit?
+      flags.anybits?(RegularExpressionFlags::ASCII_8BIT)
+    end
+
+    # :category: Flags
+    # s - forces the Windows-31J encoding
+    def windows_31j?
+      flags.anybits?(RegularExpressionFlags::WINDOWS_31J)
+    end
+
+    # :category: Flags
+    # u - forces the UTF-8 encoding
+    def utf_8?
+      flags.anybits?(RegularExpressionFlags::UTF_8)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to UTF-8
+    def forced_utf8_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_UTF8_ENCODING)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to binary
+    def forced_binary_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_BINARY_ENCODING)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to US-ASCII
+    def forced_us_ascii_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_US_ASCII_ENCODING)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :call-seq:
+    #   parts -> Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
+    #
+    # Returns the `parts` attribute.
+    def parts
+      @parts
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(InterpolatedRegularExpressionNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
@@ -11440,56 +14761,91 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_interpolated_string_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*parts]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       parts.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*parts]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*opening_loc, *parts, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode], ?closing_loc: Location?) -> InterpolatedStringNode
+    # :call-seq:
+    #   copy(**fields) -> InterpolatedStringNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc)
       InterpolatedStringNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
-    # def frozen?: () -> bool
+    # See `Node#type`.
+    def type
+      :interpolated_string_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :interpolated_string_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # frozen by virtue of a `frozen_string_literal: true` comment or `--enable-frozen-string-literal`; only for adjacent string literals like `'a' 'b'`
     def frozen?
       flags.anybits?(InterpolatedStringNodeFlags::FROZEN)
     end
 
-    # def mutable?: () -> bool
+    # :category: Flags
+    # mutable by virtue of a `frozen_string_literal: false` comment or `--disable-frozen-string-literal`; only for adjacent string literals like `'a' 'b'`
     def mutable?
       flags.anybits?(InterpolatedStringNodeFlags::MUTABLE)
     end
 
-    # attr_reader opening_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
+    # Returns the Location represented by `opening_loc`.
     def opening_loc
       location = @opening_loc
       case location
@@ -11502,16 +14858,25 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
+    # :call-seq:
+    #   parts -> Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode]
+    #
+    # Returns the `parts` attribute.
+    def parts
+      @parts
+    end
 
-    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode]
-    attr_reader :parts
-
-    # attr_reader closing_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       case location
@@ -11524,39 +14889,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :interpolated_string_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :interpolated_string_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(InterpolatedStringNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
@@ -11582,46 +14941,79 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_interpolated_symbol_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*parts]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       parts.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*parts]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*opening_loc, *parts, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], ?closing_loc: Location?) -> InterpolatedSymbolNode
+    # :call-seq:
+    #   copy(**fields) -> InterpolatedSymbolNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc)
       InterpolatedSymbolNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
-    # attr_reader opening_loc: Location?
+    # See `Node#type`.
+    def type
+      :interpolated_symbol_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :interpolated_symbol_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
+    # Returns the Location represented by `opening_loc`.
     def opening_loc
       location = @opening_loc
       case location
@@ -11634,16 +15026,25 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
+    # :call-seq:
+    #   parts -> Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
+    #
+    # Returns the `parts` attribute.
+    def parts
+      @parts
+    end
 
-    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
-    attr_reader :parts
-
-    # attr_reader closing_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       case location
@@ -11656,39 +15057,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :interpolated_symbol_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :interpolated_symbol_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(InterpolatedSymbolNode) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
         (parts.length == other.parts.length) &&
@@ -11713,101 +15108,139 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_interpolated_x_string_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*parts]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       parts.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*parts]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [opening_loc, *parts, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location, ?parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode], ?closing_loc: Location) -> InterpolatedXStringNode
+    # :call-seq:
+    #   copy(**fields) -> InterpolatedXStringNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, parts: self.parts, closing_loc: self.closing_loc)
       InterpolatedXStringNode.new(source, node_id, location, flags, opening_loc, parts, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
     end
 
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :interpolated_x_string_node
     end
 
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader parts: Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
-    attr_reader :parts
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :interpolated_x_string_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :interpolated_x_string_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :interpolated_x_string_node
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   parts -> Array[StringNode | EmbeddedStatementsNode | EmbeddedVariableNode]
+    #
+    # Returns the `parts` attribute.
+    def parts
+      @parts
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(InterpolatedXStringNode) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
         (parts.length == other.parts.length) &&
@@ -11829,61 +15262,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_it_local_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> ItLocalVariableReadNode
+    # :call-seq:
+    #   copy(**fields) -> ItLocalVariableReadNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       ItLocalVariableReadNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :it_local_variable_read_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :it_local_variable_read_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ItLocalVariableReadNode)
     end
   end
@@ -11901,61 +15351,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_it_parameters_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> ItParametersNode
+    # :call-seq:
+    #   copy(**fields) -> ItParametersNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       ItParametersNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :it_parameters_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :it_parameters_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ItParametersNode)
     end
   end
@@ -11974,70 +15441,93 @@ module Prism
       @elements = elements
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_keyword_hash_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*elements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       elements.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*elements]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*elements] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?elements: Array[AssocNode | AssocSplatNode]) -> KeywordHashNode
+    # :call-seq:
+    #   copy(**fields) -> KeywordHashNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, elements: self.elements)
       KeywordHashNode.new(source, node_id, location, flags, elements)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, elements: elements }
     end
 
-    # def symbol_keys?: () -> bool
-    def symbol_keys?
-      flags.anybits?(KeywordHashNodeFlags::SYMBOL_KEYS)
+    # See `Node#type`.
+    def type
+      :keyword_hash_node
     end
 
-    # attr_reader elements: Array[AssocNode | AssocSplatNode]
-    attr_reader :elements
+    # See `Node.type`.
+    def self.type
+      :keyword_hash_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :keyword_hash_node
+    # :section:
+
+    # :category: Flags
+    # a keyword hash which only has `AssocNode` elements all with symbol keys, which means the elements can be treated as keyword arguments
+    def symbol_keys?
+      flags.anybits?(KeywordHashNodeFlags::SYMBOL_KEYS)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :keyword_hash_node
+    # :call-seq:
+    #   elements -> Array[AssocNode | AssocSplatNode]
+    #
+    # Returns the `elements` attribute.
+    def elements
+      @elements
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(KeywordHashNode) &&
         (flags === other.flags) &&
         (elements.length == other.elements.length) &&
@@ -12062,53 +15552,92 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_keyword_rest_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*name_loc, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol?, ?name_loc: Location?, ?operator_loc: Location) -> KeywordRestParameterNode
+    # :call-seq:
+    #   copy(**fields) -> KeywordRestParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc)
       KeywordRestParameterNode.new(source, node_id, location, flags, name, name_loc, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
     end
 
-    # def repeated_parameter?: () -> bool
+    # See `Node#type`.
+    def type
+      :keyword_rest_parameter_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :keyword_rest_parameter_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # a parameter name that has been repeated in the method signature
     def repeated_parameter?
       flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # attr_reader name: Symbol?
-    attr_reader :name
+    # :call-seq:
+    #   name -> Symbol | nil
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
 
-    # attr_reader name_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location | nil
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       case location
@@ -12121,47 +15650,43 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc) unless @name_loc.nil?
     end
-
-    # attr_reader operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :keyword_rest_parameter_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :keyword_rest_parameter_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(KeywordRestParameterNode) &&
         (flags === other.flags) &&
         (name === other.name) &&
@@ -12189,17 +15714,28 @@ module Prism
       @body = body
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_lambda_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [parameters, body]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -12207,7 +15743,7 @@ module Prism
       yield body if body
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << parameters if parameters
@@ -12215,103 +15751,148 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [operator_loc, opening_loc, closing_loc, *parameters, *body] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?operator_loc: Location, ?opening_loc: Location, ?closing_loc: Location, ?parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil, ?body: StatementsNode | BeginNode | nil) -> LambdaNode
+    # :call-seq:
+    #   copy(**fields) -> LambdaNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, operator_loc: self.operator_loc, opening_loc: self.opening_loc, closing_loc: self.closing_loc, parameters: self.parameters, body: self.body)
       LambdaNode.new(source, node_id, location, flags, locals, operator_loc, opening_loc, closing_loc, parameters, body)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, operator_loc: operator_loc, opening_loc: opening_loc, closing_loc: closing_loc, parameters: parameters, body: body }
     end
 
-    # attr_reader locals: Array[Symbol]
-    attr_reader :locals
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :lambda_node
     end
 
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # attr_reader parameters: BlockParametersNode | NumberedParametersNode | ItParametersNode | nil
-    attr_reader :parameters
-
-    # attr_reader body: StatementsNode | BeginNode | nil
-    attr_reader :body
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
-    end
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :lambda_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :lambda_node
+    # :section:
+
+    # :call-seq:
+    #   locals -> Array[Symbol]
+    #
+    # Returns the `locals` attribute.
+    def locals
+      @locals
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :lambda_node
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :call-seq:
+    #   parameters -> BlockParametersNode | NumberedParametersNode | ItParametersNode | nil
+    #
+    # Returns the `parameters` attribute.
+    def parameters
+      @parameters
+    end
+
+    # :call-seq:
+    #   body -> StatementsNode | BeginNode | nil
+    #
+    # Returns the `body` attribute.
+    def body
+      @body
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(LambdaNode) &&
         (locals.length == other.locals.length) &&
         locals.zip(other.locals).all? { |left, right| left === right } &&
@@ -12341,102 +15922,147 @@ module Prism
       @depth = depth
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_local_variable_and_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node, ?name: Symbol, ?depth: Integer) -> LocalVariableAndWriteNode
+    # :call-seq:
+    #   copy(**fields) -> LocalVariableAndWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value, name: self.name, depth: self.depth)
       LocalVariableAndWriteNode.new(source, node_id, location, flags, name_loc, operator_loc, value, name, depth)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name_loc: name_loc, operator_loc: operator_loc, value: value, name: name, depth: depth }
     end
 
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :local_variable_and_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader depth: Integer
-    attr_reader :depth
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :local_variable_and_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :local_variable_and_write_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :local_variable_and_write_node
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
+
+    # :call-seq:
+    #   depth -> Integer
+    #
+    # Returns the `depth` attribute.
+    def depth
+      @depth
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(LocalVariableAndWriteNode) &&
         (name_loc.nil? == other.name_loc.nil?) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
@@ -12465,100 +16091,147 @@ module Prism
       @depth = depth
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_local_variable_operator_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, binary_operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name_loc: Location, ?binary_operator_loc: Location, ?value: Prism::node, ?name: Symbol, ?binary_operator: Symbol, ?depth: Integer) -> LocalVariableOperatorWriteNode
+    # :call-seq:
+    #   copy(**fields) -> LocalVariableOperatorWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name_loc: self.name_loc, binary_operator_loc: self.binary_operator_loc, value: self.value, name: self.name, binary_operator: self.binary_operator, depth: self.depth)
       LocalVariableOperatorWriteNode.new(source, node_id, location, flags, name_loc, binary_operator_loc, value, name, binary_operator, depth)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, name: name, binary_operator: binary_operator, depth: depth }
     end
 
-    # attr_reader name_loc: Location
+    # See `Node#type`.
+    def type
+      :local_variable_operator_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :local_variable_operator_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
-    # attr_reader binary_operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   binary_operator_loc -> Location
+    #
+    # Returns the Location represented by `binary_operator_loc`.
     def binary_operator_loc
       location = @binary_operator_loc
       return location if location.is_a?(Location)
       @binary_operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the binary_operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_binary_operator_loc(repository)
       repository.enter(node_id, :binary_operator_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader binary_operator: Symbol
-    attr_reader :binary_operator
-
-    # attr_reader depth: Integer
-    attr_reader :depth
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :local_variable_operator_write_node
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :local_variable_operator_write_node
+    # :call-seq:
+    #   binary_operator -> Symbol
+    #
+    # Returns the `binary_operator` attribute.
+    def binary_operator
+      @binary_operator
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   depth -> Integer
+    #
+    # Returns the `depth` attribute.
+    def depth
+      @depth
+    end
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(LocalVariableOperatorWriteNode) &&
         (name_loc.nil? == other.name_loc.nil?) &&
         (binary_operator_loc.nil? == other.binary_operator_loc.nil?) &&
@@ -12587,102 +16260,147 @@ module Prism
       @depth = depth
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_local_variable_or_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node, ?name: Symbol, ?depth: Integer) -> LocalVariableOrWriteNode
+    # :call-seq:
+    #   copy(**fields) -> LocalVariableOrWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value, name: self.name, depth: self.depth)
       LocalVariableOrWriteNode.new(source, node_id, location, flags, name_loc, operator_loc, value, name, depth)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name_loc: name_loc, operator_loc: operator_loc, value: value, name: name, depth: depth }
     end
 
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :local_variable_or_write_node
     end
 
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader depth: Integer
-    attr_reader :depth
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :local_variable_or_write_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :local_variable_or_write_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :local_variable_or_write_node
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
+
+    # :call-seq:
+    #   depth -> Integer
+    #
+    # Returns the `depth` attribute.
+    def depth
+      @depth
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(LocalVariableOrWriteNode) &&
         (name_loc.nil? == other.name_loc.nil?) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
@@ -12707,44 +16425,76 @@ module Prism
       @depth = depth
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_local_variable_read_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?depth: Integer) -> LocalVariableReadNode
+    # :call-seq:
+    #   copy(**fields) -> LocalVariableReadNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, depth: self.depth)
       LocalVariableReadNode.new(source, node_id, location, flags, name, depth)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, depth: depth }
     end
 
+    # See `Node#type`.
+    def type
+      :local_variable_read_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :local_variable_read_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
     # The name of the local variable, which is an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
     #
     #     x      # name `:x`
@@ -12754,8 +16504,13 @@ module Prism
     # Note that this can also be an underscore followed by a number for the default block parameters.
     #
     #     _1     # name `:_1`
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :call-seq:
+    #   depth -> Integer
+    #
     # The number of visible scopes that should be searched to find the origin of this local variable.
     #
     #     foo = 1; foo # depth 0
@@ -12763,25 +16518,15 @@ module Prism
     #     bar = 2; tap { bar } # depth 1
     #
     # The specific rules for calculating the depth may differ from individual Ruby implementations, as they are not specified by the language. For more information, see [the Prism documentation](https://github.com/ruby/prism/blob/main/docs/local_variable_depth.md).
-    attr_reader :depth
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    def depth
+      @depth
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :local_variable_read_node
-    end
+    # :section: Slicing
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :local_variable_read_node
-    end
+    # :section:
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(LocalVariableReadNode) &&
         (name === other.name) &&
         (depth === other.depth)
@@ -12806,67 +16551,94 @@ module Prism
       @depth = depth
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_local_variable_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?depth: Integer) -> LocalVariableTargetNode
+    # :call-seq:
+    #   copy(**fields) -> LocalVariableTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, depth: self.depth)
       LocalVariableTargetNode.new(source, node_id, location, flags, name, depth)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, depth: depth }
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node#type`.
+    def type
+      :local_variable_target_node
+    end
 
-    # attr_reader depth: Integer
-    attr_reader :depth
+    # See `Node.type`.
+    def self.type
+      :local_variable_target_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :local_variable_target_node
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :local_variable_target_node
+    # :call-seq:
+    #   depth -> Integer
+    #
+    # Returns the `depth` attribute.
+    def depth
+      @depth
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(LocalVariableTargetNode) &&
         (name === other.name) &&
         (depth === other.depth)
@@ -12891,52 +16663,89 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_local_variable_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, value, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?depth: Integer, ?name_loc: Location, ?value: Prism::node, ?operator_loc: Location) -> LocalVariableWriteNode
+    # :call-seq:
+    #   copy(**fields) -> LocalVariableWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, depth: self.depth, name_loc: self.name_loc, value: self.value, operator_loc: self.operator_loc)
       LocalVariableWriteNode.new(source, node_id, location, flags, name, depth, name_loc, value, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, depth: depth, name_loc: name_loc, value: value, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :local_variable_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :local_variable_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   name -> Symbol
+    #
     # The name of the local variable, which is an [identifier](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#identifiers).
     #
     #     foo = :bar # name `:foo`
     #
     #     abc = 123  # name `:abc`
-    attr_reader :name
+    def name
+      @name
+    end
 
+    # :call-seq:
+    #   depth -> Integer
+    #
     # The number of semantic scopes we have to traverse to find the declaration of this variable.
     #
     #     foo = 1         # depth 0
@@ -12944,8 +16753,14 @@ module Prism
     #     tap { foo = 1 } # depth 1
     #
     # The specific rules for calculating the depth may differ from individual Ruby implementations, as they are not specified by the language. For more information, see [the Prism documentation](https://github.com/ruby/prism/blob/main/docs/local_variable_depth.md).
-    attr_reader :depth
+    def depth
+      @depth
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
     # The Location of the variable name.
     #
     #     foo = :bar
@@ -12956,12 +16771,16 @@ module Prism
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # The value to write to the local variable. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     foo = :bar
@@ -12973,8 +16792,14 @@ module Prism
     # Note that since the name of a local variable is known before the value is parsed, it is valid for a local variable to appear within the value of its own write.
     #
     #     foo = foo
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `=` operator.
     #
     #     x = :y
@@ -12985,34 +16810,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :local_variable_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :local_variable_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(LocalVariableWriteNode) &&
         (name === other.name) &&
         (depth === other.depth) &&
@@ -13039,173 +16856,230 @@ module Prism
       @unescaped = unescaped
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_match_last_line_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [opening_loc, content_loc, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location, ?content_loc: Location, ?closing_loc: Location, ?unescaped: String) -> MatchLastLineNode
+    # :call-seq:
+    #   copy(**fields) -> MatchLastLineNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, content_loc: self.content_loc, closing_loc: self.closing_loc, unescaped: self.unescaped)
       MatchLastLineNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
-    # def ignore_case?: () -> bool
-    def ignore_case?
-      flags.anybits?(RegularExpressionFlags::IGNORE_CASE)
+    # See `Node#type`.
+    def type
+      :match_last_line_node
     end
 
-    # def extended?: () -> bool
-    def extended?
-      flags.anybits?(RegularExpressionFlags::EXTENDED)
-    end
-
-    # def multi_line?: () -> bool
-    def multi_line?
-      flags.anybits?(RegularExpressionFlags::MULTI_LINE)
-    end
-
-    # def once?: () -> bool
-    def once?
-      flags.anybits?(RegularExpressionFlags::ONCE)
-    end
-
-    # def euc_jp?: () -> bool
-    def euc_jp?
-      flags.anybits?(RegularExpressionFlags::EUC_JP)
-    end
-
-    # def ascii_8bit?: () -> bool
-    def ascii_8bit?
-      flags.anybits?(RegularExpressionFlags::ASCII_8BIT)
-    end
-
-    # def windows_31j?: () -> bool
-    def windows_31j?
-      flags.anybits?(RegularExpressionFlags::WINDOWS_31J)
-    end
-
-    # def utf_8?: () -> bool
-    def utf_8?
-      flags.anybits?(RegularExpressionFlags::UTF_8)
-    end
-
-    # def forced_utf8_encoding?: () -> bool
-    def forced_utf8_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_UTF8_ENCODING)
-    end
-
-    # def forced_binary_encoding?: () -> bool
-    def forced_binary_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_BINARY_ENCODING)
-    end
-
-    # def forced_us_ascii_encoding?: () -> bool
-    def forced_us_ascii_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_US_ASCII_ENCODING)
-    end
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader content_loc: Location
-    def content_loc
-      location = @content_loc
-      return location if location.is_a?(Location)
-      @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the content_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_content_loc(repository)
-      repository.enter(node_id, :content_loc)
-    end
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # attr_reader unescaped: String
-    attr_reader :unescaped
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def content: () -> String
-    def content
-      content_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :match_last_line_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :match_last_line_node
+    # :section:
+
+    # :category: Flags
+    # i - ignores the case of characters when matching
+    def ignore_case?
+      flags.anybits?(RegularExpressionFlags::IGNORE_CASE)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :match_last_line_node
+    # :category: Flags
+    # x - ignores whitespace and allows comments in regular expressions
+    def extended?
+      flags.anybits?(RegularExpressionFlags::EXTENDED)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # m - allows $ to match the end of lines within strings
+    def multi_line?
+      flags.anybits?(RegularExpressionFlags::MULTI_LINE)
+    end
+
+    # :category: Flags
+    # o - only interpolates values into the regular expression once
+    def once?
+      flags.anybits?(RegularExpressionFlags::ONCE)
+    end
+
+    # :category: Flags
+    # e - forces the EUC-JP encoding
+    def euc_jp?
+      flags.anybits?(RegularExpressionFlags::EUC_JP)
+    end
+
+    # :category: Flags
+    # n - forces the ASCII-8BIT encoding
+    def ascii_8bit?
+      flags.anybits?(RegularExpressionFlags::ASCII_8BIT)
+    end
+
+    # :category: Flags
+    # s - forces the Windows-31J encoding
+    def windows_31j?
+      flags.anybits?(RegularExpressionFlags::WINDOWS_31J)
+    end
+
+    # :category: Flags
+    # u - forces the UTF-8 encoding
+    def utf_8?
+      flags.anybits?(RegularExpressionFlags::UTF_8)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to UTF-8
+    def forced_utf8_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_UTF8_ENCODING)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to binary
+    def forced_binary_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_BINARY_ENCODING)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to US-ASCII
+    def forced_us_ascii_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_US_ASCII_ENCODING)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   content_loc -> Location
+    #
+    # Returns the Location represented by `content_loc`.
+    def content_loc
+      location = @content_loc
+      return location if location.is_a?(Location)
+      @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the content_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_content_loc(repository)
+      repository.enter(node_id, :content_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :call-seq:
+    #   unescaped -> String
+    #
+    # Returns the `unescaped` attribute.
+    def unescaped
+      @unescaped
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   content -> String
+    #
+    # Slice the location of content_loc from the source.
+    def content
+      content_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(MatchLastLineNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
@@ -13231,17 +17105,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_match_predicate_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value, pattern]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -13249,69 +17134,93 @@ module Prism
       yield pattern
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value, pattern]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [value, pattern, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node, ?pattern: Prism::node, ?operator_loc: Location) -> MatchPredicateNode
+    # :call-seq:
+    #   copy(**fields) -> MatchPredicateNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value, pattern: self.pattern, operator_loc: self.operator_loc)
       MatchPredicateNode.new(source, node_id, location, flags, value, pattern, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value, pattern: pattern, operator_loc: operator_loc }
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # attr_reader pattern: Prism::node
-    attr_reader :pattern
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :match_predicate_node
     end
 
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :match_predicate_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :match_predicate_node
+    # :section:
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :match_predicate_node
+    # :call-seq:
+    #   pattern -> Node
+    #
+    # Returns the `pattern` attribute.
+    def pattern
+      @pattern
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(MatchPredicateNode) &&
         (value === other.value) &&
         (pattern === other.pattern) &&
@@ -13335,17 +17244,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_match_required_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value, pattern]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -13353,34 +17273,60 @@ module Prism
       yield pattern
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value, pattern]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [value, pattern, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node, ?pattern: Prism::node, ?operator_loc: Location) -> MatchRequiredNode
+    # :call-seq:
+    #   copy(**fields) -> MatchRequiredNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value, pattern: self.pattern, operator_loc: self.operator_loc)
       MatchRequiredNode.new(source, node_id, location, flags, value, pattern, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, value: value, pattern: pattern, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :match_required_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :match_required_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   value -> Node
+    #
     # Represents the left-hand side of the operator.
     #
     #     foo => bar
     #     ^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
+    # :call-seq:
+    #   pattern -> Node
+    #
     # Represents the right-hand side of the operator. The type of the node depends on the expression.
     #
     # Anything that looks like a local variable name (including `_`) will result in a `LocalVariableTargetNode`.
@@ -13424,8 +17370,14 @@ module Prism
     # Anything else will result in the regular node for that expression, for example a `ConstantReadNode`.
     #
     #     foo => CONST
-    attr_reader :pattern
+    def pattern
+      @pattern
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the operator.
     #
     #     foo => bar
@@ -13436,34 +17388,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :match_required_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :match_required_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(MatchRequiredNode) &&
         (value === other.value) &&
         (pattern === other.pattern) &&
@@ -13486,17 +17430,28 @@ module Prism
       @targets = targets
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_match_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [call, *targets]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -13504,51 +17459,67 @@ module Prism
       targets.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [call, *targets]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [call, *targets] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?call: CallNode, ?targets: Array[LocalVariableTargetNode]) -> MatchWriteNode
+    # :call-seq:
+    #   copy(**fields) -> MatchWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, call: self.call, targets: self.targets)
       MatchWriteNode.new(source, node_id, location, flags, call, targets)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, call: call, targets: targets }
     end
 
-    # attr_reader call: CallNode
-    attr_reader :call
+    # See `Node#type`.
+    def type
+      :match_write_node
+    end
 
-    # attr_reader targets: Array[LocalVariableTargetNode]
-    attr_reader :targets
+    # See `Node.type`.
+    def self.type
+      :match_write_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :match_write_node
+    # :section:
+
+    # :call-seq:
+    #   call -> CallNode
+    #
+    # Returns the `call` attribute.
+    def call
+      @call
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :match_write_node
+    # :call-seq:
+    #   targets -> Array[LocalVariableTargetNode]
+    #
+    # Returns the `targets` attribute.
+    def targets
+      @targets
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(MatchWriteNode) &&
         (call === other.call) &&
         (targets.length == other.targets.length) &&
@@ -13566,61 +17537,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_missing_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> MissingNode
+    # :call-seq:
+    #   copy(**fields) -> MissingNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       MissingNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :missing_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :missing_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(MissingNode)
     end
   end
@@ -13644,17 +17632,28 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_module_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [constant_path, body]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -13662,7 +17661,7 @@ module Prism
       yield body if body
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << constant_path
@@ -13670,88 +17669,130 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [module_keyword_loc, constant_path, *body, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?module_keyword_loc: Location, ?constant_path: ConstantReadNode | ConstantPathNode | MissingNode, ?body: StatementsNode | BeginNode | nil, ?end_keyword_loc: Location, ?name: Symbol) -> ModuleNode
+    # :call-seq:
+    #   copy(**fields) -> ModuleNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, module_keyword_loc: self.module_keyword_loc, constant_path: self.constant_path, body: self.body, end_keyword_loc: self.end_keyword_loc, name: self.name)
       ModuleNode.new(source, node_id, location, flags, locals, module_keyword_loc, constant_path, body, end_keyword_loc, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, module_keyword_loc: module_keyword_loc, constant_path: constant_path, body: body, end_keyword_loc: end_keyword_loc, name: name }
     end
 
-    # attr_reader locals: Array[Symbol]
-    attr_reader :locals
-
-    # attr_reader module_keyword_loc: Location
-    def module_keyword_loc
-      location = @module_keyword_loc
-      return location if location.is_a?(Location)
-      @module_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :module_node
     end
 
-    # Save the module_keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_module_keyword_loc(repository)
-      repository.enter(node_id, :module_keyword_loc)
-    end
-
-    # attr_reader constant_path: ConstantReadNode | ConstantPathNode | MissingNode
-    attr_reader :constant_path
-
-    # attr_reader body: StatementsNode | BeginNode | nil
-    attr_reader :body
-
-    # attr_reader end_keyword_loc: Location
-    def end_keyword_loc
-      location = @end_keyword_loc
-      return location if location.is_a?(Location)
-      @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the end_keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_end_keyword_loc(repository)
-      repository.enter(node_id, :end_keyword_loc)
-    end
-
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # def module_keyword: () -> String
-    def module_keyword
-      module_keyword_loc.slice
-    end
-
-    # def end_keyword: () -> String
-    def end_keyword
-      end_keyword_loc.slice
+    # See `Node.type`.
+    def self.type
+      :module_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :module_node
+    # :section:
+
+    # :call-seq:
+    #   locals -> Array[Symbol]
+    #
+    # Returns the `locals` attribute.
+    def locals
+      @locals
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :module_node
+    # :category: Locations
+    # :call-seq:
+    #   module_keyword_loc -> Location
+    #
+    # Returns the Location represented by `module_keyword_loc`.
+    def module_keyword_loc
+      location = @module_keyword_loc
+      return location if location.is_a?(Location)
+      @module_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the module_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_module_keyword_loc(repository)
+      repository.enter(node_id, :module_keyword_loc)
+    end
+
+    # :call-seq:
+    #   constant_path -> ConstantReadNode | ConstantPathNode | MissingNode
+    #
+    # Returns the `constant_path` attribute.
+    def constant_path
+      @constant_path
+    end
+
+    # :call-seq:
+    #   body -> StatementsNode | BeginNode | nil
+    #
+    # Returns the `body` attribute.
+    def body
+      @body
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location
+    #
+    # Returns the Location represented by `end_keyword_loc`.
+    def end_keyword_loc
+      location = @end_keyword_loc
+      return location if location.is_a?(Location)
+      @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
+    end
+
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   module_keyword -> String
+    #
+    # Slice the location of module_keyword_loc from the source.
+    def module_keyword
+      module_keyword_loc.slice
+    end
+
+    # :call-seq:
+    #   end_keyword -> String
+    #
+    # Slice the location of end_keyword_loc from the source.
+    def end_keyword
+      end_keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ModuleNode) &&
         (locals.length == other.locals.length) &&
         locals.zip(other.locals).all? { |left, right| left === right } &&
@@ -13786,17 +17827,28 @@ module Prism
       @rparen_loc = rparen_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_multi_target_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*lefts, rest, *rights]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -13805,7 +17857,7 @@ module Prism
       rights.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact.concat(lefts)
@@ -13814,23 +17866,44 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*lefts, *rest, *rights, *lparen_loc, *rparen_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], ?rest: ImplicitRestNode | SplatNode | nil, ?rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode], ?lparen_loc: Location?, ?rparen_loc: Location?) -> MultiTargetNode
+    # :call-seq:
+    #   copy(**fields) -> MultiTargetNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, lefts: self.lefts, rest: self.rest, rights: self.rights, lparen_loc: self.lparen_loc, rparen_loc: self.rparen_loc)
       MultiTargetNode.new(source, node_id, location, flags, lefts, rest, rights, lparen_loc, rparen_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, lefts: lefts, rest: rest, rights: rights, lparen_loc: lparen_loc, rparen_loc: rparen_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :multi_target_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :multi_target_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   lefts -> Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode]
+    #
     # Represents the targets expressions before a splat node.
     #
     #     a, (b, c, *) = 1, 2, 3, 4, 5
@@ -13840,8 +17913,13 @@ module Prism
     #
     #     a, (b, c) = 1, 2, 3, 4, 5
     #         ^^^^
-    attr_reader :lefts
+    def lefts
+      @lefts
+    end
 
+    # :call-seq:
+    #   rest -> ImplicitRestNode | SplatNode | nil
+    #
     # Represents a splat node in the target expression.
     #
     #     a, (b, *c) = 1, 2, 3, 4
@@ -13856,14 +17934,25 @@ module Prism
     #
     #     a, (b,) = 1, 2, 3, 4
     #          ^
-    attr_reader :rest
+    def rest
+      @rest
+    end
 
+    # :call-seq:
+    #   rights -> Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode]
+    #
     # Represents the targets expressions after a splat node.
     #
     #     a, (*, b, c) = 1, 2, 3, 4, 5
     #            ^^^^
-    attr_reader :rights
+    def rights
+      @rights
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   lparen_loc -> Location | nil
+    #
     # The Location of the opening parenthesis.
     #
     #     a, (b, c) = 1, 2, 3
@@ -13880,12 +17969,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the lparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_lparen_loc(repository)
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   rparen_loc -> Location | nil
+    #
     # The Location of the closing parenthesis.
     #
     #     a, (b, c) = 1, 2, 3
@@ -13902,39 +17995,33 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the rparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_rparen_loc(repository)
       repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
+    # :section: Slicing
 
-    # def lparen: () -> String?
+    # :call-seq:
+    #   lparen -> String | nil
+    #
+    # Slice the location of lparen_loc from the source.
     def lparen
       lparen_loc&.slice
     end
 
-    # def rparen: () -> String?
+    # :call-seq:
+    #   rparen -> String | nil
+    #
+    # Slice the location of rparen_loc from the source.
     def rparen
       rparen_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :multi_target_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :multi_target_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(MultiTargetNode) &&
         (lefts.length == other.lefts.length) &&
         lefts.zip(other.lefts).all? { |left, right| left === right } &&
@@ -13966,17 +18053,28 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_multi_write_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*lefts, rest, *rights, value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -13986,7 +18084,7 @@ module Prism
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact.concat(lefts)
@@ -13996,23 +18094,44 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*lefts, *rest, *rights, *lparen_loc, *rparen_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?lefts: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], ?rest: ImplicitRestNode | SplatNode | nil, ?rights: Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode], ?lparen_loc: Location?, ?rparen_loc: Location?, ?operator_loc: Location, ?value: Prism::node) -> MultiWriteNode
+    # :call-seq:
+    #   copy(**fields) -> MultiWriteNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, lefts: self.lefts, rest: self.rest, rights: self.rights, lparen_loc: self.lparen_loc, rparen_loc: self.rparen_loc, operator_loc: self.operator_loc, value: self.value)
       MultiWriteNode.new(source, node_id, location, flags, lefts, rest, rights, lparen_loc, rparen_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, lefts: lefts, rest: rest, rights: rights, lparen_loc: lparen_loc, rparen_loc: rparen_loc, operator_loc: operator_loc, value: value }
     end
 
+    # See `Node#type`.
+    def type
+      :multi_write_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :multi_write_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   lefts -> Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode]
+    #
     # Represents the targets expressions before a splat node.
     #
     #     a, b, * = 1, 2, 3, 4, 5
@@ -14022,8 +18141,13 @@ module Prism
     #
     #     a, b, c = 1, 2, 3, 4, 5
     #     ^^^^^^^
-    attr_reader :lefts
+    def lefts
+      @lefts
+    end
 
+    # :call-seq:
+    #   rest -> ImplicitRestNode | SplatNode | nil
+    #
     # Represents a splat node in the target expression.
     #
     #     a, b, *c = 1, 2, 3, 4
@@ -14038,14 +18162,25 @@ module Prism
     #
     #     a, b, = 1, 2, 3, 4
     #         ^
-    attr_reader :rest
+    def rest
+      @rest
+    end
 
+    # :call-seq:
+    #   rights -> Array[LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode]
+    #
     # Represents the targets expressions after a splat node.
     #
     #     a, *, b, c = 1, 2, 3, 4, 5
     #           ^^^^
-    attr_reader :rights
+    def rights
+      @rights
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   lparen_loc -> Location | nil
+    #
     # The Location of the opening parenthesis.
     #
     #     (a, b, c) = 1, 2, 3
@@ -14062,12 +18197,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the lparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_lparen_loc(repository)
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   rparen_loc -> Location | nil
+    #
     # The Location of the closing parenthesis.
     #
     #     (a, b, c) = 1, 2, 3
@@ -14084,12 +18223,16 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the rparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_rparen_loc(repository)
       repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
-
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the operator.
     #
     #     a, b, c = 1, 2, 3
@@ -14100,50 +18243,53 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
+    # :call-seq:
+    #   value -> Node
+    #
     # The value to write to the targets. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     a, b, c = 1, 2, 3
     #               ^^^^^^^
-    attr_reader :value
+    def value
+      @value
+    end
 
-    # def lparen: () -> String?
+    # :section: Slicing
+
+    # :call-seq:
+    #   lparen -> String | nil
+    #
+    # Slice the location of lparen_loc from the source.
     def lparen
       lparen_loc&.slice
     end
 
-    # def rparen: () -> String?
+    # :call-seq:
+    #   rparen -> String | nil
+    #
+    # Slice the location of rparen_loc from the source.
     def rparen
       rparen_loc&.slice
     end
 
-    # def operator: () -> String
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :multi_write_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :multi_write_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(MultiWriteNode) &&
         (lefts.length == other.lefts.length) &&
         lefts.zip(other.lefts).all? { |left, right| left === right } &&
@@ -14172,85 +18318,115 @@ module Prism
       @keyword_loc = keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_next_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [arguments]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield arguments if arguments
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << arguments if arguments
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*arguments, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?arguments: ArgumentsNode?, ?keyword_loc: Location) -> NextNode
+    # :call-seq:
+    #   copy(**fields) -> NextNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, arguments: self.arguments, keyword_loc: self.keyword_loc)
       NextNode.new(source, node_id, location, flags, arguments, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, arguments: arguments, keyword_loc: keyword_loc }
     end
 
-    # attr_reader arguments: ArgumentsNode?
-    attr_reader :arguments
-
-    # attr_reader keyword_loc: Location
-    def keyword_loc
-      location = @keyword_loc
-      return location if location.is_a?(Location)
-      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :next_node
     end
 
-    # Save the keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_keyword_loc(repository)
-      repository.enter(node_id, :keyword_loc)
-    end
-
-    # def keyword: () -> String
-    def keyword
-      keyword_loc.slice
+    # See `Node.type`.
+    def self.type
+      :next_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :next_node
+    # :section:
+
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
+    # Returns the `arguments` attribute.
+    def arguments
+      @arguments
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :next_node
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    def keyword
+      keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(NextNode) &&
         (arguments === other.arguments) &&
         (keyword_loc.nil? == other.keyword_loc.nil?)
@@ -14270,61 +18446,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_nil_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> NilNode
+    # :call-seq:
+    #   copy(**fields) -> NilNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       NilNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :nil_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :nil_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(NilNode)
     end
   end
@@ -14345,97 +18538,130 @@ module Prism
       @keyword_loc = keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_no_keywords_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [operator_loc, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?operator_loc: Location, ?keyword_loc: Location) -> NoKeywordsParameterNode
+    # :call-seq:
+    #   copy(**fields) -> NoKeywordsParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, operator_loc: self.operator_loc, keyword_loc: self.keyword_loc)
       NoKeywordsParameterNode.new(source, node_id, location, flags, operator_loc, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, operator_loc: operator_loc, keyword_loc: keyword_loc }
     end
 
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :no_keywords_parameter_node
     end
 
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader keyword_loc: Location
-    def keyword_loc
-      location = @keyword_loc
-      return location if location.is_a?(Location)
-      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_keyword_loc(repository)
-      repository.enter(node_id, :keyword_loc)
-    end
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
-    end
-
-    # def keyword: () -> String
-    def keyword
-      keyword_loc.slice
+    # See `Node.type`.
+    def self.type
+      :no_keywords_parameter_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :no_keywords_parameter_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :no_keywords_parameter_node
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    def keyword
+      keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(NoKeywordsParameterNode) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
         (keyword_loc.nil? == other.keyword_loc.nil?)
@@ -14456,64 +18682,86 @@ module Prism
       @maximum = maximum
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_numbered_parameters_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?maximum: Integer) -> NumberedParametersNode
+    # :call-seq:
+    #   copy(**fields) -> NumberedParametersNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, maximum: self.maximum)
       NumberedParametersNode.new(source, node_id, location, flags, maximum)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, maximum: maximum }
     end
 
-    # attr_reader maximum: Integer
-    attr_reader :maximum
+    # See `Node#type`.
+    def type
+      :numbered_parameters_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :numbered_parameters_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :numbered_parameters_node
+    # :section:
+
+    # :call-seq:
+    #   maximum -> Integer
+    #
+    # Returns the `maximum` attribute.
+    def maximum
+      @maximum
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :numbered_parameters_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(NumberedParametersNode) &&
         (maximum === other.maximum)
     end
@@ -14533,44 +18781,76 @@ module Prism
       @number = number
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_numbered_reference_read_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?number: Integer) -> NumberedReferenceReadNode
+    # :call-seq:
+    #   copy(**fields) -> NumberedReferenceReadNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, number: self.number)
       NumberedReferenceReadNode.new(source, node_id, location, flags, number)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, number: number }
     end
 
+    # See `Node#type`.
+    def type
+      :numbered_reference_read_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :numbered_reference_read_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   number -> Integer
+    #
     # The (1-indexed, from the left) number of the capture group. Numbered references that are too large result in this value being `0`.
     #
     #     $1          # number `1`
@@ -14578,25 +18858,15 @@ module Prism
     #     $5432       # number `5432`
     #
     #     $4294967296 # number `0`
-    attr_reader :number
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    def number
+      @number
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :numbered_reference_read_node
-    end
+    # :section: Slicing
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :numbered_reference_read_node
-    end
+    # :section:
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(NumberedReferenceReadNode) &&
         (number === other.number)
     end
@@ -14619,86 +18889,119 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_optional_keyword_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?value: Prism::node) -> OptionalKeywordParameterNode
+    # :call-seq:
+    #   copy(**fields) -> OptionalKeywordParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, value: self.value)
       OptionalKeywordParameterNode.new(source, node_id, location, flags, name, name_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value }
     end
 
-    # def repeated_parameter?: () -> bool
+    # See `Node#type`.
+    def type
+      :optional_keyword_parameter_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :optional_keyword_parameter_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # a parameter name that has been repeated in the method signature
     def repeated_parameter?
       flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
 
-    # attr_reader name_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       return location if location.is_a?(Location)
       @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc)
     end
 
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :optional_keyword_parameter_node
-    end
+    # :section: Slicing
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :optional_keyword_parameter_node
-    end
+    # :section:
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(OptionalKeywordParameterNode) &&
         (flags === other.flags) &&
         (name === other.name) &&
@@ -14725,104 +19028,145 @@ module Prism
       @value = value
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_optional_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [value]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield value
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [value]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc, operator_loc, value] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location, ?operator_loc: Location, ?value: Prism::node) -> OptionalParameterNode
+    # :call-seq:
+    #   copy(**fields) -> OptionalParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc, value: self.value)
       OptionalParameterNode.new(source, node_id, location, flags, name, name_loc, operator_loc, value)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
     end
 
-    # def repeated_parameter?: () -> bool
-    def repeated_parameter?
-      flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
+    # See `Node#type`.
+    def type
+      :optional_parameter_node
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader value: Prism::node
-    attr_reader :value
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :optional_parameter_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :optional_parameter_node
+    # :section:
+
+    # :category: Flags
+    # a parameter name that has been repeated in the method signature
+    def repeated_parameter?
+      flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :optional_parameter_node
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   value -> Node
+    #
+    # Returns the `value` attribute.
+    def value
+      @value
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(OptionalParameterNode) &&
         (flags === other.flags) &&
         (name === other.name) &&
@@ -14848,17 +19192,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_or_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [left, right]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -14866,28 +19221,49 @@ module Prism
       yield right
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [left, right]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [left, right, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?left: Prism::node, ?right: Prism::node, ?operator_loc: Location) -> OrNode
+    # :call-seq:
+    #   copy(**fields) -> OrNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, left: self.left, right: self.right, operator_loc: self.operator_loc)
       OrNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :or_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :or_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   left -> Node
+    #
     # Represents the left side of the expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     left or right
@@ -14895,8 +19271,13 @@ module Prism
     #
     #     1 || 2
     #     ^
-    attr_reader :left
+    def left
+      @left
+    end
 
+    # :call-seq:
+    #   right -> Node
+    #
     # Represents the right side of the expression.
     #
     #     left || right
@@ -14904,8 +19285,14 @@ module Prism
     #
     #     1 or 2
     #          ^
-    attr_reader :right
+    def right
+      @right
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `or` keyword or the `||` operator.
     #
     #     left or right
@@ -14916,34 +19303,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :or_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :or_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(OrNode) &&
         (left === other.left) &&
         (right === other.right) &&
@@ -14972,17 +19351,28 @@ module Prism
       @block = block
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_parameters_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*requireds, *optionals, rest, *posts, *keywords, keyword_rest, block]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -14995,7 +19385,7 @@ module Prism
       yield block if block
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact.concat(requireds)
@@ -15008,61 +19398,102 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*requireds, *optionals, *rest, *posts, *keywords, *keyword_rest, *block] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?requireds: Array[RequiredParameterNode | MultiTargetNode], ?optionals: Array[OptionalParameterNode], ?rest: RestParameterNode | ImplicitRestNode | nil, ?posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode], ?keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode], ?keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil, ?block: BlockParameterNode?) -> ParametersNode
+    # :call-seq:
+    #   copy(**fields) -> ParametersNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, requireds: self.requireds, optionals: self.optionals, rest: self.rest, posts: self.posts, keywords: self.keywords, keyword_rest: self.keyword_rest, block: self.block)
       ParametersNode.new(source, node_id, location, flags, requireds, optionals, rest, posts, keywords, keyword_rest, block)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, requireds: requireds, optionals: optionals, rest: rest, posts: posts, keywords: keywords, keyword_rest: keyword_rest, block: block }
     end
 
-    # attr_reader requireds: Array[RequiredParameterNode | MultiTargetNode]
-    attr_reader :requireds
+    # See `Node#type`.
+    def type
+      :parameters_node
+    end
 
-    # attr_reader optionals: Array[OptionalParameterNode]
-    attr_reader :optionals
-
-    # attr_reader rest: RestParameterNode | ImplicitRestNode | nil
-    attr_reader :rest
-
-    # attr_reader posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode]
-    attr_reader :posts
-
-    # attr_reader keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode]
-    attr_reader :keywords
-
-    # attr_reader keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil
-    attr_reader :keyword_rest
-
-    # attr_reader block: BlockParameterNode?
-    attr_reader :block
+    # See `Node.type`.
+    def self.type
+      :parameters_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :parameters_node
+    # :section:
+
+    # :call-seq:
+    #   requireds -> Array[RequiredParameterNode | MultiTargetNode]
+    #
+    # Returns the `requireds` attribute.
+    def requireds
+      @requireds
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :parameters_node
+    # :call-seq:
+    #   optionals -> Array[OptionalParameterNode]
+    #
+    # Returns the `optionals` attribute.
+    def optionals
+      @optionals
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   rest -> RestParameterNode | ImplicitRestNode | nil
+    #
+    # Returns the `rest` attribute.
+    def rest
+      @rest
+    end
+
+    # :call-seq:
+    #   posts -> Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode]
+    #
+    # Returns the `posts` attribute.
+    def posts
+      @posts
+    end
+
+    # :call-seq:
+    #   keywords -> Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode]
+    #
+    # Returns the `keywords` attribute.
+    def keywords
+      @keywords
+    end
+
+    # :call-seq:
+    #   keyword_rest -> KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil
+    #
+    # Returns the `keyword_rest` attribute.
+    def keyword_rest
+      @keyword_rest
+    end
+
+    # :call-seq:
+    #   block -> BlockParameterNode | nil
+    #
+    # Returns the `block` attribute.
+    def block
+      @block
+    end
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ParametersNode) &&
         (requireds.length == other.requireds.length) &&
         requireds.zip(other.requireds).all? { |left, right| left === right } &&
@@ -15094,108 +19525,147 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_parentheses_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [body]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield body if body
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << body if body
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*body, opening_loc, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?body: Prism::node?, ?opening_loc: Location, ?closing_loc: Location) -> ParenthesesNode
+    # :call-seq:
+    #   copy(**fields) -> ParenthesesNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, body: self.body, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       ParenthesesNode.new(source, node_id, location, flags, body, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # def multiple_statements?: () -> bool
-    def multiple_statements?
-      flags.anybits?(ParenthesesNodeFlags::MULTIPLE_STATEMENTS)
+    # See `Node#type`.
+    def type
+      :parentheses_node
     end
 
-    # attr_reader body: Prism::node?
-    attr_reader :body
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :parentheses_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :parentheses_node
+    # :section:
+
+    # :category: Flags
+    # parentheses that contain multiple potentially void statements
+    def multiple_statements?
+      flags.anybits?(ParenthesesNodeFlags::MULTIPLE_STATEMENTS)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :parentheses_node
+    # :call-seq:
+    #   body -> Node | nil
+    #
+    # Returns the `body` attribute.
+    def body
+      @body
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ParenthesesNode) &&
         (flags === other.flags) &&
         (body === other.body) &&
@@ -15221,51 +19691,89 @@ module Prism
       @rparen_loc = rparen_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_pinned_expression_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [expression]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield expression
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [expression]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [expression, operator_loc, lparen_loc, rparen_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?expression: Prism::node, ?operator_loc: Location, ?lparen_loc: Location, ?rparen_loc: Location) -> PinnedExpressionNode
+    # :call-seq:
+    #   copy(**fields) -> PinnedExpressionNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, expression: self.expression, operator_loc: self.operator_loc, lparen_loc: self.lparen_loc, rparen_loc: self.rparen_loc)
       PinnedExpressionNode.new(source, node_id, location, flags, expression, operator_loc, lparen_loc, rparen_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, expression: expression, operator_loc: operator_loc, lparen_loc: lparen_loc, rparen_loc: rparen_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :pinned_expression_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :pinned_expression_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   expression -> Node
+    #
     # The expression used in the pinned expression
     #
     #     foo in ^(bar)
     #              ^^^
-    attr_reader :expression
+    def expression
+      @expression
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `^` operator
     #
     #     foo in ^(bar)
@@ -15276,12 +19784,17 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   lparen_loc -> Location
+    #
     # The Location of the opening parenthesis.
     #
     #     foo in ^(bar)
@@ -15292,12 +19805,17 @@ module Prism
       @lparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the lparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_lparen_loc(repository)
       repository.enter(node_id, :lparen_loc)
     end
 
+    # :category: Locations
+    # :call-seq:
+    #   rparen_loc -> Location
+    #
     # The Location of the closing parenthesis.
     #
     #     foo in ^(bar)
@@ -15308,44 +19826,42 @@ module Prism
       @rparen_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the rparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_rparen_loc(repository)
       repository.enter(node_id, :rparen_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    # def lparen: () -> String
+    # :call-seq:
+    #   lparen -> String
+    #
+    # Slice the location of lparen_loc from the source.
     def lparen
       lparen_loc.slice
     end
 
-    # def rparen: () -> String
+    # :call-seq:
+    #   rparen -> String
+    #
+    # Slice the location of rparen_loc from the source.
     def rparen
       rparen_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :pinned_expression_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :pinned_expression_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(PinnedExpressionNode) &&
         (expression === other.expression) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
@@ -15369,51 +19885,89 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_pinned_variable_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [variable]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield variable
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [variable]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [variable, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?variable: LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode, ?operator_loc: Location) -> PinnedVariableNode
+    # :call-seq:
+    #   copy(**fields) -> PinnedVariableNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, variable: self.variable, operator_loc: self.operator_loc)
       PinnedVariableNode.new(source, node_id, location, flags, variable, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, variable: variable, operator_loc: operator_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :pinned_variable_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :pinned_variable_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :call-seq:
+    #   variable -> LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode
+    #
     # The variable used in the pinned expression
     #
     #     foo in ^bar
     #             ^^^
-    attr_reader :variable
+    def variable
+      @variable
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `^` operator
     #
     #     foo in ^bar
@@ -15424,34 +19978,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :pinned_variable_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :pinned_variable_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(PinnedVariableNode) &&
         (variable === other.variable) &&
         (operator_loc.nil? == other.operator_loc.nil?)
@@ -15475,121 +20021,167 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_post_execution_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << statements if statements
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*statements, keyword_loc, opening_loc, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?statements: StatementsNode?, ?keyword_loc: Location, ?opening_loc: Location, ?closing_loc: Location) -> PostExecutionNode
+    # :call-seq:
+    #   copy(**fields) -> PostExecutionNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, statements: self.statements, keyword_loc: self.keyword_loc, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       PostExecutionNode.new(source, node_id, location, flags, statements, keyword_loc, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, statements: statements, keyword_loc: keyword_loc, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
-
-    # attr_reader keyword_loc: Location
-    def keyword_loc
-      location = @keyword_loc
-      return location if location.is_a?(Location)
-      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :post_execution_node
     end
 
-    # Save the keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_keyword_loc(repository)
-      repository.enter(node_id, :keyword_loc)
-    end
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # def keyword: () -> String
-    def keyword
-      keyword_loc.slice
-    end
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :post_execution_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :post_execution_node
+    # :section:
+
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :post_execution_node
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    def keyword
+      keyword_loc.slice
+    end
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(PostExecutionNode) &&
         (statements === other.statements) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
@@ -15615,121 +20207,167 @@ module Prism
       @closing_loc = closing_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_pre_execution_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << statements if statements
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*statements, keyword_loc, opening_loc, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?statements: StatementsNode?, ?keyword_loc: Location, ?opening_loc: Location, ?closing_loc: Location) -> PreExecutionNode
+    # :call-seq:
+    #   copy(**fields) -> PreExecutionNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, statements: self.statements, keyword_loc: self.keyword_loc, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       PreExecutionNode.new(source, node_id, location, flags, statements, keyword_loc, opening_loc, closing_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, statements: statements, keyword_loc: keyword_loc, opening_loc: opening_loc, closing_loc: closing_loc }
     end
 
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
-
-    # attr_reader keyword_loc: Location
-    def keyword_loc
-      location = @keyword_loc
-      return location if location.is_a?(Location)
-      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :pre_execution_node
     end
 
-    # Save the keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_keyword_loc(repository)
-      repository.enter(node_id, :keyword_loc)
-    end
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # def keyword: () -> String
-    def keyword
-      keyword_loc.slice
-    end
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :pre_execution_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :pre_execution_node
+    # :section:
+
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :pre_execution_node
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    def keyword
+      keyword_loc.slice
+    end
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(PreExecutionNode) &&
         (statements === other.statements) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
@@ -15750,68 +20388,95 @@ module Prism
       @statements = statements
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_program_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [statements]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [statements] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?statements: StatementsNode) -> ProgramNode
+    # :call-seq:
+    #   copy(**fields) -> ProgramNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, statements: self.statements)
       ProgramNode.new(source, node_id, location, flags, locals, statements)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, statements: statements }
     end
 
-    # attr_reader locals: Array[Symbol]
-    attr_reader :locals
+    # See `Node#type`.
+    def type
+      :program_node
+    end
 
-    # attr_reader statements: StatementsNode
-    attr_reader :statements
+    # See `Node.type`.
+    def self.type
+      :program_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :program_node
+    # :section:
+
+    # :call-seq:
+    #   locals -> Array[Symbol]
+    #
+    # Returns the `locals` attribute.
+    def locals
+      @locals
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :program_node
+    # :call-seq:
+    #   statements -> StatementsNode
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ProgramNode) &&
         (locals.length == other.locals.length) &&
         locals.zip(other.locals).all? { |left, right| left === right } &&
@@ -15838,17 +20503,28 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_range_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [left, right]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -15856,7 +20532,7 @@ module Prism
       yield right if right
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << left if left
@@ -15864,28 +20540,50 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*left, *right, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?left: Prism::node?, ?right: Prism::node?, ?operator_loc: Location) -> RangeNode
+    # :call-seq:
+    #   copy(**fields) -> RangeNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, left: self.left, right: self.right, operator_loc: self.operator_loc)
       RangeNode.new(source, node_id, location, flags, left, right, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
     end
 
-    # def exclude_end?: () -> bool
+    # See `Node#type`.
+    def type
+      :range_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :range_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # ... operator
     def exclude_end?
       flags.anybits?(RangeFlags::EXCLUDE_END)
     end
 
+    # :call-seq:
+    #   left -> Node | nil
+    #
     # The left-hand side of the range, if present. It can be either `nil` or any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     1...
@@ -15893,8 +20591,13 @@ module Prism
     #
     #     hello...goodbye
     #     ^^^^^
-    attr_reader :left
+    def left
+      @left
+    end
 
+    # :call-seq:
+    #   right -> Node | nil
+    #
     # The right-hand side of the range, if present. It can be either `nil` or any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     ..5
@@ -15903,8 +20606,14 @@ module Prism
     #     1...foo
     #         ^^^
     # If neither right-hand or left-hand side was included, this will be a MissingNode.
-    attr_reader :right
+    def right
+      @right
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
     # The Location of the `..` or `...` operator.
     def operator_loc
       location = @operator_loc
@@ -15912,34 +20621,26 @@ module Prism
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :range_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :range_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(RangeNode) &&
         (flags === other.flags) &&
         (left === other.left) &&
@@ -15963,91 +20664,122 @@ module Prism
       @denominator = denominator
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_rational_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?numerator: Integer, ?denominator: Integer) -> RationalNode
+    # :call-seq:
+    #   copy(**fields) -> RationalNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, numerator: self.numerator, denominator: self.denominator)
       RationalNode.new(source, node_id, location, flags, numerator, denominator)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, numerator: numerator, denominator: denominator }
     end
 
-    # def binary?: () -> bool
-    def binary?
-      flags.anybits?(IntegerBaseFlags::BINARY)
+    # See `Node#type`.
+    def type
+      :rational_node
     end
 
-    # def decimal?: () -> bool
-    def decimal?
-      flags.anybits?(IntegerBaseFlags::DECIMAL)
+    # See `Node.type`.
+    def self.type
+      :rational_node
     end
-
-    # def octal?: () -> bool
-    def octal?
-      flags.anybits?(IntegerBaseFlags::OCTAL)
-    end
-
-    # def hexadecimal?: () -> bool
-    def hexadecimal?
-      flags.anybits?(IntegerBaseFlags::HEXADECIMAL)
-    end
-
-    # The numerator of the rational number.
-    #
-    #     1.5r # numerator 3
-    attr_reader :numerator
-
-    # The denominator of the rational number.
-    #
-    #     1.5r # denominator 2
-    attr_reader :denominator
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :rational_node
+    # :section:
+
+    # :category: Flags
+    # 0b prefix
+    def binary?
+      flags.anybits?(IntegerBaseFlags::BINARY)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :rational_node
+    # :category: Flags
+    # 0d or no prefix
+    def decimal?
+      flags.anybits?(IntegerBaseFlags::DECIMAL)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # 0o or 0 prefix
+    def octal?
+      flags.anybits?(IntegerBaseFlags::OCTAL)
+    end
+
+    # :category: Flags
+    # 0x prefix
+    def hexadecimal?
+      flags.anybits?(IntegerBaseFlags::HEXADECIMAL)
+    end
+
+    # :call-seq:
+    #   numerator -> Integer
+    #
+    # The numerator of the rational number.
+    #
+    #     1.5r # numerator 3
+    def numerator
+      @numerator
+    end
+
+    # :call-seq:
+    #   denominator -> Integer
+    #
+    # The denominator of the rational number.
+    #
+    #     1.5r # denominator 2
+    def denominator
+      @denominator
+    end
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(RationalNode) &&
         (flags === other.flags) &&
         (numerator === other.numerator) &&
@@ -16068,61 +20800,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_redo_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> RedoNode
+    # :call-seq:
+    #   copy(**fields) -> RedoNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       RedoNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :redo_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :redo_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(RedoNode)
     end
   end
@@ -16144,173 +20893,230 @@ module Prism
       @unescaped = unescaped
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_regular_expression_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [opening_loc, content_loc, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location, ?content_loc: Location, ?closing_loc: Location, ?unescaped: String) -> RegularExpressionNode
+    # :call-seq:
+    #   copy(**fields) -> RegularExpressionNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, content_loc: self.content_loc, closing_loc: self.closing_loc, unescaped: self.unescaped)
       RegularExpressionNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
-    # def ignore_case?: () -> bool
-    def ignore_case?
-      flags.anybits?(RegularExpressionFlags::IGNORE_CASE)
+    # See `Node#type`.
+    def type
+      :regular_expression_node
     end
 
-    # def extended?: () -> bool
-    def extended?
-      flags.anybits?(RegularExpressionFlags::EXTENDED)
-    end
-
-    # def multi_line?: () -> bool
-    def multi_line?
-      flags.anybits?(RegularExpressionFlags::MULTI_LINE)
-    end
-
-    # def once?: () -> bool
-    def once?
-      flags.anybits?(RegularExpressionFlags::ONCE)
-    end
-
-    # def euc_jp?: () -> bool
-    def euc_jp?
-      flags.anybits?(RegularExpressionFlags::EUC_JP)
-    end
-
-    # def ascii_8bit?: () -> bool
-    def ascii_8bit?
-      flags.anybits?(RegularExpressionFlags::ASCII_8BIT)
-    end
-
-    # def windows_31j?: () -> bool
-    def windows_31j?
-      flags.anybits?(RegularExpressionFlags::WINDOWS_31J)
-    end
-
-    # def utf_8?: () -> bool
-    def utf_8?
-      flags.anybits?(RegularExpressionFlags::UTF_8)
-    end
-
-    # def forced_utf8_encoding?: () -> bool
-    def forced_utf8_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_UTF8_ENCODING)
-    end
-
-    # def forced_binary_encoding?: () -> bool
-    def forced_binary_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_BINARY_ENCODING)
-    end
-
-    # def forced_us_ascii_encoding?: () -> bool
-    def forced_us_ascii_encoding?
-      flags.anybits?(RegularExpressionFlags::FORCED_US_ASCII_ENCODING)
-    end
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader content_loc: Location
-    def content_loc
-      location = @content_loc
-      return location if location.is_a?(Location)
-      @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the content_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_content_loc(repository)
-      repository.enter(node_id, :content_loc)
-    end
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # attr_reader unescaped: String
-    attr_reader :unescaped
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def content: () -> String
-    def content
-      content_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :regular_expression_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :regular_expression_node
+    # :section:
+
+    # :category: Flags
+    # i - ignores the case of characters when matching
+    def ignore_case?
+      flags.anybits?(RegularExpressionFlags::IGNORE_CASE)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :regular_expression_node
+    # :category: Flags
+    # x - ignores whitespace and allows comments in regular expressions
+    def extended?
+      flags.anybits?(RegularExpressionFlags::EXTENDED)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # m - allows $ to match the end of lines within strings
+    def multi_line?
+      flags.anybits?(RegularExpressionFlags::MULTI_LINE)
+    end
+
+    # :category: Flags
+    # o - only interpolates values into the regular expression once
+    def once?
+      flags.anybits?(RegularExpressionFlags::ONCE)
+    end
+
+    # :category: Flags
+    # e - forces the EUC-JP encoding
+    def euc_jp?
+      flags.anybits?(RegularExpressionFlags::EUC_JP)
+    end
+
+    # :category: Flags
+    # n - forces the ASCII-8BIT encoding
+    def ascii_8bit?
+      flags.anybits?(RegularExpressionFlags::ASCII_8BIT)
+    end
+
+    # :category: Flags
+    # s - forces the Windows-31J encoding
+    def windows_31j?
+      flags.anybits?(RegularExpressionFlags::WINDOWS_31J)
+    end
+
+    # :category: Flags
+    # u - forces the UTF-8 encoding
+    def utf_8?
+      flags.anybits?(RegularExpressionFlags::UTF_8)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to UTF-8
+    def forced_utf8_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_UTF8_ENCODING)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to binary
+    def forced_binary_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_BINARY_ENCODING)
+    end
+
+    # :category: Flags
+    # internal bytes forced the encoding to US-ASCII
+    def forced_us_ascii_encoding?
+      flags.anybits?(RegularExpressionFlags::FORCED_US_ASCII_ENCODING)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   content_loc -> Location
+    #
+    # Returns the Location represented by `content_loc`.
+    def content_loc
+      location = @content_loc
+      return location if location.is_a?(Location)
+      @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the content_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_content_loc(repository)
+      repository.enter(node_id, :content_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :call-seq:
+    #   unescaped -> String
+    #
+    # Returns the `unescaped` attribute.
+    def unescaped
+      @unescaped
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   content -> String
+    #
+    # Slice the location of content_loc from the source.
+    def content
+      content_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(RegularExpressionNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
@@ -16336,82 +21142,110 @@ module Prism
       @name_loc = name_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_required_keyword_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [name_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol, ?name_loc: Location) -> RequiredKeywordParameterNode
+    # :call-seq:
+    #   copy(**fields) -> RequiredKeywordParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc)
       RequiredKeywordParameterNode.new(source, node_id, location, flags, name, name_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc }
     end
 
-    # def repeated_parameter?: () -> bool
-    def repeated_parameter?
-      flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
+    # See `Node#type`.
+    def type
+      :required_keyword_parameter_node
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
-
-    # attr_reader name_loc: Location
-    def name_loc
-      location = @name_loc
-      return location if location.is_a?(Location)
-      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the name_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_name_loc(repository)
-      repository.enter(node_id, :name_loc)
+    # See `Node.type`.
+    def self.type
+      :required_keyword_parameter_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :required_keyword_parameter_node
+    # :section:
+
+    # :category: Flags
+    # a parameter name that has been repeated in the method signature
+    def repeated_parameter?
+      flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :required_keyword_parameter_node
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location
+    #
+    # Returns the Location represented by `name_loc`.
+    def name_loc
+      location = @name_loc
+      return location if location.is_a?(Location)
+      @name_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the name_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_name_loc(repository)
+      repository.enter(node_id, :name_loc)
+    end
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(RequiredKeywordParameterNode) &&
         (flags === other.flags) &&
         (name === other.name) &&
@@ -16434,69 +21268,92 @@ module Prism
       @name = name
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_required_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol) -> RequiredParameterNode
+    # :call-seq:
+    #   copy(**fields) -> RequiredParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name)
       RequiredParameterNode.new(source, node_id, location, flags, name)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name }
     end
 
-    # def repeated_parameter?: () -> bool
-    def repeated_parameter?
-      flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
+    # See `Node#type`.
+    def type
+      :required_parameter_node
     end
 
-    # attr_reader name: Symbol
-    attr_reader :name
+    # See `Node.type`.
+    def self.type
+      :required_parameter_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :required_parameter_node
+    # :section:
+
+    # :category: Flags
+    # a parameter name that has been repeated in the method signature
+    def repeated_parameter?
+      flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :required_parameter_node
+    # :call-seq:
+    #   name -> Symbol
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(RequiredParameterNode) &&
         (flags === other.flags) &&
         (name === other.name)
@@ -16519,17 +21376,28 @@ module Prism
       @rescue_expression = rescue_expression
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_rescue_modifier_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [expression, rescue_expression]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -16537,69 +21405,93 @@ module Prism
       yield rescue_expression
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [expression, rescue_expression]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [expression, keyword_loc, rescue_expression] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?expression: Prism::node, ?keyword_loc: Location, ?rescue_expression: Prism::node) -> RescueModifierNode
+    # :call-seq:
+    #   copy(**fields) -> RescueModifierNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, expression: self.expression, keyword_loc: self.keyword_loc, rescue_expression: self.rescue_expression)
       RescueModifierNode.new(source, node_id, location, flags, expression, keyword_loc, rescue_expression)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, expression: expression, keyword_loc: keyword_loc, rescue_expression: rescue_expression }
     end
 
-    # attr_reader expression: Prism::node
-    attr_reader :expression
-
-    # attr_reader keyword_loc: Location
-    def keyword_loc
-      location = @keyword_loc
-      return location if location.is_a?(Location)
-      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :rescue_modifier_node
     end
 
-    # Save the keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_keyword_loc(repository)
-      repository.enter(node_id, :keyword_loc)
-    end
-
-    # attr_reader rescue_expression: Prism::node
-    attr_reader :rescue_expression
-
-    # def keyword: () -> String
-    def keyword
-      keyword_loc.slice
+    # See `Node.type`.
+    def self.type
+      :rescue_modifier_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :rescue_modifier_node
+    # :section:
+
+    # :call-seq:
+    #   expression -> Node
+    #
+    # Returns the `expression` attribute.
+    def expression
+      @expression
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :rescue_modifier_node
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
+    # :call-seq:
+    #   rescue_expression -> Node
+    #
+    # Returns the `rescue_expression` attribute.
+    def rescue_expression
+      @rescue_expression
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    def keyword
+      keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(RescueModifierNode) &&
         (expression === other.expression) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
@@ -16632,17 +21524,28 @@ module Prism
       @subsequent = subsequent
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_rescue_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*exceptions, reference, statements, subsequent]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -16652,7 +21555,7 @@ module Prism
       yield subsequent if subsequent
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact.concat(exceptions)
@@ -16662,40 +21565,72 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [keyword_loc, *exceptions, *operator_loc, *reference, *then_keyword_loc, *statements, *subsequent] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?exceptions: Array[Prism::node], ?operator_loc: Location?, ?reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?subsequent: RescueNode?) -> RescueNode
+    # :call-seq:
+    #   copy(**fields) -> RescueNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, exceptions: self.exceptions, operator_loc: self.operator_loc, reference: self.reference, then_keyword_loc: self.then_keyword_loc, statements: self.statements, subsequent: self.subsequent)
       RescueNode.new(source, node_id, location, flags, keyword_loc, exceptions, operator_loc, reference, then_keyword_loc, statements, subsequent)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, exceptions: exceptions, operator_loc: operator_loc, reference: reference, then_keyword_loc: then_keyword_loc, statements: statements, subsequent: subsequent }
     end
 
-    # attr_reader keyword_loc: Location
+    # See `Node#type`.
+    def type
+      :rescue_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :rescue_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # attr_reader exceptions: Array[Prism::node]
-    attr_reader :exceptions
+    # :call-seq:
+    #   exceptions -> Array[Node]
+    #
+    # Returns the `exceptions` attribute.
+    def exceptions
+      @exceptions
+    end
 
-    # attr_reader operator_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location | nil
+    #
+    # Returns the Location represented by `operator_loc`.
     def operator_loc
       location = @operator_loc
       case location
@@ -16708,16 +21643,25 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc) unless @operator_loc.nil?
     end
+    # :call-seq:
+    #   reference -> LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil
+    #
+    # Returns the `reference` attribute.
+    def reference
+      @reference
+    end
 
-    # attr_reader reference: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode | nil
-    attr_reader :reference
-
-    # attr_reader then_keyword_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   then_keyword_loc -> Location | nil
+    #
+    # Returns the Location represented by `then_keyword_loc`.
     def then_keyword_loc
       location = @then_keyword_loc
       case location
@@ -16730,50 +21674,57 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the then_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_then_keyword_loc(repository)
       repository.enter(node_id, :then_keyword_loc) unless @then_keyword_loc.nil?
     end
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
+    end
 
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
+    # :call-seq:
+    #   subsequent -> RescueNode | nil
+    #
+    # Returns the `subsequent` attribute.
+    def subsequent
+      @subsequent
+    end
 
-    # attr_reader subsequent: RescueNode?
-    attr_reader :subsequent
+    # :section: Slicing
 
-    # def keyword: () -> String
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    # def operator: () -> String?
+    # :call-seq:
+    #   operator -> String | nil
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc&.slice
     end
 
-    # def then_keyword: () -> String?
+    # :call-seq:
+    #   then_keyword -> String | nil
+    #
+    # Slice the location of then_keyword_loc from the source.
     def then_keyword
       then_keyword_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :rescue_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :rescue_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(RescueNode) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
         (exceptions.length == other.exceptions.length) &&
@@ -16803,53 +21754,92 @@ module Prism
       @operator_loc = operator_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_rest_parameter_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*name_loc, operator_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?name: Symbol?, ?name_loc: Location?, ?operator_loc: Location) -> RestParameterNode
+    # :call-seq:
+    #   copy(**fields) -> RestParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, name: self.name, name_loc: self.name_loc, operator_loc: self.operator_loc)
       RestParameterNode.new(source, node_id, location, flags, name, name_loc, operator_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
     end
 
-    # def repeated_parameter?: () -> bool
+    # See `Node#type`.
+    def type
+      :rest_parameter_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :rest_parameter_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # a parameter name that has been repeated in the method signature
     def repeated_parameter?
       flags.anybits?(ParameterFlags::REPEATED_PARAMETER)
     end
 
-    # attr_reader name: Symbol?
-    attr_reader :name
+    # :call-seq:
+    #   name -> Symbol | nil
+    #
+    # Returns the `name` attribute.
+    def name
+      @name
+    end
 
-    # attr_reader name_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   name_loc -> Location | nil
+    #
+    # Returns the Location represented by `name_loc`.
     def name_loc
       location = @name_loc
       case location
@@ -16862,47 +21852,43 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the name_loc location using the given saved source so that
     # it can be retrieved later.
     def save_name_loc(repository)
       repository.enter(node_id, :name_loc) unless @name_loc.nil?
     end
-
-    # attr_reader operator_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
     def operator_loc
       location = @operator_loc
       return location if location.is_a?(Location)
       @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the operator_loc location using the given saved source so that
     # it can be retrieved later.
     def save_operator_loc(repository)
       repository.enter(node_id, :operator_loc)
     end
 
-    # def operator: () -> String
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
     def operator
       operator_loc.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :rest_parameter_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :rest_parameter_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(RestParameterNode) &&
         (flags === other.flags) &&
         (name === other.name) &&
@@ -16924,61 +21910,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_retry_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> RetryNode
+    # :call-seq:
+    #   copy(**fields) -> RetryNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       RetryNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :retry_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :retry_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(RetryNode)
     end
   end
@@ -16998,85 +22001,115 @@ module Prism
       @arguments = arguments
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_return_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [arguments]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield arguments if arguments
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << arguments if arguments
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [keyword_loc, *arguments] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?arguments: ArgumentsNode?) -> ReturnNode
+    # :call-seq:
+    #   copy(**fields) -> ReturnNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, arguments: self.arguments)
       ReturnNode.new(source, node_id, location, flags, keyword_loc, arguments)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, arguments: arguments }
     end
 
-    # attr_reader keyword_loc: Location
-    def keyword_loc
-      location = @keyword_loc
-      return location if location.is_a?(Location)
-      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :return_node
     end
 
-    # Save the keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_keyword_loc(repository)
-      repository.enter(node_id, :keyword_loc)
-    end
-
-    # attr_reader arguments: ArgumentsNode?
-    attr_reader :arguments
-
-    # def keyword: () -> String
-    def keyword
-      keyword_loc.slice
+    # See `Node.type`.
+    def self.type
+      :return_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :return_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :return_node
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
+    # Returns the `arguments` attribute.
+    def arguments
+      @arguments
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    def keyword
+      keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ReturnNode) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
         (arguments === other.arguments)
@@ -17096,61 +22129,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_self_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> SelfNode
+    # :call-seq:
+    #   copy(**fields) -> SelfNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       SelfNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :self_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :self_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(SelfNode)
     end
   end
@@ -17170,80 +22220,105 @@ module Prism
       @write = write
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_shareable_constant_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [write]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield write
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [write]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [write] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?write: ConstantWriteNode | ConstantAndWriteNode | ConstantOrWriteNode | ConstantOperatorWriteNode | ConstantPathWriteNode | ConstantPathAndWriteNode | ConstantPathOrWriteNode | ConstantPathOperatorWriteNode) -> ShareableConstantNode
+    # :call-seq:
+    #   copy(**fields) -> ShareableConstantNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, write: self.write)
       ShareableConstantNode.new(source, node_id, location, flags, write)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, write: write }
     end
 
-    # def literal?: () -> bool
-    def literal?
-      flags.anybits?(ShareableConstantNodeFlags::LITERAL)
+    # See `Node#type`.
+    def type
+      :shareable_constant_node
     end
 
-    # def experimental_everything?: () -> bool
-    def experimental_everything?
-      flags.anybits?(ShareableConstantNodeFlags::EXPERIMENTAL_EVERYTHING)
+    # See `Node.type`.
+    def self.type
+      :shareable_constant_node
     end
-
-    # def experimental_copy?: () -> bool
-    def experimental_copy?
-      flags.anybits?(ShareableConstantNodeFlags::EXPERIMENTAL_COPY)
-    end
-
-    # The constant write that should be modified with the shareability state.
-    attr_reader :write
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :shareable_constant_node
+    # :section:
+
+    # :category: Flags
+    # constant writes that should be modified with shareable constant value literal
+    def literal?
+      flags.anybits?(ShareableConstantNodeFlags::LITERAL)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :shareable_constant_node
+    # :category: Flags
+    # constant writes that should be modified with shareable constant value experimental everything
+    def experimental_everything?
+      flags.anybits?(ShareableConstantNodeFlags::EXPERIMENTAL_EVERYTHING)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # constant writes that should be modified with shareable constant value experimental copy
+    def experimental_copy?
+      flags.anybits?(ShareableConstantNodeFlags::EXPERIMENTAL_COPY)
+    end
+
+    # :call-seq:
+    #   write -> ConstantWriteNode | ConstantAndWriteNode | ConstantOrWriteNode | ConstantOperatorWriteNode | ConstantPathWriteNode | ConstantPathAndWriteNode | ConstantPathOrWriteNode | ConstantPathOperatorWriteNode
+    #
+    # The constant write that should be modified with the shareability state.
+    def write
+      @write
+    end
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(ShareableConstantNode) &&
         (flags === other.flags) &&
         (write === other.write)
@@ -17269,17 +22344,28 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_singleton_class_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [expression, body]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -17287,7 +22373,7 @@ module Prism
       yield body if body
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << expression
@@ -17295,103 +22381,148 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [class_keyword_loc, operator_loc, expression, *body, end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?locals: Array[Symbol], ?class_keyword_loc: Location, ?operator_loc: Location, ?expression: Prism::node, ?body: StatementsNode | BeginNode | nil, ?end_keyword_loc: Location) -> SingletonClassNode
+    # :call-seq:
+    #   copy(**fields) -> SingletonClassNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, locals: self.locals, class_keyword_loc: self.class_keyword_loc, operator_loc: self.operator_loc, expression: self.expression, body: self.body, end_keyword_loc: self.end_keyword_loc)
       SingletonClassNode.new(source, node_id, location, flags, locals, class_keyword_loc, operator_loc, expression, body, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, locals: locals, class_keyword_loc: class_keyword_loc, operator_loc: operator_loc, expression: expression, body: body, end_keyword_loc: end_keyword_loc }
     end
 
-    # attr_reader locals: Array[Symbol]
-    attr_reader :locals
-
-    # attr_reader class_keyword_loc: Location
-    def class_keyword_loc
-      location = @class_keyword_loc
-      return location if location.is_a?(Location)
-      @class_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :singleton_class_node
     end
 
-    # Save the class_keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_class_keyword_loc(repository)
-      repository.enter(node_id, :class_keyword_loc)
-    end
-
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader expression: Prism::node
-    attr_reader :expression
-
-    # attr_reader body: StatementsNode | BeginNode | nil
-    attr_reader :body
-
-    # attr_reader end_keyword_loc: Location
-    def end_keyword_loc
-      location = @end_keyword_loc
-      return location if location.is_a?(Location)
-      @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the end_keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_end_keyword_loc(repository)
-      repository.enter(node_id, :end_keyword_loc)
-    end
-
-    # def class_keyword: () -> String
-    def class_keyword
-      class_keyword_loc.slice
-    end
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
-    end
-
-    # def end_keyword: () -> String
-    def end_keyword
-      end_keyword_loc.slice
+    # See `Node.type`.
+    def self.type
+      :singleton_class_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :singleton_class_node
+    # :section:
+
+    # :call-seq:
+    #   locals -> Array[Symbol]
+    #
+    # Returns the `locals` attribute.
+    def locals
+      @locals
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :singleton_class_node
+    # :category: Locations
+    # :call-seq:
+    #   class_keyword_loc -> Location
+    #
+    # Returns the Location represented by `class_keyword_loc`.
+    def class_keyword_loc
+      location = @class_keyword_loc
+      return location if location.is_a?(Location)
+      @class_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the class_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_class_keyword_loc(repository)
+      repository.enter(node_id, :class_keyword_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :call-seq:
+    #   expression -> Node
+    #
+    # Returns the `expression` attribute.
+    def expression
+      @expression
+    end
+
+    # :call-seq:
+    #   body -> StatementsNode | BeginNode | nil
+    #
+    # Returns the `body` attribute.
+    def body
+      @body
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location
+    #
+    # Returns the Location represented by `end_keyword_loc`.
+    def end_keyword_loc
+      location = @end_keyword_loc
+      return location if location.is_a?(Location)
+      @end_keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the end_keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_end_keyword_loc(repository)
+      repository.enter(node_id, :end_keyword_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   class_keyword -> String
+    #
+    # Slice the location of class_keyword_loc from the source.
+    def class_keyword
+      class_keyword_loc.slice
+    end
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :call-seq:
+    #   end_keyword -> String
+    #
+    # Slice the location of end_keyword_loc from the source.
+    def end_keyword
+      end_keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(SingletonClassNode) &&
         (locals.length == other.locals.length) &&
         locals.zip(other.locals).all? { |left, right| left === right } &&
@@ -17416,61 +22547,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_source_encoding_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> SourceEncodingNode
+    # :call-seq:
+    #   copy(**fields) -> SourceEncodingNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       SourceEncodingNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :source_encoding_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :source_encoding_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(SourceEncodingNode)
     end
   end
@@ -17489,84 +22637,110 @@ module Prism
       @filepath = filepath
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_source_file_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?filepath: String) -> SourceFileNode
+    # :call-seq:
+    #   copy(**fields) -> SourceFileNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, filepath: self.filepath)
       SourceFileNode.new(source, node_id, location, flags, filepath)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, filepath: filepath }
     end
 
-    # def forced_utf8_encoding?: () -> bool
-    def forced_utf8_encoding?
-      flags.anybits?(StringFlags::FORCED_UTF8_ENCODING)
+    # See `Node#type`.
+    def type
+      :source_file_node
     end
 
-    # def forced_binary_encoding?: () -> bool
-    def forced_binary_encoding?
-      flags.anybits?(StringFlags::FORCED_BINARY_ENCODING)
+    # See `Node.type`.
+    def self.type
+      :source_file_node
     end
-
-    # def frozen?: () -> bool
-    def frozen?
-      flags.anybits?(StringFlags::FROZEN)
-    end
-
-    # def mutable?: () -> bool
-    def mutable?
-      flags.anybits?(StringFlags::MUTABLE)
-    end
-
-    # Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism.parse*` APIs.
-    attr_reader :filepath
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :source_file_node
+    # :section:
+
+    # :category: Flags
+    # internal bytes forced the encoding to UTF-8
+    def forced_utf8_encoding?
+      flags.anybits?(StringFlags::FORCED_UTF8_ENCODING)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :source_file_node
+    # :category: Flags
+    # internal bytes forced the encoding to binary
+    def forced_binary_encoding?
+      flags.anybits?(StringFlags::FORCED_BINARY_ENCODING)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Flags
+    # frozen by virtue of a `frozen_string_literal: true` comment or `--enable-frozen-string-literal`
+    def frozen?
+      flags.anybits?(StringFlags::FROZEN)
+    end
+
+    # :category: Flags
+    # mutable by virtue of a `frozen_string_literal: false` comment or `--disable-frozen-string-literal`
+    def mutable?
+      flags.anybits?(StringFlags::MUTABLE)
+    end
+
+    # :call-seq:
+    #   filepath -> String
+    #
+    # Represents the file path being parsed. This corresponds directly to the `filepath` option given to the various `Prism.parse*` APIs.
+    def filepath
+      @filepath
+    end
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(SourceFileNode) &&
         (flags === other.flags) &&
         (filepath === other.filepath)
@@ -17586,61 +22760,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_source_line_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> SourceLineNode
+    # :call-seq:
+    #   copy(**fields) -> SourceLineNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       SourceLineNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :source_line_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :source_line_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(SourceLineNode)
     end
   end
@@ -17660,85 +22851,115 @@ module Prism
       @expression = expression
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_splat_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [expression]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield expression if expression
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << expression if expression
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [operator_loc, *expression] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?operator_loc: Location, ?expression: Prism::node?) -> SplatNode
+    # :call-seq:
+    #   copy(**fields) -> SplatNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, operator_loc: self.operator_loc, expression: self.expression)
       SplatNode.new(source, node_id, location, flags, operator_loc, expression)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, operator_loc: operator_loc, expression: expression }
     end
 
-    # attr_reader operator_loc: Location
-    def operator_loc
-      location = @operator_loc
-      return location if location.is_a?(Location)
-      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :splat_node
     end
 
-    # Save the operator_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_operator_loc(repository)
-      repository.enter(node_id, :operator_loc)
-    end
-
-    # attr_reader expression: Prism::node?
-    attr_reader :expression
-
-    # def operator: () -> String
-    def operator
-      operator_loc.slice
+    # See `Node.type`.
+    def self.type
+      :splat_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :splat_node
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :splat_node
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :call-seq:
+    #   expression -> Node | nil
+    #
+    # Returns the `expression` attribute.
+    def expression
+      @expression
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(SplatNode) &&
         (operator_loc.nil? == other.operator_loc.nil?) &&
         (expression === other.expression)
@@ -17759,65 +22980,87 @@ module Prism
       @body = body
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_statements_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*body]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       body.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*body]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*body] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?body: Array[Prism::node]) -> StatementsNode
+    # :call-seq:
+    #   copy(**fields) -> StatementsNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, body: self.body)
       StatementsNode.new(source, node_id, location, flags, body)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, body: body }
     end
 
-    # attr_reader body: Array[Prism::node]
-    attr_reader :body
+    # See `Node#type`.
+    def type
+      :statements_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :statements_node
+    end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :statements_node
+    # :section:
+
+    # :call-seq:
+    #   body -> Array[Node]
+    #
+    # Returns the `body` attribute.
+    def body
+      @body
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :statements_node
-    end
+    # :section: Slicing
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(StatementsNode) &&
         (body.length == other.body.length) &&
         body.zip(other.body).all? { |left, right| left === right }
@@ -17847,65 +23090,102 @@ module Prism
       @unescaped = unescaped
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_string_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*opening_loc, content_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?content_loc: Location, ?closing_loc: Location?, ?unescaped: String) -> StringNode
+    # :call-seq:
+    #   copy(**fields) -> StringNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, content_loc: self.content_loc, closing_loc: self.closing_loc, unescaped: self.unescaped)
       StringNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
-    # def forced_utf8_encoding?: () -> bool
+    # See `Node#type`.
+    def type
+      :string_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :string_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # internal bytes forced the encoding to UTF-8
     def forced_utf8_encoding?
       flags.anybits?(StringFlags::FORCED_UTF8_ENCODING)
     end
 
-    # def forced_binary_encoding?: () -> bool
+    # :category: Flags
+    # internal bytes forced the encoding to binary
     def forced_binary_encoding?
       flags.anybits?(StringFlags::FORCED_BINARY_ENCODING)
     end
 
-    # def frozen?: () -> bool
+    # :category: Flags
+    # frozen by virtue of a `frozen_string_literal: true` comment or `--enable-frozen-string-literal`
     def frozen?
       flags.anybits?(StringFlags::FROZEN)
     end
 
-    # def mutable?: () -> bool
+    # :category: Flags
+    # mutable by virtue of a `frozen_string_literal: false` comment or `--disable-frozen-string-literal`
     def mutable?
       flags.anybits?(StringFlags::MUTABLE)
     end
 
-    # attr_reader opening_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
+    # Returns the Location represented by `opening_loc`.
     def opening_loc
       location = @opening_loc
       case location
@@ -17918,26 +23198,35 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
-
-    # attr_reader content_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   content_loc -> Location
+    #
+    # Returns the Location represented by `content_loc`.
     def content_loc
       location = @content_loc
       return location if location.is_a?(Location)
       @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the content_loc location using the given saved source so that
     # it can be retrieved later.
     def save_content_loc(repository)
       repository.enter(node_id, :content_loc)
     end
 
-    # attr_reader closing_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       case location
@@ -17950,47 +23239,49 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :call-seq:
+    #   unescaped -> String
+    #
+    # Returns the `unescaped` attribute.
+    def unescaped
+      @unescaped
+    end
 
-    # attr_reader unescaped: String
-    attr_reader :unescaped
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def content: () -> String
+    # :call-seq:
+    #   content -> String
+    #
+    # Slice the location of content_loc from the source.
     def content
       content_loc.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :string_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :string_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(StringNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
@@ -18023,17 +23314,28 @@ module Prism
       @block = block
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_super_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [arguments, block]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -18041,7 +23343,7 @@ module Prism
       yield block if block
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << arguments if arguments
@@ -18049,37 +23351,64 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [keyword_loc, *lparen_loc, *arguments, *rparen_loc, *block] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?lparen_loc: Location?, ?arguments: ArgumentsNode?, ?rparen_loc: Location?, ?block: BlockNode | BlockArgumentNode | nil) -> SuperNode
+    # :call-seq:
+    #   copy(**fields) -> SuperNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, lparen_loc: self.lparen_loc, arguments: self.arguments, rparen_loc: self.rparen_loc, block: self.block)
       SuperNode.new(source, node_id, location, flags, keyword_loc, lparen_loc, arguments, rparen_loc, block)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, lparen_loc: lparen_loc, arguments: arguments, rparen_loc: rparen_loc, block: block }
     end
 
-    # attr_reader keyword_loc: Location
+    # See `Node#type`.
+    def type
+      :super_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :super_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # attr_reader lparen_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   lparen_loc -> Location | nil
+    #
+    # Returns the Location represented by `lparen_loc`.
     def lparen_loc
       location = @lparen_loc
       case location
@@ -18092,16 +23421,25 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the lparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_lparen_loc(repository)
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
-
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
     # Can be only `nil` when there are empty parentheses, like `super()`.
-    attr_reader :arguments
+    def arguments
+      @arguments
+    end
 
-    # attr_reader rparen_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   rparen_loc -> Location | nil
+    #
+    # Returns the Location represented by `rparen_loc`.
     def rparen_loc
       location = @rparen_loc
       case location
@@ -18114,47 +23452,49 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the rparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_rparen_loc(repository)
       repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
+    # :call-seq:
+    #   block -> BlockNode | BlockArgumentNode | nil
+    #
+    # Returns the `block` attribute.
+    def block
+      @block
+    end
 
-    # attr_reader block: BlockNode | BlockArgumentNode | nil
-    attr_reader :block
+    # :section: Slicing
 
-    # def keyword: () -> String
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    # def lparen: () -> String?
+    # :call-seq:
+    #   lparen -> String | nil
+    #
+    # Slice the location of lparen_loc from the source.
     def lparen
       lparen_loc&.slice
     end
 
-    # def rparen: () -> String?
+    # :call-seq:
+    #   rparen -> String | nil
+    #
+    # Slice the location of rparen_loc from the source.
     def rparen
       rparen_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :super_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :super_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(SuperNode) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
         (lparen_loc.nil? == other.lparen_loc.nil?) &&
@@ -18184,60 +23524,96 @@ module Prism
       @unescaped = unescaped
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_symbol_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*opening_loc, *value_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?value_loc: Location?, ?closing_loc: Location?, ?unescaped: String) -> SymbolNode
+    # :call-seq:
+    #   copy(**fields) -> SymbolNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, value_loc: self.value_loc, closing_loc: self.closing_loc, unescaped: self.unescaped)
       SymbolNode.new(source, node_id, location, flags, opening_loc, value_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, value_loc: value_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
-    # def forced_utf8_encoding?: () -> bool
+    # See `Node#type`.
+    def type
+      :symbol_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :symbol_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # internal bytes forced the encoding to UTF-8
     def forced_utf8_encoding?
       flags.anybits?(SymbolFlags::FORCED_UTF8_ENCODING)
     end
 
-    # def forced_binary_encoding?: () -> bool
+    # :category: Flags
+    # internal bytes forced the encoding to binary
     def forced_binary_encoding?
       flags.anybits?(SymbolFlags::FORCED_BINARY_ENCODING)
     end
 
-    # def forced_us_ascii_encoding?: () -> bool
+    # :category: Flags
+    # internal bytes forced the encoding to US-ASCII
     def forced_us_ascii_encoding?
       flags.anybits?(SymbolFlags::FORCED_US_ASCII_ENCODING)
     end
 
-    # attr_reader opening_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location | nil
+    #
+    # Returns the Location represented by `opening_loc`.
     def opening_loc
       location = @opening_loc
       case location
@@ -18250,13 +23626,17 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the opening_loc location using the given saved source so that
     # it can be retrieved later.
     def save_opening_loc(repository)
       repository.enter(node_id, :opening_loc) unless @opening_loc.nil?
     end
-
-    # attr_reader value_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   value_loc -> Location | nil
+    #
+    # Returns the Location represented by `value_loc`.
     def value_loc
       location = @value_loc
       case location
@@ -18269,13 +23649,17 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the value_loc location using the given saved source so that
     # it can be retrieved later.
     def save_value_loc(repository)
       repository.enter(node_id, :value_loc) unless @value_loc.nil?
     end
-
-    # attr_reader closing_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       case location
@@ -18288,47 +23672,49 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :call-seq:
+    #   unescaped -> String
+    #
+    # Returns the `unescaped` attribute.
+    def unescaped
+      @unescaped
+    end
 
-    # attr_reader unescaped: String
-    attr_reader :unescaped
+    # :section: Slicing
 
-    # def opening: () -> String?
+    # :call-seq:
+    #   opening -> String | nil
+    #
+    # Slice the location of opening_loc from the source.
     def opening
       opening_loc&.slice
     end
 
-    # def value: () -> String?
+    # :call-seq:
+    #   value -> String | nil
+    #
+    # Slice the location of value_loc from the source.
     def value
       value_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :symbol_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :symbol_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(SymbolNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
@@ -18351,61 +23737,78 @@ module Prism
       @flags = flags
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_true_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer) -> TrueNode
+    # :call-seq:
+    #   copy(**fields) -> TrueNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags)
       TrueNode.new(source, node_id, location, flags)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location }
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
-
-    # Return a symbol representation of this node type. See `Node#type`.
+    # See `Node#type`.
     def type
       :true_node
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
+    # See `Node.type`.
     def self.type
       :true_node
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :section: Slicing
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(TrueNode)
     end
   end
@@ -18425,83 +23828,113 @@ module Prism
       @keyword_loc = keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_undef_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*names]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       names.each { |node| yield node }
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       [*names]
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [*names, keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?names: Array[SymbolNode | InterpolatedSymbolNode], ?keyword_loc: Location) -> UndefNode
+    # :call-seq:
+    #   copy(**fields) -> UndefNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, names: self.names, keyword_loc: self.keyword_loc)
       UndefNode.new(source, node_id, location, flags, names, keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, names: names, keyword_loc: keyword_loc }
     end
 
-    # attr_reader names: Array[SymbolNode | InterpolatedSymbolNode]
-    attr_reader :names
-
-    # attr_reader keyword_loc: Location
-    def keyword_loc
-      location = @keyword_loc
-      return location if location.is_a?(Location)
-      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    # See `Node#type`.
+    def type
+      :undef_node
     end
 
-    # Save the keyword_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_keyword_loc(repository)
-      repository.enter(node_id, :keyword_loc)
-    end
-
-    # def keyword: () -> String
-    def keyword
-      keyword_loc.slice
+    # See `Node.type`.
+    def self.type
+      :undef_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :undef_node
+    # :section:
+
+    # :call-seq:
+    #   names -> Array[SymbolNode | InterpolatedSymbolNode]
+    #
+    # Returns the `names` attribute.
+    def names
+      @names
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :undef_node
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    def keyword
+      keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(UndefNode) &&
         (names.length == other.names.length) &&
         names.zip(other.names).all? { |left, right| left === right } &&
@@ -18531,17 +23964,28 @@ module Prism
       @end_keyword_loc = end_keyword_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_unless_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [predicate, statements, else_clause]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -18550,7 +23994,7 @@ module Prism
       yield else_clause if else_clause
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << predicate
@@ -18559,23 +24003,45 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [keyword_loc, predicate, *then_keyword_loc, *statements, *else_clause, *end_keyword_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?else_clause: ElseNode?, ?end_keyword_loc: Location?) -> UnlessNode
+    # :call-seq:
+    #   copy(**fields) -> UnlessNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, predicate: self.predicate, then_keyword_loc: self.then_keyword_loc, statements: self.statements, else_clause: self.else_clause, end_keyword_loc: self.end_keyword_loc)
       UnlessNode.new(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, else_clause, end_keyword_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, else_clause: else_clause, end_keyword_loc: end_keyword_loc }
     end
 
+    # See `Node#type`.
+    def type
+      :unless_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :unless_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
     # The Location of the `unless` keyword.
     #
     #     unless cond then bar end
@@ -18589,12 +24055,16 @@ module Prism
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
+    # :call-seq:
+    #   predicate -> Node
+    #
     # The condition to be evaluated for the unless expression. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
     #
     #     unless cond then bar end
@@ -18602,8 +24072,14 @@ module Prism
     #
     #     bar unless cond
     #                ^^^^
-    attr_reader :predicate
+    def predicate
+      @predicate
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   then_keyword_loc -> Location | nil
+    #
     # The Location of the `then` keyword, if present.
     #
     #     unless cond then bar end
@@ -18620,25 +24096,39 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the then_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_then_keyword_loc(repository)
       repository.enter(node_id, :then_keyword_loc) unless @then_keyword_loc.nil?
     end
-
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
     # The body of statements that will executed if the unless condition is
     # falsey. Will be `nil` if no body is provided.
     #
     #     unless cond then bar end
     #                      ^^^
-    attr_reader :statements
+    def statements
+      @statements
+    end
 
+    # :call-seq:
+    #   else_clause -> ElseNode | nil
+    #
     # The else clause of the unless expression, if present.
     #
     #     unless cond then bar else baz end
     #                          ^^^^^^^^
-    attr_reader :else_clause
+    def else_clause
+      @else_clause
+    end
 
+    # :category: Locations
+    # :call-seq:
+    #   end_keyword_loc -> Location | nil
+    #
     # The Location of the `end` keyword, if present.
     #
     #     unless cond then bar end
@@ -18655,44 +24145,41 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the end_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_end_keyword_loc(repository)
       repository.enter(node_id, :end_keyword_loc) unless @end_keyword_loc.nil?
     end
+    # :section: Slicing
 
-    # def keyword: () -> String
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    # def then_keyword: () -> String?
+    # :call-seq:
+    #   then_keyword -> String | nil
+    #
+    # Slice the location of then_keyword_loc from the source.
     def then_keyword
       then_keyword_loc&.slice
     end
 
-    # def end_keyword: () -> String?
+    # :call-seq:
+    #   end_keyword -> String | nil
+    #
+    # Slice the location of end_keyword_loc from the source.
     def end_keyword
       end_keyword_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :unless_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :unless_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(UnlessNode) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
         (predicate === other.predicate) &&
@@ -18724,17 +24211,28 @@ module Prism
       @statements = statements
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_until_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [predicate, statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -18742,7 +24240,7 @@ module Prism
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << predicate
@@ -18750,42 +24248,70 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [keyword_loc, *do_keyword_loc, *closing_loc, predicate, *statements] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?do_keyword_loc: Location?, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> UntilNode
+    # :call-seq:
+    #   copy(**fields) -> UntilNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, do_keyword_loc: self.do_keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements)
       UntilNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, do_keyword_loc: do_keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
     end
 
-    # def begin_modifier?: () -> bool
+    # See `Node#type`.
+    def type
+      :until_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :until_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # a loop after a begin statement, so the body is executed first before the condition
     def begin_modifier?
       flags.anybits?(LoopFlags::BEGIN_MODIFIER)
     end
 
-    # attr_reader keyword_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # attr_reader do_keyword_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   do_keyword_loc -> Location | nil
+    #
+    # Returns the Location represented by `do_keyword_loc`.
     def do_keyword_loc
       location = @do_keyword_loc
       case location
@@ -18798,13 +24324,17 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the do_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_do_keyword_loc(repository)
       repository.enter(node_id, :do_keyword_loc) unless @do_keyword_loc.nil?
     end
-
-    # attr_reader closing_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       case location
@@ -18817,50 +24347,57 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :call-seq:
+    #   predicate -> Node
+    #
+    # Returns the `predicate` attribute.
+    def predicate
+      @predicate
+    end
 
-    # attr_reader predicate: Prism::node
-    attr_reader :predicate
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
+    end
 
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
+    # :section: Slicing
 
-    # def keyword: () -> String
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    # def do_keyword: () -> String?
+    # :call-seq:
+    #   do_keyword -> String | nil
+    #
+    # Slice the location of do_keyword_loc from the source.
     def do_keyword
       do_keyword_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :until_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :until_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(UntilNode) &&
         (flags === other.flags) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
@@ -18890,17 +24427,28 @@ module Prism
       @statements = statements
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_when_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [*conditions, statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -18908,7 +24456,7 @@ module Prism
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact.concat(conditions)
@@ -18916,40 +24464,72 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [keyword_loc, *conditions, *then_keyword_loc, *statements] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?conditions: Array[Prism::node], ?then_keyword_loc: Location?, ?statements: StatementsNode?) -> WhenNode
+    # :call-seq:
+    #   copy(**fields) -> WhenNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, conditions: self.conditions, then_keyword_loc: self.then_keyword_loc, statements: self.statements)
       WhenNode.new(source, node_id, location, flags, keyword_loc, conditions, then_keyword_loc, statements)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, conditions: conditions, then_keyword_loc: then_keyword_loc, statements: statements }
     end
 
-    # attr_reader keyword_loc: Location
+    # See `Node#type`.
+    def type
+      :when_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :when_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # attr_reader conditions: Array[Prism::node]
-    attr_reader :conditions
+    # :call-seq:
+    #   conditions -> Array[Node]
+    #
+    # Returns the `conditions` attribute.
+    def conditions
+      @conditions
+    end
 
-    # attr_reader then_keyword_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   then_keyword_loc -> Location | nil
+    #
+    # Returns the Location represented by `then_keyword_loc`.
     def then_keyword_loc
       location = @then_keyword_loc
       case location
@@ -18962,42 +24542,41 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the then_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_then_keyword_loc(repository)
       repository.enter(node_id, :then_keyword_loc) unless @then_keyword_loc.nil?
     end
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
+    end
 
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
+    # :section: Slicing
 
-    # def keyword: () -> String
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    # def then_keyword: () -> String?
+    # :call-seq:
+    #   then_keyword -> String | nil
+    #
+    # Slice the location of then_keyword_loc from the source.
     def then_keyword
       then_keyword_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :when_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :when_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(WhenNode) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
         (conditions.length == other.conditions.length) &&
@@ -19028,17 +24607,28 @@ module Prism
       @statements = statements
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_while_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [predicate, statements]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
@@ -19046,7 +24636,7 @@ module Prism
       yield statements if statements
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << predicate
@@ -19054,42 +24644,70 @@ module Prism
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [keyword_loc, *do_keyword_loc, *closing_loc, predicate, *statements] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?do_keyword_loc: Location?, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> WhileNode
+    # :call-seq:
+    #   copy(**fields) -> WhileNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, do_keyword_loc: self.do_keyword_loc, closing_loc: self.closing_loc, predicate: self.predicate, statements: self.statements)
       WhileNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, do_keyword_loc: do_keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
     end
 
-    # def begin_modifier?: () -> bool
+    # See `Node#type`.
+    def type
+      :while_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :while_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Flags
+    # a loop after a begin statement, so the body is executed first before the condition
     def begin_modifier?
       flags.anybits?(LoopFlags::BEGIN_MODIFIER)
     end
 
-    # attr_reader keyword_loc: Location
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # attr_reader do_keyword_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   do_keyword_loc -> Location | nil
+    #
+    # Returns the Location represented by `do_keyword_loc`.
     def do_keyword_loc
       location = @do_keyword_loc
       case location
@@ -19102,13 +24720,17 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the do_keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_do_keyword_loc(repository)
       repository.enter(node_id, :do_keyword_loc) unless @do_keyword_loc.nil?
     end
-
-    # attr_reader closing_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location | nil
+    #
+    # Returns the Location represented by `closing_loc`.
     def closing_loc
       location = @closing_loc
       case location
@@ -19121,50 +24743,57 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the closing_loc location using the given saved source so that
     # it can be retrieved later.
     def save_closing_loc(repository)
       repository.enter(node_id, :closing_loc) unless @closing_loc.nil?
     end
+    # :call-seq:
+    #   predicate -> Node
+    #
+    # Returns the `predicate` attribute.
+    def predicate
+      @predicate
+    end
 
-    # attr_reader predicate: Prism::node
-    attr_reader :predicate
+    # :call-seq:
+    #   statements -> StatementsNode | nil
+    #
+    # Returns the `statements` attribute.
+    def statements
+      @statements
+    end
 
-    # attr_reader statements: StatementsNode?
-    attr_reader :statements
+    # :section: Slicing
 
-    # def keyword: () -> String
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    # def do_keyword: () -> String?
+    # :call-seq:
+    #   do_keyword -> String | nil
+    #
+    # Slice the location of do_keyword_loc from the source.
     def do_keyword
       do_keyword_loc&.slice
     end
 
-    # def closing: () -> String?
+    # :call-seq:
+    #   closing -> String | nil
+    #
+    # Slice the location of closing_loc from the source.
     def closing
       closing_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :while_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :while_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(WhileNode) &&
         (flags === other.flags) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
@@ -19192,128 +24821,176 @@ module Prism
       @unescaped = unescaped
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_x_string_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       []
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       []
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [opening_loc, content_loc, closing_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location, ?content_loc: Location, ?closing_loc: Location, ?unescaped: String) -> XStringNode
+    # :call-seq:
+    #   copy(**fields) -> XStringNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, content_loc: self.content_loc, closing_loc: self.closing_loc, unescaped: self.unescaped)
       XStringNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
     end
 
-    # def forced_utf8_encoding?: () -> bool
-    def forced_utf8_encoding?
-      flags.anybits?(EncodingFlags::FORCED_UTF8_ENCODING)
+    # See `Node#type`.
+    def type
+      :x_string_node
     end
 
-    # def forced_binary_encoding?: () -> bool
-    def forced_binary_encoding?
-      flags.anybits?(EncodingFlags::FORCED_BINARY_ENCODING)
-    end
-
-    # attr_reader opening_loc: Location
-    def opening_loc
-      location = @opening_loc
-      return location if location.is_a?(Location)
-      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the opening_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_opening_loc(repository)
-      repository.enter(node_id, :opening_loc)
-    end
-
-    # attr_reader content_loc: Location
-    def content_loc
-      location = @content_loc
-      return location if location.is_a?(Location)
-      @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the content_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_content_loc(repository)
-      repository.enter(node_id, :content_loc)
-    end
-
-    # attr_reader closing_loc: Location
-    def closing_loc
-      location = @closing_loc
-      return location if location.is_a?(Location)
-      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
-    end
-
-    # Save the closing_loc location using the given saved source so that
-    # it can be retrieved later.
-    def save_closing_loc(repository)
-      repository.enter(node_id, :closing_loc)
-    end
-
-    # attr_reader unescaped: String
-    attr_reader :unescaped
-
-    # def opening: () -> String
-    def opening
-      opening_loc.slice
-    end
-
-    # def content: () -> String
-    def content
-      content_loc.slice
-    end
-
-    # def closing: () -> String
-    def closing
-      closing_loc.slice
+    # See `Node.type`.
+    def self.type
+      :x_string_node
     end
 
     def inspect # :nodoc:
       InspectVisitor.compose(self)
     end
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :x_string_node
+    # :section:
+
+    # :category: Flags
+    # internal bytes forced the encoding to UTF-8
+    def forced_utf8_encoding?
+      flags.anybits?(EncodingFlags::FORCED_UTF8_ENCODING)
     end
 
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :x_string_node
+    # :category: Flags
+    # internal bytes forced the encoding to binary
+    def forced_binary_encoding?
+      flags.anybits?(EncodingFlags::FORCED_BINARY_ENCODING)
     end
 
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    # :category: Locations
+    # :call-seq:
+    #   opening_loc -> Location
+    #
+    # Returns the Location represented by `opening_loc`.
+    def opening_loc
+      location = @opening_loc
+      return location if location.is_a?(Location)
+      @opening_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the opening_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_opening_loc(repository)
+      repository.enter(node_id, :opening_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   content_loc -> Location
+    #
+    # Returns the Location represented by `content_loc`.
+    def content_loc
+      location = @content_loc
+      return location if location.is_a?(Location)
+      @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the content_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_content_loc(repository)
+      repository.enter(node_id, :content_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   closing_loc -> Location
+    #
+    # Returns the Location represented by `closing_loc`.
+    def closing_loc
+      location = @closing_loc
+      return location if location.is_a?(Location)
+      @closing_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the closing_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_closing_loc(repository)
+      repository.enter(node_id, :closing_loc)
+    end
+
+    # :call-seq:
+    #   unescaped -> String
+    #
+    # Returns the `unescaped` attribute.
+    def unescaped
+      @unescaped
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   opening -> String
+    #
+    # Slice the location of opening_loc from the source.
+    def opening
+      opening_loc.slice
+    end
+
+    # :call-seq:
+    #   content -> String
+    #
+    # Slice the location of content_loc from the source.
+    def content
+      content_loc.slice
+    end
+
+    # :call-seq:
+    #   closing -> String
+    #
+    # Slice the location of closing_loc from the source.
+    def closing
+      closing_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
       other.is_a?(XStringNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
@@ -19340,61 +25017,99 @@ module Prism
       @rparen_loc = rparen_loc
     end
 
-    # def accept: (Visitor visitor) -> void
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
     def accept(visitor)
       visitor.visit_yield_node(self)
     end
 
-    # def child_nodes: () -> Array[Node?]
+    # See Node.child_nodes.
     def child_nodes
       [arguments]
     end
 
-    # def each_child_node: () { (Prism::node) -> void } -> void | () -> Enumerator[Prism::node]
+    # See Node.each_child_node.
     def each_child_node
       return to_enum(:each_child_node) unless block_given?
 
       yield arguments if arguments
     end
 
-    # def compact_child_nodes: () -> Array[Node]
+    # See Node.compact_child_nodes.
     def compact_child_nodes
       compact = [] #: Array[Prism::node]
       compact << arguments if arguments
       compact
     end
 
-    # def comment_targets: () -> Array[Node | Location]
+    # See Node.comment_targets.
     def comment_targets
       [keyword_loc, *lparen_loc, *arguments, *rparen_loc] #: Array[Prism::node | Location]
     end
 
-    # def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?lparen_loc: Location?, ?arguments: ArgumentsNode?, ?rparen_loc: Location?) -> YieldNode
+    # :call-seq:
+    #   copy(**fields) -> YieldNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, lparen_loc: self.lparen_loc, arguments: self.arguments, rparen_loc: self.rparen_loc)
       YieldNode.new(source, node_id, location, flags, keyword_loc, lparen_loc, arguments, rparen_loc)
     end
 
-    # def deconstruct: () -> Array[Node?]
     alias deconstruct child_nodes
 
     def deconstruct_keys(keys) # :nodoc:
       { node_id: node_id, location: location, keyword_loc: keyword_loc, lparen_loc: lparen_loc, arguments: arguments, rparen_loc: rparen_loc }
     end
 
-    # attr_reader keyword_loc: Location
+    # See `Node#type`.
+    def type
+      :yield_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :yield_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
     def keyword_loc
       location = @keyword_loc
       return location if location.is_a?(Location)
       @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
+    # :category: Repository
     # Save the keyword_loc location using the given saved source so that
     # it can be retrieved later.
     def save_keyword_loc(repository)
       repository.enter(node_id, :keyword_loc)
     end
 
-    # attr_reader lparen_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   lparen_loc -> Location | nil
+    #
+    # Returns the Location represented by `lparen_loc`.
     def lparen_loc
       location = @lparen_loc
       case location
@@ -19407,16 +25122,25 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the lparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_lparen_loc(repository)
       repository.enter(node_id, :lparen_loc) unless @lparen_loc.nil?
     end
+    # :call-seq:
+    #   arguments -> ArgumentsNode | nil
+    #
+    # Returns the `arguments` attribute.
+    def arguments
+      @arguments
+    end
 
-    # attr_reader arguments: ArgumentsNode?
-    attr_reader :arguments
-
-    # attr_reader rparen_loc: Location?
+    # :category: Locations
+    # :call-seq:
+    #   rparen_loc -> Location | nil
+    #
+    # Returns the Location represented by `rparen_loc`.
     def rparen_loc
       location = @rparen_loc
       case location
@@ -19429,44 +25153,41 @@ module Prism
       end
     end
 
+    # :category: Repository
     # Save the rparen_loc location using the given saved source so that
     # it can be retrieved later.
     def save_rparen_loc(repository)
       repository.enter(node_id, :rparen_loc) unless @rparen_loc.nil?
     end
+    # :section: Slicing
 
-    # def keyword: () -> String
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
     def keyword
       keyword_loc.slice
     end
 
-    # def lparen: () -> String?
+    # :call-seq:
+    #   lparen -> String | nil
+    #
+    # Slice the location of lparen_loc from the source.
     def lparen
       lparen_loc&.slice
     end
 
-    # def rparen: () -> String?
+    # :call-seq:
+    #   rparen -> String | nil
+    #
+    # Slice the location of rparen_loc from the source.
     def rparen
       rparen_loc&.slice
     end
 
-    def inspect # :nodoc:
-      InspectVisitor.compose(self)
-    end
+    # :section:
 
-    # Return a symbol representation of this node type. See `Node#type`.
-    def type
-      :yield_node
-    end
-
-    # Return a symbol representation of this node type. See `Node::type`.
-    def self.type
-      :yield_node
-    end
-
-    # Implements case-equality for the node. This is effectively == but without
-    # comparing the value of locations. Locations are checked only for presence.
-    def ===(other)
+    def ===(other) # :nodoc:
       other.is_a?(YieldNode) &&
         (keyword_loc.nil? == other.keyword_loc.nil?) &&
         (lparen_loc.nil? == other.lparen_loc.nil?) &&
