@@ -18522,6 +18522,152 @@ module Prism
     end
   end
 
+  # Represents the use of `&nil` inside method arguments.
+  #
+  #     def a(&nil)
+  #           ^^^^
+  #     end
+  class NoBlockParameterNode < Node
+    # Initialize a new NoBlockParameterNode node.
+    def initialize(source, node_id, location, flags, operator_loc, keyword_loc)
+      @source = source
+      @node_id = node_id
+      @location = location
+      @flags = flags
+      @operator_loc = operator_loc
+      @keyword_loc = keyword_loc
+    end
+
+    # ---------
+    # :section: Repository
+    # Methods related to Relocation.
+    # ---------
+
+    # ----------------------------------------------------------------------------------
+    # :section: Node Interface
+    # These methods are present on all subclasses of Node.
+    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # ----------------------------------------------------------------------------------
+
+    # See Node.accept.
+    def accept(visitor)
+      visitor.visit_no_block_parameter_node(self)
+    end
+
+    # See Node.child_nodes.
+    def child_nodes
+      []
+    end
+
+    # See Node.each_child_node.
+    def each_child_node
+      return to_enum(:each_child_node) unless block_given?
+
+    end
+
+    # See Node.compact_child_nodes.
+    def compact_child_nodes
+      []
+    end
+
+    # See Node.comment_targets.
+    def comment_targets
+      [operator_loc, keyword_loc] #: Array[Prism::node | Location]
+    end
+
+    # :call-seq:
+    #   copy(**fields) -> NoBlockParameterNode
+    #
+    # Creates a copy of self with the given fields, using self as the template.
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, operator_loc: self.operator_loc, keyword_loc: self.keyword_loc)
+      NoBlockParameterNode.new(source, node_id, location, flags, operator_loc, keyword_loc)
+    end
+
+    alias deconstruct child_nodes
+
+    def deconstruct_keys(keys) # :nodoc:
+      { node_id: node_id, location: location, operator_loc: operator_loc, keyword_loc: keyword_loc }
+    end
+
+    # See `Node#type`.
+    def type
+      :no_block_parameter_node
+    end
+
+    # See `Node.type`.
+    def self.type
+      :no_block_parameter_node
+    end
+
+    def inspect # :nodoc:
+      InspectVisitor.compose(self)
+    end
+
+    # :section:
+
+    # :category: Locations
+    # :call-seq:
+    #   operator_loc -> Location
+    #
+    # Returns the Location represented by `operator_loc`.
+    def operator_loc
+      location = @operator_loc
+      return location if location.is_a?(Location)
+      @operator_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the operator_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_operator_loc(repository)
+      repository.enter(node_id, :operator_loc)
+    end
+
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # Returns the Location represented by `keyword_loc`.
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
+    # :section: Slicing
+
+    # :call-seq:
+    #   operator -> String
+    #
+    # Slice the location of operator_loc from the source.
+    def operator
+      operator_loc.slice
+    end
+
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    def keyword
+      keyword_loc.slice
+    end
+
+    # :section:
+
+    def ===(other) # :nodoc:
+      other.is_a?(NoBlockParameterNode) &&
+        (operator_loc.nil? == other.operator_loc.nil?) &&
+        (keyword_loc.nil? == other.keyword_loc.nil?)
+    end
+  end
+
   # Represents the use of `**nil` inside method arguments.
   #
   #     def a(**nil)
@@ -19482,7 +19628,7 @@ module Prism
     end
 
     # :call-seq:
-    #   block -> BlockParameterNode | nil
+    #   block -> BlockParameterNode | NoBlockParameterNode | nil
     #
     # Returns the `block` attribute.
     def block

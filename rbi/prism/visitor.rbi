@@ -342,6 +342,9 @@ class Prism::Visitor < Prism::BasicVisitor
   sig { params(node: Prism::NilNode).void }
   def visit_nil_node(node); end
 
+  sig { params(node: Prism::NoBlockParameterNode).void }
+  def visit_no_block_parameter_node(node); end
+
   sig { params(node: Prism::NoKeywordsParameterNode).void }
   def visit_no_keywords_parameter_node(node); end
 

@@ -1062,90 +1062,92 @@ module Prism
           when 108 then
             NilNode.new(source, node_id, location, load_varuint)
           when 109 then
-            NoKeywordsParameterNode.new(source, node_id, location, load_varuint, load_location(freeze), load_location(freeze))
+            NoBlockParameterNode.new(source, node_id, location, load_varuint, load_location(freeze), load_location(freeze))
           when 110 then
-            NumberedParametersNode.new(source, node_id, location, load_varuint, io.getbyte)
+            NoKeywordsParameterNode.new(source, node_id, location, load_varuint, load_location(freeze), load_location(freeze))
           when 111 then
-            NumberedReferenceReadNode.new(source, node_id, location, load_varuint, load_varuint)
+            NumberedParametersNode.new(source, node_id, location, load_varuint, io.getbyte)
           when 112 then
-            OptionalKeywordParameterNode.new(source, node_id, location, load_varuint, load_constant(constant_pool, encoding), load_location(freeze), load_node(constant_pool, encoding, freeze))
+            NumberedReferenceReadNode.new(source, node_id, location, load_varuint, load_varuint)
           when 113 then
-            OptionalParameterNode.new(source, node_id, location, load_varuint, load_constant(constant_pool, encoding), load_location(freeze), load_location(freeze), load_node(constant_pool, encoding, freeze))
+            OptionalKeywordParameterNode.new(source, node_id, location, load_varuint, load_constant(constant_pool, encoding), load_location(freeze), load_node(constant_pool, encoding, freeze))
           when 114 then
-            OrNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_node(constant_pool, encoding, freeze), load_location(freeze))
+            OptionalParameterNode.new(source, node_id, location, load_varuint, load_constant(constant_pool, encoding), load_location(freeze), load_location(freeze), load_node(constant_pool, encoding, freeze))
           when 115 then
-            ParametersNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_node(constant_pool, encoding, freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
+            OrNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_node(constant_pool, encoding, freeze), load_location(freeze))
           when 116 then
-            ParenthesesNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_location(freeze), load_location(freeze))
+            ParametersNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_node(constant_pool, encoding, freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
           when 117 then
-            PinnedExpressionNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_location(freeze), load_location(freeze), load_location(freeze))
+            ParenthesesNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_location(freeze), load_location(freeze))
           when 118 then
-            PinnedVariableNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_location(freeze))
+            PinnedExpressionNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_location(freeze), load_location(freeze), load_location(freeze))
           when 119 then
-            PostExecutionNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_location(freeze), load_location(freeze), load_location(freeze))
+            PinnedVariableNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_location(freeze))
           when 120 then
-            PreExecutionNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_location(freeze), load_location(freeze), load_location(freeze))
+            PostExecutionNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_location(freeze), load_location(freeze), load_location(freeze))
           when 121 then
-            ProgramNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_constant(constant_pool, encoding) }.tap { |constants| constants.freeze if freeze }, load_node(constant_pool, encoding, freeze))
+            PreExecutionNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_location(freeze), load_location(freeze), load_location(freeze))
           when 122 then
-            RangeNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze), load_location(freeze))
+            ProgramNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_constant(constant_pool, encoding) }.tap { |constants| constants.freeze if freeze }, load_node(constant_pool, encoding, freeze))
           when 123 then
-            RationalNode.new(source, node_id, location, load_varuint, load_integer, load_integer)
+            RangeNode.new(source, node_id, location, load_varuint, load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze), load_location(freeze))
           when 124 then
-            RedoNode.new(source, node_id, location, load_varuint)
+            RationalNode.new(source, node_id, location, load_varuint, load_integer, load_integer)
           when 125 then
-            RegularExpressionNode.new(source, node_id, location, load_varuint, load_location(freeze), load_location(freeze), load_location(freeze), load_string(encoding))
+            RedoNode.new(source, node_id, location, load_varuint)
           when 126 then
-            RequiredKeywordParameterNode.new(source, node_id, location, load_varuint, load_constant(constant_pool, encoding), load_location(freeze))
+            RegularExpressionNode.new(source, node_id, location, load_varuint, load_location(freeze), load_location(freeze), load_location(freeze), load_string(encoding))
           when 127 then
-            RequiredParameterNode.new(source, node_id, location, load_varuint, load_constant(constant_pool, encoding))
+            RequiredKeywordParameterNode.new(source, node_id, location, load_varuint, load_constant(constant_pool, encoding), load_location(freeze))
           when 128 then
-            RescueModifierNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_location(freeze), load_node(constant_pool, encoding, freeze))
+            RequiredParameterNode.new(source, node_id, location, load_varuint, load_constant(constant_pool, encoding))
           when 129 then
-            RescueNode.new(source, node_id, location, load_varuint, load_location(freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
+            RescueModifierNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze), load_location(freeze), load_node(constant_pool, encoding, freeze))
           when 130 then
-            RestParameterNode.new(source, node_id, location, load_varuint, load_optional_constant(constant_pool, encoding), load_optional_location(freeze), load_location(freeze))
+            RescueNode.new(source, node_id, location, load_varuint, load_location(freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
           when 131 then
-            RetryNode.new(source, node_id, location, load_varuint)
+            RestParameterNode.new(source, node_id, location, load_varuint, load_optional_constant(constant_pool, encoding), load_optional_location(freeze), load_location(freeze))
           when 132 then
-            ReturnNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_node(constant_pool, encoding, freeze))
+            RetryNode.new(source, node_id, location, load_varuint)
           when 133 then
-            SelfNode.new(source, node_id, location, load_varuint)
+            ReturnNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_node(constant_pool, encoding, freeze))
           when 134 then
-            ShareableConstantNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze))
+            SelfNode.new(source, node_id, location, load_varuint)
           when 135 then
-            SingletonClassNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_constant(constant_pool, encoding) }.tap { |constants| constants.freeze if freeze }, load_location(freeze), load_location(freeze), load_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze), load_location(freeze))
+            ShareableConstantNode.new(source, node_id, location, load_varuint, load_node(constant_pool, encoding, freeze))
           when 136 then
-            SourceEncodingNode.new(source, node_id, location, load_varuint)
+            SingletonClassNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_constant(constant_pool, encoding) }.tap { |constants| constants.freeze if freeze }, load_location(freeze), load_location(freeze), load_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze), load_location(freeze))
           when 137 then
-            SourceFileNode.new(source, node_id, location, load_varuint, load_string(encoding))
+            SourceEncodingNode.new(source, node_id, location, load_varuint)
           when 138 then
-            SourceLineNode.new(source, node_id, location, load_varuint)
+            SourceFileNode.new(source, node_id, location, load_varuint, load_string(encoding))
           when 139 then
-            SplatNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_node(constant_pool, encoding, freeze))
+            SourceLineNode.new(source, node_id, location, load_varuint)
           when 140 then
-            StatementsNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze })
+            SplatNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_node(constant_pool, encoding, freeze))
           when 141 then
-            StringNode.new(source, node_id, location, load_varuint, load_optional_location(freeze), load_location(freeze), load_optional_location(freeze), load_string(encoding))
+            StatementsNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze })
           when 142 then
-            SuperNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze))
+            StringNode.new(source, node_id, location, load_varuint, load_optional_location(freeze), load_location(freeze), load_optional_location(freeze), load_string(encoding))
           when 143 then
-            SymbolNode.new(source, node_id, location, load_varuint, load_optional_location(freeze), load_optional_location(freeze), load_optional_location(freeze), load_string(encoding))
+            SuperNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze))
           when 144 then
-            TrueNode.new(source, node_id, location, load_varuint)
+            SymbolNode.new(source, node_id, location, load_varuint, load_optional_location(freeze), load_optional_location(freeze), load_optional_location(freeze), load_string(encoding))
           when 145 then
-            UndefNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_location(freeze))
+            TrueNode.new(source, node_id, location, load_varuint)
           when 146 then
-            UnlessNode.new(source, node_id, location, load_varuint, load_location(freeze), load_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze))
+            UndefNode.new(source, node_id, location, load_varuint, Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_location(freeze))
           when 147 then
-            UntilNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_location(freeze), load_optional_location(freeze), load_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
+            UnlessNode.new(source, node_id, location, load_varuint, load_location(freeze), load_node(constant_pool, encoding, freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze))
           when 148 then
-            WhenNode.new(source, node_id, location, load_varuint, load_location(freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze))
+            UntilNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_location(freeze), load_optional_location(freeze), load_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
           when 149 then
-            WhileNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_location(freeze), load_optional_location(freeze), load_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
+            WhenNode.new(source, node_id, location, load_varuint, load_location(freeze), Array.new(load_varuint) { load_node(constant_pool, encoding, freeze) }.tap { |nodes| nodes.freeze if freeze }, load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze))
           when 150 then
-            XStringNode.new(source, node_id, location, load_varuint, load_location(freeze), load_location(freeze), load_location(freeze), load_string(encoding))
+            WhileNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_location(freeze), load_optional_location(freeze), load_node(constant_pool, encoding, freeze), load_optional_node(constant_pool, encoding, freeze))
           when 151 then
+            XStringNode.new(source, node_id, location, load_varuint, load_location(freeze), load_location(freeze), load_location(freeze), load_string(encoding))
+          when 152 then
             YieldNode.new(source, node_id, location, load_varuint, load_location(freeze), load_optional_location(freeze), load_optional_node(constant_pool, encoding, freeze), load_optional_location(freeze))
           end
 
@@ -1914,6 +1916,13 @@ module Prism
               node_id = load_varuint
               location = load_location(freeze)
               value = NilNode.new(source, node_id, location, load_varuint)
+              value.freeze if freeze
+              value
+            },
+            -> (constant_pool, encoding, freeze) {
+              node_id = load_varuint
+              location = load_location(freeze)
+              value = NoBlockParameterNode.new(source, node_id, location, load_varuint, load_location(freeze), load_location(freeze))
               value.freeze if freeze
               value
             },

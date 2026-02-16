@@ -322,6 +322,8 @@ module Prism
         [OptionalNodeField.new(:arguments), LocationField.new(:keyword_loc)]
       when :nil_node
         []
+      when :no_block_parameter_node
+        [LocationField.new(:operator_loc), LocationField.new(:keyword_loc)]
       when :no_keywords_parameter_node
         [LocationField.new(:operator_loc), LocationField.new(:keyword_loc)]
       when :numbered_parameters_node

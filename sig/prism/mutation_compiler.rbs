@@ -112,6 +112,7 @@ module Prism
     def visit_multi_write_node: (MultiWriteNode) -> node?
     def visit_next_node: (NextNode) -> node?
     def visit_nil_node: (NilNode) -> node?
+    def visit_no_block_parameter_node: (NoBlockParameterNode) -> node?
     def visit_no_keywords_parameter_node: (NoKeywordsParameterNode) -> node?
     def visit_numbered_parameters_node: (NumberedParametersNode) -> node?
     def visit_numbered_reference_read_node: (NumberedReferenceReadNode) -> node?

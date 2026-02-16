@@ -475,6 +475,10 @@ module Prism
       node.each_child_node.map { |node| node.accept(self) }
     end
 
+    def visit_no_block_parameter_node(node) # :nodoc:
+      node.each_child_node.map { |node| node.accept(self) }
+    end
+
     def visit_no_keywords_parameter_node(node) # :nodoc:
       node.each_child_node.map { |node| node.accept(self) }
     end

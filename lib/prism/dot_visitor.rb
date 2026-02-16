@@ -3284,6 +3284,25 @@ module Prism
       super
     end
 
+    def visit_no_block_parameter_node(node) # :nodoc:
+      table = Table.new("NoBlockParameterNode")
+      id = node_id(node)
+
+      # operator_loc
+      table.field("operator_loc", location_inspect(node.operator_loc))
+
+      # keyword_loc
+      table.field("keyword_loc", location_inspect(node.keyword_loc))
+
+      digraph.nodes << <<~DOT
+        #{id} [
+          label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
+        ];
+      DOT
+
+      super
+    end
+
     def visit_no_keywords_parameter_node(node) # :nodoc:
       table = Table.new("NoKeywordsParameterNode")
       id = node_id(node)

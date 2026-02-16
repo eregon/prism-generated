@@ -2822,6 +2822,30 @@ module Prism
     def self.type: () -> :nil_node
   end
 
+  # Represents the use of `&nil` inside method arguments.
+  #
+  #     def a(&nil)
+  #           ^^^^
+  #     end
+  class NoBlockParameterNode < Node
+    include _Node
+
+    attr_reader operator_loc: Location
+    attr_reader keyword_loc: Location
+
+    def save_operator_loc: (_Repository repository) -> void
+    def save_keyword_loc: (_Repository repository) -> void
+
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Location operator_loc, Location keyword_loc) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?operator_loc: Location, ?keyword_loc: Location) -> NoBlockParameterNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, operator_loc: Location, keyword_loc: Location }
+    def operator: () -> String
+    def keyword: () -> String
+    def type: () -> :no_block_parameter_node
+            | ...
+    def self.type: () -> :no_block_parameter_node
+  end
+
   # Represents the use of `**nil` inside method arguments.
   #
   #     def a(**nil)
@@ -2969,12 +2993,12 @@ module Prism
     attr_reader posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode]
     attr_reader keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode]
     attr_reader keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil
-    attr_reader block: BlockParameterNode?
+    attr_reader block: BlockParameterNode | NoBlockParameterNode | nil
 
 
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[RequiredParameterNode | MultiTargetNode] requireds, Array[OptionalParameterNode] optionals, RestParameterNode | ImplicitRestNode | nil rest, Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode] posts, Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode] keywords, KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil keyword_rest, BlockParameterNode? block) -> void
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?requireds: Array[RequiredParameterNode | MultiTargetNode], ?optionals: Array[OptionalParameterNode], ?rest: RestParameterNode | ImplicitRestNode | nil, ?posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode], ?keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode], ?keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil, ?block: BlockParameterNode?) -> ParametersNode
-    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, requireds: Array[RequiredParameterNode | MultiTargetNode], optionals: Array[OptionalParameterNode], rest: RestParameterNode | ImplicitRestNode | nil, posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode], keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode], keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil, block: BlockParameterNode? }
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, Array[RequiredParameterNode | MultiTargetNode] requireds, Array[OptionalParameterNode] optionals, RestParameterNode | ImplicitRestNode | nil rest, Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode] posts, Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode] keywords, KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil keyword_rest, BlockParameterNode | NoBlockParameterNode | nil block) -> void
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?requireds: Array[RequiredParameterNode | MultiTargetNode], ?optionals: Array[OptionalParameterNode], ?rest: RestParameterNode | ImplicitRestNode | nil, ?posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode], ?keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode], ?keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil, ?block: BlockParameterNode | NoBlockParameterNode | nil) -> ParametersNode
+    def deconstruct_keys: (Array[Symbol] keys) -> { node_id: Integer, location: Location, requireds: Array[RequiredParameterNode | MultiTargetNode], optionals: Array[OptionalParameterNode], rest: RestParameterNode | ImplicitRestNode | nil, posts: Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode], keywords: Array[RequiredKeywordParameterNode | OptionalKeywordParameterNode], keyword_rest: KeywordRestParameterNode | ForwardingParameterNode | NoKeywordsParameterNode | nil, block: BlockParameterNode | NoBlockParameterNode | nil }
     def type: () -> :parameters_node
             | ...
     def self.type: () -> :parameters_node

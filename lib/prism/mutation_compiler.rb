@@ -446,6 +446,10 @@ module Prism
       node.copy
     end
 
+    def visit_no_block_parameter_node(node) # :nodoc:
+      node.copy
+    end
+
     def visit_no_keywords_parameter_node(node) # :nodoc:
       node.copy
     end

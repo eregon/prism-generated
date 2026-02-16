@@ -616,6 +616,11 @@ module Prism
       NilNode.new(source, node_id, location, flags)
     end
 
+    # Create a new NoBlockParameterNode node.
+    def no_block_parameter_node(source: default_source, node_id: 0, location: default_location, flags: 0, operator_loc: location, keyword_loc: location)
+      NoBlockParameterNode.new(source, node_id, location, flags, operator_loc, keyword_loc)
+    end
+
     # Create a new NoKeywordsParameterNode node.
     def no_keywords_parameter_node(source: default_source, node_id: 0, location: default_location, flags: 0, operator_loc: location, keyword_loc: location)
       NoKeywordsParameterNode.new(source, node_id, location, flags, operator_loc, keyword_loc)

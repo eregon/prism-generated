@@ -6221,6 +6221,58 @@ class Prism::NilNode < Prism::Node
   def type; end
 end
 
+# Represents the use of `&nil` inside method arguments.
+#
+#     def a(&nil)
+#           ^^^^
+#     end
+class Prism::NoBlockParameterNode < Prism::Node
+  sig { returns(Prism::Location) }
+  def operator_loc; end
+
+  sig { returns(Prism::Location) }
+  def keyword_loc; end
+
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, operator_loc: Prism::Location, keyword_loc: Prism::Location).void }
+  def initialize(source, node_id, location, flags, operator_loc, keyword_loc); end
+
+  sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
+  def accept(visitor); end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def child_nodes; end
+
+  sig { override.returns(T::Array[T.nilable(Prism::Node)]) }
+  def deconstruct; end
+
+  sig { override.returns(T::Array[Prism::Node]) }
+  def compact_child_nodes; end
+
+  sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
+  def comment_targets; end
+
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, operator_loc: Prism::Location, keyword_loc: Prism::Location).returns(Prism::NoBlockParameterNode) }
+  def copy(node_id: self.node_id, location: self.location, flags: self.flags, operator_loc: self.operator_loc, keyword_loc: self.keyword_loc); end
+
+  sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }
+  def deconstruct_keys(keys); end
+
+  sig { returns(String) }
+  def operator; end
+
+  sig { returns(String) }
+  def keyword; end
+
+  sig { override.returns(T::Array[Prism::Reflection::Field]) }
+  def fields; end
+
+  sig { override.returns(String) }
+  def inspect; end
+
+  sig { override.returns(Symbol) }
+  def type; end
+end
+
 # Represents the use of `**nil` inside method arguments.
 #
 #     def a(**nil)
@@ -6542,10 +6594,10 @@ class Prism::ParametersNode < Prism::Node
   sig { returns(T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode))) }
   def keyword_rest; end
 
-  sig { returns(T.nilable(Prism::BlockParameterNode)) }
+  sig { returns(T.nilable(T.any(Prism::BlockParameterNode, Prism::NoBlockParameterNode))) }
   def block; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(Prism::BlockParameterNode)).void }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(T.any(Prism::BlockParameterNode, Prism::NoBlockParameterNode))).void }
   def initialize(source, node_id, location, flags, requireds, optionals, rest, posts, keywords, keyword_rest, block); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
@@ -6563,7 +6615,7 @@ class Prism::ParametersNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(Prism::BlockParameterNode)).returns(Prism::ParametersNode) }
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(T.any(Prism::BlockParameterNode, Prism::NoBlockParameterNode))).returns(Prism::ParametersNode) }
   def copy(node_id: self.node_id, location: self.location, flags: self.flags, requireds: self.requireds, optionals: self.optionals, rest: self.rest, posts: self.posts, keywords: self.keywords, keyword_rest: self.keyword_rest, block: self.block); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }

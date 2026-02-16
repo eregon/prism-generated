@@ -723,6 +723,12 @@ module Prism
       listeners[:on_nil_node_leave]&.each { |listener| listener.on_nil_node_leave(node) }
     end
 
+    def visit_no_block_parameter_node(node) # :nodoc:
+      listeners[:on_no_block_parameter_node_enter]&.each { |listener| listener.on_no_block_parameter_node_enter(node) }
+      super
+      listeners[:on_no_block_parameter_node_leave]&.each { |listener| listener.on_no_block_parameter_node_leave(node) }
+    end
+
     def visit_no_keywords_parameter_node(node) # :nodoc:
       listeners[:on_no_keywords_parameter_node_enter]&.each { |listener| listener.on_no_keywords_parameter_node_enter(node) }
       super
@@ -1634,6 +1640,12 @@ module Prism
       def visit_nil_node(node)
         listeners[:on_nil_node_enter]&.each { |listener| listener.on_nil_node_enter(node) }
         listeners[:on_nil_node_leave]&.each { |listener| listener.on_nil_node_leave(node) }
+      end
+
+      # Dispatch enter and leave events for NoBlockParameterNode nodes.
+      def visit_no_block_parameter_node(node)
+        listeners[:on_no_block_parameter_node_enter]&.each { |listener| listener.on_no_block_parameter_node_enter(node) }
+        listeners[:on_no_block_parameter_node_leave]&.each { |listener| listener.on_no_block_parameter_node_leave(node) }
       end
 
       # Dispatch enter and leave events for NoKeywordsParameterNode nodes.

@@ -595,6 +595,11 @@ module Prism
       node.each_child_node { |node| node.accept(self) }
     end
 
+    # Visit a NoBlockParameterNode node
+    def visit_no_block_parameter_node(node)
+      node.each_child_node { |node| node.accept(self) }
+    end
+
     # Visit a NoKeywordsParameterNode node
     def visit_no_keywords_parameter_node(node)
       node.each_child_node { |node| node.accept(self) }

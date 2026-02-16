@@ -1650,6 +1650,14 @@ module Prism
       commands << ["└── flags: #{flags.empty? ? "∅" : flags.join(", ")}\n", indent]
     end
 
+    def visit_no_block_parameter_node(node) # :nodoc:
+      commands << [inspect_node("NoBlockParameterNode", node), indent]
+      flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ].compact
+      commands << ["├── flags: #{flags.empty? ? "∅" : flags.join(", ")}\n", indent]
+      commands << ["├── operator_loc: #{inspect_location(node.operator_loc)}\n", indent]
+      commands << ["└── keyword_loc: #{inspect_location(node.keyword_loc)}\n", indent]
+    end
+
     def visit_no_keywords_parameter_node(node) # :nodoc:
       commands << [inspect_node("NoKeywordsParameterNode", node), indent]
       flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ].compact
