@@ -19604,7 +19604,7 @@ module Prism
     end
 
     # :call-seq:
-    #   posts -> Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode]
+    #   posts -> Array[RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode | BlockParameterNode | NoBlockParameterNode]
     #
     # Returns the `posts` attribute.
     def posts

@@ -6585,7 +6585,7 @@ class Prism::ParametersNode < Prism::Node
   sig { returns(T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode))) }
   def rest; end
 
-  sig { returns(T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)]) }
+  sig { returns(T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode, Prism::BlockParameterNode, Prism::NoBlockParameterNode)]) }
   def posts; end
 
   sig { returns(T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)]) }
@@ -6597,7 +6597,7 @@ class Prism::ParametersNode < Prism::Node
   sig { returns(T.nilable(T.any(Prism::BlockParameterNode, Prism::NoBlockParameterNode))) }
   def block; end
 
-  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(T.any(Prism::BlockParameterNode, Prism::NoBlockParameterNode))).void }
+  sig { params(source: Prism::Source, node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode, Prism::BlockParameterNode, Prism::NoBlockParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(T.any(Prism::BlockParameterNode, Prism::NoBlockParameterNode))).void }
   def initialize(source, node_id, location, flags, requireds, optionals, rest, posts, keywords, keyword_rest, block); end
 
   sig { override.params(visitor: Prism::Visitor).returns(T.untyped) }
@@ -6615,7 +6615,7 @@ class Prism::ParametersNode < Prism::Node
   sig { override.returns(T::Array[T.any(Prism::Node, Prism::Location)]) }
   def comment_targets; end
 
-  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(T.any(Prism::BlockParameterNode, Prism::NoBlockParameterNode))).returns(Prism::ParametersNode) }
+  sig { params(node_id: Integer, location: Prism::Location, flags: Integer, requireds: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode)], optionals: T::Array[Prism::OptionalParameterNode], rest: T.nilable(T.any(Prism::RestParameterNode, Prism::ImplicitRestNode)), posts: T::Array[T.any(Prism::RequiredParameterNode, Prism::MultiTargetNode, Prism::KeywordRestParameterNode, Prism::NoKeywordsParameterNode, Prism::ForwardingParameterNode, Prism::BlockParameterNode, Prism::NoBlockParameterNode)], keywords: T::Array[T.any(Prism::RequiredKeywordParameterNode, Prism::OptionalKeywordParameterNode)], keyword_rest: T.nilable(T.any(Prism::KeywordRestParameterNode, Prism::ForwardingParameterNode, Prism::NoKeywordsParameterNode)), block: T.nilable(T.any(Prism::BlockParameterNode, Prism::NoBlockParameterNode))).returns(Prism::ParametersNode) }
   def copy(node_id: self.node_id, location: self.location, flags: self.flags, requireds: self.requireds, optionals: self.optionals, rest: self.rest, posts: self.posts, keywords: self.keywords, keyword_rest: self.keyword_rest, block: self.block); end
 
   sig { params(keys: T.nilable(T::Array[Symbol])).returns(T::Hash[Symbol, T.untyped]) }

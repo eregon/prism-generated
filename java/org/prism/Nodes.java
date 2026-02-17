@@ -9019,7 +9019,7 @@ public abstract class Nodes {
         @Nullable
         @UnionType({ RestParameterNode.class, ImplicitRestNode.class })
         public final Node rest;
-        @UnionType({ RequiredParameterNode.class, MultiTargetNode.class, KeywordRestParameterNode.class, NoKeywordsParameterNode.class, ForwardingParameterNode.class })
+        @UnionType({ RequiredParameterNode.class, MultiTargetNode.class, KeywordRestParameterNode.class, NoKeywordsParameterNode.class, ForwardingParameterNode.class, BlockParameterNode.class, NoBlockParameterNode.class })
         public final Node[] posts;
         @UnionType({ RequiredKeywordParameterNode.class, OptionalKeywordParameterNode.class })
         public final Node[] keywords;
