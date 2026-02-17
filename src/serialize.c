@@ -2028,7 +2028,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
 }
 
 static void
-pm_serialize_newline_list(pm_newline_list_t *list, pm_buffer_t *buffer) {
+pm_serialize_line_offset_list(pm_line_offset_list_t *list, pm_buffer_t *buffer) {
     uint32_t size = pm_sizet_to_u32(list->size);
     pm_buffer_append_varuint(buffer, size);
 
@@ -2131,7 +2131,7 @@ static void
 pm_serialize_metadata(pm_parser_t *parser, pm_buffer_t *buffer) {
     pm_serialize_encoding(parser->encoding, buffer);
     pm_buffer_append_varsint(buffer, parser->start_line);
-    pm_serialize_newline_list(&parser->newline_list, buffer);
+    pm_serialize_line_offset_list(&parser->line_offsets, buffer);
     pm_serialize_comment_list(&parser->comment_list, buffer);
     pm_serialize_magic_comment_list(&parser->magic_comment_list, buffer);
     pm_serialize_data_loc(parser, buffer);
