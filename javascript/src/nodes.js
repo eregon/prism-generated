@@ -803,19 +803,19 @@ export class ArrayNode {
  * Represents an array pattern in pattern matching.
  *
  *     foo in 1, 2
- *     ^^^^^^^^^^^
+ *            ^^^^
  *
  *     foo in [1, 2]
- *     ^^^^^^^^^^^^^
+ *            ^^^^^^
  *
  *     foo in *bar
- *     ^^^^^^^^^^^
+ *            ^^^^
  *
  *     foo in Bar[]
- *     ^^^^^^^^^^^^
+ *            ^^^^^
  *
  *     foo in Bar[1, 2, 3]
- *     ^^^^^^^^^^^^^^^^^^^
+ *            ^^^^^^^^^^^^
  */
 export class ArrayPatternNode {
   /**
@@ -1373,7 +1373,7 @@ export class BeginNode {
  * Represents a block argument using `&`.
  *
  *     bar(&args)
- *     ^^^^^^^^^^
+ *         ^^^^^
  */
 export class BlockArgumentNode {
   /**
@@ -2915,7 +2915,7 @@ export class CallTargetNode {
  * Represents assigning to a local variable in pattern matching.
  *
  *     foo => [bar => baz]
- *            ^^^^^^^^^^^^
+ *             ^^^^^^^^^^
  */
 export class CapturePatternNode {
   /**

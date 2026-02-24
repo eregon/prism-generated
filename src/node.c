@@ -40,7 +40,11 @@ pm_node_list_grow(pm_node_list_t *list, size_t size) {
         next_capacity = double_capacity;
     }
 
-    pm_node_t **nodes = (pm_node_t **) xrealloc(list->nodes, sizeof(pm_node_t *) * next_capacity);
+    pm_node_t **nodes = (pm_node_t **) xrealloc_sized(
+      list->nodes,
+      sizeof(pm_node_t *) * next_capacity,
+      sizeof(pm_node_t *) * list->capacity
+    );
     if (nodes == NULL) return false;
 
     list->nodes = nodes;
@@ -87,7 +91,7 @@ pm_node_list_concat(pm_node_list_t *list, pm_node_list_t *other) {
 void
 pm_node_list_free(pm_node_list_t *list) {
     if (list->capacity > 0) {
-        xfree(list->nodes);
+        xfree_sized(list->nodes, sizeof(pm_node_t *) * list->capacity);
         *list = (pm_node_list_t) { 0 };
     }
 }
@@ -113,47 +117,53 @@ pm_node_list_destroy(pm_parser_t *parser, pm_node_list_t *list) {
 PRISM_EXPORTED_FUNCTION void
 pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
     switch (PM_NODE_TYPE(node)) {
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ALIAS_GLOBAL_VARIABLE_NODE: {
             pm_alias_global_variable_node_t *cast = (pm_alias_global_variable_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->new_name);
             pm_node_destroy(parser, (pm_node_t *)cast->old_name);
+            xfree_sized(node, sizeof(pm_alias_global_variable_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ALIAS_METHOD_NODE: {
             pm_alias_method_node_t *cast = (pm_alias_method_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->new_name);
             pm_node_destroy(parser, (pm_node_t *)cast->old_name);
+            xfree_sized(node, sizeof(pm_alias_method_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ALTERNATION_PATTERN_NODE: {
             pm_alternation_pattern_node_t *cast = (pm_alternation_pattern_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->left);
             pm_node_destroy(parser, (pm_node_t *)cast->right);
+            xfree_sized(node, sizeof(pm_alternation_pattern_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_AND_NODE: {
             pm_and_node_t *cast = (pm_and_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->left);
             pm_node_destroy(parser, (pm_node_t *)cast->right);
+            xfree_sized(node, sizeof(pm_and_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ARGUMENTS_NODE: {
             pm_arguments_node_t *cast = (pm_arguments_node_t *) node;
             pm_node_list_destroy(parser, &cast->arguments);
+            xfree_sized(node, sizeof(pm_arguments_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ARRAY_NODE: {
             pm_array_node_t *cast = (pm_array_node_t *) node;
             pm_node_list_destroy(parser, &cast->elements);
+            xfree_sized(node, sizeof(pm_array_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ARRAY_PATTERN_NODE: {
             pm_array_pattern_node_t *cast = (pm_array_pattern_node_t *) node;
             if (cast->constant != NULL) {
@@ -164,28 +174,32 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
                 pm_node_destroy(parser, (pm_node_t *)cast->rest);
             }
             pm_node_list_destroy(parser, &cast->posts);
+            xfree_sized(node, sizeof(pm_array_pattern_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ASSOC_NODE: {
             pm_assoc_node_t *cast = (pm_assoc_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->key);
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_assoc_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ASSOC_SPLAT_NODE: {
             pm_assoc_splat_node_t *cast = (pm_assoc_splat_node_t *) node;
             if (cast->value != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->value);
             }
+            xfree_sized(node, sizeof(pm_assoc_splat_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_BACK_REFERENCE_READ_NODE: {
+            xfree_sized(node, sizeof(pm_back_reference_read_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_BEGIN_NODE: {
             pm_begin_node_t *cast = (pm_begin_node_t *) node;
             if (cast->statements != NULL) {
@@ -200,21 +214,24 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->ensure_clause != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->ensure_clause);
             }
+            xfree_sized(node, sizeof(pm_begin_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_BLOCK_ARGUMENT_NODE: {
             pm_block_argument_node_t *cast = (pm_block_argument_node_t *) node;
             if (cast->expression != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->expression);
             }
+            xfree_sized(node, sizeof(pm_block_argument_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_BLOCK_LOCAL_VARIABLE_NODE: {
+            xfree_sized(node, sizeof(pm_block_local_variable_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_BLOCK_NODE: {
             pm_block_node_t *cast = (pm_block_node_t *) node;
             pm_constant_id_list_free(&cast->locals);
@@ -224,39 +241,44 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->body != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->body);
             }
+            xfree_sized(node, sizeof(pm_block_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_BLOCK_PARAMETER_NODE: {
+            xfree_sized(node, sizeof(pm_block_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_BLOCK_PARAMETERS_NODE: {
             pm_block_parameters_node_t *cast = (pm_block_parameters_node_t *) node;
             if (cast->parameters != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->parameters);
             }
             pm_node_list_destroy(parser, &cast->locals);
+            xfree_sized(node, sizeof(pm_block_parameters_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_BREAK_NODE: {
             pm_break_node_t *cast = (pm_break_node_t *) node;
             if (cast->arguments != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->arguments);
             }
+            xfree_sized(node, sizeof(pm_break_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CALL_AND_WRITE_NODE: {
             pm_call_and_write_node_t *cast = (pm_call_and_write_node_t *) node;
             if (cast->receiver != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->receiver);
             }
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_call_and_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CALL_NODE: {
             pm_call_node_t *cast = (pm_call_node_t *) node;
             if (cast->receiver != NULL) {
@@ -268,40 +290,45 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->block != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->block);
             }
+            xfree_sized(node, sizeof(pm_call_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CALL_OPERATOR_WRITE_NODE: {
             pm_call_operator_write_node_t *cast = (pm_call_operator_write_node_t *) node;
             if (cast->receiver != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->receiver);
             }
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_call_operator_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CALL_OR_WRITE_NODE: {
             pm_call_or_write_node_t *cast = (pm_call_or_write_node_t *) node;
             if (cast->receiver != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->receiver);
             }
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_call_or_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CALL_TARGET_NODE: {
             pm_call_target_node_t *cast = (pm_call_target_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->receiver);
+            xfree_sized(node, sizeof(pm_call_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CAPTURE_PATTERN_NODE: {
             pm_capture_pattern_node_t *cast = (pm_capture_pattern_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
             pm_node_destroy(parser, (pm_node_t *)cast->target);
+            xfree_sized(node, sizeof(pm_capture_pattern_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CASE_MATCH_NODE: {
             pm_case_match_node_t *cast = (pm_case_match_node_t *) node;
             if (cast->predicate != NULL) {
@@ -311,9 +338,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->else_clause != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->else_clause);
             }
+            xfree_sized(node, sizeof(pm_case_match_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CASE_NODE: {
             pm_case_node_t *cast = (pm_case_node_t *) node;
             if (cast->predicate != NULL) {
@@ -323,9 +351,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->else_clause != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->else_clause);
             }
+            xfree_sized(node, sizeof(pm_case_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CLASS_NODE: {
             pm_class_node_t *cast = (pm_class_node_t *) node;
             pm_constant_id_list_free(&cast->locals);
@@ -336,117 +365,136 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->body != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->body);
             }
+            xfree_sized(node, sizeof(pm_class_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CLASS_VARIABLE_AND_WRITE_NODE: {
             pm_class_variable_and_write_node_t *cast = (pm_class_variable_and_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_class_variable_and_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CLASS_VARIABLE_OPERATOR_WRITE_NODE: {
             pm_class_variable_operator_write_node_t *cast = (pm_class_variable_operator_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_class_variable_operator_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CLASS_VARIABLE_OR_WRITE_NODE: {
             pm_class_variable_or_write_node_t *cast = (pm_class_variable_or_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_class_variable_or_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CLASS_VARIABLE_READ_NODE: {
+            xfree_sized(node, sizeof(pm_class_variable_read_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CLASS_VARIABLE_TARGET_NODE: {
+            xfree_sized(node, sizeof(pm_class_variable_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CLASS_VARIABLE_WRITE_NODE: {
             pm_class_variable_write_node_t *cast = (pm_class_variable_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_class_variable_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_AND_WRITE_NODE: {
             pm_constant_and_write_node_t *cast = (pm_constant_and_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_constant_and_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_OPERATOR_WRITE_NODE: {
             pm_constant_operator_write_node_t *cast = (pm_constant_operator_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_constant_operator_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_OR_WRITE_NODE: {
             pm_constant_or_write_node_t *cast = (pm_constant_or_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_constant_or_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_PATH_AND_WRITE_NODE: {
             pm_constant_path_and_write_node_t *cast = (pm_constant_path_and_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->target);
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_constant_path_and_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_PATH_NODE: {
             pm_constant_path_node_t *cast = (pm_constant_path_node_t *) node;
             if (cast->parent != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->parent);
             }
+            xfree_sized(node, sizeof(pm_constant_path_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_PATH_OPERATOR_WRITE_NODE: {
             pm_constant_path_operator_write_node_t *cast = (pm_constant_path_operator_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->target);
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_constant_path_operator_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_PATH_OR_WRITE_NODE: {
             pm_constant_path_or_write_node_t *cast = (pm_constant_path_or_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->target);
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_constant_path_or_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_PATH_TARGET_NODE: {
             pm_constant_path_target_node_t *cast = (pm_constant_path_target_node_t *) node;
             if (cast->parent != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->parent);
             }
+            xfree_sized(node, sizeof(pm_constant_path_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_PATH_WRITE_NODE: {
             pm_constant_path_write_node_t *cast = (pm_constant_path_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->target);
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_constant_path_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_READ_NODE: {
+            xfree_sized(node, sizeof(pm_constant_read_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_TARGET_NODE: {
+            xfree_sized(node, sizeof(pm_constant_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_CONSTANT_WRITE_NODE: {
             pm_constant_write_node_t *cast = (pm_constant_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_constant_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_DEF_NODE: {
             pm_def_node_t *cast = (pm_def_node_t *) node;
             if (cast->receiver != NULL) {
@@ -459,49 +507,56 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
                 pm_node_destroy(parser, (pm_node_t *)cast->body);
             }
             pm_constant_id_list_free(&cast->locals);
+            xfree_sized(node, sizeof(pm_def_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_DEFINED_NODE: {
             pm_defined_node_t *cast = (pm_defined_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_defined_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ELSE_NODE: {
             pm_else_node_t *cast = (pm_else_node_t *) node;
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_else_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_EMBEDDED_STATEMENTS_NODE: {
             pm_embedded_statements_node_t *cast = (pm_embedded_statements_node_t *) node;
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_embedded_statements_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_EMBEDDED_VARIABLE_NODE: {
             pm_embedded_variable_node_t *cast = (pm_embedded_variable_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->variable);
+            xfree_sized(node, sizeof(pm_embedded_variable_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_ENSURE_NODE: {
             pm_ensure_node_t *cast = (pm_ensure_node_t *) node;
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_ensure_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_FALSE_NODE: {
+            xfree_sized(node, sizeof(pm_false_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_FIND_PATTERN_NODE: {
             pm_find_pattern_node_t *cast = (pm_find_pattern_node_t *) node;
             if (cast->constant != NULL) {
@@ -510,9 +565,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             pm_node_destroy(parser, (pm_node_t *)cast->left);
             pm_node_list_destroy(parser, &cast->requireds);
             pm_node_destroy(parser, (pm_node_t *)cast->right);
+            xfree_sized(node, sizeof(pm_find_pattern_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_FLIP_FLOP_NODE: {
             pm_flip_flop_node_t *cast = (pm_flip_flop_node_t *) node;
             if (cast->left != NULL) {
@@ -521,13 +577,15 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->right != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->right);
             }
+            xfree_sized(node, sizeof(pm_flip_flop_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_FLOAT_NODE: {
+            xfree_sized(node, sizeof(pm_float_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_FOR_NODE: {
             pm_for_node_t *cast = (pm_for_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->index);
@@ -535,63 +593,74 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_for_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_FORWARDING_ARGUMENTS_NODE: {
+            xfree_sized(node, sizeof(pm_forwarding_arguments_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_FORWARDING_PARAMETER_NODE: {
+            xfree_sized(node, sizeof(pm_forwarding_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_FORWARDING_SUPER_NODE: {
             pm_forwarding_super_node_t *cast = (pm_forwarding_super_node_t *) node;
             if (cast->block != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->block);
             }
+            xfree_sized(node, sizeof(pm_forwarding_super_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_GLOBAL_VARIABLE_AND_WRITE_NODE: {
             pm_global_variable_and_write_node_t *cast = (pm_global_variable_and_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_global_variable_and_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_GLOBAL_VARIABLE_OPERATOR_WRITE_NODE: {
             pm_global_variable_operator_write_node_t *cast = (pm_global_variable_operator_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_global_variable_operator_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_GLOBAL_VARIABLE_OR_WRITE_NODE: {
             pm_global_variable_or_write_node_t *cast = (pm_global_variable_or_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_global_variable_or_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_GLOBAL_VARIABLE_READ_NODE: {
+            xfree_sized(node, sizeof(pm_global_variable_read_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_GLOBAL_VARIABLE_TARGET_NODE: {
+            xfree_sized(node, sizeof(pm_global_variable_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_GLOBAL_VARIABLE_WRITE_NODE: {
             pm_global_variable_write_node_t *cast = (pm_global_variable_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_global_variable_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_HASH_NODE: {
             pm_hash_node_t *cast = (pm_hash_node_t *) node;
             pm_node_list_destroy(parser, &cast->elements);
+            xfree_sized(node, sizeof(pm_hash_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_HASH_PATTERN_NODE: {
             pm_hash_pattern_node_t *cast = (pm_hash_pattern_node_t *) node;
             if (cast->constant != NULL) {
@@ -601,9 +670,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->rest != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->rest);
             }
+            xfree_sized(node, sizeof(pm_hash_pattern_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_IF_NODE: {
             pm_if_node_t *cast = (pm_if_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->predicate);
@@ -613,34 +683,39 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->subsequent != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->subsequent);
             }
+            xfree_sized(node, sizeof(pm_if_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_IMAGINARY_NODE: {
             pm_imaginary_node_t *cast = (pm_imaginary_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->numeric);
+            xfree_sized(node, sizeof(pm_imaginary_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_IMPLICIT_NODE: {
             pm_implicit_node_t *cast = (pm_implicit_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_implicit_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_IMPLICIT_REST_NODE: {
+            xfree_sized(node, sizeof(pm_implicit_rest_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_IN_NODE: {
             pm_in_node_t *cast = (pm_in_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->pattern);
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_in_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INDEX_AND_WRITE_NODE: {
             pm_index_and_write_node_t *cast = (pm_index_and_write_node_t *) node;
             if (cast->receiver != NULL) {
@@ -653,9 +728,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
                 pm_node_destroy(parser, (pm_node_t *)cast->block);
             }
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_index_and_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INDEX_OPERATOR_WRITE_NODE: {
             pm_index_operator_write_node_t *cast = (pm_index_operator_write_node_t *) node;
             if (cast->receiver != NULL) {
@@ -668,9 +744,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
                 pm_node_destroy(parser, (pm_node_t *)cast->block);
             }
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_index_operator_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INDEX_OR_WRITE_NODE: {
             pm_index_or_write_node_t *cast = (pm_index_or_write_node_t *) node;
             if (cast->receiver != NULL) {
@@ -683,9 +760,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
                 pm_node_destroy(parser, (pm_node_t *)cast->block);
             }
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_index_or_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INDEX_TARGET_NODE: {
             pm_index_target_node_t *cast = (pm_index_target_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->receiver);
@@ -695,95 +773,112 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->block != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->block);
             }
+            xfree_sized(node, sizeof(pm_index_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INSTANCE_VARIABLE_AND_WRITE_NODE: {
             pm_instance_variable_and_write_node_t *cast = (pm_instance_variable_and_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_instance_variable_and_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INSTANCE_VARIABLE_OPERATOR_WRITE_NODE: {
             pm_instance_variable_operator_write_node_t *cast = (pm_instance_variable_operator_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_instance_variable_operator_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INSTANCE_VARIABLE_OR_WRITE_NODE: {
             pm_instance_variable_or_write_node_t *cast = (pm_instance_variable_or_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_instance_variable_or_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INSTANCE_VARIABLE_READ_NODE: {
+            xfree_sized(node, sizeof(pm_instance_variable_read_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INSTANCE_VARIABLE_TARGET_NODE: {
+            xfree_sized(node, sizeof(pm_instance_variable_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INSTANCE_VARIABLE_WRITE_NODE: {
             pm_instance_variable_write_node_t *cast = (pm_instance_variable_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_instance_variable_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INTEGER_NODE: {
             pm_integer_node_t *cast = (pm_integer_node_t *) node;
             pm_integer_free(&cast->value);
+            xfree_sized(node, sizeof(pm_integer_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INTERPOLATED_MATCH_LAST_LINE_NODE: {
             pm_interpolated_match_last_line_node_t *cast = (pm_interpolated_match_last_line_node_t *) node;
             pm_node_list_destroy(parser, &cast->parts);
+            xfree_sized(node, sizeof(pm_interpolated_match_last_line_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INTERPOLATED_REGULAR_EXPRESSION_NODE: {
             pm_interpolated_regular_expression_node_t *cast = (pm_interpolated_regular_expression_node_t *) node;
             pm_node_list_destroy(parser, &cast->parts);
+            xfree_sized(node, sizeof(pm_interpolated_regular_expression_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INTERPOLATED_STRING_NODE: {
             pm_interpolated_string_node_t *cast = (pm_interpolated_string_node_t *) node;
             pm_node_list_destroy(parser, &cast->parts);
+            xfree_sized(node, sizeof(pm_interpolated_string_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INTERPOLATED_SYMBOL_NODE: {
             pm_interpolated_symbol_node_t *cast = (pm_interpolated_symbol_node_t *) node;
             pm_node_list_destroy(parser, &cast->parts);
+            xfree_sized(node, sizeof(pm_interpolated_symbol_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_INTERPOLATED_X_STRING_NODE: {
             pm_interpolated_x_string_node_t *cast = (pm_interpolated_x_string_node_t *) node;
             pm_node_list_destroy(parser, &cast->parts);
+            xfree_sized(node, sizeof(pm_interpolated_x_string_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_IT_LOCAL_VARIABLE_READ_NODE: {
+            xfree_sized(node, sizeof(pm_it_local_variable_read_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_IT_PARAMETERS_NODE: {
+            xfree_sized(node, sizeof(pm_it_parameters_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_KEYWORD_HASH_NODE: {
             pm_keyword_hash_node_t *cast = (pm_keyword_hash_node_t *) node;
             pm_node_list_destroy(parser, &cast->elements);
+            xfree_sized(node, sizeof(pm_keyword_hash_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_KEYWORD_REST_PARAMETER_NODE: {
+            xfree_sized(node, sizeof(pm_keyword_rest_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_LAMBDA_NODE: {
             pm_lambda_node_t *cast = (pm_lambda_node_t *) node;
             pm_constant_id_list_free(&cast->locals);
@@ -793,72 +888,84 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->body != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->body);
             }
+            xfree_sized(node, sizeof(pm_lambda_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_LOCAL_VARIABLE_AND_WRITE_NODE: {
             pm_local_variable_and_write_node_t *cast = (pm_local_variable_and_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_local_variable_and_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_LOCAL_VARIABLE_OPERATOR_WRITE_NODE: {
             pm_local_variable_operator_write_node_t *cast = (pm_local_variable_operator_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_local_variable_operator_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_LOCAL_VARIABLE_OR_WRITE_NODE: {
             pm_local_variable_or_write_node_t *cast = (pm_local_variable_or_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_local_variable_or_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_LOCAL_VARIABLE_READ_NODE: {
+            xfree_sized(node, sizeof(pm_local_variable_read_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_LOCAL_VARIABLE_TARGET_NODE: {
+            xfree_sized(node, sizeof(pm_local_variable_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_LOCAL_VARIABLE_WRITE_NODE: {
             pm_local_variable_write_node_t *cast = (pm_local_variable_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_local_variable_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_MATCH_LAST_LINE_NODE: {
             pm_match_last_line_node_t *cast = (pm_match_last_line_node_t *) node;
             pm_string_free(&cast->unescaped);
+            xfree_sized(node, sizeof(pm_match_last_line_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_MATCH_PREDICATE_NODE: {
             pm_match_predicate_node_t *cast = (pm_match_predicate_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
             pm_node_destroy(parser, (pm_node_t *)cast->pattern);
+            xfree_sized(node, sizeof(pm_match_predicate_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_MATCH_REQUIRED_NODE: {
             pm_match_required_node_t *cast = (pm_match_required_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
             pm_node_destroy(parser, (pm_node_t *)cast->pattern);
+            xfree_sized(node, sizeof(pm_match_required_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_MATCH_WRITE_NODE: {
             pm_match_write_node_t *cast = (pm_match_write_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->call);
             pm_node_list_destroy(parser, &cast->targets);
+            xfree_sized(node, sizeof(pm_match_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_MISSING_NODE: {
+            xfree_sized(node, sizeof(pm_missing_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_MODULE_NODE: {
             pm_module_node_t *cast = (pm_module_node_t *) node;
             pm_constant_id_list_free(&cast->locals);
@@ -866,9 +973,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->body != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->body);
             }
+            xfree_sized(node, sizeof(pm_module_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_MULTI_TARGET_NODE: {
             pm_multi_target_node_t *cast = (pm_multi_target_node_t *) node;
             pm_node_list_destroy(parser, &cast->lefts);
@@ -876,9 +984,10 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
                 pm_node_destroy(parser, (pm_node_t *)cast->rest);
             }
             pm_node_list_destroy(parser, &cast->rights);
+            xfree_sized(node, sizeof(pm_multi_target_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_MULTI_WRITE_NODE: {
             pm_multi_write_node_t *cast = (pm_multi_write_node_t *) node;
             pm_node_list_destroy(parser, &cast->lefts);
@@ -887,56 +996,66 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             }
             pm_node_list_destroy(parser, &cast->rights);
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_multi_write_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_NEXT_NODE: {
             pm_next_node_t *cast = (pm_next_node_t *) node;
             if (cast->arguments != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->arguments);
             }
+            xfree_sized(node, sizeof(pm_next_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_NIL_NODE: {
+            xfree_sized(node, sizeof(pm_nil_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_NO_BLOCK_PARAMETER_NODE: {
+            xfree_sized(node, sizeof(pm_no_block_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_NO_KEYWORDS_PARAMETER_NODE: {
+            xfree_sized(node, sizeof(pm_no_keywords_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_NUMBERED_PARAMETERS_NODE: {
+            xfree_sized(node, sizeof(pm_numbered_parameters_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_NUMBERED_REFERENCE_READ_NODE: {
+            xfree_sized(node, sizeof(pm_numbered_reference_read_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_OPTIONAL_KEYWORD_PARAMETER_NODE: {
             pm_optional_keyword_parameter_node_t *cast = (pm_optional_keyword_parameter_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_optional_keyword_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_OPTIONAL_PARAMETER_NODE: {
             pm_optional_parameter_node_t *cast = (pm_optional_parameter_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->value);
+            xfree_sized(node, sizeof(pm_optional_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_OR_NODE: {
             pm_or_node_t *cast = (pm_or_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->left);
             pm_node_destroy(parser, (pm_node_t *)cast->right);
+            xfree_sized(node, sizeof(pm_or_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_PARAMETERS_NODE: {
             pm_parameters_node_t *cast = (pm_parameters_node_t *) node;
             pm_node_list_destroy(parser, &cast->requireds);
@@ -952,52 +1071,59 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->block != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->block);
             }
+            xfree_sized(node, sizeof(pm_parameters_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_PARENTHESES_NODE: {
             pm_parentheses_node_t *cast = (pm_parentheses_node_t *) node;
             if (cast->body != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->body);
             }
+            xfree_sized(node, sizeof(pm_parentheses_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_PINNED_EXPRESSION_NODE: {
             pm_pinned_expression_node_t *cast = (pm_pinned_expression_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->expression);
+            xfree_sized(node, sizeof(pm_pinned_expression_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_PINNED_VARIABLE_NODE: {
             pm_pinned_variable_node_t *cast = (pm_pinned_variable_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->variable);
+            xfree_sized(node, sizeof(pm_pinned_variable_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_POST_EXECUTION_NODE: {
             pm_post_execution_node_t *cast = (pm_post_execution_node_t *) node;
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_post_execution_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_PRE_EXECUTION_NODE: {
             pm_pre_execution_node_t *cast = (pm_pre_execution_node_t *) node;
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_pre_execution_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_PROGRAM_NODE: {
             pm_program_node_t *cast = (pm_program_node_t *) node;
             pm_constant_id_list_free(&cast->locals);
             pm_node_destroy(parser, (pm_node_t *)cast->statements);
+            xfree_sized(node, sizeof(pm_program_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_RANGE_NODE: {
             pm_range_node_t *cast = (pm_range_node_t *) node;
             if (cast->left != NULL) {
@@ -1006,41 +1132,48 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->right != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->right);
             }
+            xfree_sized(node, sizeof(pm_range_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_RATIONAL_NODE: {
             pm_rational_node_t *cast = (pm_rational_node_t *) node;
             pm_integer_free(&cast->numerator);
             pm_integer_free(&cast->denominator);
+            xfree_sized(node, sizeof(pm_rational_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_REDO_NODE: {
+            xfree_sized(node, sizeof(pm_redo_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_REGULAR_EXPRESSION_NODE: {
             pm_regular_expression_node_t *cast = (pm_regular_expression_node_t *) node;
             pm_string_free(&cast->unescaped);
+            xfree_sized(node, sizeof(pm_regular_expression_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_REQUIRED_KEYWORD_PARAMETER_NODE: {
+            xfree_sized(node, sizeof(pm_required_keyword_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_REQUIRED_PARAMETER_NODE: {
+            xfree_sized(node, sizeof(pm_required_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_RESCUE_MODIFIER_NODE: {
             pm_rescue_modifier_node_t *cast = (pm_rescue_modifier_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->expression);
             pm_node_destroy(parser, (pm_node_t *)cast->rescue_expression);
+            xfree_sized(node, sizeof(pm_rescue_modifier_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_RESCUE_NODE: {
             pm_rescue_node_t *cast = (pm_rescue_node_t *) node;
             pm_node_list_destroy(parser, &cast->exceptions);
@@ -1053,35 +1186,41 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->subsequent != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->subsequent);
             }
+            xfree_sized(node, sizeof(pm_rescue_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_REST_PARAMETER_NODE: {
+            xfree_sized(node, sizeof(pm_rest_parameter_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_RETRY_NODE: {
+            xfree_sized(node, sizeof(pm_retry_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_RETURN_NODE: {
             pm_return_node_t *cast = (pm_return_node_t *) node;
             if (cast->arguments != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->arguments);
             }
+            xfree_sized(node, sizeof(pm_return_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SELF_NODE: {
+            xfree_sized(node, sizeof(pm_self_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SHAREABLE_CONSTANT_NODE: {
             pm_shareable_constant_node_t *cast = (pm_shareable_constant_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->write);
+            xfree_sized(node, sizeof(pm_shareable_constant_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SINGLETON_CLASS_NODE: {
             pm_singleton_class_node_t *cast = (pm_singleton_class_node_t *) node;
             pm_constant_id_list_free(&cast->locals);
@@ -1089,43 +1228,50 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->body != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->body);
             }
+            xfree_sized(node, sizeof(pm_singleton_class_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SOURCE_ENCODING_NODE: {
+            xfree_sized(node, sizeof(pm_source_encoding_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SOURCE_FILE_NODE: {
             pm_source_file_node_t *cast = (pm_source_file_node_t *) node;
             pm_string_free(&cast->filepath);
+            xfree_sized(node, sizeof(pm_source_file_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SOURCE_LINE_NODE: {
+            xfree_sized(node, sizeof(pm_source_line_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SPLAT_NODE: {
             pm_splat_node_t *cast = (pm_splat_node_t *) node;
             if (cast->expression != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->expression);
             }
+            xfree_sized(node, sizeof(pm_splat_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_STATEMENTS_NODE: {
             pm_statements_node_t *cast = (pm_statements_node_t *) node;
             pm_node_list_destroy(parser, &cast->body);
+            xfree_sized(node, sizeof(pm_statements_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_STRING_NODE: {
             pm_string_node_t *cast = (pm_string_node_t *) node;
             pm_string_free(&cast->unescaped);
+            xfree_sized(node, sizeof(pm_string_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SUPER_NODE: {
             pm_super_node_t *cast = (pm_super_node_t *) node;
             if (cast->arguments != NULL) {
@@ -1134,25 +1280,29 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->block != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->block);
             }
+            xfree_sized(node, sizeof(pm_super_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_SYMBOL_NODE: {
             pm_symbol_node_t *cast = (pm_symbol_node_t *) node;
             pm_string_free(&cast->unescaped);
+            xfree_sized(node, sizeof(pm_symbol_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_TRUE_NODE: {
+            xfree_sized(node, sizeof(pm_true_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_UNDEF_NODE: {
             pm_undef_node_t *cast = (pm_undef_node_t *) node;
             pm_node_list_destroy(parser, &cast->names);
+            xfree_sized(node, sizeof(pm_undef_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_UNLESS_NODE: {
             pm_unless_node_t *cast = (pm_unless_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->predicate);
@@ -1162,55 +1312,60 @@ pm_node_destroy(pm_parser_t *parser, pm_node_t *node) {
             if (cast->else_clause != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->else_clause);
             }
+            xfree_sized(node, sizeof(pm_unless_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_UNTIL_NODE: {
             pm_until_node_t *cast = (pm_until_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->predicate);
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_until_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_WHEN_NODE: {
             pm_when_node_t *cast = (pm_when_node_t *) node;
             pm_node_list_destroy(parser, &cast->conditions);
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_when_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_WHILE_NODE: {
             pm_while_node_t *cast = (pm_while_node_t *) node;
             pm_node_destroy(parser, (pm_node_t *)cast->predicate);
             if (cast->statements != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->statements);
             }
+            xfree_sized(node, sizeof(pm_while_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_X_STRING_NODE: {
             pm_x_string_node_t *cast = (pm_x_string_node_t *) node;
             pm_string_free(&cast->unescaped);
+            xfree_sized(node, sizeof(pm_x_string_node_t));
             break;
         }
-#line 110 "prism/templates/src/node.c.erb"
+#line 114 "prism/templates/src/node.c.erb"
         case PM_YIELD_NODE: {
             pm_yield_node_t *cast = (pm_yield_node_t *) node;
             if (cast->arguments != NULL) {
                 pm_node_destroy(parser, (pm_node_t *)cast->arguments);
             }
+            xfree_sized(node, sizeof(pm_yield_node_t));
             break;
         }
-#line 139 "prism/templates/src/node.c.erb"
+#line 144 "prism/templates/src/node.c.erb"
         default:
             assert(false && "unreachable");
             break;
     }
-    xfree(node);
 }
 
 /**

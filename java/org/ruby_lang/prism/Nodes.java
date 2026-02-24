@@ -1552,19 +1552,19 @@ public abstract class Nodes {
      * Represents an array pattern in pattern matching.
      *
      *     foo in 1, 2
-     *     ^^^^^^^^^^^
+     *            ^^^^
      *
      *     foo in [1, 2]
-     *     ^^^^^^^^^^^^^
+     *            ^^^^^^
      *
      *     foo in *bar
-     *     ^^^^^^^^^^^
+     *            ^^^^
      *
      *     foo in Bar[]
-     *     ^^^^^^^^^^^^
+     *            ^^^^^
      *
      *     foo in Bar[1, 2, 3]
-     *     ^^^^^^^^^^^^^^^^^^^
+     *            ^^^^^^^^^^^^
      * </pre>
      */
     public static final class ArrayPatternNode extends Node {
@@ -1901,7 +1901,7 @@ public abstract class Nodes {
          * Represents the else clause within the begin block.
          *
          *     begin x; rescue y; else z; end
-         *                        ^^^^^^
+         *                        ^^^^^^^^^^^
          * </pre>
          */
         @Nullable
@@ -1983,7 +1983,7 @@ public abstract class Nodes {
      * Represents a block argument using `&amp;`.
      *
      *     bar(&amp;args)
-     *     ^^^^^^^^^^
+     *         ^^^^^
      * </pre>
      */
     public static final class BlockArgumentNode extends Node {
@@ -1992,7 +1992,7 @@ public abstract class Nodes {
          * The expression that is being passed as a block argument. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
          *
          *     foo(&amp;args)
-         *         ^^^^^
+         *          ^^^^
          * </pre>
          */
         @Nullable
@@ -3019,7 +3019,7 @@ public abstract class Nodes {
      * Represents assigning to a local variable in pattern matching.
      *
      *     foo =&gt; [bar =&gt; baz]
-     *            ^^^^^^^^^^^^
+     *             ^^^^^^^^^^
      * </pre>
      */
     public static final class CapturePatternNode extends Node {
@@ -3096,7 +3096,7 @@ public abstract class Nodes {
          * Represents the predicate of the case match. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
          *
          *     case true; in false; end
-         *     ^^^^
+         *          ^^^^
          * </pre>
          */
         @Nullable
@@ -3115,7 +3115,7 @@ public abstract class Nodes {
          * Represents the else clause of the case match.
          *
          *     case true; in false; else; end
-         *                          ^^^^
+         *                          ^^^^^^^^^
          * </pre>
          */
         @Nullable
@@ -3213,7 +3213,7 @@ public abstract class Nodes {
          * Represents the else clause of the case statement.
          *
          *     case true; when false; else; end
-         *                            ^^^^
+         *                            ^^^^^^^^^
          * </pre>
          */
         @Nullable
@@ -3302,9 +3302,8 @@ public abstract class Nodes {
          * <pre>
          * Represents the body of the class.
          *
-         *     class Foo
-         *       foo
-         *       ^^^
+         *     class Foo; bar; end
+         *                ^^^
          * </pre>
          */
         @Nullable
@@ -10894,7 +10893,7 @@ public abstract class Nodes {
          * The else clause of the unless expression, if present.
          *
          *     unless cond then bar else baz end
-         *                          ^^^^^^^^
+         *                          ^^^^^^^^^^^^
          * </pre>
          */
         @Nullable

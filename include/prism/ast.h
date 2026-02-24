@@ -1411,19 +1411,19 @@ typedef struct pm_array_node {
  * Represents an array pattern in pattern matching.
  *
  *     foo in 1, 2
- *     ^^^^^^^^^^^
+ *            ^^^^
  *
  *     foo in [1, 2]
- *     ^^^^^^^^^^^^^
+ *            ^^^^^^
  *
  *     foo in *bar
- *     ^^^^^^^^^^^
+ *            ^^^^
  *
  *     foo in Bar[]
- *     ^^^^^^^^^^^^
+ *            ^^^^^
  *
  *     foo in Bar[1, 2, 3]
- *     ^^^^^^^^^^^^^^^^^^^
+ *            ^^^^^^^^^^^^
  *
  * Type: ::PM_ARRAY_PATTERN_NODE
  *
@@ -1675,7 +1675,7 @@ typedef struct pm_begin_node {
      * Represents the else clause within the begin block.
      *
      *     begin x; rescue y; else z; end
-     *                        ^^^^^^
+     *                        ^^^^^^^^^^^
      */
     PM_NODE_ALIGNAS struct pm_else_node *else_clause;
 
@@ -1706,7 +1706,7 @@ typedef struct pm_begin_node {
  * Represents a block argument using `&`.
  *
  *     bar(&args)
- *     ^^^^^^^^^^
+ *         ^^^^^
  *
  * Type: ::PM_BLOCK_ARGUMENT_NODE
  *
@@ -1722,7 +1722,7 @@ typedef struct pm_block_argument_node {
      * The expression that is being passed as a block argument. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
      *
      *     foo(&args)
-     *         ^^^^^
+     *          ^^^^
      */
     PM_NODE_ALIGNAS struct pm_node *expression;
 
@@ -2511,7 +2511,7 @@ typedef struct pm_call_target_node {
  * Represents assigning to a local variable in pattern matching.
  *
  *     foo => [bar => baz]
- *            ^^^^^^^^^^^^
+ *             ^^^^^^^^^^
  *
  * Type: ::PM_CAPTURE_PATTERN_NODE
  *
@@ -2576,7 +2576,7 @@ typedef struct pm_case_match_node {
      * Represents the predicate of the case match. This can be either `nil` or any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
      *
      *     case true; in false; end
-     *     ^^^^
+     *          ^^^^
      */
     PM_NODE_ALIGNAS struct pm_node *predicate;
 
@@ -2596,7 +2596,7 @@ typedef struct pm_case_match_node {
      * Represents the else clause of the case match.
      *
      *     case true; in false; else; end
-     *                          ^^^^
+     *                          ^^^^^^^^^
      */
     PM_NODE_ALIGNAS struct pm_else_node *else_clause;
 
@@ -2665,7 +2665,7 @@ typedef struct pm_case_node {
      * Represents the else clause of the case statement.
      *
      *     case true; when false; else; end
-     *                            ^^^^
+     *                            ^^^^^^^^^
      */
     PM_NODE_ALIGNAS struct pm_else_node *else_clause;
 
@@ -2751,9 +2751,8 @@ typedef struct pm_class_node {
      *
      * Represents the body of the class.
      *
-     *     class Foo
-     *       foo
-     *       ^^^
+     *     class Foo; bar; end
+     *                ^^^
      */
     PM_NODE_ALIGNAS struct pm_node *body;
 
@@ -7664,7 +7663,7 @@ typedef struct pm_unless_node {
      * The else clause of the unless expression, if present.
      *
      *     unless cond then bar else baz end
-     *                          ^^^^^^^^
+     *                          ^^^^^^^^^^^^
      */
     PM_NODE_ALIGNAS struct pm_else_node *else_clause;
 

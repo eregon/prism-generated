@@ -219,19 +219,19 @@ module Prism
   # Represents an array pattern in pattern matching.
   #
   #     foo in 1, 2
-  #     ^^^^^^^^^^^
+  #            ^^^^
   #
   #     foo in [1, 2]
-  #     ^^^^^^^^^^^^^
+  #            ^^^^^^
   #
   #     foo in *bar
-  #     ^^^^^^^^^^^
+  #            ^^^^
   #
   #     foo in Bar[]
-  #     ^^^^^^^^^^^^
+  #            ^^^^^
   #
   #     foo in Bar[1, 2, 3]
-  #     ^^^^^^^^^^^^^^^^^^^
+  #            ^^^^^^^^^^^^
   class ArrayPatternNode < Node
     include _Node
 
@@ -348,7 +348,7 @@ module Prism
   # Represents a block argument using `&`.
   #
   #     bar(&args)
-  #     ^^^^^^^^^^
+  #         ^^^^^
   class BlockArgumentNode < Node
     include _Node
 
@@ -690,7 +690,7 @@ module Prism
   # Represents assigning to a local variable in pattern matching.
   #
   #     foo => [bar => baz]
-  #            ^^^^^^^^^^^^
+  #             ^^^^^^^^^^
   class CapturePatternNode < Node
     include _Node
 

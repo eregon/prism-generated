@@ -406,19 +406,19 @@ end
 # Represents an array pattern in pattern matching.
 #
 #     foo in 1, 2
-#     ^^^^^^^^^^^
+#            ^^^^
 #
 #     foo in [1, 2]
-#     ^^^^^^^^^^^^^
+#            ^^^^^^
 #
 #     foo in *bar
-#     ^^^^^^^^^^^
+#            ^^^^
 #
 #     foo in Bar[]
-#     ^^^^^^^^^^^^
+#            ^^^^^
 #
 #     foo in Bar[1, 2, 3]
-#     ^^^^^^^^^^^^^^^^^^^
+#            ^^^^^^^^^^^^
 class Prism::ArrayPatternNode < Prism::Node
   sig { returns(T.nilable(T.any(Prism::ConstantPathNode, Prism::ConstantReadNode))) }
   def constant; end
@@ -687,7 +687,7 @@ end
 # Represents a block argument using `&`.
 #
 #     bar(&args)
-#     ^^^^^^^^^^
+#         ^^^^^
 class Prism::BlockArgumentNode < Prism::Node
   sig { returns(T.nilable(Prism::Node)) }
   def expression; end
@@ -1432,7 +1432,7 @@ end
 # Represents assigning to a local variable in pattern matching.
 #
 #     foo => [bar => baz]
-#            ^^^^^^^^^^^^
+#             ^^^^^^^^^^
 class Prism::CapturePatternNode < Prism::Node
   sig { returns(Prism::Node) }
   def value; end
