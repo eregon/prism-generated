@@ -9,6 +9,9 @@ if you are looking to modify the template
 ++
 =end
 
+#--
+# rbs_inline: enabled
+
 require "cgi/escape"
 require "cgi/util" unless defined?(CGI::EscapeExt)
 
@@ -17,14 +20,18 @@ module Prism
   # subtree into a graphviz dot graph.
   class DotVisitor < Visitor
     class Field # :nodoc:
-      attr_reader :name, :value, :port
+      attr_reader :name #: String
+      attr_reader :value #: String?
+      attr_reader :port #: bool
 
+      #: (String name, String? value, bool port) -> void
       def initialize(name, value, port)
         @name = name
         @value = value
         @port = port
       end
 
+      #: () -> String
       def to_dot
         if port
           "<tr><td align=\"left\" colspan=\"2\" port=\"#{name}\">#{name}</td></tr>"
@@ -35,17 +42,21 @@ module Prism
     end
 
     class Table # :nodoc:
-      attr_reader :name, :fields
+      attr_reader :name #: String
+      attr_reader :fields #: Array[Field]
 
+      #: (String name) -> void
       def initialize(name)
         @name = name
         @fields = []
       end
 
+      #: (String name, ?String? value, ?port: bool) -> void
       def field(name, value = nil, port: false)
         fields << Field.new(name, value, port)
       end
 
+      #: () -> String
       def to_dot
         dot = <<~DOT
           <table border="0" cellborder="1" cellspacing="0" cellpadding="4">
@@ -61,26 +72,31 @@ module Prism
     end
 
     class Digraph # :nodoc:
-      attr_reader :nodes, :waypoints, :edges
+      attr_reader :nodes, :waypoints, :edges #: Array[String]
 
+      #: () -> void
       def initialize
         @nodes = []
         @waypoints = []
         @edges = []
       end
 
+      #: (String value) -> void
       def node(value)
         nodes << value
       end
 
+      #: (String value) -> void
       def waypoint(value)
         waypoints << value
       end
 
+      #: (String value) -> void
       def edge(value)
         edges << value
       end
 
+      #: () -> String
       def to_dot
         <<~DOT
           digraph "Prism" {
@@ -104,18 +120,23 @@ module Prism
     private_constant :Field, :Table, :Digraph
 
     # The digraph that is being built.
-    attr_reader :digraph
+    attr_reader :digraph #: Digraph
 
     # Initialize a new dot visitor.
+    #--
+    #: () -> void
     def initialize
       @digraph = Digraph.new
     end
 
     # Convert this visitor into a graphviz dot graph string.
+    #--
+    #: () -> String
     def to_dot
       digraph.to_dot
     end
 
+    #: (AliasGlobalVariableNode) -> void
     def visit_alias_global_variable_node(node) # :nodoc:
       table = Table.new("AliasGlobalVariableNode")
       id = node_id(node)
@@ -131,7 +152,7 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -140,6 +161,7 @@ module Prism
       super
     end
 
+    #: (AliasMethodNode) -> void
     def visit_alias_method_node(node) # :nodoc:
       table = Table.new("AliasMethodNode")
       id = node_id(node)
@@ -155,7 +177,7 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -164,6 +186,7 @@ module Prism
       super
     end
 
+    #: (AlternationPatternNode) -> void
     def visit_alternation_pattern_node(node) # :nodoc:
       table = Table.new("AlternationPatternNode")
       id = node_id(node)
@@ -179,7 +202,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -188,6 +211,7 @@ module Prism
       super
     end
 
+    #: (AndNode) -> void
     def visit_and_node(node) # :nodoc:
       table = Table.new("AndNode")
       id = node_id(node)
@@ -203,7 +227,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -212,6 +236,7 @@ module Prism
       super
     end
 
+    #: (ArgumentsNode) -> void
     def visit_arguments_node(node) # :nodoc:
       table = Table.new("ArgumentsNode")
       id = node_id(node)
@@ -232,7 +257,7 @@ module Prism
         table.field("arguments", "[]")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -241,6 +266,7 @@ module Prism
       super
     end
 
+    #: (ArrayNode) -> void
     def visit_array_node(node) # :nodoc:
       table = Table.new("ArrayNode")
       id = node_id(node)
@@ -271,7 +297,7 @@ module Prism
         table.field("closing_loc", location_inspect(closing_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -280,6 +306,7 @@ module Prism
       super
     end
 
+    #: (ArrayPatternNode) -> void
     def visit_array_pattern_node(node) # :nodoc:
       table = Table.new("ArrayPatternNode")
       id = node_id(node)
@@ -332,7 +359,7 @@ module Prism
         table.field("closing_loc", location_inspect(closing_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -341,6 +368,7 @@ module Prism
       super
     end
 
+    #: (AssocNode) -> void
     def visit_assoc_node(node) # :nodoc:
       table = Table.new("AssocNode")
       id = node_id(node)
@@ -358,7 +386,7 @@ module Prism
         table.field("operator_loc", location_inspect(operator_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -367,6 +395,7 @@ module Prism
       super
     end
 
+    #: (AssocSplatNode) -> void
     def visit_assoc_splat_node(node) # :nodoc:
       table = Table.new("AssocSplatNode")
       id = node_id(node)
@@ -380,7 +409,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -389,6 +418,7 @@ module Prism
       super
     end
 
+    #: (BackReferenceReadNode) -> void
     def visit_back_reference_read_node(node) # :nodoc:
       table = Table.new("BackReferenceReadNode")
       id = node_id(node)
@@ -396,7 +426,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -405,6 +435,7 @@ module Prism
       super
     end
 
+    #: (BeginNode) -> void
     def visit_begin_node(node) # :nodoc:
       table = Table.new("BeginNode")
       id = node_id(node)
@@ -443,7 +474,7 @@ module Prism
         table.field("end_keyword_loc", location_inspect(end_keyword_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -452,6 +483,7 @@ module Prism
       super
     end
 
+    #: (BlockArgumentNode) -> void
     def visit_block_argument_node(node) # :nodoc:
       table = Table.new("BlockArgumentNode")
       id = node_id(node)
@@ -465,7 +497,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -474,6 +506,7 @@ module Prism
       super
     end
 
+    #: (BlockLocalVariableNode) -> void
     def visit_block_local_variable_node(node) # :nodoc:
       table = Table.new("BlockLocalVariableNode")
       id = node_id(node)
@@ -484,7 +517,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -493,6 +526,7 @@ module Prism
       super
     end
 
+    #: (BlockNode) -> void
     def visit_block_node(node) # :nodoc:
       table = Table.new("BlockNode")
       id = node_id(node)
@@ -518,7 +552,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -527,6 +561,7 @@ module Prism
       super
     end
 
+    #: (BlockParameterNode) -> void
     def visit_block_parameter_node(node) # :nodoc:
       table = Table.new("BlockParameterNode")
       id = node_id(node)
@@ -545,7 +580,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -554,6 +589,7 @@ module Prism
       super
     end
 
+    #: (BlockParametersNode) -> void
     def visit_block_parameters_node(node) # :nodoc:
       table = Table.new("BlockParametersNode")
       id = node_id(node)
@@ -587,7 +623,7 @@ module Prism
         table.field("closing_loc", location_inspect(closing_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -596,6 +632,7 @@ module Prism
       super
     end
 
+    #: (BreakNode) -> void
     def visit_break_node(node) # :nodoc:
       table = Table.new("BreakNode")
       id = node_id(node)
@@ -609,7 +646,7 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -618,6 +655,7 @@ module Prism
       super
     end
 
+    #: (CallAndWriteNode) -> void
     def visit_call_and_write_node(node) # :nodoc:
       table = Table.new("CallAndWriteNode")
       id = node_id(node)
@@ -654,7 +692,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -663,6 +701,7 @@ module Prism
       super
     end
 
+    #: (CallNode) -> void
     def visit_call_node(node) # :nodoc:
       table = Table.new("CallNode")
       id = node_id(node)
@@ -716,7 +755,7 @@ module Prism
         digraph.edge("#{id}:block -> #{node_id(block)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -725,6 +764,7 @@ module Prism
       super
     end
 
+    #: (CallOperatorWriteNode) -> void
     def visit_call_operator_write_node(node) # :nodoc:
       table = Table.new("CallOperatorWriteNode")
       id = node_id(node)
@@ -764,7 +804,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -773,6 +813,7 @@ module Prism
       super
     end
 
+    #: (CallOrWriteNode) -> void
     def visit_call_or_write_node(node) # :nodoc:
       table = Table.new("CallOrWriteNode")
       id = node_id(node)
@@ -809,7 +850,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -818,6 +859,7 @@ module Prism
       super
     end
 
+    #: (CallTargetNode) -> void
     def visit_call_target_node(node) # :nodoc:
       table = Table.new("CallTargetNode")
       id = node_id(node)
@@ -838,7 +880,7 @@ module Prism
       # message_loc
       table.field("message_loc", location_inspect(node.message_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -847,6 +889,7 @@ module Prism
       super
     end
 
+    #: (CapturePatternNode) -> void
     def visit_capture_pattern_node(node) # :nodoc:
       table = Table.new("CapturePatternNode")
       id = node_id(node)
@@ -862,7 +905,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -871,6 +914,7 @@ module Prism
       super
     end
 
+    #: (CaseMatchNode) -> void
     def visit_case_match_node(node) # :nodoc:
       table = Table.new("CaseMatchNode")
       id = node_id(node)
@@ -906,7 +950,7 @@ module Prism
       # end_keyword_loc
       table.field("end_keyword_loc", location_inspect(node.end_keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -915,6 +959,7 @@ module Prism
       super
     end
 
+    #: (CaseNode) -> void
     def visit_case_node(node) # :nodoc:
       table = Table.new("CaseNode")
       id = node_id(node)
@@ -950,7 +995,7 @@ module Prism
       # end_keyword_loc
       table.field("end_keyword_loc", location_inspect(node.end_keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -959,6 +1004,7 @@ module Prism
       super
     end
 
+    #: (ClassNode) -> void
     def visit_class_node(node) # :nodoc:
       table = Table.new("ClassNode")
       id = node_id(node)
@@ -996,7 +1042,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1005,6 +1051,7 @@ module Prism
       super
     end
 
+    #: (ClassVariableAndWriteNode) -> void
     def visit_class_variable_and_write_node(node) # :nodoc:
       table = Table.new("ClassVariableAndWriteNode")
       id = node_id(node)
@@ -1022,7 +1069,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1031,6 +1078,7 @@ module Prism
       super
     end
 
+    #: (ClassVariableOperatorWriteNode) -> void
     def visit_class_variable_operator_write_node(node) # :nodoc:
       table = Table.new("ClassVariableOperatorWriteNode")
       id = node_id(node)
@@ -1051,7 +1099,7 @@ module Prism
       # binary_operator
       table.field("binary_operator", node.binary_operator.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1060,6 +1108,7 @@ module Prism
       super
     end
 
+    #: (ClassVariableOrWriteNode) -> void
     def visit_class_variable_or_write_node(node) # :nodoc:
       table = Table.new("ClassVariableOrWriteNode")
       id = node_id(node)
@@ -1077,7 +1126,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1086,6 +1135,7 @@ module Prism
       super
     end
 
+    #: (ClassVariableReadNode) -> void
     def visit_class_variable_read_node(node) # :nodoc:
       table = Table.new("ClassVariableReadNode")
       id = node_id(node)
@@ -1093,7 +1143,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1102,6 +1152,7 @@ module Prism
       super
     end
 
+    #: (ClassVariableTargetNode) -> void
     def visit_class_variable_target_node(node) # :nodoc:
       table = Table.new("ClassVariableTargetNode")
       id = node_id(node)
@@ -1109,7 +1160,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1118,6 +1169,7 @@ module Prism
       super
     end
 
+    #: (ClassVariableWriteNode) -> void
     def visit_class_variable_write_node(node) # :nodoc:
       table = Table.new("ClassVariableWriteNode")
       id = node_id(node)
@@ -1135,7 +1187,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1144,6 +1196,7 @@ module Prism
       super
     end
 
+    #: (ConstantAndWriteNode) -> void
     def visit_constant_and_write_node(node) # :nodoc:
       table = Table.new("ConstantAndWriteNode")
       id = node_id(node)
@@ -1161,7 +1214,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1170,6 +1223,7 @@ module Prism
       super
     end
 
+    #: (ConstantOperatorWriteNode) -> void
     def visit_constant_operator_write_node(node) # :nodoc:
       table = Table.new("ConstantOperatorWriteNode")
       id = node_id(node)
@@ -1190,7 +1244,7 @@ module Prism
       # binary_operator
       table.field("binary_operator", node.binary_operator.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1199,6 +1253,7 @@ module Prism
       super
     end
 
+    #: (ConstantOrWriteNode) -> void
     def visit_constant_or_write_node(node) # :nodoc:
       table = Table.new("ConstantOrWriteNode")
       id = node_id(node)
@@ -1216,7 +1271,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1225,6 +1280,7 @@ module Prism
       super
     end
 
+    #: (ConstantPathAndWriteNode) -> void
     def visit_constant_path_and_write_node(node) # :nodoc:
       table = Table.new("ConstantPathAndWriteNode")
       id = node_id(node)
@@ -1240,7 +1296,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1249,6 +1305,7 @@ module Prism
       super
     end
 
+    #: (ConstantPathNode) -> void
     def visit_constant_path_node(node) # :nodoc:
       table = Table.new("ConstantPathNode")
       id = node_id(node)
@@ -1268,7 +1325,7 @@ module Prism
       # name_loc
       table.field("name_loc", location_inspect(node.name_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1277,6 +1334,7 @@ module Prism
       super
     end
 
+    #: (ConstantPathOperatorWriteNode) -> void
     def visit_constant_path_operator_write_node(node) # :nodoc:
       table = Table.new("ConstantPathOperatorWriteNode")
       id = node_id(node)
@@ -1295,7 +1353,7 @@ module Prism
       # binary_operator
       table.field("binary_operator", node.binary_operator.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1304,6 +1362,7 @@ module Prism
       super
     end
 
+    #: (ConstantPathOrWriteNode) -> void
     def visit_constant_path_or_write_node(node) # :nodoc:
       table = Table.new("ConstantPathOrWriteNode")
       id = node_id(node)
@@ -1319,7 +1378,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1328,6 +1387,7 @@ module Prism
       super
     end
 
+    #: (ConstantPathTargetNode) -> void
     def visit_constant_path_target_node(node) # :nodoc:
       table = Table.new("ConstantPathTargetNode")
       id = node_id(node)
@@ -1347,7 +1407,7 @@ module Prism
       # name_loc
       table.field("name_loc", location_inspect(node.name_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1356,6 +1416,7 @@ module Prism
       super
     end
 
+    #: (ConstantPathWriteNode) -> void
     def visit_constant_path_write_node(node) # :nodoc:
       table = Table.new("ConstantPathWriteNode")
       id = node_id(node)
@@ -1371,7 +1432,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1380,6 +1441,7 @@ module Prism
       super
     end
 
+    #: (ConstantReadNode) -> void
     def visit_constant_read_node(node) # :nodoc:
       table = Table.new("ConstantReadNode")
       id = node_id(node)
@@ -1387,7 +1449,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1396,6 +1458,7 @@ module Prism
       super
     end
 
+    #: (ConstantTargetNode) -> void
     def visit_constant_target_node(node) # :nodoc:
       table = Table.new("ConstantTargetNode")
       id = node_id(node)
@@ -1403,7 +1466,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1412,6 +1475,7 @@ module Prism
       super
     end
 
+    #: (ConstantWriteNode) -> void
     def visit_constant_write_node(node) # :nodoc:
       table = Table.new("ConstantWriteNode")
       id = node_id(node)
@@ -1429,7 +1493,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1438,6 +1502,7 @@ module Prism
       super
     end
 
+    #: (DefNode) -> void
     def visit_def_node(node) # :nodoc:
       table = Table.new("DefNode")
       id = node_id(node)
@@ -1497,7 +1562,7 @@ module Prism
         table.field("end_keyword_loc", location_inspect(end_keyword_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1506,6 +1571,7 @@ module Prism
       super
     end
 
+    #: (DefinedNode) -> void
     def visit_defined_node(node) # :nodoc:
       table = Table.new("DefinedNode")
       id = node_id(node)
@@ -1527,7 +1593,7 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1536,6 +1602,7 @@ module Prism
       super
     end
 
+    #: (ElseNode) -> void
     def visit_else_node(node) # :nodoc:
       table = Table.new("ElseNode")
       id = node_id(node)
@@ -1554,7 +1621,7 @@ module Prism
         table.field("end_keyword_loc", location_inspect(end_keyword_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1563,6 +1630,7 @@ module Prism
       super
     end
 
+    #: (EmbeddedStatementsNode) -> void
     def visit_embedded_statements_node(node) # :nodoc:
       table = Table.new("EmbeddedStatementsNode")
       id = node_id(node)
@@ -1579,7 +1647,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1588,6 +1656,7 @@ module Prism
       super
     end
 
+    #: (EmbeddedVariableNode) -> void
     def visit_embedded_variable_node(node) # :nodoc:
       table = Table.new("EmbeddedVariableNode")
       id = node_id(node)
@@ -1599,7 +1668,7 @@ module Prism
       table.field("variable", port: true)
       digraph.edge("#{id}:variable -> #{node_id(node.variable)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1608,6 +1677,7 @@ module Prism
       super
     end
 
+    #: (EnsureNode) -> void
     def visit_ensure_node(node) # :nodoc:
       table = Table.new("EnsureNode")
       id = node_id(node)
@@ -1624,7 +1694,7 @@ module Prism
       # end_keyword_loc
       table.field("end_keyword_loc", location_inspect(node.end_keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1633,11 +1703,12 @@ module Prism
       super
     end
 
+    #: (FalseNode) -> void
     def visit_false_node(node) # :nodoc:
       table = Table.new("FalseNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1646,6 +1717,7 @@ module Prism
       super
     end
 
+    #: (FindPatternNode) -> void
     def visit_find_pattern_node(node) # :nodoc:
       table = Table.new("FindPatternNode")
       id = node_id(node)
@@ -1687,7 +1759,7 @@ module Prism
         table.field("closing_loc", location_inspect(closing_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1696,6 +1768,7 @@ module Prism
       super
     end
 
+    #: (FlipFlopNode) -> void
     def visit_flip_flop_node(node) # :nodoc:
       table = Table.new("FlipFlopNode")
       id = node_id(node)
@@ -1718,7 +1791,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1727,6 +1800,7 @@ module Prism
       super
     end
 
+    #: (FloatNode) -> void
     def visit_float_node(node) # :nodoc:
       table = Table.new("FloatNode")
       id = node_id(node)
@@ -1734,7 +1808,7 @@ module Prism
       # value
       table.field("value", node.value.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1743,6 +1817,7 @@ module Prism
       super
     end
 
+    #: (ForNode) -> void
     def visit_for_node(node) # :nodoc:
       table = Table.new("ForNode")
       id = node_id(node)
@@ -1775,7 +1850,7 @@ module Prism
       # end_keyword_loc
       table.field("end_keyword_loc", location_inspect(node.end_keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1784,11 +1859,12 @@ module Prism
       super
     end
 
+    #: (ForwardingArgumentsNode) -> void
     def visit_forwarding_arguments_node(node) # :nodoc:
       table = Table.new("ForwardingArgumentsNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1797,11 +1873,12 @@ module Prism
       super
     end
 
+    #: (ForwardingParameterNode) -> void
     def visit_forwarding_parameter_node(node) # :nodoc:
       table = Table.new("ForwardingParameterNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1810,6 +1887,7 @@ module Prism
       super
     end
 
+    #: (ForwardingSuperNode) -> void
     def visit_forwarding_super_node(node) # :nodoc:
       table = Table.new("ForwardingSuperNode")
       id = node_id(node)
@@ -1820,7 +1898,7 @@ module Prism
         digraph.edge("#{id}:block -> #{node_id(block)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1829,6 +1907,7 @@ module Prism
       super
     end
 
+    #: (GlobalVariableAndWriteNode) -> void
     def visit_global_variable_and_write_node(node) # :nodoc:
       table = Table.new("GlobalVariableAndWriteNode")
       id = node_id(node)
@@ -1846,7 +1925,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1855,6 +1934,7 @@ module Prism
       super
     end
 
+    #: (GlobalVariableOperatorWriteNode) -> void
     def visit_global_variable_operator_write_node(node) # :nodoc:
       table = Table.new("GlobalVariableOperatorWriteNode")
       id = node_id(node)
@@ -1875,7 +1955,7 @@ module Prism
       # binary_operator
       table.field("binary_operator", node.binary_operator.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1884,6 +1964,7 @@ module Prism
       super
     end
 
+    #: (GlobalVariableOrWriteNode) -> void
     def visit_global_variable_or_write_node(node) # :nodoc:
       table = Table.new("GlobalVariableOrWriteNode")
       id = node_id(node)
@@ -1901,7 +1982,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1910,6 +1991,7 @@ module Prism
       super
     end
 
+    #: (GlobalVariableReadNode) -> void
     def visit_global_variable_read_node(node) # :nodoc:
       table = Table.new("GlobalVariableReadNode")
       id = node_id(node)
@@ -1917,7 +1999,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1926,6 +2008,7 @@ module Prism
       super
     end
 
+    #: (GlobalVariableTargetNode) -> void
     def visit_global_variable_target_node(node) # :nodoc:
       table = Table.new("GlobalVariableTargetNode")
       id = node_id(node)
@@ -1933,7 +2016,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1942,6 +2025,7 @@ module Prism
       super
     end
 
+    #: (GlobalVariableWriteNode) -> void
     def visit_global_variable_write_node(node) # :nodoc:
       table = Table.new("GlobalVariableWriteNode")
       id = node_id(node)
@@ -1959,7 +2043,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -1968,6 +2052,7 @@ module Prism
       super
     end
 
+    #: (HashNode) -> void
     def visit_hash_node(node) # :nodoc:
       table = Table.new("HashNode")
       id = node_id(node)
@@ -1991,7 +2076,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2000,6 +2085,7 @@ module Prism
       super
     end
 
+    #: (HashPatternNode) -> void
     def visit_hash_pattern_node(node) # :nodoc:
       table = Table.new("HashPatternNode")
       id = node_id(node)
@@ -2039,7 +2125,7 @@ module Prism
         table.field("closing_loc", location_inspect(closing_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2048,6 +2134,7 @@ module Prism
       super
     end
 
+    #: (IfNode) -> void
     def visit_if_node(node) # :nodoc:
       table = Table.new("IfNode")
       id = node_id(node)
@@ -2083,7 +2170,7 @@ module Prism
         table.field("end_keyword_loc", location_inspect(end_keyword_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2092,6 +2179,7 @@ module Prism
       super
     end
 
+    #: (ImaginaryNode) -> void
     def visit_imaginary_node(node) # :nodoc:
       table = Table.new("ImaginaryNode")
       id = node_id(node)
@@ -2100,7 +2188,7 @@ module Prism
       table.field("numeric", port: true)
       digraph.edge("#{id}:numeric -> #{node_id(node.numeric)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2109,6 +2197,7 @@ module Prism
       super
     end
 
+    #: (ImplicitNode) -> void
     def visit_implicit_node(node) # :nodoc:
       table = Table.new("ImplicitNode")
       id = node_id(node)
@@ -2117,7 +2206,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2126,11 +2215,12 @@ module Prism
       super
     end
 
+    #: (ImplicitRestNode) -> void
     def visit_implicit_rest_node(node) # :nodoc:
       table = Table.new("ImplicitRestNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2139,6 +2229,7 @@ module Prism
       super
     end
 
+    #: (InNode) -> void
     def visit_in_node(node) # :nodoc:
       table = Table.new("InNode")
       id = node_id(node)
@@ -2161,7 +2252,7 @@ module Prism
         table.field("then_loc", location_inspect(then_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2170,6 +2261,7 @@ module Prism
       super
     end
 
+    #: (IndexAndWriteNode) -> void
     def visit_index_and_write_node(node) # :nodoc:
       table = Table.new("IndexAndWriteNode")
       id = node_id(node)
@@ -2213,7 +2305,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2222,6 +2314,7 @@ module Prism
       super
     end
 
+    #: (IndexOperatorWriteNode) -> void
     def visit_index_operator_write_node(node) # :nodoc:
       table = Table.new("IndexOperatorWriteNode")
       id = node_id(node)
@@ -2268,7 +2361,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2277,6 +2370,7 @@ module Prism
       super
     end
 
+    #: (IndexOrWriteNode) -> void
     def visit_index_or_write_node(node) # :nodoc:
       table = Table.new("IndexOrWriteNode")
       id = node_id(node)
@@ -2320,7 +2414,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2329,6 +2423,7 @@ module Prism
       super
     end
 
+    #: (IndexTargetNode) -> void
     def visit_index_target_node(node) # :nodoc:
       table = Table.new("IndexTargetNode")
       id = node_id(node)
@@ -2358,7 +2453,7 @@ module Prism
         digraph.edge("#{id}:block -> #{node_id(block)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2367,6 +2462,7 @@ module Prism
       super
     end
 
+    #: (InstanceVariableAndWriteNode) -> void
     def visit_instance_variable_and_write_node(node) # :nodoc:
       table = Table.new("InstanceVariableAndWriteNode")
       id = node_id(node)
@@ -2384,7 +2480,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2393,6 +2489,7 @@ module Prism
       super
     end
 
+    #: (InstanceVariableOperatorWriteNode) -> void
     def visit_instance_variable_operator_write_node(node) # :nodoc:
       table = Table.new("InstanceVariableOperatorWriteNode")
       id = node_id(node)
@@ -2413,7 +2510,7 @@ module Prism
       # binary_operator
       table.field("binary_operator", node.binary_operator.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2422,6 +2519,7 @@ module Prism
       super
     end
 
+    #: (InstanceVariableOrWriteNode) -> void
     def visit_instance_variable_or_write_node(node) # :nodoc:
       table = Table.new("InstanceVariableOrWriteNode")
       id = node_id(node)
@@ -2439,7 +2537,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2448,6 +2546,7 @@ module Prism
       super
     end
 
+    #: (InstanceVariableReadNode) -> void
     def visit_instance_variable_read_node(node) # :nodoc:
       table = Table.new("InstanceVariableReadNode")
       id = node_id(node)
@@ -2455,7 +2554,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2464,6 +2563,7 @@ module Prism
       super
     end
 
+    #: (InstanceVariableTargetNode) -> void
     def visit_instance_variable_target_node(node) # :nodoc:
       table = Table.new("InstanceVariableTargetNode")
       id = node_id(node)
@@ -2471,7 +2571,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2480,6 +2580,7 @@ module Prism
       super
     end
 
+    #: (InstanceVariableWriteNode) -> void
     def visit_instance_variable_write_node(node) # :nodoc:
       table = Table.new("InstanceVariableWriteNode")
       id = node_id(node)
@@ -2497,7 +2598,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2506,6 +2607,7 @@ module Prism
       super
     end
 
+    #: (IntegerNode) -> void
     def visit_integer_node(node) # :nodoc:
       table = Table.new("IntegerNode")
       id = node_id(node)
@@ -2516,7 +2618,7 @@ module Prism
       # value
       table.field("value", node.value.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2525,6 +2627,7 @@ module Prism
       super
     end
 
+    #: (InterpolatedMatchLastLineNode) -> void
     def visit_interpolated_match_last_line_node(node) # :nodoc:
       table = Table.new("InterpolatedMatchLastLineNode")
       id = node_id(node)
@@ -2551,7 +2654,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2560,6 +2663,7 @@ module Prism
       super
     end
 
+    #: (InterpolatedRegularExpressionNode) -> void
     def visit_interpolated_regular_expression_node(node) # :nodoc:
       table = Table.new("InterpolatedRegularExpressionNode")
       id = node_id(node)
@@ -2586,7 +2690,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2595,6 +2699,7 @@ module Prism
       super
     end
 
+    #: (InterpolatedStringNode) -> void
     def visit_interpolated_string_node(node) # :nodoc:
       table = Table.new("InterpolatedStringNode")
       id = node_id(node)
@@ -2625,7 +2730,7 @@ module Prism
         table.field("closing_loc", location_inspect(closing_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2634,6 +2739,7 @@ module Prism
       super
     end
 
+    #: (InterpolatedSymbolNode) -> void
     def visit_interpolated_symbol_node(node) # :nodoc:
       table = Table.new("InterpolatedSymbolNode")
       id = node_id(node)
@@ -2661,7 +2767,7 @@ module Prism
         table.field("closing_loc", location_inspect(closing_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2670,6 +2776,7 @@ module Prism
       super
     end
 
+    #: (InterpolatedXStringNode) -> void
     def visit_interpolated_x_string_node(node) # :nodoc:
       table = Table.new("InterpolatedXStringNode")
       id = node_id(node)
@@ -2693,7 +2800,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2702,11 +2809,12 @@ module Prism
       super
     end
 
+    #: (ItLocalVariableReadNode) -> void
     def visit_it_local_variable_read_node(node) # :nodoc:
       table = Table.new("ItLocalVariableReadNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2715,11 +2823,12 @@ module Prism
       super
     end
 
+    #: (ItParametersNode) -> void
     def visit_it_parameters_node(node) # :nodoc:
       table = Table.new("ItParametersNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2728,6 +2837,7 @@ module Prism
       super
     end
 
+    #: (KeywordHashNode) -> void
     def visit_keyword_hash_node(node) # :nodoc:
       table = Table.new("KeywordHashNode")
       id = node_id(node)
@@ -2748,7 +2858,7 @@ module Prism
         table.field("elements", "[]")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2757,6 +2867,7 @@ module Prism
       super
     end
 
+    #: (KeywordRestParameterNode) -> void
     def visit_keyword_rest_parameter_node(node) # :nodoc:
       table = Table.new("KeywordRestParameterNode")
       id = node_id(node)
@@ -2775,7 +2886,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2784,6 +2895,7 @@ module Prism
       super
     end
 
+    #: (LambdaNode) -> void
     def visit_lambda_node(node) # :nodoc:
       table = Table.new("LambdaNode")
       id = node_id(node)
@@ -2812,7 +2924,7 @@ module Prism
         digraph.edge("#{id}:body -> #{node_id(body)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2821,6 +2933,7 @@ module Prism
       super
     end
 
+    #: (LocalVariableAndWriteNode) -> void
     def visit_local_variable_and_write_node(node) # :nodoc:
       table = Table.new("LocalVariableAndWriteNode")
       id = node_id(node)
@@ -2841,7 +2954,7 @@ module Prism
       # depth
       table.field("depth", node.depth.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2850,6 +2963,7 @@ module Prism
       super
     end
 
+    #: (LocalVariableOperatorWriteNode) -> void
     def visit_local_variable_operator_write_node(node) # :nodoc:
       table = Table.new("LocalVariableOperatorWriteNode")
       id = node_id(node)
@@ -2873,7 +2987,7 @@ module Prism
       # depth
       table.field("depth", node.depth.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2882,6 +2996,7 @@ module Prism
       super
     end
 
+    #: (LocalVariableOrWriteNode) -> void
     def visit_local_variable_or_write_node(node) # :nodoc:
       table = Table.new("LocalVariableOrWriteNode")
       id = node_id(node)
@@ -2902,7 +3017,7 @@ module Prism
       # depth
       table.field("depth", node.depth.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2911,6 +3026,7 @@ module Prism
       super
     end
 
+    #: (LocalVariableReadNode) -> void
     def visit_local_variable_read_node(node) # :nodoc:
       table = Table.new("LocalVariableReadNode")
       id = node_id(node)
@@ -2921,7 +3037,7 @@ module Prism
       # depth
       table.field("depth", node.depth.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2930,6 +3046,7 @@ module Prism
       super
     end
 
+    #: (LocalVariableTargetNode) -> void
     def visit_local_variable_target_node(node) # :nodoc:
       table = Table.new("LocalVariableTargetNode")
       id = node_id(node)
@@ -2940,7 +3057,7 @@ module Prism
       # depth
       table.field("depth", node.depth.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2949,6 +3066,7 @@ module Prism
       super
     end
 
+    #: (LocalVariableWriteNode) -> void
     def visit_local_variable_write_node(node) # :nodoc:
       table = Table.new("LocalVariableWriteNode")
       id = node_id(node)
@@ -2969,7 +3087,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -2978,6 +3096,7 @@ module Prism
       super
     end
 
+    #: (MatchLastLineNode) -> void
     def visit_match_last_line_node(node) # :nodoc:
       table = Table.new("MatchLastLineNode")
       id = node_id(node)
@@ -2997,7 +3116,7 @@ module Prism
       # unescaped
       table.field("unescaped", node.unescaped.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3006,6 +3125,7 @@ module Prism
       super
     end
 
+    #: (MatchPredicateNode) -> void
     def visit_match_predicate_node(node) # :nodoc:
       table = Table.new("MatchPredicateNode")
       id = node_id(node)
@@ -3021,7 +3141,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3030,6 +3150,7 @@ module Prism
       super
     end
 
+    #: (MatchRequiredNode) -> void
     def visit_match_required_node(node) # :nodoc:
       table = Table.new("MatchRequiredNode")
       id = node_id(node)
@@ -3045,7 +3166,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3054,6 +3175,7 @@ module Prism
       super
     end
 
+    #: (MatchWriteNode) -> void
     def visit_match_write_node(node) # :nodoc:
       table = Table.new("MatchWriteNode")
       id = node_id(node)
@@ -3075,7 +3197,7 @@ module Prism
         table.field("targets", "[]")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3084,11 +3206,12 @@ module Prism
       super
     end
 
+    #: (MissingNode) -> void
     def visit_missing_node(node) # :nodoc:
       table = Table.new("MissingNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3097,6 +3220,7 @@ module Prism
       super
     end
 
+    #: (ModuleNode) -> void
     def visit_module_node(node) # :nodoc:
       table = Table.new("ModuleNode")
       id = node_id(node)
@@ -3123,7 +3247,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3132,6 +3256,7 @@ module Prism
       super
     end
 
+    #: (MultiTargetNode) -> void
     def visit_multi_target_node(node) # :nodoc:
       table = Table.new("MultiTargetNode")
       id = node_id(node)
@@ -3178,7 +3303,7 @@ module Prism
         table.field("rparen_loc", location_inspect(rparen_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3187,6 +3312,7 @@ module Prism
       super
     end
 
+    #: (MultiWriteNode) -> void
     def visit_multi_write_node(node) # :nodoc:
       table = Table.new("MultiWriteNode")
       id = node_id(node)
@@ -3240,7 +3366,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3249,6 +3375,7 @@ module Prism
       super
     end
 
+    #: (NextNode) -> void
     def visit_next_node(node) # :nodoc:
       table = Table.new("NextNode")
       id = node_id(node)
@@ -3262,7 +3389,7 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3271,11 +3398,12 @@ module Prism
       super
     end
 
+    #: (NilNode) -> void
     def visit_nil_node(node) # :nodoc:
       table = Table.new("NilNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3284,6 +3412,7 @@ module Prism
       super
     end
 
+    #: (NoBlockParameterNode) -> void
     def visit_no_block_parameter_node(node) # :nodoc:
       table = Table.new("NoBlockParameterNode")
       id = node_id(node)
@@ -3294,7 +3423,7 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3303,6 +3432,7 @@ module Prism
       super
     end
 
+    #: (NoKeywordsParameterNode) -> void
     def visit_no_keywords_parameter_node(node) # :nodoc:
       table = Table.new("NoKeywordsParameterNode")
       id = node_id(node)
@@ -3313,7 +3443,7 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3322,6 +3452,7 @@ module Prism
       super
     end
 
+    #: (NumberedParametersNode) -> void
     def visit_numbered_parameters_node(node) # :nodoc:
       table = Table.new("NumberedParametersNode")
       id = node_id(node)
@@ -3329,7 +3460,7 @@ module Prism
       # maximum
       table.field("maximum", node.maximum.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3338,6 +3469,7 @@ module Prism
       super
     end
 
+    #: (NumberedReferenceReadNode) -> void
     def visit_numbered_reference_read_node(node) # :nodoc:
       table = Table.new("NumberedReferenceReadNode")
       id = node_id(node)
@@ -3345,7 +3477,7 @@ module Prism
       # number
       table.field("number", node.number.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3354,6 +3486,7 @@ module Prism
       super
     end
 
+    #: (OptionalKeywordParameterNode) -> void
     def visit_optional_keyword_parameter_node(node) # :nodoc:
       table = Table.new("OptionalKeywordParameterNode")
       id = node_id(node)
@@ -3371,7 +3504,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3380,6 +3513,7 @@ module Prism
       super
     end
 
+    #: (OptionalParameterNode) -> void
     def visit_optional_parameter_node(node) # :nodoc:
       table = Table.new("OptionalParameterNode")
       id = node_id(node)
@@ -3400,7 +3534,7 @@ module Prism
       table.field("value", port: true)
       digraph.edge("#{id}:value -> #{node_id(node.value)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3409,6 +3543,7 @@ module Prism
       super
     end
 
+    #: (OrNode) -> void
     def visit_or_node(node) # :nodoc:
       table = Table.new("OrNode")
       id = node_id(node)
@@ -3424,7 +3559,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3433,6 +3568,7 @@ module Prism
       super
     end
 
+    #: (ParametersNode) -> void
     def visit_parameters_node(node) # :nodoc:
       table = Table.new("ParametersNode")
       id = node_id(node)
@@ -3507,7 +3643,7 @@ module Prism
         digraph.edge("#{id}:block -> #{node_id(block)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3516,6 +3652,7 @@ module Prism
       super
     end
 
+    #: (ParenthesesNode) -> void
     def visit_parentheses_node(node) # :nodoc:
       table = Table.new("ParenthesesNode")
       id = node_id(node)
@@ -3535,7 +3672,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3544,6 +3681,7 @@ module Prism
       super
     end
 
+    #: (PinnedExpressionNode) -> void
     def visit_pinned_expression_node(node) # :nodoc:
       table = Table.new("PinnedExpressionNode")
       id = node_id(node)
@@ -3561,7 +3699,7 @@ module Prism
       # rparen_loc
       table.field("rparen_loc", location_inspect(node.rparen_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3570,6 +3708,7 @@ module Prism
       super
     end
 
+    #: (PinnedVariableNode) -> void
     def visit_pinned_variable_node(node) # :nodoc:
       table = Table.new("PinnedVariableNode")
       id = node_id(node)
@@ -3581,7 +3720,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3590,6 +3729,7 @@ module Prism
       super
     end
 
+    #: (PostExecutionNode) -> void
     def visit_post_execution_node(node) # :nodoc:
       table = Table.new("PostExecutionNode")
       id = node_id(node)
@@ -3609,7 +3749,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3618,6 +3758,7 @@ module Prism
       super
     end
 
+    #: (PreExecutionNode) -> void
     def visit_pre_execution_node(node) # :nodoc:
       table = Table.new("PreExecutionNode")
       id = node_id(node)
@@ -3637,7 +3778,7 @@ module Prism
       # closing_loc
       table.field("closing_loc", location_inspect(node.closing_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3646,6 +3787,7 @@ module Prism
       super
     end
 
+    #: (ProgramNode) -> void
     def visit_program_node(node) # :nodoc:
       table = Table.new("ProgramNode")
       id = node_id(node)
@@ -3657,7 +3799,7 @@ module Prism
       table.field("statements", port: true)
       digraph.edge("#{id}:statements -> #{node_id(node.statements)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3666,6 +3808,7 @@ module Prism
       super
     end
 
+    #: (RangeNode) -> void
     def visit_range_node(node) # :nodoc:
       table = Table.new("RangeNode")
       id = node_id(node)
@@ -3688,7 +3831,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3697,6 +3840,7 @@ module Prism
       super
     end
 
+    #: (RationalNode) -> void
     def visit_rational_node(node) # :nodoc:
       table = Table.new("RationalNode")
       id = node_id(node)
@@ -3710,7 +3854,7 @@ module Prism
       # denominator
       table.field("denominator", node.denominator.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3719,11 +3863,12 @@ module Prism
       super
     end
 
+    #: (RedoNode) -> void
     def visit_redo_node(node) # :nodoc:
       table = Table.new("RedoNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3732,6 +3877,7 @@ module Prism
       super
     end
 
+    #: (RegularExpressionNode) -> void
     def visit_regular_expression_node(node) # :nodoc:
       table = Table.new("RegularExpressionNode")
       id = node_id(node)
@@ -3751,7 +3897,7 @@ module Prism
       # unescaped
       table.field("unescaped", node.unescaped.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3760,6 +3906,7 @@ module Prism
       super
     end
 
+    #: (RequiredKeywordParameterNode) -> void
     def visit_required_keyword_parameter_node(node) # :nodoc:
       table = Table.new("RequiredKeywordParameterNode")
       id = node_id(node)
@@ -3773,7 +3920,7 @@ module Prism
       # name_loc
       table.field("name_loc", location_inspect(node.name_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3782,6 +3929,7 @@ module Prism
       super
     end
 
+    #: (RequiredParameterNode) -> void
     def visit_required_parameter_node(node) # :nodoc:
       table = Table.new("RequiredParameterNode")
       id = node_id(node)
@@ -3792,7 +3940,7 @@ module Prism
       # name
       table.field("name", node.name.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3801,6 +3949,7 @@ module Prism
       super
     end
 
+    #: (RescueModifierNode) -> void
     def visit_rescue_modifier_node(node) # :nodoc:
       table = Table.new("RescueModifierNode")
       id = node_id(node)
@@ -3816,7 +3965,7 @@ module Prism
       table.field("rescue_expression", port: true)
       digraph.edge("#{id}:rescue_expression -> #{node_id(node.rescue_expression)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3825,6 +3974,7 @@ module Prism
       super
     end
 
+    #: (RescueNode) -> void
     def visit_rescue_node(node) # :nodoc:
       table = Table.new("RescueNode")
       id = node_id(node)
@@ -3873,7 +4023,7 @@ module Prism
         digraph.edge("#{id}:subsequent -> #{node_id(subsequent)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3882,6 +4032,7 @@ module Prism
       super
     end
 
+    #: (RestParameterNode) -> void
     def visit_rest_parameter_node(node) # :nodoc:
       table = Table.new("RestParameterNode")
       id = node_id(node)
@@ -3900,7 +4051,7 @@ module Prism
       # operator_loc
       table.field("operator_loc", location_inspect(node.operator_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3909,11 +4060,12 @@ module Prism
       super
     end
 
+    #: (RetryNode) -> void
     def visit_retry_node(node) # :nodoc:
       table = Table.new("RetryNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3922,6 +4074,7 @@ module Prism
       super
     end
 
+    #: (ReturnNode) -> void
     def visit_return_node(node) # :nodoc:
       table = Table.new("ReturnNode")
       id = node_id(node)
@@ -3935,7 +4088,7 @@ module Prism
         digraph.edge("#{id}:arguments -> #{node_id(arguments)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3944,11 +4097,12 @@ module Prism
       super
     end
 
+    #: (SelfNode) -> void
     def visit_self_node(node) # :nodoc:
       table = Table.new("SelfNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3957,6 +4111,7 @@ module Prism
       super
     end
 
+    #: (ShareableConstantNode) -> void
     def visit_shareable_constant_node(node) # :nodoc:
       table = Table.new("ShareableConstantNode")
       id = node_id(node)
@@ -3968,7 +4123,7 @@ module Prism
       table.field("write", port: true)
       digraph.edge("#{id}:write -> #{node_id(node.write)};")
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -3977,6 +4132,7 @@ module Prism
       super
     end
 
+    #: (SingletonClassNode) -> void
     def visit_singleton_class_node(node) # :nodoc:
       table = Table.new("SingletonClassNode")
       id = node_id(node)
@@ -4003,7 +4159,7 @@ module Prism
       # end_keyword_loc
       table.field("end_keyword_loc", location_inspect(node.end_keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4012,11 +4168,12 @@ module Prism
       super
     end
 
+    #: (SourceEncodingNode) -> void
     def visit_source_encoding_node(node) # :nodoc:
       table = Table.new("SourceEncodingNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4025,6 +4182,7 @@ module Prism
       super
     end
 
+    #: (SourceFileNode) -> void
     def visit_source_file_node(node) # :nodoc:
       table = Table.new("SourceFileNode")
       id = node_id(node)
@@ -4035,7 +4193,7 @@ module Prism
       # filepath
       table.field("filepath", node.filepath.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4044,11 +4202,12 @@ module Prism
       super
     end
 
+    #: (SourceLineNode) -> void
     def visit_source_line_node(node) # :nodoc:
       table = Table.new("SourceLineNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4057,6 +4216,7 @@ module Prism
       super
     end
 
+    #: (SplatNode) -> void
     def visit_splat_node(node) # :nodoc:
       table = Table.new("SplatNode")
       id = node_id(node)
@@ -4070,7 +4230,7 @@ module Prism
         digraph.edge("#{id}:expression -> #{node_id(expression)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4079,6 +4239,7 @@ module Prism
       super
     end
 
+    #: (StatementsNode) -> void
     def visit_statements_node(node) # :nodoc:
       table = Table.new("StatementsNode")
       id = node_id(node)
@@ -4096,7 +4257,7 @@ module Prism
         table.field("body", "[]")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4105,6 +4266,7 @@ module Prism
       super
     end
 
+    #: (StringNode) -> void
     def visit_string_node(node) # :nodoc:
       table = Table.new("StringNode")
       id = node_id(node)
@@ -4128,7 +4290,7 @@ module Prism
       # unescaped
       table.field("unescaped", node.unescaped.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4137,6 +4299,7 @@ module Prism
       super
     end
 
+    #: (SuperNode) -> void
     def visit_super_node(node) # :nodoc:
       table = Table.new("SuperNode")
       id = node_id(node)
@@ -4166,7 +4329,7 @@ module Prism
         digraph.edge("#{id}:block -> #{node_id(block)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4175,6 +4338,7 @@ module Prism
       super
     end
 
+    #: (SymbolNode) -> void
     def visit_symbol_node(node) # :nodoc:
       table = Table.new("SymbolNode")
       id = node_id(node)
@@ -4200,7 +4364,7 @@ module Prism
       # unescaped
       table.field("unescaped", node.unescaped.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4209,11 +4373,12 @@ module Prism
       super
     end
 
+    #: (TrueNode) -> void
     def visit_true_node(node) # :nodoc:
       table = Table.new("TrueNode")
       id = node_id(node)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4222,6 +4387,7 @@ module Prism
       super
     end
 
+    #: (UndefNode) -> void
     def visit_undef_node(node) # :nodoc:
       table = Table.new("UndefNode")
       id = node_id(node)
@@ -4242,7 +4408,7 @@ module Prism
       # keyword_loc
       table.field("keyword_loc", location_inspect(node.keyword_loc))
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4251,6 +4417,7 @@ module Prism
       super
     end
 
+    #: (UnlessNode) -> void
     def visit_unless_node(node) # :nodoc:
       table = Table.new("UnlessNode")
       id = node_id(node)
@@ -4284,7 +4451,7 @@ module Prism
         table.field("end_keyword_loc", location_inspect(end_keyword_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4293,6 +4460,7 @@ module Prism
       super
     end
 
+    #: (UntilNode) -> void
     def visit_until_node(node) # :nodoc:
       table = Table.new("UntilNode")
       id = node_id(node)
@@ -4323,7 +4491,7 @@ module Prism
         digraph.edge("#{id}:statements -> #{node_id(statements)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4332,6 +4500,7 @@ module Prism
       super
     end
 
+    #: (WhenNode) -> void
     def visit_when_node(node) # :nodoc:
       table = Table.new("WhenNode")
       id = node_id(node)
@@ -4363,7 +4532,7 @@ module Prism
         digraph.edge("#{id}:statements -> #{node_id(statements)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4372,6 +4541,7 @@ module Prism
       super
     end
 
+    #: (WhileNode) -> void
     def visit_while_node(node) # :nodoc:
       table = Table.new("WhileNode")
       id = node_id(node)
@@ -4402,7 +4572,7 @@ module Prism
         digraph.edge("#{id}:statements -> #{node_id(statements)};")
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4411,6 +4581,7 @@ module Prism
       super
     end
 
+    #: (XStringNode) -> void
     def visit_x_string_node(node) # :nodoc:
       table = Table.new("XStringNode")
       id = node_id(node)
@@ -4430,7 +4601,7 @@ module Prism
       # unescaped
       table.field("unescaped", node.unescaped.inspect)
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4439,6 +4610,7 @@ module Prism
       super
     end
 
+    #: (YieldNode) -> void
     def visit_yield_node(node) # :nodoc:
       table = Table.new("YieldNode")
       id = node_id(node)
@@ -4462,7 +4634,7 @@ module Prism
         table.field("rparen_loc", location_inspect(rparen_loc))
       end
 
-      digraph.nodes << <<~DOT
+      digraph.node(<<~DOT)
         #{id} [
           label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
         ];
@@ -4474,17 +4646,23 @@ module Prism
     private
 
     # Generate a unique node ID for a node throughout the digraph.
+    #--
+    #: (node) -> String
     def node_id(node) # :nodoc:
       "Node_#{node.object_id}"
     end
 
     # Inspect a location to display the start and end line and columns in bytes.
+    #--
+    #: (Location) -> String
     def location_inspect(location) # :nodoc:
       "(#{location.start_line},#{location.start_column})-(#{location.end_line},#{location.end_column})"
     end
 
     # Inspect a node that has arguments_node_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (ArgumentsNode node) -> String
     def arguments_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "contains_forwarding" if node.contains_forwarding?
@@ -4497,6 +4675,8 @@ module Prism
 
     # Inspect a node that has array_node_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (ArrayNode node) -> String
     def array_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "contains_splat" if node.contains_splat?
@@ -4505,6 +4685,8 @@ module Prism
 
     # Inspect a node that has call_node_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (CallAndWriteNode | CallNode | CallOperatorWriteNode | CallOrWriteNode | CallTargetNode | IndexAndWriteNode | IndexOperatorWriteNode | IndexOrWriteNode | IndexTargetNode node) -> String
     def call_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "safe_navigation" if node.safe_navigation?
@@ -4516,6 +4698,8 @@ module Prism
 
     # Inspect a node that has encoding_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (XStringNode node) -> String
     def encoding_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "forced_utf8_encoding" if node.forced_utf8_encoding?
@@ -4525,6 +4709,8 @@ module Prism
 
     # Inspect a node that has integer_base_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (IntegerNode | RationalNode node) -> String
     def integer_base_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "binary" if node.binary?
@@ -4536,6 +4722,8 @@ module Prism
 
     # Inspect a node that has interpolated_string_node_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (InterpolatedStringNode node) -> String
     def interpolated_string_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "frozen" if node.frozen?
@@ -4545,6 +4733,8 @@ module Prism
 
     # Inspect a node that has keyword_hash_node_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (KeywordHashNode node) -> String
     def keyword_hash_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "symbol_keys" if node.symbol_keys?
@@ -4553,6 +4743,8 @@ module Prism
 
     # Inspect a node that has loop_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (UntilNode | WhileNode node) -> String
     def loop_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "begin_modifier" if node.begin_modifier?
@@ -4561,6 +4753,8 @@ module Prism
 
     # Inspect a node that has parameter_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (BlockLocalVariableNode | BlockParameterNode | KeywordRestParameterNode | OptionalKeywordParameterNode | OptionalParameterNode | RequiredKeywordParameterNode | RequiredParameterNode | RestParameterNode node) -> String
     def parameter_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "repeated_parameter" if node.repeated_parameter?
@@ -4569,6 +4763,8 @@ module Prism
 
     # Inspect a node that has parentheses_node_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (ParenthesesNode node) -> String
     def parentheses_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "multiple_statements" if node.multiple_statements?
@@ -4577,6 +4773,8 @@ module Prism
 
     # Inspect a node that has range_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (FlipFlopNode | RangeNode node) -> String
     def range_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "exclude_end" if node.exclude_end?
@@ -4585,6 +4783,8 @@ module Prism
 
     # Inspect a node that has regular_expression_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (InterpolatedMatchLastLineNode | InterpolatedRegularExpressionNode | MatchLastLineNode | RegularExpressionNode node) -> String
     def regular_expression_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "ignore_case" if node.ignore_case?
@@ -4603,6 +4803,8 @@ module Prism
 
     # Inspect a node that has shareable_constant_node_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (ShareableConstantNode node) -> String
     def shareable_constant_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "literal" if node.literal?
@@ -4613,6 +4815,8 @@ module Prism
 
     # Inspect a node that has string_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (SourceFileNode | StringNode node) -> String
     def string_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "forced_utf8_encoding" if node.forced_utf8_encoding?
@@ -4624,6 +4828,8 @@ module Prism
 
     # Inspect a node that has symbol_flags flags to display the flags as a
     # comma-separated list.
+    #--
+    #: (SymbolNode node) -> String
     def symbol_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "forced_utf8_encoding" if node.forced_utf8_encoding?
