@@ -38,7 +38,7 @@ module Prism
     #: (String input, String serialized, bool freeze) -> ParseResult
     def self.load_parse(input, serialized, freeze)
       input = input.dup
-      source = Source.for(input)
+      source = Source.for(input, 1, [])
       loader = Loader.new(source, serialized)
 
                        loader.load_header
@@ -92,7 +92,7 @@ module Prism
     #--
     #: (String input, String serialized, bool freeze) -> LexResult
     def self.load_lex(input, serialized, freeze)
-      source = Source.for(input)
+      source = Source.for(input, 1, [])
       loader = Loader.new(source, serialized)
 
       tokens =         loader.load_tokens
@@ -138,7 +138,7 @@ module Prism
     #--
     #: (String input, String serialized, bool freeze) -> Array[Comment]
     def self.load_parse_comments(input, serialized, freeze)
-      source = Source.for(input)
+      source = Source.for(input, 1, [])
       loader = Loader.new(source, serialized)
 
                    loader.load_header
@@ -162,7 +162,7 @@ module Prism
     #--
     #: (String input, String serialized, bool freeze) -> ParseLexResult
     def self.load_parse_lex(input, serialized, freeze)
-      source = Source.for(input)
+      source = Source.for(input, 1, [])
       loader = Loader.new(source, serialized)
 
       tokens =         loader.load_tokens

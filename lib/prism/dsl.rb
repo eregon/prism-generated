@@ -16,7 +16,7 @@ module Prism
   # The DSL module provides a set of methods that can be used to create prism
   # nodes in a more concise manner. For example, instead of writing:
   #
-  #     source = Prism::Source.for("[1]")
+  #     source = Prism::Source.for("[1]", 1, [])
   #
   #     Prism::ArrayNode.new(
   #       source,
@@ -73,7 +73,7 @@ module Prism
     #--
     #: (String string) -> Source
     def source(string)
-      Source.for(string)
+      Source.for(string, 1, [])
     end
 
     # Create a new Location object.
@@ -1333,7 +1333,7 @@ module Prism
     #--
     #: () -> Source
     def default_source
-      Source.for("")
+      Source.for("", 1, [])
     end
 
     # The default location object that gets attached to nodes if no location is
