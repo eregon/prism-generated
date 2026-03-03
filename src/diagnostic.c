@@ -8,7 +8,7 @@
 
 #include "prism/diagnostic.h"
 
-#define PM_DIAGNOSTIC_ID_MAX 326
+#define PM_DIAGNOSTIC_ID_MAX 327
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -156,6 +156,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_DEF_ENDLESS]                        = { "could not parse the endless method body", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_ENDLESS_PARAMETERS]             = { "could not parse the endless method parameters", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_ENDLESS_SETTER]                 = { "invalid method name; a setter method cannot be defined in an endless method definition", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_DEF_ENDLESS_DO_BLOCK]               = { "unexpected `do` for block in an endless method definition", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_NAME]                           = { "unexpected %s; expected a method name", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_PARAMS_TERM]                    = { "expected a delimiter to close the parameters", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_PARAMS_TERM_PAREN]              = { "unexpected %s; expected a `)` to close the parameters", PM_ERROR_LEVEL_SYNTAX },
@@ -489,6 +490,7 @@ pm_diagnostic_id_human(pm_diagnostic_id_t diag_id) {
         case PM_ERR_DEF_ENDLESS: return "def_endless";
         case PM_ERR_DEF_ENDLESS_PARAMETERS: return "def_endless_parameters";
         case PM_ERR_DEF_ENDLESS_SETTER: return "def_endless_setter";
+        case PM_ERR_DEF_ENDLESS_DO_BLOCK: return "def_endless_do_block";
         case PM_ERR_DEF_NAME: return "def_name";
         case PM_ERR_DEF_PARAMS_TERM: return "def_params_term";
         case PM_ERR_DEF_PARAMS_TERM_PAREN: return "def_params_term_paren";

@@ -11328,6 +11328,7 @@ public abstract class Nodes {
         DEF_ENDLESS,
         DEF_ENDLESS_PARAMETERS,
         DEF_ENDLESS_SETTER,
+        DEF_ENDLESS_DO_BLOCK,
         DEF_NAME,
         DEF_PARAMS_TERM,
         DEF_PARAMS_TERM_PAREN,

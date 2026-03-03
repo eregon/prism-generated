@@ -350,6 +350,7 @@ const errorTypes = [
   "def_endless",
   "def_endless_parameters",
   "def_endless_setter",
+  "def_endless_do_block",
   "def_name",
   "def_params_term",
   "def_params_term_paren",
