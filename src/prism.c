@@ -19195,10 +19195,12 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, b
             pm_arguments_t arguments = { 0 };
             pm_node_t *receiver = NULL;
 
-            // If we do not accept a command call, then we also do not accept a
-            // not without parentheses. In this case we need to reject this
-            // syntax.
-            if (!accepts_command_call && !match1(parser, PM_TOKEN_PARENTHESIS_LEFT)) {
+            // The `not` keyword without parentheses is only valid in contexts
+            // where it would be parsed as an expression (i.e., at or below
+            // the `not` binding power level). In other contexts (e.g., method
+            // arguments, array elements, assignment right-hand sides),
+            // parentheses are required: `not(x)`.
+            if (binding_power > PM_BINDING_POWER_NOT && !match1(parser, PM_TOKEN_PARENTHESIS_LEFT)) {
                 if (match1(parser, PM_TOKEN_PARENTHESIS_LEFT_PARENTHESES)) {
                     pm_parser_err(parser, PM_TOKEN_END(parser, &parser->previous), 1, PM_ERR_EXPECT_LPAREN_AFTER_NOT_LPAREN);
                 } else {
@@ -21621,7 +21623,7 @@ parse_expression(pm_parser_t *parser, pm_binding_power_t binding_power, bool acc
                     return node;
                 }
                 break;
-            case PM_CALL_NODE:
+            case PM_CALL_NODE: {
                 // A do-block can attach to a command-style call
                 // produced by infix operators (e.g., dot-calls like
                 // `obj.method args do end`).
@@ -21635,7 +21637,22 @@ parse_expression(pm_parser_t *parser, pm_binding_power_t binding_power, bool acc
                 if (PM_NODE_FLAG_P(node, PM_CALL_NODE_FLAGS_IMPLICIT_ARRAY) && pm_binding_powers[parser->current.type].left > PM_BINDING_POWER_MODIFIER) {
                     return node;
                 }
+
+                // Command-style calls (calls with arguments but without
+                // parentheses) only accept composition (and/or) and modifier
+                // (if/unless/etc.) operators. We need to exclude operator calls
+                // (e.g., a + b) which also satisfy pm_call_node_command_p but
+                // are not commands.
+                const pm_call_node_t *cast = (const pm_call_node_t *) node;
+                if (
+                    (pm_binding_powers[parser->current.type].left > PM_BINDING_POWER_COMPOSITION) &&
+                    (cast->receiver == NULL || cast->call_operator_loc.length > 0) &&
+                    pm_call_node_command_p(cast)
+                ) {
+                    return node;
+                }
                 break;
+            }
             case PM_RESCUE_MODIFIER_NODE:
                 // A rescue modifier whose handler is a one-liner pattern match
                 // (=> or in) produces a statement. That means it cannot be
