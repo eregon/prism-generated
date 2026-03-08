@@ -465,7 +465,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -649,7 +649,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -845,7 +845,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -1029,7 +1029,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -1215,7 +1215,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -1390,7 +1390,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -1634,7 +1634,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -1907,7 +1907,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -2103,7 +2103,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -2270,7 +2270,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -2411,7 +2411,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -2674,7 +2674,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -2841,7 +2841,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -2986,7 +2986,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -3229,7 +3229,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -3445,7 +3445,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -3693,7 +3693,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -3872,7 +3872,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -4229,7 +4229,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -4670,7 +4670,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -5012,7 +5012,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -5352,7 +5352,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -5604,7 +5604,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -5794,7 +5794,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -6040,7 +6040,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -6290,7 +6290,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -6594,7 +6594,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -6807,7 +6807,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -7007,7 +7007,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -7200,7 +7200,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -7329,7 +7329,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -7460,7 +7460,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -7675,7 +7675,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -7876,7 +7876,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -8076,7 +8076,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -8273,7 +8273,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -8450,7 +8450,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -8672,7 +8672,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -8848,7 +8848,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -9025,7 +9025,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -9230,7 +9230,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -9413,7 +9413,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -9542,7 +9542,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -9673,7 +9673,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -9905,7 +9905,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -10334,7 +10334,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -10573,7 +10573,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -10776,7 +10776,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -10972,7 +10972,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -11139,7 +11139,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -11331,7 +11331,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -11464,7 +11464,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -11745,7 +11745,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -11928,7 +11928,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -12065,7 +12065,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -12379,7 +12379,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -12492,7 +12492,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -12611,7 +12611,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -12745,7 +12745,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -12946,7 +12946,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -13146,7 +13146,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -13339,7 +13339,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -13468,7 +13468,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -13599,7 +13599,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -13812,7 +13812,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -14034,7 +14034,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -14311,7 +14311,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -14625,7 +14625,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -14757,7 +14757,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -14890,7 +14890,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -15010,7 +15010,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -15236,7 +15236,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -15589,7 +15589,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -15941,7 +15941,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -16294,7 +16294,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -16553,7 +16553,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -16754,7 +16754,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -16954,7 +16954,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -17147,7 +17147,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -17276,7 +17276,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -17407,7 +17407,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -17616,7 +17616,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -17778,7 +17778,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -18064,7 +18064,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -18350,7 +18350,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -18574,7 +18574,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -18781,7 +18781,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -18972,7 +18972,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -19084,7 +19084,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -19198,7 +19198,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -19339,7 +19339,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -19544,7 +19544,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -19804,7 +19804,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -20018,7 +20018,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -20231,7 +20231,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -20437,7 +20437,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -20592,7 +20592,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -20736,7 +20736,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -20972,7 +20972,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -21289,7 +21289,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -21464,7 +21464,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -21685,7 +21685,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -21819,7 +21819,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -21943,7 +21943,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -22186,7 +22186,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -22460,7 +22460,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -22776,7 +22776,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -22935,7 +22935,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -23052,7 +23052,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -23235,7 +23235,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -23415,7 +23415,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -23540,7 +23540,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -23676,7 +23676,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -23852,7 +23852,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -24058,7 +24058,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -24257,7 +24257,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -24471,7 +24471,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -24680,7 +24680,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -24919,7 +24919,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -25090,7 +25090,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -25323,7 +25323,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -25549,7 +25549,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -25694,7 +25694,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -25892,7 +25892,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -26063,7 +26063,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -26183,7 +26183,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -26499,7 +26499,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -26657,7 +26657,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -26795,7 +26795,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -26983,7 +26983,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -27265,7 +27265,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -27458,7 +27458,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -27574,7 +27574,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -27733,7 +27733,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -27848,7 +27848,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -28009,7 +28009,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -28259,7 +28259,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -28373,7 +28373,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -28529,7 +28529,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -28645,7 +28645,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -28806,7 +28806,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -28945,7 +28945,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -29225,7 +29225,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -29484,7 +29484,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -29746,7 +29746,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -29862,7 +29862,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -30035,7 +30035,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -30334,7 +30334,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -30601,7 +30601,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -30825,7 +30825,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -31090,7 +31090,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.
@@ -31337,7 +31337,7 @@ module Prism
     # ----------------------------------------------------------------------------------
     # :section: Node Interface
     # These methods are present on all subclasses of Node.
-    # Read the [node interface docs](rdoc-ref:Node@node-interface) for more information.
+    # Read the [node interface docs](Node.html#node-interface) for more information.
     # ----------------------------------------------------------------------------------
 
     # See Node.accept.

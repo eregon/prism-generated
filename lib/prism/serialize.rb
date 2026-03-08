@@ -57,7 +57,7 @@ module Prism
       cpool_base =     loader.load_uint32
       cpool_size =     loader.load_varuint
 
-      constant_pool = ConstantPool.new(input, serialized, cpool_base, cpool_size)
+      constant_pool = ConstantPool.new(serialized, cpool_base, cpool_size)
 
       node =           loader.load_node(constant_pool, encoding, freeze) #: ProgramNode
                        loader.load_constant_pool(constant_pool)
@@ -182,7 +182,7 @@ module Prism
       cpool_base =     loader.load_uint32
       cpool_size =     loader.load_varuint
 
-      constant_pool = ConstantPool.new(input, serialized, cpool_base, cpool_size)
+      constant_pool = ConstantPool.new(serialized, cpool_base, cpool_size)
 
       node =           loader.load_node(constant_pool, encoding, freeze) #: ProgramNode
                        loader.load_constant_pool(constant_pool)
@@ -213,14 +213,12 @@ module Prism
     class ConstantPool # :nodoc:
       attr_reader :size #: Integer
 
-      # @rbs @input: String
       # @rbs @serialized: String
       # @rbs @base: Integer
       # @rbs @pool: Array[Symbol?]
 
-      #: (String input, String serialized, Integer base, Integer size) -> void
-      def initialize(input, serialized, base, size)
-        @input = input
+      #: (String serialized, Integer base, Integer size) -> void
+      def initialize(serialized, base, size)
         @serialized = serialized
         @base = base
         @size = size
@@ -235,11 +233,7 @@ module Prism
             start = @serialized.unpack1("L", offset: offset) #: Integer
             length = @serialized.unpack1("L", offset: offset + 4) #: Integer
 
-            if start.nobits?(1 << 31)
-              (@input.byteslice(start, length) or raise).force_encoding(encoding).to_sym
-            else
-              (@serialized.byteslice(start & ((1 << 31) - 1), length) or raise).force_encoding(encoding).to_sym
-            end
+            (@serialized.byteslice(start, length) or raise).force_encoding(encoding).to_sym
           end
       end
     end
@@ -300,8 +294,8 @@ module Prism
         trailer = 0
 
         constant_pool.size.times do |index|
-          start, length = (io.read(8) or raise).unpack("L2") #: [Integer, Integer]
-          trailer += length if start.anybits?(1 << 31)
+          length = (io.read(8) or raise).unpack1("L", offset: 4) #: Integer
+          trailer += length
         end
 
         io.read(trailer)
@@ -720,7 +714,7 @@ module Prism
             error =
               ParseError.new(
                 DIAGNOSTIC_TYPES.fetch(load_varuint),
-                load_embedded_string(encoding),
+                load_string(encoding),
                 load_location_object(freeze),
                 load_error_level
               )
@@ -754,7 +748,7 @@ module Prism
             warning =
               ParseWarning.new(
                 DIAGNOSTIC_TYPES.fetch(load_varuint),
-                load_embedded_string(encoding),
+                load_string(encoding),
                 load_location_object(freeze),
                 load_warning_level
               )
@@ -840,20 +834,8 @@ module Prism
       end
 
       #: (Encoding encoding) -> String
-      def load_embedded_string(encoding)
-        (io.read(load_varuint) or raise).force_encoding(encoding).freeze
-      end
-
-      #: (Encoding encoding) -> String
       def load_string(encoding)
-        case (type = io.getbyte)
-        when 1
-          (input.byteslice(load_varuint, load_varuint) or raise).force_encoding(encoding).freeze
-        when 2
-          load_embedded_string(encoding)
-        else
-          raise "Unknown serialized string type: #{type}"
-        end
+        (io.read(load_varuint) or raise).force_encoding(encoding).freeze
       end
 
       #: (bool freeze) -> Location

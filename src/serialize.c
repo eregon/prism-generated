@@ -34,28 +34,10 @@ pm_serialize_location(const pm_location_t *location, pm_buffer_t *buffer) {
 }
 
 static void
-pm_serialize_string(const pm_parser_t *parser, const pm_string_t *string, pm_buffer_t *buffer) {
-    switch (string->type) {
-        case PM_STRING_SHARED: {
-            pm_buffer_append_byte(buffer, 1);
-            pm_buffer_append_varuint(buffer, pm_ptrdifft_to_u32(pm_string_source(string) - parser->start));
-            pm_buffer_append_varuint(buffer, pm_sizet_to_u32(pm_string_length(string)));
-            break;
-        }
-        case PM_STRING_OWNED:
-        case PM_STRING_CONSTANT: {
-            uint32_t length = pm_sizet_to_u32(pm_string_length(string));
-            pm_buffer_append_byte(buffer, 2);
-            pm_buffer_append_varuint(buffer, length);
-            pm_buffer_append_bytes(buffer, pm_string_source(string), length);
-            break;
-        }
-#ifdef PRISM_HAS_MMAP
-        case PM_STRING_MAPPED:
-            assert(false && "Cannot serialize mapped strings.");
-            break;
-#endif
-    }
+pm_serialize_string(const pm_string_t *string, pm_buffer_t *buffer) {
+    uint32_t length = pm_sizet_to_u32(pm_string_length(string));
+    pm_buffer_append_varuint(buffer, length);
+    pm_buffer_append_bytes(buffer, pm_string_source(string), length);
 }
 
 static void
@@ -1375,7 +1357,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             pm_serialize_location(&((pm_match_last_line_node_t *)node)->opening_loc, buffer);
             pm_serialize_location(&((pm_match_last_line_node_t *)node)->content_loc, buffer);
             pm_serialize_location(&((pm_match_last_line_node_t *)node)->closing_loc, buffer);
-            pm_serialize_string(parser, &((pm_match_last_line_node_t *)node)->unescaped, buffer);
+            pm_serialize_string(&((pm_match_last_line_node_t *)node)->unescaped, buffer);
             break;
         }
         case PM_MATCH_PREDICATE_NODE: {
@@ -1674,7 +1656,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             pm_serialize_location(&((pm_regular_expression_node_t *)node)->opening_loc, buffer);
             pm_serialize_location(&((pm_regular_expression_node_t *)node)->content_loc, buffer);
             pm_serialize_location(&((pm_regular_expression_node_t *)node)->closing_loc, buffer);
-            pm_serialize_string(parser, &((pm_regular_expression_node_t *)node)->unescaped, buffer);
+            pm_serialize_string(&((pm_regular_expression_node_t *)node)->unescaped, buffer);
             break;
         }
         case PM_REQUIRED_KEYWORD_PARAMETER_NODE: {
@@ -1791,7 +1773,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
         }
         case PM_SOURCE_FILE_NODE: {
             pm_buffer_append_varuint(buffer, (uint32_t) node->flags);
-            pm_serialize_string(parser, &((pm_source_file_node_t *)node)->filepath, buffer);
+            pm_serialize_string(&((pm_source_file_node_t *)node)->filepath, buffer);
             break;
         }
         case PM_SOURCE_LINE_NODE: {
@@ -1832,7 +1814,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
                 pm_buffer_append_byte(buffer, 1);
                 pm_serialize_location(&((pm_string_node_t *)node)->closing_loc, buffer);
             }
-            pm_serialize_string(parser, &((pm_string_node_t *)node)->unescaped, buffer);
+            pm_serialize_string(&((pm_string_node_t *)node)->unescaped, buffer);
             break;
         }
         case PM_SUPER_NODE: {
@@ -1882,7 +1864,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
                 pm_buffer_append_byte(buffer, 1);
                 pm_serialize_location(&((pm_symbol_node_t *)node)->closing_loc, buffer);
             }
-            pm_serialize_string(parser, &((pm_symbol_node_t *)node)->unescaped, buffer);
+            pm_serialize_string(&((pm_symbol_node_t *)node)->unescaped, buffer);
             break;
         }
         case PM_TRUE_NODE: {
@@ -1999,7 +1981,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             pm_serialize_location(&((pm_x_string_node_t *)node)->opening_loc, buffer);
             pm_serialize_location(&((pm_x_string_node_t *)node)->content_loc, buffer);
             pm_serialize_location(&((pm_x_string_node_t *)node)->closing_loc, buffer);
-            pm_serialize_string(parser, &((pm_x_string_node_t *)node)->unescaped, buffer);
+            pm_serialize_string(&((pm_x_string_node_t *)node)->unescaped, buffer);
             break;
         }
         case PM_YIELD_NODE: {
@@ -2139,7 +2121,7 @@ pm_serialize_metadata(pm_parser_t *parser, pm_buffer_t *buffer) {
     pm_serialize_diagnostic_list(&parser->warning_list, buffer);
 }
 
-#line 271 "prism/templates/src/serialize.c.erb"
+#line 253 "prism/templates/src/serialize.c.erb"
 /**
  * Serialize the metadata, nodes, and constant pool.
  */
@@ -2176,28 +2158,12 @@ pm_serialize_content(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) 
             pm_constant_t *constant = &parser->constant_pool.constants[bucket->id - 1];
             size_t buffer_offset = offset + ((((size_t)bucket->id) - 1) * 8);
 
-            if (bucket->type == PM_CONSTANT_POOL_BUCKET_OWNED || bucket->type == PM_CONSTANT_POOL_BUCKET_CONSTANT) {
-                // Since this is an owned or constant constant, we are going to
-                // write its contents into the buffer after the constant pool.
-                // So effectively in place of the source offset, we have a
-                // buffer offset. We will add a leading 1 to indicate that this
-                // is a buffer offset.
-                uint32_t content_offset = pm_sizet_to_u32(buffer->length);
-                uint32_t owned_mask = 1U << 31;
+            // Write the constant contents into the buffer after the constant
+            // pool. In place of the source offset, we store a buffer offset.
+            uint32_t content_offset = pm_sizet_to_u32(buffer->length);
+            memcpy(buffer->value + buffer_offset, &content_offset, 4);
+            pm_buffer_append_bytes(buffer, constant->start, constant->length);
 
-                assert(content_offset < owned_mask);
-                content_offset |= owned_mask;
-
-                memcpy(buffer->value + buffer_offset, &content_offset, 4);
-                pm_buffer_append_bytes(buffer, constant->start, constant->length);
-            } else {
-                // Since this is a shared constant, we are going to write its
-                // source offset directly into the buffer.
-                uint32_t source_offset = pm_ptrdifft_to_u32(constant->start - parser->start);
-                memcpy(buffer->value + buffer_offset, &source_offset, 4);
-            }
-
-            // Now we can write the length of the constant into the buffer.
             uint32_t constant_length = pm_sizet_to_u32(constant->length);
             memcpy(buffer->value + buffer_offset + 4, &constant_length, 4);
         }
