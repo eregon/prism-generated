@@ -62,10 +62,7 @@ public class Loader {
                 int length = buffer.getInt(offset + 4);
 
                 byte[] bytes = new byte[length];
-                int position = buffer.position();
-                buffer.position(start);
-                buffer.get(bytes, 0, length);
-                buffer.position(position);
+                buffer.get(start, bytes);
 
                 constant = loader.bytesToName(bytes);
                 cache[index] = constant;
@@ -114,6 +111,7 @@ public class Loader {
         Nodes.Location dataLocation = loadOptionalLocation();
         ParseResult.Error[] errors = loadErrors();
         ParseResult.Warning[] warnings = loadWarnings();
+        boolean continuable = buffer.get() != 0;
 
         int constantPoolBufferOffset = buffer.getInt();
         int constantPoolLength = loadVarUInt();
@@ -135,7 +133,7 @@ public class Loader {
             node = null;
         }
 
-        return new ParseResult(node, magicComments, dataLocation, errors, warnings, source);
+        return new ParseResult(node, magicComments, dataLocation, errors, warnings, continuable, source);
     }
 
     private byte[] loadString() {
