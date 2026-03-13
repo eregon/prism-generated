@@ -9,6 +9,7 @@ fn main() {
 
     let ruby_build_path = prism_lib_path();
     let ruby_include_path = prism_include_path();
+    emit_rerun_hints(&ruby_include_path);
 
     // Tell cargo/rustc that we want to link against `libprism.a`.
     println!("cargo:rustc-link-lib=static=prism");
@@ -21,6 +22,19 @@ fn main() {
 
     // Write the bindings to file.
     write_bindings(&bindings);
+}
+
+fn emit_rerun_hints(ruby_include_path: &Path) {
+    println!("cargo:rerun-if-env-changed=PRISM_INCLUDE_DIR");
+    println!("cargo:rerun-if-env-changed=PRISM_LIB_DIR");
+    println!("cargo:rerun-if-changed={}", ruby_include_path.display());
+
+    if let Some(project_root) = ruby_include_path.parent() {
+        let src_path = project_root.join("src");
+        if src_path.exists() {
+            println!("cargo:rerun-if-changed={}", src_path.display());
+        }
+    }
 }
 
 /// Gets the path to project files (`libprism*`) at `[root]/build/`.
@@ -120,6 +134,9 @@ fn generate_bindings(ruby_include_path: &Path) -> bindgen::Bindings {
         .allowlist_type("pm_magic_comment_t")
         .allowlist_type("pm_node_t")
         .allowlist_type("pm_node_type")
+        .allowlist_type("pm_options_t")
+        .allowlist_type("pm_options_scope_t")
+        .allowlist_type("pm_options_version_t")
         .allowlist_type("pm_parser_t")
         .allowlist_type("pm_string_t")
         .allowlist_type(r"^pm_\w+_node_t")
@@ -128,20 +145,39 @@ fn generate_bindings(ruby_include_path: &Path) -> bindgen::Bindings {
         .rustified_non_exhaustive_enum("pm_comment_type_t")
         .rustified_non_exhaustive_enum(r"pm_\w+_flags")
         .rustified_non_exhaustive_enum("pm_node_type")
+        .rustified_non_exhaustive_enum("pm_options_version_t")
         // Functions
         .allowlist_function("pm_arena_free")
+        .allowlist_function("pm_line_offset_list_line_column")
         .allowlist_function("pm_list_empty_p")
         .allowlist_function("pm_list_free")
+        .allowlist_function("pm_options_command_line_set")
+        .allowlist_function("pm_options_encoding_locked_set")
+        .allowlist_function("pm_options_encoding_set")
+        .allowlist_function("pm_options_filepath_set")
+        .allowlist_function("pm_options_free")
+        .allowlist_function("pm_options_frozen_string_literal_set")
+        .allowlist_function("pm_options_line_set")
+        .allowlist_function("pm_options_main_script_set")
+        .allowlist_function("pm_options_partial_script_set")
+        .allowlist_function("pm_options_scope_forwarding_set")
+        .allowlist_function("pm_options_scope_get")
+        .allowlist_function("pm_options_scope_init")
+        .allowlist_function("pm_options_scope_local_get")
+        .allowlist_function("pm_options_scopes_init")
         .allowlist_function("pm_parse")
         .allowlist_function("pm_parser_free")
         .allowlist_function("pm_parser_init")
         .allowlist_function("pm_size_to_native")
+        .allowlist_function("pm_string_constant_init")
         .allowlist_function("pm_string_free")
         .allowlist_function("pm_string_length")
         .allowlist_function("pm_string_source")
         .allowlist_function("pm_version")
         // Vars
         .allowlist_var(r"^pm_encoding\S+")
+        .allowlist_var(r"^PM_OPTIONS_COMMAND_LINE_\w+")
+        .allowlist_var(r"^PM_OPTIONS_SCOPE_FORWARDING_\w+")
         .generate()
         .expect("Unable to generate prism bindings")
 }
