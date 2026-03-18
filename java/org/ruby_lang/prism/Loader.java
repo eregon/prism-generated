@@ -8,8 +8,6 @@
 
 package org.ruby_lang.prism;
 
-import org.ruby_lang.prism.Nodes;
-
 import java.lang.Short;
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -22,8 +20,8 @@ import java.util.Locale;
 // @formatter:off
 public class Loader {
 
-    public static ParseResult load(byte[] serialized, byte[] sourceBytes) {
-        return new Loader(serialized).load(sourceBytes);
+    public static ParseResult load(byte[] serialized) {
+        return new Loader(serialized).load();
     }
 
     // Overridable methods
@@ -77,15 +75,14 @@ public class Loader {
     protected String encodingName;
     private Charset encodingCharset;
     private ConstantPool constantPool;
+    private Nodes.Source source = null;
 
     protected Loader(byte[] serialized) {
         this.buffer = ByteBuffer.wrap(serialized).order(ByteOrder.nativeOrder());
     }
 
-    // We pass sourceBytes here and not in the constructor to avoid keeping
-    // the sourceBytes in memory unnecessarily with lazy DefNode's which hold on the Loader.
-    protected ParseResult load(byte[] sourceBytes) {
-        Nodes.Source source = new Nodes.Source(sourceBytes);
+    protected ParseResult load() {
+        this.source = new Nodes.Source();
 
         expect((byte) 'P', "incorrect prism header");
         expect((byte) 'R', "incorrect prism header");
@@ -128,8 +125,7 @@ public class Loader {
                 throw new Error("Expected to consume all bytes while deserializing but there were " + left + " bytes left");
             }
 
-            boolean[] newlineMarked = new boolean[1 + source.getLineCount()];
-            MarkNewlinesVisitor visitor = new MarkNewlinesVisitor(source, newlineMarked);
+            MarkNewlinesVisitor visitor = new MarkNewlinesVisitor(source);
             node.accept(visitor);
         } else {
             node = null;
@@ -668,11 +664,17 @@ public class Loader {
     }
 
     Nodes.DefNode createDefNodeFromSavedPosition(int nodeId, int startOffset, int length, int bufferPosition) {
+        Nodes.DefNode node;
         // This method mutates the buffer position and may be called from different threads so we must synchronize
         synchronized (this) {
             buffer.position(bufferPosition);
-            return createDefNode(nodeId, startOffset, length);
+            node = createDefNode(nodeId, startOffset, length);
         }
+
+        MarkNewlinesVisitor visitor = new MarkNewlinesVisitor(source);
+        node.accept(visitor);
+
+        return node;
     }
 
     private static final Nodes.Node[] EMPTY_Node_ARRAY = {};
