@@ -23,7 +23,7 @@ import java.util.Arrays;
 // @formatter:off
 public abstract class Nodes {
 
-    public static final String[] EMPTY_STRING_ARRAY = {};
+    public static final byte[][] EMPTY_IDENTIFIER_ARRAY = {};
 
     @Target(ElementType.FIELD)
     @Retention(RetentionPolicy.SOURCE)
@@ -139,6 +139,22 @@ public abstract class Nodes {
         }
 
         protected abstract String toString(String indent);
+    }
+
+    protected static String asString(Object value) {
+        return value.toString();
+    }
+
+    protected static String asString(byte[] value) {
+        StringBuilder buf = new StringBuilder(value.length);
+        for (byte b : value) {
+            if (b >= 0x20 && b <= 0x7e) {
+                buf.append((char) b);
+            } else {
+                buf.append(String.format("\\x%02x", Byte.toUnsignedInt(b)));
+            }
+        }
+        return buf.toString();
     }
 
     /**
@@ -1827,9 +1843,9 @@ public abstract class Nodes {
          *     $+ # name `:$+`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
 
-        public BackReferenceReadNode(int nodeId, int startOffset, int length, String name) {
+        public BackReferenceReadNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -1856,7 +1872,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -2048,9 +2064,9 @@ public abstract class Nodes {
          *            ^
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
 
-        public BlockLocalVariableNode(int nodeId, int startOffset, int length, short flags, String name) {
+        public BlockLocalVariableNode(int nodeId, int startOffset, int length, short flags, byte[] name) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
@@ -2086,7 +2102,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -2109,7 +2125,7 @@ public abstract class Nodes {
          *                       ^
          * </pre>
          */
-        public final String[] locals;
+        public final byte[][] locals;
         /**
          * <pre>
          * The parameters of the block.
@@ -2137,7 +2153,7 @@ public abstract class Nodes {
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
-        public BlockNode(int nodeId, int startOffset, int length, String[] locals, Node parameters, Node body) {
+        public BlockNode(int nodeId, int startOffset, int length, byte[][] locals, Node parameters, Node body) {
             super(nodeId, startOffset, length);
             this.locals = locals;
             this.parameters = parameters;
@@ -2174,8 +2190,8 @@ public abstract class Nodes {
             builder.append(nextIndent);
             builder.append("locals: ");
             builder.append('\n');
-            for (String constant : this.locals) {
-                builder.append(nextNextIndent).append('"').append(constant).append('"').append('\n');
+            for (byte[] constant : this.locals) {
+                builder.append(nextNextIndent).append('"').append(asString(constant)).append('"').append('\n');
             }
             builder.append(nextIndent);
             builder.append("parameters: ");
@@ -2208,9 +2224,9 @@ public abstract class Nodes {
          * </pre>
          */
         @Nullable
-        public final String name;
+        public final byte[] name;
 
-        public BlockParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+        public BlockParameterNode(int nodeId, int startOffset, int length, short flags, byte[] name) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
@@ -2246,7 +2262,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append(this.name == null ? "null" : "\"" + this.name + "\"");
+            builder.append(this.name == null ? "null" : "\"" + asString(this.name) + "\"");
             builder.append('\n');
             return builder.toString();
         }
@@ -2425,7 +2441,7 @@ public abstract class Nodes {
          *         ^^^
          * </pre>
          */
-        public final String read_name;
+        public final byte[] read_name;
         /**
          * <pre>
          * Represents the name of the method being written to.
@@ -2434,7 +2450,7 @@ public abstract class Nodes {
          *         ^^^
          * </pre>
          */
-        public final String write_name;
+        public final byte[] write_name;
         /**
          * <pre>
          * Represents the value being assigned.
@@ -2445,7 +2461,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public CallAndWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, String read_name, String write_name, Node value) {
+        public CallAndWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, byte[] read_name, byte[] write_name, Node value) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -2503,11 +2519,11 @@ public abstract class Nodes {
             builder.append(this.receiver == null ? "null\n" : this.receiver.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("read_name: ");
-            builder.append('"').append(this.read_name).append('"');
+            builder.append('"').append(asString(this.read_name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("write_name: ");
-            builder.append('"').append(this.write_name).append('"');
+            builder.append('"').append(asString(this.write_name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -2565,7 +2581,7 @@ public abstract class Nodes {
          *     ^^^
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
         /**
          * <pre>
          * Represents the arguments to the method call. These can be any [non-void expressions](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
@@ -2588,7 +2604,7 @@ public abstract class Nodes {
         @UnionType({ BlockNode.class, BlockArgumentNode.class })
         public final Node block;
 
-        public CallNode(int nodeId, int startOffset, int length, short flags, Node receiver, String name, ArgumentsNode arguments, Node block) {
+        public CallNode(int nodeId, int startOffset, int length, short flags, Node receiver, byte[] name, ArgumentsNode arguments, Node block) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -2651,7 +2667,7 @@ public abstract class Nodes {
             builder.append(this.receiver == null ? "null\n" : this.receiver.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("arguments: ");
@@ -2691,7 +2707,7 @@ public abstract class Nodes {
          *         ^^^
          * </pre>
          */
-        public final String read_name;
+        public final byte[] read_name;
         /**
          * <pre>
          * Represents the name of the method being written to.
@@ -2700,7 +2716,7 @@ public abstract class Nodes {
          *         ^^^
          * </pre>
          */
-        public final String write_name;
+        public final byte[] write_name;
         /**
          * <pre>
          * Represents the binary operator being used.
@@ -2709,7 +2725,7 @@ public abstract class Nodes {
          *             ^
          * </pre>
          */
-        public final String binary_operator;
+        public final byte[] binary_operator;
         /**
          * <pre>
          * Represents the value being assigned.
@@ -2720,7 +2736,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public CallOperatorWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, String read_name, String write_name, String binary_operator, Node value) {
+        public CallOperatorWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, byte[] read_name, byte[] write_name, byte[] binary_operator, Node value) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -2779,15 +2795,15 @@ public abstract class Nodes {
             builder.append(this.receiver == null ? "null\n" : this.receiver.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("read_name: ");
-            builder.append('"').append(this.read_name).append('"');
+            builder.append('"').append(asString(this.read_name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("write_name: ");
-            builder.append('"').append(this.write_name).append('"');
+            builder.append('"').append(asString(this.write_name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("binary_operator: ");
-            builder.append('"').append(this.binary_operator).append('"');
+            builder.append('"').append(asString(this.binary_operator)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -2824,7 +2840,7 @@ public abstract class Nodes {
          *         ^^^
          * </pre>
          */
-        public final String read_name;
+        public final byte[] read_name;
         /**
          * <pre>
          * Represents the name of the method being written to.
@@ -2833,7 +2849,7 @@ public abstract class Nodes {
          *         ^^^
          * </pre>
          */
-        public final String write_name;
+        public final byte[] write_name;
         /**
          * <pre>
          * Represents the value being assigned.
@@ -2844,7 +2860,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public CallOrWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, String read_name, String write_name, Node value) {
+        public CallOrWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, byte[] read_name, byte[] write_name, Node value) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -2902,11 +2918,11 @@ public abstract class Nodes {
             builder.append(this.receiver == null ? "null\n" : this.receiver.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("read_name: ");
-            builder.append('"').append(this.read_name).append('"');
+            builder.append('"').append(asString(this.read_name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("write_name: ");
-            builder.append('"').append(this.write_name).append('"');
+            builder.append('"').append(asString(this.write_name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -2950,9 +2966,9 @@ public abstract class Nodes {
          *     ^^^
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
 
-        public CallTargetNode(int nodeId, int startOffset, int length, short flags, Node receiver, String name) {
+        public CallTargetNode(int nodeId, int startOffset, int length, short flags, Node receiver, byte[] name) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -3005,7 +3021,7 @@ public abstract class Nodes {
             builder.append(this.receiver.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -3282,7 +3298,7 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ClassNode extends Node {
-        public final String[] locals;
+        public final byte[][] locals;
         @UnionType({ ConstantReadNode.class, ConstantPathNode.class, CallNode.class })
         public final Node constant_path;
         /**
@@ -3313,9 +3329,9 @@ public abstract class Nodes {
          *     class Foo end # name `:Foo`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
 
-        public ClassNode(int nodeId, int startOffset, int length, String[] locals, Node constant_path, Node superclass, Node body, String name) {
+        public ClassNode(int nodeId, int startOffset, int length, byte[][] locals, Node constant_path, Node superclass, Node body, byte[] name) {
             super(nodeId, startOffset, length);
             this.locals = locals;
             this.constant_path = constant_path;
@@ -3355,8 +3371,8 @@ public abstract class Nodes {
             builder.append(nextIndent);
             builder.append("locals: ");
             builder.append('\n');
-            for (String constant : this.locals) {
-                builder.append(nextNextIndent).append('"').append(constant).append('"').append('\n');
+            for (byte[] constant : this.locals) {
+                builder.append(nextNextIndent).append('"').append(asString(constant)).append('"').append('\n');
             }
             builder.append(nextIndent);
             builder.append("constant_path: ");
@@ -3369,7 +3385,7 @@ public abstract class Nodes {
             builder.append(this.body == null ? "null\n" : this.body.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -3392,7 +3408,7 @@ public abstract class Nodes {
          *     ^^^^^^^^
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
         /**
          * <pre>
          * Represents the value being assigned. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
@@ -3403,7 +3419,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public ClassVariableAndWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public ClassVariableAndWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -3432,7 +3448,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -3450,11 +3466,11 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ClassVariableOperatorWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
-        public final String binary_operator;
+        public final byte[] binary_operator;
 
-        public ClassVariableOperatorWriteNode(int nodeId, int startOffset, int length, String name, Node value, String binary_operator) {
+        public ClassVariableOperatorWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value, byte[] binary_operator) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -3484,14 +3500,14 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
             builder.append(this.value.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("binary_operator: ");
-            builder.append('"').append(this.binary_operator).append('"');
+            builder.append('"').append(asString(this.binary_operator)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -3506,10 +3522,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ClassVariableOrWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public ClassVariableOrWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public ClassVariableOrWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -3538,7 +3554,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -3565,9 +3581,9 @@ public abstract class Nodes {
          *     &#64;&#64;_test # name `:&#64;&#64;_test`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
 
-        public ClassVariableReadNode(int nodeId, int startOffset, int length, String name) {
+        public ClassVariableReadNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -3594,7 +3610,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -3609,9 +3625,9 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ClassVariableTargetNode extends Node {
-        public final String name;
+        public final byte[] name;
 
-        public ClassVariableTargetNode(int nodeId, int startOffset, int length, String name) {
+        public ClassVariableTargetNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -3638,7 +3654,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -3662,7 +3678,7 @@ public abstract class Nodes {
          *     &#64;&#64;_test = :test # name `&#64;&#64;_test`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
         /**
          * <pre>
          * The value to write to the class variable. This can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
@@ -3676,7 +3692,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public ClassVariableWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public ClassVariableWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -3705,7 +3721,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -3723,10 +3739,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ConstantAndWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public ConstantAndWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public ConstantAndWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -3755,7 +3771,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -3773,11 +3789,11 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ConstantOperatorWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
-        public final String binary_operator;
+        public final byte[] binary_operator;
 
-        public ConstantOperatorWriteNode(int nodeId, int startOffset, int length, String name, Node value, String binary_operator) {
+        public ConstantOperatorWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value, byte[] binary_operator) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -3807,14 +3823,14 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
             builder.append(this.value.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("binary_operator: ");
-            builder.append('"').append(this.binary_operator).append('"');
+            builder.append('"').append(asString(this.binary_operator)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -3829,10 +3845,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ConstantOrWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public ConstantOrWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public ConstantOrWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -3861,7 +3877,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -3951,9 +3967,9 @@ public abstract class Nodes {
          * </pre>
          */
         @Nullable
-        public final String name;
+        public final byte[] name;
 
-        public ConstantPathNode(int nodeId, int startOffset, int length, Node parent, String name) {
+        public ConstantPathNode(int nodeId, int startOffset, int length, Node parent, byte[] name) {
             super(nodeId, startOffset, length);
             this.parent = parent;
             this.name = name;
@@ -3987,7 +4003,7 @@ public abstract class Nodes {
             builder.append(this.parent == null ? "null\n" : this.parent.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append(this.name == null ? "null" : "\"" + this.name + "\"");
+            builder.append(this.name == null ? "null" : "\"" + asString(this.name) + "\"");
             builder.append('\n');
             return builder.toString();
         }
@@ -4004,9 +4020,9 @@ public abstract class Nodes {
     public static final class ConstantPathOperatorWriteNode extends Node {
         public final ConstantPathNode target;
         public final Node value;
-        public final String binary_operator;
+        public final byte[] binary_operator;
 
-        public ConstantPathOperatorWriteNode(int nodeId, int startOffset, int length, ConstantPathNode target, Node value, String binary_operator) {
+        public ConstantPathOperatorWriteNode(int nodeId, int startOffset, int length, ConstantPathNode target, Node value, byte[] binary_operator) {
             super(nodeId, startOffset, length);
             this.target = target;
             this.value = value;
@@ -4043,7 +4059,7 @@ public abstract class Nodes {
             builder.append(this.value.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("binary_operator: ");
-            builder.append('"').append(this.binary_operator).append('"');
+            builder.append('"').append(asString(this.binary_operator)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -4111,9 +4127,9 @@ public abstract class Nodes {
         @Nullable
         public final Node parent;
         @Nullable
-        public final String name;
+        public final byte[] name;
 
-        public ConstantPathTargetNode(int nodeId, int startOffset, int length, Node parent, String name) {
+        public ConstantPathTargetNode(int nodeId, int startOffset, int length, Node parent, byte[] name) {
             super(nodeId, startOffset, length);
             this.parent = parent;
             this.name = name;
@@ -4147,7 +4163,7 @@ public abstract class Nodes {
             builder.append(this.parent == null ? "null\n" : this.parent.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append(this.name == null ? "null" : "\"" + this.name + "\"");
+            builder.append(this.name == null ? "null" : "\"" + asString(this.name) + "\"");
             builder.append('\n');
             return builder.toString();
         }
@@ -4246,9 +4262,9 @@ public abstract class Nodes {
          *     SOME_CONSTANT  # name `:SOME_CONSTANT`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
 
-        public ConstantReadNode(int nodeId, int startOffset, int length, String name) {
+        public ConstantReadNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -4275,7 +4291,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -4290,9 +4306,9 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ConstantTargetNode extends Node {
-        public final String name;
+        public final byte[] name;
 
-        public ConstantTargetNode(int nodeId, int startOffset, int length, String name) {
+        public ConstantTargetNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -4319,7 +4335,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -4343,7 +4359,7 @@ public abstract class Nodes {
          *     XYZ = 1    # name `:XYZ`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
         /**
          * <pre>
          * The value to write to the constant. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
@@ -4357,7 +4373,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public ConstantWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public ConstantWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -4386,7 +4402,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -4407,7 +4423,7 @@ public abstract class Nodes {
     public static final class DefNode extends Node {
         public final int serializedLength;
         public final Loader loader;
-        public final String name;
+        public final byte[] name;
         @Nullable
         public final Node receiver;
         @Nullable
@@ -4415,9 +4431,9 @@ public abstract class Nodes {
         @Nullable
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
-        public final String[] locals;
+        public final byte[][] locals;
 
-        public DefNode(int nodeId, int startOffset, int length, int serializedLength, Loader loader, String name, Node receiver, ParametersNode parameters, Node body, String[] locals) {
+        public DefNode(int nodeId, int startOffset, int length, int serializedLength, Loader loader, byte[] name, Node receiver, ParametersNode parameters, Node body, byte[][] locals) {
             super(nodeId, startOffset, length);
             this.serializedLength = serializedLength;
             this.loader = loader;
@@ -4472,7 +4488,7 @@ public abstract class Nodes {
             String nextNextIndent = nextIndent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("receiver: ");
@@ -4486,8 +4502,8 @@ public abstract class Nodes {
             builder.append(nextIndent);
             builder.append("locals: ");
             builder.append('\n');
-            for (String constant : this.locals) {
-                builder.append(nextNextIndent).append('"').append(constant).append('"').append('\n');
+            for (byte[] constant : this.locals) {
+                builder.append(nextNextIndent).append('"').append(asString(constant)).append('"').append('\n');
             }
             return builder.toString();
         }
@@ -5239,10 +5255,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class GlobalVariableAndWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public GlobalVariableAndWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public GlobalVariableAndWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -5271,7 +5287,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -5289,11 +5305,11 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class GlobalVariableOperatorWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
-        public final String binary_operator;
+        public final byte[] binary_operator;
 
-        public GlobalVariableOperatorWriteNode(int nodeId, int startOffset, int length, String name, Node value, String binary_operator) {
+        public GlobalVariableOperatorWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value, byte[] binary_operator) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -5323,14 +5339,14 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
             builder.append(this.value.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("binary_operator: ");
-            builder.append('"').append(this.binary_operator).append('"');
+            builder.append('"').append(asString(this.binary_operator)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -5345,10 +5361,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class GlobalVariableOrWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public GlobalVariableOrWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public GlobalVariableOrWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -5377,7 +5393,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -5404,9 +5420,9 @@ public abstract class Nodes {
          *     $_Test # name `:$_Test`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
 
-        public GlobalVariableReadNode(int nodeId, int startOffset, int length, String name) {
+        public GlobalVariableReadNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -5433,7 +5449,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -5448,9 +5464,9 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class GlobalVariableTargetNode extends Node {
-        public final String name;
+        public final byte[] name;
 
-        public GlobalVariableTargetNode(int nodeId, int startOffset, int length, String name) {
+        public GlobalVariableTargetNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -5477,7 +5493,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -5501,7 +5517,7 @@ public abstract class Nodes {
          *     $_Test = 123 # name `:$_Test`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
         /**
          * <pre>
          * The value to write to the global variable. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
@@ -5515,7 +5531,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public GlobalVariableWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public GlobalVariableWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -5544,7 +5560,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -6157,10 +6173,10 @@ public abstract class Nodes {
         public final ArgumentsNode arguments;
         @Nullable
         public final BlockArgumentNode block;
-        public final String binary_operator;
+        public final byte[] binary_operator;
         public final Node value;
 
-        public IndexOperatorWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, String binary_operator, Node value) {
+        public IndexOperatorWriteNode(int nodeId, int startOffset, int length, short flags, Node receiver, ArgumentsNode arguments, BlockArgumentNode block, byte[] binary_operator, Node value) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.receiver = receiver;
@@ -6231,7 +6247,7 @@ public abstract class Nodes {
             builder.append(this.block == null ? "null\n" : this.block.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("binary_operator: ");
-            builder.append('"').append(this.binary_operator).append('"');
+            builder.append('"').append(asString(this.binary_operator)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -6434,10 +6450,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class InstanceVariableAndWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public InstanceVariableAndWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public InstanceVariableAndWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -6466,7 +6482,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -6484,11 +6500,11 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class InstanceVariableOperatorWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
-        public final String binary_operator;
+        public final byte[] binary_operator;
 
-        public InstanceVariableOperatorWriteNode(int nodeId, int startOffset, int length, String name, Node value, String binary_operator) {
+        public InstanceVariableOperatorWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value, byte[] binary_operator) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -6518,14 +6534,14 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
             builder.append(this.value.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("binary_operator: ");
-            builder.append('"').append(this.binary_operator).append('"');
+            builder.append('"').append(asString(this.binary_operator)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -6540,10 +6556,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class InstanceVariableOrWriteNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public InstanceVariableOrWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public InstanceVariableOrWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -6572,7 +6588,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -6599,9 +6615,9 @@ public abstract class Nodes {
          *     &#64;_test # name `:&#64;_test`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
 
-        public InstanceVariableReadNode(int nodeId, int startOffset, int length, String name) {
+        public InstanceVariableReadNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -6628,7 +6644,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -6643,9 +6659,9 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class InstanceVariableTargetNode extends Node {
-        public final String name;
+        public final byte[] name;
 
-        public InstanceVariableTargetNode(int nodeId, int startOffset, int length, String name) {
+        public InstanceVariableTargetNode(int nodeId, int startOffset, int length, byte[] name) {
             super(nodeId, startOffset, length);
             this.name = name;
         }
@@ -6672,7 +6688,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -6696,7 +6712,7 @@ public abstract class Nodes {
          *     &#64;_foo = &quot;bar&quot; # name `&#64;_foo`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
         /**
          * <pre>
          * The value to write to the instance variable. It can be any [non-void expression](https://github.com/ruby/prism/blob/main/docs/parsing_rules.md#non-void-expression).
@@ -6710,7 +6726,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public InstanceVariableWriteNode(int nodeId, int startOffset, int length, String name, Node value) {
+        public InstanceVariableWriteNode(int nodeId, int startOffset, int length, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.value = value;
@@ -6739,7 +6755,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -7389,9 +7405,9 @@ public abstract class Nodes {
     public static final class KeywordRestParameterNode extends Node {
         public final short flags;
         @Nullable
-        public final String name;
+        public final byte[] name;
 
-        public KeywordRestParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+        public KeywordRestParameterNode(int nodeId, int startOffset, int length, short flags, byte[] name) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
@@ -7427,7 +7443,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append(this.name == null ? "null" : "\"" + this.name + "\"");
+            builder.append(this.name == null ? "null" : "\"" + asString(this.name) + "\"");
             builder.append('\n');
             return builder.toString();
         }
@@ -7442,7 +7458,7 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class LambdaNode extends Node {
-        public final String[] locals;
+        public final byte[][] locals;
         @Nullable
         @UnionType({ BlockParametersNode.class, NumberedParametersNode.class, ItParametersNode.class })
         public final Node parameters;
@@ -7450,7 +7466,7 @@ public abstract class Nodes {
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
-        public LambdaNode(int nodeId, int startOffset, int length, String[] locals, Node parameters, Node body) {
+        public LambdaNode(int nodeId, int startOffset, int length, byte[][] locals, Node parameters, Node body) {
             super(nodeId, startOffset, length);
             this.locals = locals;
             this.parameters = parameters;
@@ -7487,8 +7503,8 @@ public abstract class Nodes {
             builder.append(nextIndent);
             builder.append("locals: ");
             builder.append('\n');
-            for (String constant : this.locals) {
-                builder.append(nextNextIndent).append('"').append(constant).append('"').append('\n');
+            for (byte[] constant : this.locals) {
+                builder.append(nextNextIndent).append('"').append(asString(constant)).append('"').append('\n');
             }
             builder.append(nextIndent);
             builder.append("parameters: ");
@@ -7510,10 +7526,10 @@ public abstract class Nodes {
      */
     public static final class LocalVariableAndWriteNode extends Node {
         public final Node value;
-        public final String name;
+        public final byte[] name;
         public final int depth;
 
-        public LocalVariableAndWriteNode(int nodeId, int startOffset, int length, Node value, String name, int depth) {
+        public LocalVariableAndWriteNode(int nodeId, int startOffset, int length, Node value, byte[] name, int depth) {
             super(nodeId, startOffset, length);
             this.value = value;
             this.name = name;
@@ -7546,7 +7562,7 @@ public abstract class Nodes {
             builder.append(this.value.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("depth: ");
@@ -7566,11 +7582,11 @@ public abstract class Nodes {
      */
     public static final class LocalVariableOperatorWriteNode extends Node {
         public final Node value;
-        public final String name;
-        public final String binary_operator;
+        public final byte[] name;
+        public final byte[] binary_operator;
         public final int depth;
 
-        public LocalVariableOperatorWriteNode(int nodeId, int startOffset, int length, Node value, String name, String binary_operator, int depth) {
+        public LocalVariableOperatorWriteNode(int nodeId, int startOffset, int length, Node value, byte[] name, byte[] binary_operator, int depth) {
             super(nodeId, startOffset, length);
             this.value = value;
             this.name = name;
@@ -7604,11 +7620,11 @@ public abstract class Nodes {
             builder.append(this.value.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("binary_operator: ");
-            builder.append('"').append(this.binary_operator).append('"');
+            builder.append('"').append(asString(this.binary_operator)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("depth: ");
@@ -7628,10 +7644,10 @@ public abstract class Nodes {
      */
     public static final class LocalVariableOrWriteNode extends Node {
         public final Node value;
-        public final String name;
+        public final byte[] name;
         public final int depth;
 
-        public LocalVariableOrWriteNode(int nodeId, int startOffset, int length, Node value, String name, int depth) {
+        public LocalVariableOrWriteNode(int nodeId, int startOffset, int length, Node value, byte[] name, int depth) {
             super(nodeId, startOffset, length);
             this.value = value;
             this.name = name;
@@ -7664,7 +7680,7 @@ public abstract class Nodes {
             builder.append(this.value.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("depth: ");
@@ -7696,7 +7712,7 @@ public abstract class Nodes {
          *     _1     # name `:_1`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
         /**
          * <pre>
          * The number of visible scopes that should be searched to find the origin of this local variable.
@@ -7710,7 +7726,7 @@ public abstract class Nodes {
          */
         public final int depth;
 
-        public LocalVariableReadNode(int nodeId, int startOffset, int length, String name, int depth) {
+        public LocalVariableReadNode(int nodeId, int startOffset, int length, byte[] name, int depth) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.depth = depth;
@@ -7738,7 +7754,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("depth: ");
@@ -7760,10 +7776,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class LocalVariableTargetNode extends Node {
-        public final String name;
+        public final byte[] name;
         public final int depth;
 
-        public LocalVariableTargetNode(int nodeId, int startOffset, int length, String name, int depth) {
+        public LocalVariableTargetNode(int nodeId, int startOffset, int length, byte[] name, int depth) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.depth = depth;
@@ -7791,7 +7807,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("depth: ");
@@ -7819,7 +7835,7 @@ public abstract class Nodes {
          *     abc = 123  # name `:abc`
          * </pre>
          */
-        public final String name;
+        public final byte[] name;
         /**
          * <pre>
          * The number of semantic scopes we have to traverse to find the declaration of this variable.
@@ -7849,7 +7865,7 @@ public abstract class Nodes {
          */
         public final Node value;
 
-        public LocalVariableWriteNode(int nodeId, int startOffset, int length, String name, int depth, Node value) {
+        public LocalVariableWriteNode(int nodeId, int startOffset, int length, byte[] name, int depth, Node value) {
             super(nodeId, startOffset, length);
             this.name = name;
             this.depth = depth;
@@ -7879,7 +7895,7 @@ public abstract class Nodes {
             String nextIndent = indent + "  ";
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("depth: ");
@@ -7980,7 +7996,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("unescaped: ");
-            builder.append('"' + new String(this.unescaped, StandardCharsets.UTF_8) + '"');
+            builder.append('"' + asString(this.unescaped) + '"');
             builder.append('\n');
             return builder.toString();
         }
@@ -8244,15 +8260,15 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ModuleNode extends Node {
-        public final String[] locals;
+        public final byte[][] locals;
         @UnionType({ ConstantReadNode.class, ConstantPathNode.class, MissingNode.class })
         public final Node constant_path;
         @Nullable
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
-        public final String name;
+        public final byte[] name;
 
-        public ModuleNode(int nodeId, int startOffset, int length, String[] locals, Node constant_path, Node body, String name) {
+        public ModuleNode(int nodeId, int startOffset, int length, byte[][] locals, Node constant_path, Node body, byte[] name) {
             super(nodeId, startOffset, length);
             this.locals = locals;
             this.constant_path = constant_path;
@@ -8288,8 +8304,8 @@ public abstract class Nodes {
             builder.append(nextIndent);
             builder.append("locals: ");
             builder.append('\n');
-            for (String constant : this.locals) {
-                builder.append(nextNextIndent).append('"').append(constant).append('"').append('\n');
+            for (byte[] constant : this.locals) {
+                builder.append(nextNextIndent).append('"').append(asString(constant)).append('"').append('\n');
             }
             builder.append(nextIndent);
             builder.append("constant_path: ");
@@ -8299,7 +8315,7 @@ public abstract class Nodes {
             builder.append(this.body == null ? "null\n" : this.body.toString(nextIndent));
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -8830,10 +8846,10 @@ public abstract class Nodes {
      */
     public static final class OptionalKeywordParameterNode extends Node {
         public final short flags;
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public OptionalKeywordParameterNode(int nodeId, int startOffset, int length, short flags, String name, Node value) {
+        public OptionalKeywordParameterNode(int nodeId, int startOffset, int length, short flags, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
@@ -8871,7 +8887,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -8891,10 +8907,10 @@ public abstract class Nodes {
      */
     public static final class OptionalParameterNode extends Node {
         public final short flags;
-        public final String name;
+        public final byte[] name;
         public final Node value;
 
-        public OptionalParameterNode(int nodeId, int startOffset, int length, short flags, String name, Node value) {
+        public OptionalParameterNode(int nodeId, int startOffset, int length, short flags, byte[] name, Node value) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
@@ -8932,7 +8948,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("value: ");
@@ -9405,10 +9421,10 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class ProgramNode extends Node {
-        public final String[] locals;
+        public final byte[][] locals;
         public final StatementsNode statements;
 
-        public ProgramNode(int nodeId, int startOffset, int length, String[] locals, StatementsNode statements) {
+        public ProgramNode(int nodeId, int startOffset, int length, byte[][] locals, StatementsNode statements) {
             super(nodeId, startOffset, length);
             this.locals = locals;
             this.statements = statements;
@@ -9439,8 +9455,8 @@ public abstract class Nodes {
             builder.append(nextIndent);
             builder.append("locals: ");
             builder.append('\n');
-            for (String constant : this.locals) {
-                builder.append(nextNextIndent).append('"').append(constant).append('"').append('\n');
+            for (byte[] constant : this.locals) {
+                builder.append(nextNextIndent).append('"').append(asString(constant)).append('"').append('\n');
             }
             builder.append(nextIndent);
             builder.append("statements: ");
@@ -9753,7 +9769,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("unescaped: ");
-            builder.append('"' + new String(this.unescaped, StandardCharsets.UTF_8) + '"');
+            builder.append('"' + asString(this.unescaped) + '"');
             builder.append('\n');
             return builder.toString();
         }
@@ -9770,9 +9786,9 @@ public abstract class Nodes {
      */
     public static final class RequiredKeywordParameterNode extends Node {
         public final short flags;
-        public final String name;
+        public final byte[] name;
 
-        public RequiredKeywordParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+        public RequiredKeywordParameterNode(int nodeId, int startOffset, int length, short flags, byte[] name) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
@@ -9808,7 +9824,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -9825,9 +9841,9 @@ public abstract class Nodes {
      */
     public static final class RequiredParameterNode extends Node {
         public final short flags;
-        public final String name;
+        public final byte[] name;
 
-        public RequiredParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+        public RequiredParameterNode(int nodeId, int startOffset, int length, short flags, byte[] name) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
@@ -9863,7 +9879,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append('"').append(this.name).append('"');
+            builder.append('"').append(asString(this.name)).append('"');
             builder.append('\n');
             return builder.toString();
         }
@@ -10024,9 +10040,9 @@ public abstract class Nodes {
     public static final class RestParameterNode extends Node {
         public final short flags;
         @Nullable
-        public final String name;
+        public final byte[] name;
 
-        public RestParameterNode(int nodeId, int startOffset, int length, short flags, String name) {
+        public RestParameterNode(int nodeId, int startOffset, int length, short flags, byte[] name) {
             super(nodeId, startOffset, length);
             this.flags = flags;
             this.name = name;
@@ -10062,7 +10078,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("name: ");
-            builder.append(this.name == null ? "null" : "\"" + this.name + "\"");
+            builder.append(this.name == null ? "null" : "\"" + asString(this.name) + "\"");
             builder.append('\n');
             return builder.toString();
         }
@@ -10269,13 +10285,13 @@ public abstract class Nodes {
      * </pre>
      */
     public static final class SingletonClassNode extends Node {
-        public final String[] locals;
+        public final byte[][] locals;
         public final Node expression;
         @Nullable
         @UnionType({ StatementsNode.class, BeginNode.class })
         public final Node body;
 
-        public SingletonClassNode(int nodeId, int startOffset, int length, String[] locals, Node expression, Node body) {
+        public SingletonClassNode(int nodeId, int startOffset, int length, byte[][] locals, Node expression, Node body) {
             super(nodeId, startOffset, length);
             this.locals = locals;
             this.expression = expression;
@@ -10310,8 +10326,8 @@ public abstract class Nodes {
             builder.append(nextIndent);
             builder.append("locals: ");
             builder.append('\n');
-            for (String constant : this.locals) {
-                builder.append(nextNextIndent).append('"').append(constant).append('"').append('\n');
+            for (byte[] constant : this.locals) {
+                builder.append(nextNextIndent).append('"').append(asString(constant)).append('"').append('\n');
             }
             builder.append(nextIndent);
             builder.append("expression: ");
@@ -10426,7 +10442,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("filepath: ");
-            builder.append('"' + new String(this.filepath, StandardCharsets.UTF_8) + '"');
+            builder.append('"' + asString(this.filepath) + '"');
             builder.append('\n');
             return builder.toString();
         }
@@ -10635,7 +10651,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("unescaped: ");
-            builder.append('"' + new String(this.unescaped, StandardCharsets.UTF_8) + '"');
+            builder.append('"' + asString(this.unescaped) + '"');
             builder.append('\n');
             return builder.toString();
         }
@@ -10767,7 +10783,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("unescaped: ");
-            builder.append('"' + new String(this.unescaped, StandardCharsets.UTF_8) + '"');
+            builder.append('"' + asString(this.unescaped) + '"');
             builder.append('\n');
             return builder.toString();
         }
@@ -11220,7 +11236,7 @@ public abstract class Nodes {
             builder.append('\n');
             builder.append(nextIndent);
             builder.append("unescaped: ");
-            builder.append('"' + new String(this.unescaped, StandardCharsets.UTF_8) + '"');
+            builder.append('"' + asString(this.unescaped) + '"');
             builder.append('\n');
             return builder.toString();
         }

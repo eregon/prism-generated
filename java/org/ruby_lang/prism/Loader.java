@@ -26,33 +26,25 @@ public class Loader {
 
     // Overridable methods
 
-    public Charset getEncodingCharset(String encodingName) {
-        encodingName = encodingName.toLowerCase(Locale.ROOT);
-        if (encodingName.equals("ascii-8bit")) {
-            return StandardCharsets.US_ASCII;
-        }
-        return Charset.forName(encodingName);
-    }
-
-    public String bytesToName(byte[] bytes) {
-        return new String(bytes, encodingCharset).intern();
+    public byte[] bytesToName(byte[] bytes) {
+        return bytes;
     }
 
     private static final class ConstantPool {
 
         private final Loader loader;
         private final int bufferOffset;
-        private final String[] cache;
+        private final byte[][] cache;
 
         ConstantPool(Loader loader, int bufferOffset, int length) {
             this.loader = loader;
             this.bufferOffset = bufferOffset;
-            cache = new String[length];
+            cache = new byte[length][];
         }
 
-        String get(ByteBuffer buffer, int oneBasedIndex) {
+        byte[] get(ByteBuffer buffer, int oneBasedIndex) {
             int index = oneBasedIndex - 1;
-            String constant = cache[index];
+            byte[] constant = cache[index];
 
             if (constant == null) {
                 int offset = bufferOffset + index * 8;
@@ -73,7 +65,6 @@ public class Loader {
 
     private final ByteBuffer buffer;
     protected String encodingName;
-    private Charset encodingCharset;
     private ConstantPool constantPool;
     private Nodes.Source source = null;
 
@@ -101,7 +92,6 @@ public class Loader {
         byte[] encodingNameBytes = new byte[encodingLength];
         buffer.get(encodingNameBytes);
         this.encodingName = new String(encodingNameBytes, StandardCharsets.US_ASCII);
-        this.encodingCharset = getEncodingCharset(this.encodingName);
 
         source.setStartLine(loadVarSInt());
         source.setLineOffsets(loadLineOffsets());
@@ -212,11 +202,11 @@ public class Loader {
         }
     }
 
-    private String loadConstant() {
+    private byte[] loadConstant() {
         return constantPool.get(buffer, loadVarUInt());
     }
 
-    private String loadOptionalConstant() {
+    private byte[] loadOptionalConstant() {
         if (buffer.get(buffer.position()) != 0) {
             return loadConstant();
         } else {
@@ -225,12 +215,12 @@ public class Loader {
         }
     }
 
-    private String[] loadConstants() {
+    private byte[][] loadConstants() {
         int length = loadVarUInt();
         if (length == 0) {
-            return Nodes.EMPTY_STRING_ARRAY;
+            return Nodes.EMPTY_IDENTIFIER_ARRAY;
         }
-        String[] constants = new String[length];
+        byte[][] constants = new byte[length][];
         for (int i = 0; i < length; i++) {
             constants[i] = constantPool.get(buffer, loadVarUInt());
         }
@@ -654,7 +644,7 @@ public class Loader {
         int bufferPosition = buffer.position();
         int serializedLength = buffer.getInt();
         // Load everything except the body and locals, because the name, receiver, parameters are still needed for lazily defining the method
-        Nodes.DefNode lazyDefNode = new Nodes.DefNode(nodeId, startOffset, length, -bufferPosition, this, loadConstant(), loadOptionalNode(), (Nodes.ParametersNode) loadOptionalNode(), null, Nodes.EMPTY_STRING_ARRAY);
+        Nodes.DefNode lazyDefNode = new Nodes.DefNode(nodeId, startOffset, length, -bufferPosition, this, loadConstant(), loadOptionalNode(), (Nodes.ParametersNode) loadOptionalNode(), null, Nodes.EMPTY_IDENTIFIER_ARRAY);
         buffer.position(bufferPosition + serializedLength); // skip past the serialized DefNode
         return lazyDefNode;
     }
