@@ -781,111 +781,111 @@ export function deserialize(array) {
       case 50:
         return new nodes.EnsureNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readOptionalNode(), buffer.readLocation());
       case 51:
-        return new nodes.FalseNode(nodeID, location, flags = buffer.readVarInt());
+        return new nodes.ErrorRecoveryNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode());
       case 52:
-        return new nodes.FindPatternNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readRequiredNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readRequiredNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation());
+        return new nodes.FalseNode(nodeID, location, flags = buffer.readVarInt());
       case 53:
-        return new nodes.FlipFlopNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readOptionalNode(), buffer.readLocation());
+        return new nodes.FindPatternNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readRequiredNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readRequiredNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation());
       case 54:
-        return new nodes.FloatNode(nodeID, location, flags = buffer.readVarInt(), buffer.readDouble());
+        return new nodes.FlipFlopNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readOptionalNode(), buffer.readLocation());
       case 55:
-        return new nodes.ForNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), readOptionalNode(), buffer.readLocation(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readLocation());
+        return new nodes.FloatNode(nodeID, location, flags = buffer.readVarInt(), buffer.readDouble());
       case 56:
-        return new nodes.ForwardingArgumentsNode(nodeID, location, flags = buffer.readVarInt());
+        return new nodes.ForNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), readOptionalNode(), buffer.readLocation(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readLocation());
       case 57:
-        return new nodes.ForwardingParameterNode(nodeID, location, flags = buffer.readVarInt());
+        return new nodes.ForwardingArgumentsNode(nodeID, location, flags = buffer.readVarInt());
       case 58:
-        return new nodes.ForwardingSuperNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode());
+        return new nodes.ForwardingParameterNode(nodeID, location, flags = buffer.readVarInt());
       case 59:
-        return new nodes.GlobalVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
+        return new nodes.ForwardingSuperNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode());
       case 60:
-        return new nodes.GlobalVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
+        return new nodes.GlobalVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
       case 61:
-        return new nodes.GlobalVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
+        return new nodes.GlobalVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
       case 62:
-        return new nodes.GlobalVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
+        return new nodes.GlobalVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
       case 63:
-        return new nodes.GlobalVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
+        return new nodes.GlobalVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
       case 64:
-        return new nodes.GlobalVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
+        return new nodes.GlobalVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
       case 65:
-        return new nodes.HashNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
+        return new nodes.GlobalVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
       case 66:
-        return new nodes.HashPatternNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation());
+        return new nodes.HashNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
       case 67:
-        return new nodes.IfNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), readRequiredNode(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode(), buffer.readOptionalLocation());
+        return new nodes.HashPatternNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation());
       case 68:
-        return new nodes.ImaginaryNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode());
+        return new nodes.IfNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), readRequiredNode(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode(), buffer.readOptionalLocation());
       case 69:
-        return new nodes.ImplicitNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode());
+        return new nodes.ImaginaryNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode());
       case 70:
-        return new nodes.ImplicitRestNode(nodeID, location, flags = buffer.readVarInt());
+        return new nodes.ImplicitNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode());
       case 71:
-        return new nodes.InNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readOptionalNode(), buffer.readLocation(), buffer.readOptionalLocation());
+        return new nodes.ImplicitRestNode(nodeID, location, flags = buffer.readVarInt());
       case 72:
-        return new nodes.IndexAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readRequiredNode());
+        return new nodes.InNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readOptionalNode(), buffer.readLocation(), buffer.readOptionalLocation());
       case 73:
-        return new nodes.IndexOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
+        return new nodes.IndexAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readRequiredNode());
       case 74:
-        return new nodes.IndexOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readRequiredNode());
+        return new nodes.IndexOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
       case 75:
-        return new nodes.IndexTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode());
+        return new nodes.IndexOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readRequiredNode());
       case 76:
-        return new nodes.InstanceVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
+        return new nodes.IndexTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode());
       case 77:
-        return new nodes.InstanceVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
+        return new nodes.InstanceVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
       case 78:
-        return new nodes.InstanceVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
+        return new nodes.InstanceVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
       case 79:
-        return new nodes.InstanceVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
+        return new nodes.InstanceVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
       case 80:
-        return new nodes.InstanceVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
+        return new nodes.InstanceVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
       case 81:
-        return new nodes.InstanceVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
+        return new nodes.InstanceVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
       case 82:
-        return new nodes.IntegerNode(nodeID, location, flags = buffer.readVarInt(), readInteger());
+        return new nodes.InstanceVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
       case 83:
-        return new nodes.InterpolatedMatchLastLineNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
+        return new nodes.IntegerNode(nodeID, location, flags = buffer.readVarInt(), readInteger());
       case 84:
-        return new nodes.InterpolatedRegularExpressionNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
+        return new nodes.InterpolatedMatchLastLineNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
       case 85:
-        return new nodes.InterpolatedStringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation());
+        return new nodes.InterpolatedRegularExpressionNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
       case 86:
-        return new nodes.InterpolatedSymbolNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation());
+        return new nodes.InterpolatedStringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation());
       case 87:
-        return new nodes.InterpolatedXStringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
+        return new nodes.InterpolatedSymbolNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation());
       case 88:
-        return new nodes.ItLocalVariableReadNode(nodeID, location, flags = buffer.readVarInt());
+        return new nodes.InterpolatedXStringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
       case 89:
-        return new nodes.ItParametersNode(nodeID, location, flags = buffer.readVarInt());
+        return new nodes.ItLocalVariableReadNode(nodeID, location, flags = buffer.readVarInt());
       case 90:
-        return new nodes.KeywordHashNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode));
+        return new nodes.ItParametersNode(nodeID, location, flags = buffer.readVarInt());
       case 91:
-        return new nodes.KeywordRestParameterNode(nodeID, location, flags = buffer.readVarInt(), readOptionalConstant(), buffer.readOptionalLocation(), buffer.readLocation());
+        return new nodes.KeywordHashNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode));
       case 92:
-        return new nodes.LambdaNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), readOptionalNode(), readOptionalNode());
+        return new nodes.KeywordRestParameterNode(nodeID, location, flags = buffer.readVarInt(), readOptionalConstant(), buffer.readOptionalLocation(), buffer.readLocation());
       case 93:
-        return new nodes.LocalVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), buffer.readVarInt());
+        return new nodes.LambdaNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), readOptionalNode(), readOptionalNode());
       case 94:
-        return new nodes.LocalVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), readRequiredConstant(), buffer.readVarInt());
+        return new nodes.LocalVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), buffer.readVarInt());
       case 95:
-        return new nodes.LocalVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), buffer.readVarInt());
+        return new nodes.LocalVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), readRequiredConstant(), buffer.readVarInt());
       case 96:
-        return new nodes.LocalVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt());
+        return new nodes.LocalVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), buffer.readVarInt());
       case 97:
-        return new nodes.LocalVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt());
+        return new nodes.LocalVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt());
       case 98:
-        return new nodes.LocalVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
+        return new nodes.LocalVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt());
       case 99:
-        return new nodes.MatchLastLineNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), buffer.readStringField(flags));
+        return new nodes.LocalVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
       case 100:
-        return new nodes.MatchPredicateNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
+        return new nodes.MatchLastLineNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), buffer.readStringField(flags));
       case 101:
-        return new nodes.MatchRequiredNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
+        return new nodes.MatchPredicateNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
       case 102:
-        return new nodes.MatchWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode));
+        return new nodes.MatchRequiredNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
       case 103:
-        return new nodes.MissingNode(nodeID, location, flags = buffer.readVarInt());
+        return new nodes.MatchWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode));
       case 104:
         return new nodes.ModuleNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), buffer.readLocation(), readRequiredNode(), readOptionalNode(), buffer.readLocation(), readRequiredConstant());
       case 105:

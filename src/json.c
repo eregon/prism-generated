@@ -1987,6 +1987,24 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             pm_buffer_append_byte(buffer, '}');
             break;
         }
+        case PM_ERROR_RECOVERY_NODE: {
+            pm_buffer_append_string(buffer, "{\"type\":\"ErrorRecoveryNode\",\"location\":", 39);
+
+            const pm_error_recovery_node_t *cast = (const pm_error_recovery_node_t *) node;
+            pm_dump_json_location(buffer, &cast->base.location);
+
+            // Dump the unexpected field
+            pm_buffer_append_byte(buffer, ',');
+            pm_buffer_append_string(buffer, "\"unexpected\":", 13);
+            if (cast->unexpected != NULL) {
+                pm_dump_json(buffer, parser, (const pm_node_t *) cast->unexpected);
+            } else {
+                pm_buffer_append_string(buffer, "null", 4);
+            }
+
+            pm_buffer_append_byte(buffer, '}');
+            break;
+        }
         case PM_FALSE_NODE: {
             pm_buffer_append_string(buffer, "{\"type\":\"FalseNode\",\"location\":", 31);
 
@@ -3914,15 +3932,6 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
                 pm_dump_json(buffer, parser, targets->nodes[index]);
             }
             pm_buffer_append_byte(buffer, ']');
-
-            pm_buffer_append_byte(buffer, '}');
-            break;
-        }
-        case PM_MISSING_NODE: {
-            pm_buffer_append_string(buffer, "{\"type\":\"MissingNode\",\"location\":", 33);
-
-            const pm_missing_node_t *cast = (const pm_missing_node_t *) node;
-            pm_dump_json_location(buffer, &cast->base.location);
 
             pm_buffer_append_byte(buffer, '}');
             break;

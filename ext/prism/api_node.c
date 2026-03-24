@@ -69,6 +69,7 @@ static VALUE rb_cPrismElseNode;
 static VALUE rb_cPrismEmbeddedStatementsNode;
 static VALUE rb_cPrismEmbeddedVariableNode;
 static VALUE rb_cPrismEnsureNode;
+static VALUE rb_cPrismErrorRecoveryNode;
 static VALUE rb_cPrismFalseNode;
 static VALUE rb_cPrismFindPatternNode;
 static VALUE rb_cPrismFlipFlopNode;
@@ -121,7 +122,6 @@ static VALUE rb_cPrismMatchLastLineNode;
 static VALUE rb_cPrismMatchPredicateNode;
 static VALUE rb_cPrismMatchRequiredNode;
 static VALUE rb_cPrismMatchWriteNode;
-static VALUE rb_cPrismMissingNode;
 static VALUE rb_cPrismModuleNode;
 static VALUE rb_cPrismMultiTargetNode;
 static VALUE rb_cPrismMultiWriteNode;
@@ -622,6 +622,12 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                 case PM_ENSURE_NODE: {
                     pm_ensure_node_t *cast = (pm_ensure_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
+                    break;
+                }
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
+                case PM_ERROR_RECOVERY_NODE: {
+                    pm_error_recovery_node_t *cast = (pm_error_recovery_node_t *) node;
+                    pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->unexpected);
                     break;
                 }
 #line 170 "prism/templates/ext/prism/api_node.c.erb"
@@ -3108,6 +3114,32 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     break;
                 }
 #line 196 "prism/templates/ext/prism/api_node.c.erb"
+                case PM_ERROR_RECOVERY_NODE: {
+                    VALUE argv[5];
+
+                    // source
+                    argv[0] = source;
+
+                    // node_id
+                    argv[1] = ULONG2NUM(node->node_id);
+
+                    // location
+                    argv[2] = pm_location_new(node->location.start, node->location.length, source, freeze);
+
+                    // flags
+                    argv[3] = ULONG2NUM(node->flags);
+
+                    // unexpected
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
+                    argv[4] = rb_ary_pop(value_stack);
+
+                    VALUE value = rb_class_new_instance(5, argv, rb_cPrismErrorRecoveryNode);
+                    if (freeze) rb_obj_freeze(value);
+
+                    rb_ary_push(value_stack, value);
+                    break;
+                }
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FALSE_NODE: {
                     VALUE argv[4];
 
@@ -5037,28 +5069,6 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     break;
                 }
 #line 196 "prism/templates/ext/prism/api_node.c.erb"
-                case PM_MISSING_NODE: {
-                    VALUE argv[4];
-
-                    // source
-                    argv[0] = source;
-
-                    // node_id
-                    argv[1] = ULONG2NUM(node->node_id);
-
-                    // location
-                    argv[2] = pm_location_new(node->location.start, node->location.length, source, freeze);
-
-                    // flags
-                    argv[3] = ULONG2NUM(node->flags);
-
-                    VALUE value = rb_class_new_instance(4, argv, rb_cPrismMissingNode);
-                    if (freeze) rb_obj_freeze(value);
-
-                    rb_ary_push(value_stack, value);
-                    break;
-                }
-#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MODULE_NODE: {
                     pm_module_node_t *cast = (pm_module_node_t *) node;
                     VALUE argv[10];
@@ -6878,6 +6888,7 @@ Init_prism_api_node(void) {
     rb_cPrismEmbeddedStatementsNode = rb_define_class_under(rb_cPrism, "EmbeddedStatementsNode", rb_cPrismNode);
     rb_cPrismEmbeddedVariableNode = rb_define_class_under(rb_cPrism, "EmbeddedVariableNode", rb_cPrismNode);
     rb_cPrismEnsureNode = rb_define_class_under(rb_cPrism, "EnsureNode", rb_cPrismNode);
+    rb_cPrismErrorRecoveryNode = rb_define_class_under(rb_cPrism, "ErrorRecoveryNode", rb_cPrismNode);
     rb_cPrismFalseNode = rb_define_class_under(rb_cPrism, "FalseNode", rb_cPrismNode);
     rb_cPrismFindPatternNode = rb_define_class_under(rb_cPrism, "FindPatternNode", rb_cPrismNode);
     rb_cPrismFlipFlopNode = rb_define_class_under(rb_cPrism, "FlipFlopNode", rb_cPrismNode);
@@ -6930,7 +6941,6 @@ Init_prism_api_node(void) {
     rb_cPrismMatchPredicateNode = rb_define_class_under(rb_cPrism, "MatchPredicateNode", rb_cPrismNode);
     rb_cPrismMatchRequiredNode = rb_define_class_under(rb_cPrism, "MatchRequiredNode", rb_cPrismNode);
     rb_cPrismMatchWriteNode = rb_define_class_under(rb_cPrism, "MatchWriteNode", rb_cPrismNode);
-    rb_cPrismMissingNode = rb_define_class_under(rb_cPrism, "MissingNode", rb_cPrismNode);
     rb_cPrismModuleNode = rb_define_class_under(rb_cPrism, "ModuleNode", rb_cPrismNode);
     rb_cPrismMultiTargetNode = rb_define_class_under(rb_cPrism, "MultiTargetNode", rb_cPrismNode);
     rb_cPrismMultiWriteNode = rb_define_class_under(rb_cPrism, "MultiWriteNode", rb_cPrismNode);

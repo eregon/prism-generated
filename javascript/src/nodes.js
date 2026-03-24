@@ -158,7 +158,7 @@ const SymbolFlags = {
 /**
  * A generic node in the tree.
  *
- * @typedef {(AliasGlobalVariableNode|AliasMethodNode|AlternationPatternNode|AndNode|ArgumentsNode|ArrayNode|ArrayPatternNode|AssocNode|AssocSplatNode|BackReferenceReadNode|BeginNode|BlockArgumentNode|BlockLocalVariableNode|BlockNode|BlockParameterNode|BlockParametersNode|BreakNode|CallAndWriteNode|CallNode|CallOperatorWriteNode|CallOrWriteNode|CallTargetNode|CapturePatternNode|CaseMatchNode|CaseNode|ClassNode|ClassVariableAndWriteNode|ClassVariableOperatorWriteNode|ClassVariableOrWriteNode|ClassVariableReadNode|ClassVariableTargetNode|ClassVariableWriteNode|ConstantAndWriteNode|ConstantOperatorWriteNode|ConstantOrWriteNode|ConstantPathAndWriteNode|ConstantPathNode|ConstantPathOperatorWriteNode|ConstantPathOrWriteNode|ConstantPathTargetNode|ConstantPathWriteNode|ConstantReadNode|ConstantTargetNode|ConstantWriteNode|DefNode|DefinedNode|ElseNode|EmbeddedStatementsNode|EmbeddedVariableNode|EnsureNode|FalseNode|FindPatternNode|FlipFlopNode|FloatNode|ForNode|ForwardingArgumentsNode|ForwardingParameterNode|ForwardingSuperNode|GlobalVariableAndWriteNode|GlobalVariableOperatorWriteNode|GlobalVariableOrWriteNode|GlobalVariableReadNode|GlobalVariableTargetNode|GlobalVariableWriteNode|HashNode|HashPatternNode|IfNode|ImaginaryNode|ImplicitNode|ImplicitRestNode|InNode|IndexAndWriteNode|IndexOperatorWriteNode|IndexOrWriteNode|IndexTargetNode|InstanceVariableAndWriteNode|InstanceVariableOperatorWriteNode|InstanceVariableOrWriteNode|InstanceVariableReadNode|InstanceVariableTargetNode|InstanceVariableWriteNode|IntegerNode|InterpolatedMatchLastLineNode|InterpolatedRegularExpressionNode|InterpolatedStringNode|InterpolatedSymbolNode|InterpolatedXStringNode|ItLocalVariableReadNode|ItParametersNode|KeywordHashNode|KeywordRestParameterNode|LambdaNode|LocalVariableAndWriteNode|LocalVariableOperatorWriteNode|LocalVariableOrWriteNode|LocalVariableReadNode|LocalVariableTargetNode|LocalVariableWriteNode|MatchLastLineNode|MatchPredicateNode|MatchRequiredNode|MatchWriteNode|MissingNode|ModuleNode|MultiTargetNode|MultiWriteNode|NextNode|NilNode|NoBlockParameterNode|NoKeywordsParameterNode|NumberedParametersNode|NumberedReferenceReadNode|OptionalKeywordParameterNode|OptionalParameterNode|OrNode|ParametersNode|ParenthesesNode|PinnedExpressionNode|PinnedVariableNode|PostExecutionNode|PreExecutionNode|ProgramNode|RangeNode|RationalNode|RedoNode|RegularExpressionNode|RequiredKeywordParameterNode|RequiredParameterNode|RescueModifierNode|RescueNode|RestParameterNode|RetryNode|ReturnNode|SelfNode|ShareableConstantNode|SingletonClassNode|SourceEncodingNode|SourceFileNode|SourceLineNode|SplatNode|StatementsNode|StringNode|SuperNode|SymbolNode|TrueNode|UndefNode|UnlessNode|UntilNode|WhenNode|WhileNode|XStringNode|YieldNode)} Node
+ * @typedef {(AliasGlobalVariableNode|AliasMethodNode|AlternationPatternNode|AndNode|ArgumentsNode|ArrayNode|ArrayPatternNode|AssocNode|AssocSplatNode|BackReferenceReadNode|BeginNode|BlockArgumentNode|BlockLocalVariableNode|BlockNode|BlockParameterNode|BlockParametersNode|BreakNode|CallAndWriteNode|CallNode|CallOperatorWriteNode|CallOrWriteNode|CallTargetNode|CapturePatternNode|CaseMatchNode|CaseNode|ClassNode|ClassVariableAndWriteNode|ClassVariableOperatorWriteNode|ClassVariableOrWriteNode|ClassVariableReadNode|ClassVariableTargetNode|ClassVariableWriteNode|ConstantAndWriteNode|ConstantOperatorWriteNode|ConstantOrWriteNode|ConstantPathAndWriteNode|ConstantPathNode|ConstantPathOperatorWriteNode|ConstantPathOrWriteNode|ConstantPathTargetNode|ConstantPathWriteNode|ConstantReadNode|ConstantTargetNode|ConstantWriteNode|DefNode|DefinedNode|ElseNode|EmbeddedStatementsNode|EmbeddedVariableNode|EnsureNode|ErrorRecoveryNode|FalseNode|FindPatternNode|FlipFlopNode|FloatNode|ForNode|ForwardingArgumentsNode|ForwardingParameterNode|ForwardingSuperNode|GlobalVariableAndWriteNode|GlobalVariableOperatorWriteNode|GlobalVariableOrWriteNode|GlobalVariableReadNode|GlobalVariableTargetNode|GlobalVariableWriteNode|HashNode|HashPatternNode|IfNode|ImaginaryNode|ImplicitNode|ImplicitRestNode|InNode|IndexAndWriteNode|IndexOperatorWriteNode|IndexOrWriteNode|IndexTargetNode|InstanceVariableAndWriteNode|InstanceVariableOperatorWriteNode|InstanceVariableOrWriteNode|InstanceVariableReadNode|InstanceVariableTargetNode|InstanceVariableWriteNode|IntegerNode|InterpolatedMatchLastLineNode|InterpolatedRegularExpressionNode|InterpolatedStringNode|InterpolatedSymbolNode|InterpolatedXStringNode|ItLocalVariableReadNode|ItParametersNode|KeywordHashNode|KeywordRestParameterNode|LambdaNode|LocalVariableAndWriteNode|LocalVariableOperatorWriteNode|LocalVariableOrWriteNode|LocalVariableReadNode|LocalVariableTargetNode|LocalVariableWriteNode|MatchLastLineNode|MatchPredicateNode|MatchRequiredNode|MatchWriteNode|ModuleNode|MultiTargetNode|MultiWriteNode|NextNode|NilNode|NoBlockParameterNode|NoKeywordsParameterNode|NumberedParametersNode|NumberedReferenceReadNode|OptionalKeywordParameterNode|OptionalParameterNode|OrNode|ParametersNode|ParenthesesNode|PinnedExpressionNode|PinnedVariableNode|PostExecutionNode|PreExecutionNode|ProgramNode|RangeNode|RationalNode|RedoNode|RegularExpressionNode|RequiredKeywordParameterNode|RequiredParameterNode|RescueModifierNode|RescueNode|RestParameterNode|RetryNode|ReturnNode|SelfNode|ShareableConstantNode|SingletonClassNode|SourceEncodingNode|SourceFileNode|SourceLineNode|SplatNode|StatementsNode|StringNode|SuperNode|SymbolNode|TrueNode|UndefNode|UnlessNode|UntilNode|WhenNode|WhileNode|XStringNode|YieldNode)} Node
  */
 
 /**
@@ -5984,6 +5984,93 @@ export class EnsureNode {
 }
 
 /**
+ * Represents a node that is either missing or unexpected and results in a syntax error.
+ */
+export class ErrorRecoveryNode {
+  /**
+   * @type number
+   */
+  nodeID;
+
+  /**
+   * @type {Location}
+   */
+  location;
+
+  /**
+   * @type number
+   */
+  #flags;
+
+  /**
+   * @type Node | null
+   */
+  unexpected;
+
+  /**
+   * Construct a new ErrorRecoveryNode.
+   *
+   * @param {number} nodeID
+   * @param {Location} location
+   * @param {number} flags
+   * @param {Node | null} unexpected
+   */
+  constructor(nodeID, location, flags, unexpected) {
+    this.nodeID = nodeID;
+    this.location = location;
+    this.#flags = flags;
+    this.unexpected = unexpected;
+  }
+
+  /**
+   * Accept a visitor for this node.
+   *
+   * @param {visitors.Visitor} visitor
+   */
+  accept(visitor) {
+    visitor.visitErrorRecoveryNode(this)
+  }
+
+  /**
+   * Returns all child nodes of the current node.
+   *
+   * @returns {(Node | null)[]} An array of child nodes.
+   */
+  childNodes() {
+    return [this.unexpected]
+  }
+
+  /**
+   * Compact and return an array of child nodes.
+   *
+   * @returns {Node[]} An array of compacted child nodes.
+   */
+  compactChildNodes() {
+    const compact = [];
+
+    if (this.unexpected) {
+      compact.push(this.unexpected);
+    }
+
+    return compact;
+  }
+
+  /**
+   * Transforms the Node to a JavaScript object.
+   *
+   * @returns {Object}
+   */
+  toJSON() {
+    return {
+      type: "ErrorRecoveryNode",
+      location: this.location,
+      flags: this.#flags,
+      unexpected: this.unexpected,
+    };
+  }
+}
+
+/**
  * Represents the use of the literal `false` keyword.
  *
  *     false
@@ -6106,7 +6193,7 @@ export class FindPatternNode {
   requireds;
 
   /**
-   * @type Node
+   * @type SplatNode
    */
   right;
 
@@ -6129,7 +6216,7 @@ export class FindPatternNode {
    * @param {Node | null} constant
    * @param {SplatNode} left
    * @param {Node[]} requireds
-   * @param {Node} right
+   * @param {SplatNode} right
    * @param {Location | null} openingLoc
    * @param {Location | null} closingLoc
    */
@@ -11991,79 +12078,6 @@ export class MatchWriteNode {
       flags: this.#flags,
       call: this.call,
       targets: this.targets,
-    };
-  }
-}
-
-/**
- * Represents a node that is missing from the source and results in a syntax error.
- */
-export class MissingNode {
-  /**
-   * @type number
-   */
-  nodeID;
-
-  /**
-   * @type {Location}
-   */
-  location;
-
-  /**
-   * @type number
-   */
-  #flags;
-
-  /**
-   * Construct a new MissingNode.
-   *
-   * @param {number} nodeID
-   * @param {Location} location
-   * @param {number} flags
-   */
-  constructor(nodeID, location, flags) {
-    this.nodeID = nodeID;
-    this.location = location;
-    this.#flags = flags;
-  }
-
-  /**
-   * Accept a visitor for this node.
-   *
-   * @param {visitors.Visitor} visitor
-   */
-  accept(visitor) {
-    visitor.visitMissingNode(this)
-  }
-
-  /**
-   * Returns all child nodes of the current node.
-   *
-   * @returns {(Node | null)[]} An array of child nodes.
-   */
-  childNodes() {
-    return []
-  }
-
-  /**
-   * Compact and return an array of child nodes.
-   *
-   * @returns {Node[]} An array of compacted child nodes.
-   */
-  compactChildNodes() {
-    return [];
-  }
-
-  /**
-   * Transforms the Node to a JavaScript object.
-   *
-   * @returns {Object}
-   */
-  toJSON() {
-    return {
-      type: "MissingNode",
-      location: this.location,
-      flags: this.#flags,
     };
   }
 }

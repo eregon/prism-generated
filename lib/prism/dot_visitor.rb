@@ -1703,6 +1703,26 @@ module Prism
       super
     end
 
+    #: (ErrorRecoveryNode) -> void
+    def visit_error_recovery_node(node) # :nodoc:
+      table = Table.new("ErrorRecoveryNode")
+      id = node_id(node)
+
+      # unexpected
+      unless (unexpected = node.unexpected).nil?
+        table.field("unexpected", port: true)
+        digraph.edge("#{id}:unexpected -> #{node_id(unexpected)};")
+      end
+
+      digraph.node(<<~DOT)
+        #{id} [
+          label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
+        ];
+      DOT
+
+      super
+    end
+
     #: (FalseNode) -> void
     def visit_false_node(node) # :nodoc:
       table = Table.new("FalseNode")
@@ -3196,20 +3216,6 @@ module Prism
       else
         table.field("targets", "[]")
       end
-
-      digraph.node(<<~DOT)
-        #{id} [
-          label=<#{table.to_dot.gsub(/\n/, "\n  ")}>
-        ];
-      DOT
-
-      super
-    end
-
-    #: (MissingNode) -> void
-    def visit_missing_node(node) # :nodoc:
-      table = Table.new("MissingNode")
-      id = node_id(node)
 
       digraph.node(<<~DOT)
         #{id} [

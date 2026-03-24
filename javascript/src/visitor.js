@@ -523,6 +523,15 @@ export class Visitor extends BasicVisitor {
   }
 
   /**
+   * Visit a ErrorRecoveryNode node.
+   *
+   * @param {nodes.ErrorRecoveryNode} node
+   */
+  visitErrorRecoveryNode(node) {
+    this.visitChildNodes(node);
+  }
+
+  /**
    * Visit a FalseNode node.
    *
    * @param {nodes.FalseNode} node
@@ -987,15 +996,6 @@ export class Visitor extends BasicVisitor {
    * @param {nodes.MatchWriteNode} node
    */
   visitMatchWriteNode(node) {
-    this.visitChildNodes(node);
-  }
-
-  /**
-   * Visit a MissingNode node.
-   *
-   * @param {nodes.MissingNode} node
-   */
-  visitMissingNode(node) {
     this.visitChildNodes(node);
   }
 

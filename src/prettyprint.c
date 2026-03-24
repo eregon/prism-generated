@@ -3260,6 +3260,31 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
 
             break;
         }
+        case PM_ERROR_RECOVERY_NODE: {
+            pm_error_recovery_node_t *cast = (pm_error_recovery_node_t *) node;
+            pm_buffer_append_string(output_buffer, "@ ErrorRecoveryNode (location: ", 31);
+            prettyprint_location(output_buffer, parser, &node->location);
+            pm_buffer_append_string(output_buffer, ")\n", 2);
+
+            // unexpected
+            {
+                pm_buffer_concat(output_buffer, prefix_buffer);
+                pm_buffer_append_string(output_buffer, "+-- unexpected:", 15);
+                if (cast->unexpected == NULL) {
+                    pm_buffer_append_string(output_buffer, " nil\n", 5);
+                } else {
+                    pm_buffer_append_byte(output_buffer, '\n');
+
+                    size_t prefix_length = prefix_buffer->length;
+                    pm_buffer_append_string(prefix_buffer, "    ", 4);
+                    pm_buffer_concat(output_buffer, prefix_buffer);
+                    prettyprint_node(output_buffer, parser, (pm_node_t *) cast->unexpected, prefix_buffer);
+                    prefix_buffer->length = prefix_length;
+                }
+            }
+
+            break;
+        }
         case PM_FALSE_NODE: {
             pm_buffer_append_string(output_buffer, "@ FalseNode (location: ", 23);
             prettyprint_location(output_buffer, parser, &node->location);
@@ -6260,13 +6285,6 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                     prefix_buffer->length = prefix_length;
                 }
             }
-
-            break;
-        }
-        case PM_MISSING_NODE: {
-            pm_buffer_append_string(output_buffer, "@ MissingNode (location: ", 25);
-            prettyprint_location(output_buffer, parser, &node->location);
-            pm_buffer_append_string(output_buffer, ")\n", 2);
 
             break;
         }

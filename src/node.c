@@ -190,6 +190,8 @@ pm_node_type(pm_node_type_t node_type)
             return "PM_EMBEDDED_VARIABLE_NODE";
         case PM_ENSURE_NODE:
             return "PM_ENSURE_NODE";
+        case PM_ERROR_RECOVERY_NODE:
+            return "PM_ERROR_RECOVERY_NODE";
         case PM_FALSE_NODE:
             return "PM_FALSE_NODE";
         case PM_FIND_PATTERN_NODE:
@@ -294,8 +296,6 @@ pm_node_type(pm_node_type_t node_type)
             return "PM_MATCH_REQUIRED_NODE";
         case PM_MATCH_WRITE_NODE:
             return "PM_MATCH_WRITE_NODE";
-        case PM_MISSING_NODE:
-            return "PM_MISSING_NODE";
         case PM_MODULE_NODE:
             return "PM_MODULE_NODE";
         case PM_MULTI_TARGET_NODE:
@@ -955,6 +955,16 @@ pm_visit_child_nodes(const pm_node_t *node, bool (*visitor)(const pm_node_t *nod
 
             break;
         }
+        case PM_ERROR_RECOVERY_NODE: {
+            const pm_error_recovery_node_t *cast = (const pm_error_recovery_node_t *) node;
+
+            // Visit the unexpected field
+            if (cast->unexpected != NULL) {
+                pm_visit_node((const pm_node_t *) cast->unexpected, visitor, data);
+            }
+
+            break;
+        }
         case PM_FALSE_NODE:
             break;
         case PM_FIND_PATTERN_NODE: {
@@ -1429,8 +1439,6 @@ pm_visit_child_nodes(const pm_node_t *node, bool (*visitor)(const pm_node_t *nod
 
             break;
         }
-        case PM_MISSING_NODE:
-            break;
         case PM_MODULE_NODE: {
             const pm_module_node_t *cast = (const pm_module_node_t *) node;
 
@@ -2765,6 +2773,21 @@ pm_ensure_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
 }
 
 /**
+ * Allocate and initialize a new ErrorRecoveryNode node.
+ */
+pm_error_recovery_node_t *
+pm_error_recovery_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *unexpected) {
+    pm_error_recovery_node_t *node = (pm_error_recovery_node_t *) pm_arena_alloc(arena, sizeof(pm_error_recovery_node_t), PRISM_ALIGNOF(pm_error_recovery_node_t));
+
+    *node = (pm_error_recovery_node_t) {
+        .base = { .type = PM_ERROR_RECOVERY_NODE, .flags = flags, .node_id = node_id, .location = location },
+        .unexpected = unexpected
+    };
+
+    return node;
+}
+
+/**
  * Allocate and initialize a new FalseNode node.
  */
 pm_false_node_t *
@@ -2782,7 +2805,7 @@ pm_false_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  * Allocate and initialize a new FindPatternNode node.
  */
 pm_find_pattern_node_t *
-pm_find_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *constant, struct pm_splat_node *left, pm_node_list_t requireds, struct pm_node *right, pm_location_t opening_loc, pm_location_t closing_loc) {
+pm_find_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *constant, struct pm_splat_node *left, pm_node_list_t requireds, struct pm_splat_node *right, pm_location_t opening_loc, pm_location_t closing_loc) {
     pm_find_pattern_node_t *node = (pm_find_pattern_node_t *) pm_arena_alloc(arena, sizeof(pm_find_pattern_node_t), PRISM_ALIGNOF(pm_find_pattern_node_t));
 
     *node = (pm_find_pattern_node_t) {
@@ -3656,20 +3679,6 @@ pm_match_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fla
         .base = { .type = PM_MATCH_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
         .call = call,
         .targets = targets
-    };
-
-    return node;
-}
-
-/**
- * Allocate and initialize a new MissingNode node.
- */
-pm_missing_node_t *
-pm_missing_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_missing_node_t *node = (pm_missing_node_t *) pm_arena_alloc(arena, sizeof(pm_missing_node_t), PRISM_ALIGNOF(pm_missing_node_t));
-
-    *node = (pm_missing_node_t) {
-        .base = { .type = PM_MISSING_NODE, .flags = flags, .node_id = node_id, .location = location }
     };
 
     return node;

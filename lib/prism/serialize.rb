@@ -905,7 +905,7 @@ module Prism
                 location,
                 load_varuint,
                 load_node(constant_pool, encoding, freeze), #: (GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode)
-                load_node(constant_pool, encoding, freeze), #: (GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode)
+                load_node(constant_pool, encoding, freeze), #: (GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode)
                 load_location(freeze),
               )
             when 2
@@ -915,7 +915,7 @@ module Prism
                 location,
                 load_varuint,
                 load_node(constant_pool, encoding, freeze), #: (SymbolNode | InterpolatedSymbolNode)
-                load_node(constant_pool, encoding, freeze), #: (SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode)
+                load_node(constant_pool, encoding, freeze), #: (SymbolNode | InterpolatedSymbolNode)
                 load_location(freeze),
               )
             when 3
@@ -1194,7 +1194,7 @@ module Prism
                 load_varuint,
                 Array.new(load_varuint) { load_constant(constant_pool, encoding) }.tap { |constants| constants.freeze if freeze },
                 load_location(freeze),
-                load_node(constant_pool, encoding, freeze), #: (ConstantReadNode | ConstantPathNode | CallNode)
+                load_node(constant_pool, encoding, freeze), #: (ConstantReadNode | ConstantPathNode)
                 load_optional_location(freeze),
                 load_optional_node(constant_pool, encoding, freeze), #: Prism::node?
                 load_optional_node(constant_pool, encoding, freeze), #: (StatementsNode | BeginNode)?
@@ -1457,13 +1457,21 @@ module Prism
                 load_location(freeze),
               )
             when 51
+              ErrorRecoveryNode.new(
+                source,
+                node_id,
+                location,
+                load_varuint,
+                load_optional_node(constant_pool, encoding, freeze), #: Prism::node?
+              )
+            when 52
               FalseNode.new(
                 source,
                 node_id,
                 location,
                 load_varuint,
               )
-            when 52
+            when 53
               FindPatternNode.new(
                 source,
                 node_id,
@@ -1474,11 +1482,11 @@ module Prism
                 Array.new(load_varuint) do
                   load_node(constant_pool, encoding, freeze) #: Prism::node
                 end.tap { |nodes| nodes.freeze if freeze },
-                load_node(constant_pool, encoding, freeze), #: (SplatNode | MissingNode)
+                load_node(constant_pool, encoding, freeze), #: SplatNode
                 load_optional_location(freeze),
                 load_optional_location(freeze),
               )
-            when 53
+            when 54
               FlipFlopNode.new(
                 source,
                 node_id,
@@ -1488,7 +1496,7 @@ module Prism
                 load_optional_node(constant_pool, encoding, freeze), #: Prism::node?
                 load_location(freeze),
               )
-            when 54
+            when 55
               FloatNode.new(
                 source,
                 node_id,
@@ -1496,13 +1504,13 @@ module Prism
                 load_varuint,
                 load_double,
               )
-            when 55
+            when 56
               ForNode.new(
                 source,
                 node_id,
                 location,
                 load_varuint,
-                load_node(constant_pool, encoding, freeze), #: (LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode)
+                load_node(constant_pool, encoding, freeze), #: (LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode)
                 load_node(constant_pool, encoding, freeze), #: Prism::node
                 load_optional_node(constant_pool, encoding, freeze), #: StatementsNode?
                 load_location(freeze),
@@ -1510,21 +1518,21 @@ module Prism
                 load_optional_location(freeze),
                 load_location(freeze),
               )
-            when 56
+            when 57
               ForwardingArgumentsNode.new(
                 source,
                 node_id,
                 location,
                 load_varuint,
               )
-            when 57
+            when 58
               ForwardingParameterNode.new(
                 source,
                 node_id,
                 location,
                 load_varuint,
               )
-            when 58
+            when 59
               ForwardingSuperNode.new(
                 source,
                 node_id,
@@ -1532,7 +1540,7 @@ module Prism
                 load_varuint,
                 load_optional_node(constant_pool, encoding, freeze), #: BlockNode?
               )
-            when 59
+            when 60
               GlobalVariableAndWriteNode.new(
                 source,
                 node_id,
@@ -1543,7 +1551,7 @@ module Prism
                 load_location(freeze),
                 load_node(constant_pool, encoding, freeze), #: Prism::node
               )
-            when 60
+            when 61
               GlobalVariableOperatorWriteNode.new(
                 source,
                 node_id,
@@ -1555,7 +1563,7 @@ module Prism
                 load_node(constant_pool, encoding, freeze), #: Prism::node
                 load_constant(constant_pool, encoding),
               )
-            when 61
+            when 62
               GlobalVariableOrWriteNode.new(
                 source,
                 node_id,
@@ -1566,7 +1574,7 @@ module Prism
                 load_location(freeze),
                 load_node(constant_pool, encoding, freeze), #: Prism::node
               )
-            when 62
+            when 63
               GlobalVariableReadNode.new(
                 source,
                 node_id,
@@ -1574,7 +1582,7 @@ module Prism
                 load_varuint,
                 load_constant(constant_pool, encoding),
               )
-            when 63
+            when 64
               GlobalVariableTargetNode.new(
                 source,
                 node_id,
@@ -1582,7 +1590,7 @@ module Prism
                 load_varuint,
                 load_constant(constant_pool, encoding),
               )
-            when 64
+            when 65
               GlobalVariableWriteNode.new(
                 source,
                 node_id,
@@ -1593,7 +1601,7 @@ module Prism
                 load_node(constant_pool, encoding, freeze), #: Prism::node
                 load_location(freeze),
               )
-            when 65
+            when 66
               HashNode.new(
                 source,
                 node_id,
@@ -1605,7 +1613,7 @@ module Prism
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_location(freeze),
               )
-            when 66
+            when 67
               HashPatternNode.new(
                 source,
                 node_id,
@@ -1619,7 +1627,7 @@ module Prism
                 load_optional_location(freeze),
                 load_optional_location(freeze),
               )
-            when 67
+            when 68
               IfNode.new(
                 source,
                 node_id,
@@ -1632,7 +1640,7 @@ module Prism
                 load_optional_node(constant_pool, encoding, freeze), #: (ElseNode | IfNode)?
                 load_optional_location(freeze),
               )
-            when 68
+            when 69
               ImaginaryNode.new(
                 source,
                 node_id,
@@ -1640,7 +1648,7 @@ module Prism
                 load_varuint,
                 load_node(constant_pool, encoding, freeze), #: (FloatNode | IntegerNode | RationalNode)
               )
-            when 69
+            when 70
               ImplicitNode.new(
                 source,
                 node_id,
@@ -1648,14 +1656,14 @@ module Prism
                 load_varuint,
                 load_node(constant_pool, encoding, freeze), #: (LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
               )
-            when 70
+            when 71
               ImplicitRestNode.new(
                 source,
                 node_id,
                 location,
                 load_varuint,
               )
-            when 71
+            when 72
               InNode.new(
                 source,
                 node_id,
@@ -1666,7 +1674,7 @@ module Prism
                 load_location(freeze),
                 load_optional_location(freeze),
               )
-            when 72
+            when 73
               IndexAndWriteNode.new(
                 source,
                 node_id,
@@ -1681,7 +1689,7 @@ module Prism
                 load_location(freeze),
                 load_node(constant_pool, encoding, freeze), #: Prism::node
               )
-            when 73
+            when 74
               IndexOperatorWriteNode.new(
                 source,
                 node_id,
@@ -1697,7 +1705,7 @@ module Prism
                 load_location(freeze),
                 load_node(constant_pool, encoding, freeze), #: Prism::node
               )
-            when 74
+            when 75
               IndexOrWriteNode.new(
                 source,
                 node_id,
@@ -1712,7 +1720,7 @@ module Prism
                 load_location(freeze),
                 load_node(constant_pool, encoding, freeze), #: Prism::node
               )
-            when 75
+            when 76
               IndexTargetNode.new(
                 source,
                 node_id,
@@ -1724,7 +1732,7 @@ module Prism
                 load_location(freeze),
                 load_optional_node(constant_pool, encoding, freeze), #: BlockArgumentNode?
               )
-            when 76
+            when 77
               InstanceVariableAndWriteNode.new(
                 source,
                 node_id,
@@ -1735,7 +1743,7 @@ module Prism
                 load_location(freeze),
                 load_node(constant_pool, encoding, freeze), #: Prism::node
               )
-            when 77
+            when 78
               InstanceVariableOperatorWriteNode.new(
                 source,
                 node_id,
@@ -1747,7 +1755,7 @@ module Prism
                 load_node(constant_pool, encoding, freeze), #: Prism::node
                 load_constant(constant_pool, encoding),
               )
-            when 78
+            when 79
               InstanceVariableOrWriteNode.new(
                 source,
                 node_id,
@@ -1758,7 +1766,7 @@ module Prism
                 load_location(freeze),
                 load_node(constant_pool, encoding, freeze), #: Prism::node
               )
-            when 79
+            when 80
               InstanceVariableReadNode.new(
                 source,
                 node_id,
@@ -1766,7 +1774,7 @@ module Prism
                 load_varuint,
                 load_constant(constant_pool, encoding),
               )
-            when 80
+            when 81
               InstanceVariableTargetNode.new(
                 source,
                 node_id,
@@ -1774,7 +1782,7 @@ module Prism
                 load_varuint,
                 load_constant(constant_pool, encoding),
               )
-            when 81
+            when 82
               InstanceVariableWriteNode.new(
                 source,
                 node_id,
@@ -1785,7 +1793,7 @@ module Prism
                 load_node(constant_pool, encoding, freeze), #: Prism::node
                 load_location(freeze),
               )
-            when 82
+            when 83
               IntegerNode.new(
                 source,
                 node_id,
@@ -1793,7 +1801,7 @@ module Prism
                 load_varuint,
                 load_integer,
               )
-            when 83
+            when 84
               InterpolatedMatchLastLineNode.new(
                 source,
                 node_id,
@@ -1805,7 +1813,7 @@ module Prism
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_location(freeze),
               )
-            when 84
+            when 85
               InterpolatedRegularExpressionNode.new(
                 source,
                 node_id,
@@ -1817,7 +1825,7 @@ module Prism
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_location(freeze),
               )
-            when 85
+            when 86
               InterpolatedStringNode.new(
                 source,
                 node_id,
@@ -1825,11 +1833,11 @@ module Prism
                 load_varuint,
                 load_optional_location(freeze),
                 Array.new(load_varuint) do
-                  load_node(constant_pool, encoding, freeze) #: StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode
+                  load_node(constant_pool, encoding, freeze) #: StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_optional_location(freeze),
               )
-            when 86
+            when 87
               InterpolatedSymbolNode.new(
                 source,
                 node_id,
@@ -1841,7 +1849,7 @@ module Prism
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_optional_location(freeze),
               )
-            when 87
+            when 88
               InterpolatedXStringNode.new(
                 source,
                 node_id,
@@ -1853,21 +1861,21 @@ module Prism
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_location(freeze),
               )
-            when 88
+            when 89
               ItLocalVariableReadNode.new(
                 source,
                 node_id,
                 location,
                 load_varuint,
               )
-            when 89
+            when 90
               ItParametersNode.new(
                 source,
                 node_id,
                 location,
                 load_varuint,
               )
-            when 90
+            when 91
               KeywordHashNode.new(
                 source,
                 node_id,
@@ -1877,7 +1885,7 @@ module Prism
                   load_node(constant_pool, encoding, freeze) #: AssocNode | AssocSplatNode
                 end.tap { |nodes| nodes.freeze if freeze },
               )
-            when 91
+            when 92
               KeywordRestParameterNode.new(
                 source,
                 node_id,
@@ -1887,7 +1895,7 @@ module Prism
                 load_optional_location(freeze),
                 load_location(freeze),
               )
-            when 92
+            when 93
               LambdaNode.new(
                 source,
                 node_id,
@@ -1900,7 +1908,7 @@ module Prism
                 load_optional_node(constant_pool, encoding, freeze), #: (BlockParametersNode | NumberedParametersNode | ItParametersNode)?
                 load_optional_node(constant_pool, encoding, freeze), #: (StatementsNode | BeginNode)?
               )
-            when 93
+            when 94
               LocalVariableAndWriteNode.new(
                 source,
                 node_id,
@@ -1912,7 +1920,7 @@ module Prism
                 load_constant(constant_pool, encoding),
                 load_varuint,
               )
-            when 94
+            when 95
               LocalVariableOperatorWriteNode.new(
                 source,
                 node_id,
@@ -1925,7 +1933,7 @@ module Prism
                 load_constant(constant_pool, encoding),
                 load_varuint,
               )
-            when 95
+            when 96
               LocalVariableOrWriteNode.new(
                 source,
                 node_id,
@@ -1937,7 +1945,7 @@ module Prism
                 load_constant(constant_pool, encoding),
                 load_varuint,
               )
-            when 96
+            when 97
               LocalVariableReadNode.new(
                 source,
                 node_id,
@@ -1946,7 +1954,7 @@ module Prism
                 load_constant(constant_pool, encoding),
                 load_varuint,
               )
-            when 97
+            when 98
               LocalVariableTargetNode.new(
                 source,
                 node_id,
@@ -1955,7 +1963,7 @@ module Prism
                 load_constant(constant_pool, encoding),
                 load_varuint,
               )
-            when 98
+            when 99
               LocalVariableWriteNode.new(
                 source,
                 node_id,
@@ -1967,7 +1975,7 @@ module Prism
                 load_node(constant_pool, encoding, freeze), #: Prism::node
                 load_location(freeze),
               )
-            when 99
+            when 100
               MatchLastLineNode.new(
                 source,
                 node_id,
@@ -1978,7 +1986,7 @@ module Prism
                 load_location(freeze),
                 load_string(encoding),
               )
-            when 100
+            when 101
               MatchPredicateNode.new(
                 source,
                 node_id,
@@ -1988,7 +1996,7 @@ module Prism
                 load_node(constant_pool, encoding, freeze), #: Prism::node
                 load_location(freeze),
               )
-            when 101
+            when 102
               MatchRequiredNode.new(
                 source,
                 node_id,
@@ -1998,7 +2006,7 @@ module Prism
                 load_node(constant_pool, encoding, freeze), #: Prism::node
                 load_location(freeze),
               )
-            when 102
+            when 103
               MatchWriteNode.new(
                 source,
                 node_id,
@@ -2009,13 +2017,6 @@ module Prism
                   load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode
                 end.tap { |nodes| nodes.freeze if freeze },
               )
-            when 103
-              MissingNode.new(
-                source,
-                node_id,
-                location,
-                load_varuint,
-              )
             when 104
               ModuleNode.new(
                 source,
@@ -2024,7 +2025,7 @@ module Prism
                 load_varuint,
                 Array.new(load_varuint) { load_constant(constant_pool, encoding) }.tap { |constants| constants.freeze if freeze },
                 load_location(freeze),
-                load_node(constant_pool, encoding, freeze), #: (ConstantReadNode | ConstantPathNode | MissingNode)
+                load_node(constant_pool, encoding, freeze), #: (ConstantReadNode | ConstantPathNode)
                 load_optional_node(constant_pool, encoding, freeze), #: (StatementsNode | BeginNode)?
                 load_location(freeze),
                 load_constant(constant_pool, encoding),
@@ -2036,11 +2037,11 @@ module Prism
                 location,
                 load_varuint,
                 Array.new(load_varuint) do
-                  load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode
+                  load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_optional_node(constant_pool, encoding, freeze), #: (ImplicitRestNode | SplatNode)?
                 Array.new(load_varuint) do
-                  load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode
+                  load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_optional_location(freeze),
                 load_optional_location(freeze),
@@ -2052,11 +2053,11 @@ module Prism
                 location,
                 load_varuint,
                 Array.new(load_varuint) do
-                  load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode
+                  load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_optional_node(constant_pool, encoding, freeze), #: (ImplicitRestNode | SplatNode)?
                 Array.new(load_varuint) do
-                  load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode
+                  load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_optional_location(freeze),
                 load_optional_location(freeze),
@@ -2158,7 +2159,7 @@ module Prism
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_optional_node(constant_pool, encoding, freeze), #: (RestParameterNode | ImplicitRestNode)?
                 Array.new(load_varuint) do
-                  load_node(constant_pool, encoding, freeze) #: RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode | BlockParameterNode | NoBlockParameterNode
+                  load_node(constant_pool, encoding, freeze) #: RequiredParameterNode | MultiTargetNode
                 end.tap { |nodes| nodes.freeze if freeze },
                 Array.new(load_varuint) do
                   load_node(constant_pool, encoding, freeze) #: RequiredKeywordParameterNode | OptionalKeywordParameterNode
@@ -2193,7 +2194,7 @@ module Prism
                 node_id,
                 location,
                 load_varuint,
-                load_node(constant_pool, encoding, freeze), #: (LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode)
+                load_node(constant_pool, encoding, freeze), #: (LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode)
                 load_location(freeze),
               )
             when 120
@@ -2302,7 +2303,7 @@ module Prism
                   load_node(constant_pool, encoding, freeze) #: Prism::node
                 end.tap { |nodes| nodes.freeze if freeze },
                 load_optional_location(freeze),
-                load_optional_node(constant_pool, encoding, freeze), #: (LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode)?
+                load_optional_node(constant_pool, encoding, freeze), #: (LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode)?
                 load_optional_location(freeze),
                 load_optional_node(constant_pool, encoding, freeze), #: StatementsNode?
                 load_optional_node(constant_pool, encoding, freeze), #: RescueNode?
@@ -2553,7 +2554,7 @@ module Prism
                   location,
                   load_varuint,
                   load_node(constant_pool, encoding, freeze), #: (GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode)
-                  load_node(constant_pool, encoding, freeze), #: (GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | SymbolNode | MissingNode)
+                  load_node(constant_pool, encoding, freeze), #: (GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode)
                   load_location(freeze),
                 )
               value.freeze if freeze
@@ -2569,7 +2570,7 @@ module Prism
                   location,
                   load_varuint,
                   load_node(constant_pool, encoding, freeze), #: (SymbolNode | InterpolatedSymbolNode)
-                  load_node(constant_pool, encoding, freeze), #: (SymbolNode | InterpolatedSymbolNode | GlobalVariableReadNode | MissingNode)
+                  load_node(constant_pool, encoding, freeze), #: (SymbolNode | InterpolatedSymbolNode)
                   load_location(freeze),
                 )
               value.freeze if freeze
@@ -2992,7 +2993,7 @@ module Prism
                   load_varuint,
                   Array.new(load_varuint) { load_constant(constant_pool, encoding) },
                   load_location(freeze),
-                  load_node(constant_pool, encoding, freeze), #: (ConstantReadNode | ConstantPathNode | CallNode)
+                  load_node(constant_pool, encoding, freeze), #: (ConstantReadNode | ConstantPathNode)
                   load_optional_location(freeze),
                   load_optional_node(constant_pool, encoding, freeze), #: Prism::node?
                   load_optional_node(constant_pool, encoding, freeze), #: (StatementsNode | BeginNode)?
@@ -3405,6 +3406,20 @@ module Prism
               node_id = load_varuint
               location = load_location(freeze)
               value =
+                ErrorRecoveryNode.new(
+                  source,
+                  node_id,
+                  location,
+                  load_varuint,
+                  load_optional_node(constant_pool, encoding, freeze), #: Prism::node?
+                )
+              value.freeze if freeze
+              value
+            },
+            -> (constant_pool, encoding, freeze) {
+              node_id = load_varuint
+              location = load_location(freeze)
+              value =
                 FalseNode.new(
                   source,
                   node_id,
@@ -3428,7 +3443,7 @@ module Prism
                   Array.new(load_varuint) do
                     load_node(constant_pool, encoding, freeze) #: Prism::node
                   end,
-                  load_node(constant_pool, encoding, freeze), #: (SplatNode | MissingNode)
+                  load_node(constant_pool, encoding, freeze), #: SplatNode
                   load_optional_location(freeze),
                   load_optional_location(freeze),
                 )
@@ -3474,7 +3489,7 @@ module Prism
                   node_id,
                   location,
                   load_varuint,
-                  load_node(constant_pool, encoding, freeze), #: (LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode)
+                  load_node(constant_pool, encoding, freeze), #: (LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode)
                   load_node(constant_pool, encoding, freeze), #: Prism::node
                   load_optional_node(constant_pool, encoding, freeze), #: StatementsNode?
                   load_location(freeze),
@@ -3977,7 +3992,7 @@ module Prism
                   load_varuint,
                   load_optional_location(freeze),
                   Array.new(load_varuint) do
-                    load_node(constant_pool, encoding, freeze) #: StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode | XStringNode | InterpolatedXStringNode | SymbolNode | InterpolatedSymbolNode
+                    load_node(constant_pool, encoding, freeze) #: StringNode | EmbeddedStatementsNode | EmbeddedVariableNode | InterpolatedStringNode
                   end,
                   load_optional_location(freeze),
                 )
@@ -4270,19 +4285,6 @@ module Prism
               node_id = load_varuint
               location = load_location(freeze)
               value =
-                MissingNode.new(
-                  source,
-                  node_id,
-                  location,
-                  load_varuint,
-                )
-              value.freeze if freeze
-              value
-            },
-            -> (constant_pool, encoding, freeze) {
-              node_id = load_varuint
-              location = load_location(freeze)
-              value =
                 ModuleNode.new(
                   source,
                   node_id,
@@ -4290,7 +4292,7 @@ module Prism
                   load_varuint,
                   Array.new(load_varuint) { load_constant(constant_pool, encoding) },
                   load_location(freeze),
-                  load_node(constant_pool, encoding, freeze), #: (ConstantReadNode | ConstantPathNode | MissingNode)
+                  load_node(constant_pool, encoding, freeze), #: (ConstantReadNode | ConstantPathNode)
                   load_optional_node(constant_pool, encoding, freeze), #: (StatementsNode | BeginNode)?
                   load_location(freeze),
                   load_constant(constant_pool, encoding),
@@ -4308,11 +4310,11 @@ module Prism
                   location,
                   load_varuint,
                   Array.new(load_varuint) do
-                    load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode
+                    load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode
                   end,
                   load_optional_node(constant_pool, encoding, freeze), #: (ImplicitRestNode | SplatNode)?
                   Array.new(load_varuint) do
-                    load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode | BackReferenceReadNode | NumberedReferenceReadNode
+                    load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | RequiredParameterNode
                   end,
                   load_optional_location(freeze),
                   load_optional_location(freeze),
@@ -4330,11 +4332,11 @@ module Prism
                   location,
                   load_varuint,
                   Array.new(load_varuint) do
-                    load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode
+                    load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode
                   end,
                   load_optional_node(constant_pool, encoding, freeze), #: (ImplicitRestNode | SplatNode)?
                   Array.new(load_varuint) do
-                    load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode | BackReferenceReadNode | NumberedReferenceReadNode
+                    load_node(constant_pool, encoding, freeze) #: LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | MultiTargetNode
                   end,
                   load_optional_location(freeze),
                   load_optional_location(freeze),
@@ -4496,7 +4498,7 @@ module Prism
                   end,
                   load_optional_node(constant_pool, encoding, freeze), #: (RestParameterNode | ImplicitRestNode)?
                   Array.new(load_varuint) do
-                    load_node(constant_pool, encoding, freeze) #: RequiredParameterNode | MultiTargetNode | KeywordRestParameterNode | NoKeywordsParameterNode | ForwardingParameterNode | BlockParameterNode | NoBlockParameterNode
+                    load_node(constant_pool, encoding, freeze) #: RequiredParameterNode | MultiTargetNode
                   end,
                   Array.new(load_varuint) do
                     load_node(constant_pool, encoding, freeze) #: RequiredKeywordParameterNode | OptionalKeywordParameterNode
@@ -4549,7 +4551,7 @@ module Prism
                   node_id,
                   location,
                   load_varuint,
-                  load_node(constant_pool, encoding, freeze), #: (LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode | MissingNode)
+                  load_node(constant_pool, encoding, freeze), #: (LocalVariableReadNode | InstanceVariableReadNode | ClassVariableReadNode | GlobalVariableReadNode | BackReferenceReadNode | NumberedReferenceReadNode | ItLocalVariableReadNode)
                   load_location(freeze),
                 )
               value.freeze if freeze
@@ -4724,7 +4726,7 @@ module Prism
                     load_node(constant_pool, encoding, freeze) #: Prism::node
                   end,
                   load_optional_location(freeze),
-                  load_optional_node(constant_pool, encoding, freeze), #: (LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode | BackReferenceReadNode | NumberedReferenceReadNode | MissingNode)?
+                  load_optional_node(constant_pool, encoding, freeze), #: (LocalVariableTargetNode | InstanceVariableTargetNode | ClassVariableTargetNode | GlobalVariableTargetNode | ConstantTargetNode | ConstantPathTargetNode | CallTargetNode | IndexTargetNode)?
                   load_optional_location(freeze),
                   load_optional_node(constant_pool, encoding, freeze), #: StatementsNode?
                   load_optional_node(constant_pool, encoding, freeze), #: RescueNode?

@@ -807,6 +807,15 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             pm_serialize_location(&((pm_ensure_node_t *)node)->end_keyword_loc, buffer);
             break;
         }
+        case PM_ERROR_RECOVERY_NODE: {
+            pm_buffer_append_varuint(buffer, (uint32_t) node->flags);
+            if (((pm_error_recovery_node_t *)node)->unexpected == NULL) {
+                pm_buffer_append_byte(buffer, 0);
+            } else {
+                pm_serialize_node(parser, (pm_node_t *)((pm_error_recovery_node_t *)node)->unexpected, buffer);
+            }
+            break;
+        }
         case PM_FALSE_NODE: {
             pm_buffer_append_varuint(buffer, (uint32_t) node->flags);
             break;
@@ -1403,10 +1412,6 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
             for (uint32_t index = 0; index < targets_size; index++) {
                 pm_serialize_node(parser, (pm_node_t *) ((pm_match_write_node_t *)node)->targets.nodes[index], buffer);
             }
-            break;
-        }
-        case PM_MISSING_NODE: {
-            pm_buffer_append_varuint(buffer, (uint32_t) node->flags);
             break;
         }
         case PM_MODULE_NODE: {

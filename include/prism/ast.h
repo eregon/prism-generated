@@ -734,164 +734,164 @@ enum pm_node_type {
     /** EnsureNode */
     PM_ENSURE_NODE = 50,
 
+    /** ErrorRecoveryNode */
+    PM_ERROR_RECOVERY_NODE = 51,
+
     /** FalseNode */
-    PM_FALSE_NODE = 51,
+    PM_FALSE_NODE = 52,
 
     /** FindPatternNode */
-    PM_FIND_PATTERN_NODE = 52,
+    PM_FIND_PATTERN_NODE = 53,
 
     /** FlipFlopNode */
-    PM_FLIP_FLOP_NODE = 53,
+    PM_FLIP_FLOP_NODE = 54,
 
     /** FloatNode */
-    PM_FLOAT_NODE = 54,
+    PM_FLOAT_NODE = 55,
 
     /** ForNode */
-    PM_FOR_NODE = 55,
+    PM_FOR_NODE = 56,
 
     /** ForwardingArgumentsNode */
-    PM_FORWARDING_ARGUMENTS_NODE = 56,
+    PM_FORWARDING_ARGUMENTS_NODE = 57,
 
     /** ForwardingParameterNode */
-    PM_FORWARDING_PARAMETER_NODE = 57,
+    PM_FORWARDING_PARAMETER_NODE = 58,
 
     /** ForwardingSuperNode */
-    PM_FORWARDING_SUPER_NODE = 58,
+    PM_FORWARDING_SUPER_NODE = 59,
 
     /** GlobalVariableAndWriteNode */
-    PM_GLOBAL_VARIABLE_AND_WRITE_NODE = 59,
+    PM_GLOBAL_VARIABLE_AND_WRITE_NODE = 60,
 
     /** GlobalVariableOperatorWriteNode */
-    PM_GLOBAL_VARIABLE_OPERATOR_WRITE_NODE = 60,
+    PM_GLOBAL_VARIABLE_OPERATOR_WRITE_NODE = 61,
 
     /** GlobalVariableOrWriteNode */
-    PM_GLOBAL_VARIABLE_OR_WRITE_NODE = 61,
+    PM_GLOBAL_VARIABLE_OR_WRITE_NODE = 62,
 
     /** GlobalVariableReadNode */
-    PM_GLOBAL_VARIABLE_READ_NODE = 62,
+    PM_GLOBAL_VARIABLE_READ_NODE = 63,
 
     /** GlobalVariableTargetNode */
-    PM_GLOBAL_VARIABLE_TARGET_NODE = 63,
+    PM_GLOBAL_VARIABLE_TARGET_NODE = 64,
 
     /** GlobalVariableWriteNode */
-    PM_GLOBAL_VARIABLE_WRITE_NODE = 64,
+    PM_GLOBAL_VARIABLE_WRITE_NODE = 65,
 
     /** HashNode */
-    PM_HASH_NODE = 65,
+    PM_HASH_NODE = 66,
 
     /** HashPatternNode */
-    PM_HASH_PATTERN_NODE = 66,
+    PM_HASH_PATTERN_NODE = 67,
 
     /** IfNode */
-    PM_IF_NODE = 67,
+    PM_IF_NODE = 68,
 
     /** ImaginaryNode */
-    PM_IMAGINARY_NODE = 68,
+    PM_IMAGINARY_NODE = 69,
 
     /** ImplicitNode */
-    PM_IMPLICIT_NODE = 69,
+    PM_IMPLICIT_NODE = 70,
 
     /** ImplicitRestNode */
-    PM_IMPLICIT_REST_NODE = 70,
+    PM_IMPLICIT_REST_NODE = 71,
 
     /** InNode */
-    PM_IN_NODE = 71,
+    PM_IN_NODE = 72,
 
     /** IndexAndWriteNode */
-    PM_INDEX_AND_WRITE_NODE = 72,
+    PM_INDEX_AND_WRITE_NODE = 73,
 
     /** IndexOperatorWriteNode */
-    PM_INDEX_OPERATOR_WRITE_NODE = 73,
+    PM_INDEX_OPERATOR_WRITE_NODE = 74,
 
     /** IndexOrWriteNode */
-    PM_INDEX_OR_WRITE_NODE = 74,
+    PM_INDEX_OR_WRITE_NODE = 75,
 
     /** IndexTargetNode */
-    PM_INDEX_TARGET_NODE = 75,
+    PM_INDEX_TARGET_NODE = 76,
 
     /** InstanceVariableAndWriteNode */
-    PM_INSTANCE_VARIABLE_AND_WRITE_NODE = 76,
+    PM_INSTANCE_VARIABLE_AND_WRITE_NODE = 77,
 
     /** InstanceVariableOperatorWriteNode */
-    PM_INSTANCE_VARIABLE_OPERATOR_WRITE_NODE = 77,
+    PM_INSTANCE_VARIABLE_OPERATOR_WRITE_NODE = 78,
 
     /** InstanceVariableOrWriteNode */
-    PM_INSTANCE_VARIABLE_OR_WRITE_NODE = 78,
+    PM_INSTANCE_VARIABLE_OR_WRITE_NODE = 79,
 
     /** InstanceVariableReadNode */
-    PM_INSTANCE_VARIABLE_READ_NODE = 79,
+    PM_INSTANCE_VARIABLE_READ_NODE = 80,
 
     /** InstanceVariableTargetNode */
-    PM_INSTANCE_VARIABLE_TARGET_NODE = 80,
+    PM_INSTANCE_VARIABLE_TARGET_NODE = 81,
 
     /** InstanceVariableWriteNode */
-    PM_INSTANCE_VARIABLE_WRITE_NODE = 81,
+    PM_INSTANCE_VARIABLE_WRITE_NODE = 82,
 
     /** IntegerNode */
-    PM_INTEGER_NODE = 82,
+    PM_INTEGER_NODE = 83,
 
     /** InterpolatedMatchLastLineNode */
-    PM_INTERPOLATED_MATCH_LAST_LINE_NODE = 83,
+    PM_INTERPOLATED_MATCH_LAST_LINE_NODE = 84,
 
     /** InterpolatedRegularExpressionNode */
-    PM_INTERPOLATED_REGULAR_EXPRESSION_NODE = 84,
+    PM_INTERPOLATED_REGULAR_EXPRESSION_NODE = 85,
 
     /** InterpolatedStringNode */
-    PM_INTERPOLATED_STRING_NODE = 85,
+    PM_INTERPOLATED_STRING_NODE = 86,
 
     /** InterpolatedSymbolNode */
-    PM_INTERPOLATED_SYMBOL_NODE = 86,
+    PM_INTERPOLATED_SYMBOL_NODE = 87,
 
     /** InterpolatedXStringNode */
-    PM_INTERPOLATED_X_STRING_NODE = 87,
+    PM_INTERPOLATED_X_STRING_NODE = 88,
 
     /** ItLocalVariableReadNode */
-    PM_IT_LOCAL_VARIABLE_READ_NODE = 88,
+    PM_IT_LOCAL_VARIABLE_READ_NODE = 89,
 
     /** ItParametersNode */
-    PM_IT_PARAMETERS_NODE = 89,
+    PM_IT_PARAMETERS_NODE = 90,
 
     /** KeywordHashNode */
-    PM_KEYWORD_HASH_NODE = 90,
+    PM_KEYWORD_HASH_NODE = 91,
 
     /** KeywordRestParameterNode */
-    PM_KEYWORD_REST_PARAMETER_NODE = 91,
+    PM_KEYWORD_REST_PARAMETER_NODE = 92,
 
     /** LambdaNode */
-    PM_LAMBDA_NODE = 92,
+    PM_LAMBDA_NODE = 93,
 
     /** LocalVariableAndWriteNode */
-    PM_LOCAL_VARIABLE_AND_WRITE_NODE = 93,
+    PM_LOCAL_VARIABLE_AND_WRITE_NODE = 94,
 
     /** LocalVariableOperatorWriteNode */
-    PM_LOCAL_VARIABLE_OPERATOR_WRITE_NODE = 94,
+    PM_LOCAL_VARIABLE_OPERATOR_WRITE_NODE = 95,
 
     /** LocalVariableOrWriteNode */
-    PM_LOCAL_VARIABLE_OR_WRITE_NODE = 95,
+    PM_LOCAL_VARIABLE_OR_WRITE_NODE = 96,
 
     /** LocalVariableReadNode */
-    PM_LOCAL_VARIABLE_READ_NODE = 96,
+    PM_LOCAL_VARIABLE_READ_NODE = 97,
 
     /** LocalVariableTargetNode */
-    PM_LOCAL_VARIABLE_TARGET_NODE = 97,
+    PM_LOCAL_VARIABLE_TARGET_NODE = 98,
 
     /** LocalVariableWriteNode */
-    PM_LOCAL_VARIABLE_WRITE_NODE = 98,
+    PM_LOCAL_VARIABLE_WRITE_NODE = 99,
 
     /** MatchLastLineNode */
-    PM_MATCH_LAST_LINE_NODE = 99,
+    PM_MATCH_LAST_LINE_NODE = 100,
 
     /** MatchPredicateNode */
-    PM_MATCH_PREDICATE_NODE = 100,
+    PM_MATCH_PREDICATE_NODE = 101,
 
     /** MatchRequiredNode */
-    PM_MATCH_REQUIRED_NODE = 101,
+    PM_MATCH_REQUIRED_NODE = 102,
 
     /** MatchWriteNode */
-    PM_MATCH_WRITE_NODE = 102,
-
-    /** MissingNode */
-    PM_MISSING_NODE = 103,
+    PM_MATCH_WRITE_NODE = 103,
 
     /** ModuleNode */
     PM_MODULE_NODE = 104,
@@ -3767,6 +3767,27 @@ typedef struct pm_ensure_node {
 } pm_ensure_node_t;
 
 /**
+ * ErrorRecoveryNode
+ *
+ * Represents a node that is either missing or unexpected and results in a syntax error.
+ *
+ * Type: ::PM_ERROR_RECOVERY_NODE
+ *
+ * @extends pm_node_t
+ */
+typedef struct pm_error_recovery_node {
+    /** The embedded base node. */
+    pm_node_t base;
+
+    /**
+     * ErrorRecoveryNode#unexpected
+     *
+     * The unexpected node that was found in the tree, if there was one.
+     */
+    PM_NODE_ALIGNAS struct pm_node *unexpected;
+} pm_error_recovery_node_t;
+
+/**
  * FalseNode
  *
  * Represents the use of the literal `false` keyword.
@@ -3855,7 +3876,7 @@ typedef struct pm_find_pattern_node {
      *     foo in Foo(*bar, baz, *qux)
      *                           ^^^^
      */
-    PM_NODE_ALIGNAS struct pm_node *right;
+    PM_NODE_ALIGNAS struct pm_splat_node *right;
 
     /**
      * FindPatternNode#opening_loc
@@ -6009,20 +6030,6 @@ typedef struct pm_match_write_node {
 } pm_match_write_node_t;
 
 /**
- * MissingNode
- *
- * Represents a node that is missing from the source and results in a syntax error.
- *
- * Type: ::PM_MISSING_NODE
- *
- * @extends pm_node_t
- */
-typedef struct pm_missing_node {
-    /** The embedded base node. */
-    pm_node_t base;
-} pm_missing_node_t;
-
-/**
  * ModuleNode
  *
  * Represents a module declaration involving the `module` keyword.
@@ -6865,7 +6872,7 @@ typedef struct pm_range_node {
      *
      *     1...foo
      *         ^^^
-     * If neither right-hand or left-hand side was included, this will be a MissingNode.
+     * If neither right-hand or left-hand side was included, this will be an ErrorRecoveryNode.
      */
     PM_NODE_ALIGNAS struct pm_node *right;
 
@@ -8886,6 +8893,18 @@ PRISM_EXPORTED_FUNCTION pm_embedded_variable_node_t * pm_embedded_variable_node_
 PRISM_EXPORTED_FUNCTION pm_ensure_node_t * pm_ensure_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t ensure_keyword_loc, struct pm_statements_node *statements, pm_location_t end_keyword_loc);
 
 /**
+ * Allocate and initialize a new ErrorRecoveryNode node.
+ *
+ * @param arena The arena to allocate from.
+ * @param node_id The unique identifier for this node.
+ * @param flags The flags for this node.
+ * @param location The location of this node in the source.
+ * @param unexpected The unexpected node that was found in the tree, if there was one.
+ * @returns The newly allocated and initialized node.
+ */
+PRISM_EXPORTED_FUNCTION pm_error_recovery_node_t * pm_error_recovery_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *unexpected);
+
+/**
  * Allocate and initialize a new FalseNode node.
  *
  * @param arena The arena to allocate from.
@@ -8911,7 +8930,7 @@ PRISM_EXPORTED_FUNCTION pm_false_node_t * pm_false_node_new(pm_arena_t *arena, u
  * @param closing_loc The Location of the closing brace.
  * @returns The newly allocated and initialized node.
  */
-PRISM_EXPORTED_FUNCTION pm_find_pattern_node_t * pm_find_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *constant, struct pm_splat_node *left, pm_node_list_t requireds, struct pm_node *right, pm_location_t opening_loc, pm_location_t closing_loc);
+PRISM_EXPORTED_FUNCTION pm_find_pattern_node_t * pm_find_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *constant, struct pm_splat_node *left, pm_node_list_t requireds, struct pm_splat_node *right, pm_location_t opening_loc, pm_location_t closing_loc);
 
 /**
  * Allocate and initialize a new FlipFlopNode node.
@@ -9625,17 +9644,6 @@ PRISM_EXPORTED_FUNCTION pm_match_required_node_t * pm_match_required_node_new(pm
  * @returns The newly allocated and initialized node.
  */
 PRISM_EXPORTED_FUNCTION pm_match_write_node_t * pm_match_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_call_node *call, pm_node_list_t targets);
-
-/**
- * Allocate and initialize a new MissingNode node.
- *
- * @param arena The arena to allocate from.
- * @param node_id The unique identifier for this node.
- * @param flags The flags for this node.
- * @param location The location of this node in the source.
- * @returns The newly allocated and initialized node.
- */
-PRISM_EXPORTED_FUNCTION pm_missing_node_t * pm_missing_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location);
 
 /**
  * Allocate and initialize a new ModuleNode node.
