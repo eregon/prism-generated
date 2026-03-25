@@ -898,6 +898,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
         }
         case PM_FORWARDING_SUPER_NODE: {
             pm_buffer_append_varuint(buffer, (uint32_t) node->flags);
+            pm_serialize_location(&((pm_forwarding_super_node_t *)node)->keyword_loc, buffer);
             if (((pm_forwarding_super_node_t *)node)->block == NULL) {
                 pm_buffer_append_byte(buffer, 0);
             } else {

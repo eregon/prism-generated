@@ -1538,6 +1538,7 @@ module Prism
                 node_id,
                 location,
                 load_varuint,
+                load_location(freeze),
                 load_optional_node(constant_pool, encoding, freeze), #: BlockNode?
               )
             when 60
@@ -3535,6 +3536,7 @@ module Prism
                   node_id,
                   location,
                   load_varuint,
+                  load_location(freeze),
                   load_optional_node(constant_pool, encoding, freeze), #: BlockNode?
                 )
               value.freeze if freeze

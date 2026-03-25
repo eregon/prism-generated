@@ -3371,7 +3371,8 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                 }
 #line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FORWARDING_SUPER_NODE: {
-                    VALUE argv[5];
+                    pm_forwarding_super_node_t *cast = (pm_forwarding_super_node_t *) node;
+                    VALUE argv[6];
 
                     // source
                     argv[0] = source;
@@ -3385,11 +3386,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // flags
                     argv[3] = ULONG2NUM(node->flags);
 
+                    // keyword_loc
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
+                    argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
+
                     // block
 #line 219 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[4] = rb_ary_pop(value_stack);
+                    argv[5] = rb_ary_pop(value_stack);
 
-                    VALUE value = rb_class_new_instance(5, argv, rb_cPrismForwardingSuperNode);
+                    VALUE value = rb_class_new_instance(6, argv, rb_cPrismForwardingSuperNode);
                     if (freeze) rb_obj_freeze(value);
 
                     rb_ary_push(value_stack, value);

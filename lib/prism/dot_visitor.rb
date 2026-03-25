@@ -1912,6 +1912,9 @@ module Prism
       table = Table.new("ForwardingSuperNode")
       id = node_id(node)
 
+      # keyword_loc
+      table.field("keyword_loc", location_inspect(node.keyword_loc))
+
       # block
       unless (block = node.block).nil?
         table.field("block", port: true)

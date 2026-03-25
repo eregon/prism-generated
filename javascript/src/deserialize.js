@@ -797,7 +797,7 @@ export function deserialize(array) {
       case 58:
         return new nodes.ForwardingParameterNode(nodeID, location, flags = buffer.readVarInt());
       case 59:
-        return new nodes.ForwardingSuperNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode());
+        return new nodes.ForwardingSuperNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readOptionalNode());
       case 60:
         return new nodes.GlobalVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
       case 61:

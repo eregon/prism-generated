@@ -12715,16 +12715,18 @@ module Prism
   #
   # If it has any other arguments, it would be a `SuperNode` instead.
   class ForwardingSuperNode < Node
+    # @rbs @keyword_loc: Location
     # @rbs @block: BlockNode?
 
     # Initialize a new ForwardingSuperNode node.
     #--
-    #: (Source source, Integer node_id, Location location, Integer flags, BlockNode? block) -> void
-    def initialize(source, node_id, location, flags, block)
+    #: (Source source, Integer node_id, Location location, Integer flags, Location keyword_loc, BlockNode? block) -> void
+    def initialize(source, node_id, location, flags, keyword_loc, block)
       @source = source
       @node_id = node_id
       @location = location
       @flags = flags
+      @keyword_loc = keyword_loc
       @block = block
     end
 
@@ -12776,7 +12778,7 @@ module Prism
     #--
     #: () -> Array[node | Location]
     def comment_targets
-      [*block] #: Array[Prism::node | Location]
+      [keyword_loc, *block] #: Array[Prism::node | Location]
     end
 
     # :call-seq:
@@ -12784,16 +12786,16 @@ module Prism
     #
     # Creates a copy of self with the given fields, using self as the template.
     #--
-    #: (?node_id: Integer, ?location: Location, ?flags: Integer, ?block: BlockNode?) -> ForwardingSuperNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, block: self.block)
-      ForwardingSuperNode.new(source, node_id, location, flags, block)
+    #: (?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?block: BlockNode?) -> ForwardingSuperNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, keyword_loc: self.keyword_loc, block: self.block)
+      ForwardingSuperNode.new(source, node_id, location, flags, keyword_loc, block)
     end
 
     alias deconstruct child_nodes
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, block: block }
+      { node_id: node_id, location: location, keyword_loc: keyword_loc, block: block }
     end
 
     # See `Node#type`.
@@ -12817,6 +12819,32 @@ module Prism
 
     # :section:
 
+    # :category: Locations
+    # :call-seq:
+    #   keyword_loc -> Location
+    #
+    # super
+    # ^^^^^
+    #
+    # super { 123 }
+    # ^^^^^
+    #--
+    #: () -> Location
+    def keyword_loc
+      location = @keyword_loc
+      return location if location.is_a?(Location)
+      @keyword_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+    end
+
+    # :category: Repository
+    # Save the keyword_loc location using the given saved source so that
+    # it can be retrieved later.
+    #--
+    #: (_Repository repository) -> Relocation::Entry
+    def save_keyword_loc(repository)
+      repository.enter(node_id, :keyword_loc)
+    end
+
     # :call-seq:
     #   block -> BlockNode | nil
     #
@@ -12829,11 +12857,22 @@ module Prism
 
     # :section: Slicing
 
+    # :call-seq:
+    #   keyword -> String
+    #
+    # Slice the location of keyword_loc from the source.
+    #--
+    #: () -> String
+    def keyword
+      keyword_loc.slice
+    end
+
     # :section:
 
     #: (untyped other) -> boolish
     def ===(other) # :nodoc:
       other.is_a?(ForwardingSuperNode) &&
+        (keyword_loc.nil? == other.keyword_loc.nil?) &&
         (block === other.block)
     end
   end

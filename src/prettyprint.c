@@ -3599,6 +3599,18 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             prettyprint_location(output_buffer, parser, &node->location);
             pm_buffer_append_string(output_buffer, ")\n", 2);
 
+            // keyword_loc
+            {
+                pm_buffer_concat(output_buffer, prefix_buffer);
+                pm_buffer_append_string(output_buffer, "+-- keyword_loc:", 16);
+                pm_location_t *location = &cast->keyword_loc;
+                pm_buffer_append_byte(output_buffer, ' ');
+                prettyprint_location(output_buffer, parser, location);
+                pm_buffer_append_string(output_buffer, " = \"", 4);
+                pm_buffer_append_source(output_buffer, parser->start + location->start, (size_t) location->length, PM_BUFFER_ESCAPING_RUBY);
+                pm_buffer_append_string(output_buffer, "\"\n", 2);
+            }
+
             // block
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);

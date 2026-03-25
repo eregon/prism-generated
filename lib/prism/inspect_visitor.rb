@@ -1010,6 +1010,7 @@ module Prism
       commands << [inspect_node("ForwardingSuperNode", node), indent]
       flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ].compact
       commands << ["├── flags: #{flags.empty? ? "∅" : flags.join(", ")}\n", indent]
+      commands << ["├── keyword_loc: #{inspect_location(node.keyword_loc)}\n", indent]
       if (block = node.block).nil?
         commands << ["└── block: ∅\n", indent]
       else

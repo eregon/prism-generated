@@ -6817,6 +6817,11 @@ export class ForwardingSuperNode {
   #flags;
 
   /**
+   * @type Location
+   */
+  keywordLoc;
+
+  /**
    * @type BlockNode | null
    */
   block;
@@ -6827,12 +6832,14 @@ export class ForwardingSuperNode {
    * @param {number} nodeID
    * @param {Location} location
    * @param {number} flags
+   * @param {Location} keywordLoc
    * @param {BlockNode | null} block
    */
-  constructor(nodeID, location, flags, block) {
+  constructor(nodeID, location, flags, keywordLoc, block) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
+    this.keywordLoc = keywordLoc;
     this.block = block;
   }
 
@@ -6879,6 +6886,7 @@ export class ForwardingSuperNode {
       type: "ForwardingSuperNode",
       location: this.location,
       flags: this.#flags,
+      keywordLoc: this.keywordLoc,
       block: this.block,
     };
   }

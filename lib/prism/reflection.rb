@@ -232,7 +232,7 @@ module Prism
       when :forwarding_parameter_node
         []
       when :forwarding_super_node
-        [OptionalNodeField.new(:block)]
+        [LocationField.new(:keyword_loc), OptionalNodeField.new(:block)]
       when :global_variable_and_write_node
         [ConstantField.new(:name), LocationField.new(:name_loc), LocationField.new(:operator_loc), NodeField.new(:value)]
       when :global_variable_operator_write_node

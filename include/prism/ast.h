@@ -4112,6 +4112,17 @@ typedef struct pm_forwarding_super_node {
     pm_node_t base;
 
     /**
+     * ForwardingSuperNode#keyword_loc
+     *
+     * super
+     * ^^^^^
+     *
+     * super { 123 }
+     * ^^^^^
+     */
+    pm_location_t keyword_loc;
+
+    /**
      * ForwardingSuperNode#block
      *
      * All other arguments are forwarded as normal, except the original block is replaced with the new block.
@@ -9005,10 +9016,11 @@ PRISM_EXPORTED_FUNCTION pm_forwarding_parameter_node_t * pm_forwarding_parameter
  * @param node_id The unique identifier for this node.
  * @param flags The flags for this node.
  * @param location The location of this node in the source.
+ * @param keyword_loc super
  * @param block All other arguments are forwarded as normal, except the original block is replaced with the new block.
  * @returns The newly allocated and initialized node.
  */
-PRISM_EXPORTED_FUNCTION pm_forwarding_super_node_t * pm_forwarding_super_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_block_node *block);
+PRISM_EXPORTED_FUNCTION pm_forwarding_super_node_t * pm_forwarding_super_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t keyword_loc, struct pm_block_node *block);
 
 /**
  * Allocate and initialize a new GlobalVariableAndWriteNode node.

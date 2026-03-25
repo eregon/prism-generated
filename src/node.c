@@ -2906,11 +2906,12 @@ pm_forwarding_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  * Allocate and initialize a new ForwardingSuperNode node.
  */
 pm_forwarding_super_node_t *
-pm_forwarding_super_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_block_node *block) {
+pm_forwarding_super_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t keyword_loc, struct pm_block_node *block) {
     pm_forwarding_super_node_t *node = (pm_forwarding_super_node_t *) pm_arena_alloc(arena, sizeof(pm_forwarding_super_node_t), PRISM_ALIGNOF(pm_forwarding_super_node_t));
 
     *node = (pm_forwarding_super_node_t) {
         .base = { .type = PM_FORWARDING_SUPER_NODE, .flags = flags, .node_id = node_id, .location = location },
+        .keyword_loc = keyword_loc,
         .block = block
     };
 
