@@ -970,7 +970,7 @@ module Prism
                 Array.new(load_varuint) do
                   load_node(constant_pool, encoding, freeze) #: Prism::node
                 end.tap { |nodes| nodes.freeze if freeze },
-                load_optional_node(constant_pool, encoding, freeze), #: Prism::node?
+                load_optional_node(constant_pool, encoding, freeze), #: (ImplicitRestNode | SplatNode)?
                 Array.new(load_varuint) do
                   load_node(constant_pool, encoding, freeze) #: Prism::node
                 end.tap { |nodes| nodes.freeze if freeze },
@@ -2656,7 +2656,7 @@ module Prism
                   Array.new(load_varuint) do
                     load_node(constant_pool, encoding, freeze) #: Prism::node
                   end,
-                  load_optional_node(constant_pool, encoding, freeze), #: Prism::node?
+                  load_optional_node(constant_pool, encoding, freeze), #: (ImplicitRestNode | SplatNode)?
                   Array.new(load_varuint) do
                     load_node(constant_pool, encoding, freeze) #: Prism::node
                   end,

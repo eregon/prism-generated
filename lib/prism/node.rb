@@ -1605,14 +1605,14 @@ module Prism
   class ArrayPatternNode < Node
     # @rbs @constant: (ConstantPathNode | ConstantReadNode)?
     # @rbs @requireds: Array[Prism::node]
-    # @rbs @rest: Prism::node?
+    # @rbs @rest: (ImplicitRestNode | SplatNode)?
     # @rbs @posts: Array[Prism::node]
     # @rbs @opening_loc: Location?
     # @rbs @closing_loc: Location?
 
     # Initialize a new ArrayPatternNode node.
     #--
-    #: (Source source, Integer node_id, Location location, Integer flags, (ConstantPathNode | ConstantReadNode)? constant, Array[Prism::node] requireds, Prism::node? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
+    #: (Source source, Integer node_id, Location location, Integer flags, (ConstantPathNode | ConstantReadNode)? constant, Array[Prism::node] requireds, (ImplicitRestNode | SplatNode)? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
     def initialize(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc)
       @source = source
       @node_id = node_id
@@ -1688,7 +1688,7 @@ module Prism
     #
     # Creates a copy of self with the given fields, using self as the template.
     #--
-    #: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: (ConstantPathNode | ConstantReadNode)?, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
+    #: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: (ConstantPathNode | ConstantReadNode)?, ?requireds: Array[Prism::node], ?rest: (ImplicitRestNode | SplatNode)?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, constant: self.constant, requireds: self.requireds, rest: self.rest, posts: self.posts, opening_loc: self.opening_loc, closing_loc: self.closing_loc)
       ArrayPatternNode.new(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc)
     end
@@ -1754,14 +1754,14 @@ module Prism
     end
 
     # :call-seq:
-    #   rest -> Node | nil
+    #   rest -> ImplicitRestNode | SplatNode | nil
     #
     # Represents the rest element of the array pattern.
     #
     #     foo in *bar
     #            ^^^^
     #--
-    #: () -> Prism::node?
+    #: () -> (ImplicitRestNode | SplatNode)?
     def rest
       @rest
     end

@@ -127,7 +127,7 @@ module Prism
 
     # Create a new ArrayPatternNode node.
     #--
-    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: (ConstantPathNode | ConstantReadNode)?, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
+    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: (ConstantPathNode | ConstantReadNode)?, ?requireds: Array[Prism::node], ?rest: (ImplicitRestNode | SplatNode)?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
     def array_pattern_node(source: default_source, node_id: 0, location: default_location, flags: 0, constant: nil, requireds: [], rest: nil, posts: [], opening_loc: nil, closing_loc: nil)
       ArrayPatternNode.new(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc)
     end
