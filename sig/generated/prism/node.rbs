@@ -1071,7 +1071,7 @@ module Prism
 
     @posts: Array[Prism::node]
 
-    @rest: Prism::node?
+    @rest: (ImplicitRestNode | SplatNode)?
 
     @requireds: Array[Prism::node]
 
@@ -1079,8 +1079,8 @@ module Prism
 
     # Initialize a new ArrayPatternNode node.
     # --
-    # : (Source source, Integer node_id, Location location, Integer flags, (ConstantPathNode | ConstantReadNode)? constant, Array[Prism::node] requireds, Prism::node? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
-    def initialize: (Source source, Integer node_id, Location location, Integer flags, (ConstantPathNode | ConstantReadNode)? constant, Array[Prism::node] requireds, Prism::node? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
+    # : (Source source, Integer node_id, Location location, Integer flags, (ConstantPathNode | ConstantReadNode)? constant, Array[Prism::node] requireds, (ImplicitRestNode | SplatNode)? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
+    def initialize: (Source source, Integer node_id, Location location, Integer flags, (ConstantPathNode | ConstantReadNode)? constant, Array[Prism::node] requireds, (ImplicitRestNode | SplatNode)? rest, Array[Prism::node] posts, Location? opening_loc, Location? closing_loc) -> void
 
     # See Node.accept.
     # --
@@ -1114,8 +1114,8 @@ module Prism
     #
     # Creates a copy of self with the given fields, using self as the template.
     # --
-    # : (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: (ConstantPathNode | ConstantReadNode)?, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
-    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: (ConstantPathNode | ConstantReadNode)?, ?requireds: Array[Prism::node], ?rest: Prism::node?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
+    # : (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: (ConstantPathNode | ConstantReadNode)?, ?requireds: Array[Prism::node], ?rest: (ImplicitRestNode | SplatNode)?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
+    def copy: (?node_id: Integer, ?location: Location, ?flags: Integer, ?constant: (ConstantPathNode | ConstantReadNode)?, ?requireds: Array[Prism::node], ?rest: (ImplicitRestNode | SplatNode)?, ?posts: Array[Prism::node], ?opening_loc: Location?, ?closing_loc: Location?) -> ArrayPatternNode
 
     alias deconstruct child_nodes
 
@@ -1164,15 +1164,15 @@ module Prism
     def requireds: () -> Array[Prism::node]
 
     # :call-seq:
-    #   rest -> Node | nil
+    #   rest -> ImplicitRestNode | SplatNode | nil
     #
     # Represents the rest element of the array pattern.
     #
     #     foo in *bar
     #            ^^^^
     # --
-    # : () -> Prism::node?
-    def rest: () -> Prism::node?
+    # : () -> (ImplicitRestNode | SplatNode)?
+    def rest: () -> (ImplicitRestNode | SplatNode)?
 
     # :call-seq:
     #   posts -> Array[Node]

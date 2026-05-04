@@ -797,7 +797,7 @@ module Prism
   #            ^^^^^^^^^^^^
   class ArrayPatternNode < Node
     # Initialize a new ArrayPatternNode node.
-    sig { params(source: Source, node_id: Integer, location: Location, flags: Integer, constant: ::T.nilable(::T.any(ConstantPathNode, ConstantReadNode)), requireds: T::Array[Node], rest: ::T.nilable(Node), posts: T::Array[Node], opening_loc: ::T.nilable(Location), closing_loc: ::T.nilable(Location)).void }
+    sig { params(source: Source, node_id: Integer, location: Location, flags: Integer, constant: ::T.nilable(::T.any(ConstantPathNode, ConstantReadNode)), requireds: T::Array[Node], rest: ::T.nilable(::T.any(ImplicitRestNode, SplatNode)), posts: T::Array[Node], opening_loc: ::T.nilable(Location), closing_loc: ::T.nilable(Location)).void }
     def initialize(source, node_id, location, flags, constant, requireds, rest, posts, opening_loc, closing_loc); end
 
     # See Node.accept.
@@ -822,7 +822,7 @@ module Prism
     def comment_targets; end
 
     # Creates a copy of self with the given fields, using self as the template.
-    sig { params(node_id: Integer, location: Location, flags: Integer, constant: ::T.nilable(::T.any(ConstantPathNode, ConstantReadNode)), requireds: T::Array[Node], rest: ::T.nilable(Node), posts: T::Array[Node], opening_loc: ::T.nilable(Location), closing_loc: ::T.nilable(Location)).returns(ArrayPatternNode) }
+    sig { params(node_id: Integer, location: Location, flags: Integer, constant: ::T.nilable(::T.any(ConstantPathNode, ConstantReadNode)), requireds: T::Array[Node], rest: ::T.nilable(::T.any(ImplicitRestNode, SplatNode)), posts: T::Array[Node], opening_loc: ::T.nilable(Location), closing_loc: ::T.nilable(Location)).returns(ArrayPatternNode) }
     def copy(node_id: T.unsafe(nil), location: T.unsafe(nil), flags: T.unsafe(nil), constant: T.unsafe(nil), requireds: T.unsafe(nil), rest: T.unsafe(nil), posts: T.unsafe(nil), opening_loc: T.unsafe(nil), closing_loc: T.unsafe(nil)); end
 
     sig { override.returns(T::Array[::T.nilable(Node)]) }
@@ -866,7 +866,7 @@ module Prism
     #
     #     foo in *bar
     #            ^^^^
-    sig { returns(::T.nilable(Node)) }
+    sig { returns(::T.nilable(::T.any(ImplicitRestNode, SplatNode))) }
     def rest; end
 
     # Represents the elements after the rest element of the array pattern.
