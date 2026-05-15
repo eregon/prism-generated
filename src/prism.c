@@ -5074,7 +5074,7 @@ pm_interpolated_regular_expression_node_closing_set(pm_parser_t *parser, pm_inte
  * PM_NODE_FLAG_STATIC_LITERAL indicates that the node should be treated as a
  * single static literal string that can be pushed onto the stack on its own.
  * Note that this doesn't necessarily mean that the string will be frozen or
- * not; the instructions in CRuby will be either putobject or putstring,
+ * not; the instructions in CRuby will be either putobject, dupstring or dupchilledstring,
  * depending on the combination of `--enable-frozen-string-literal`,
  * `# frozen_string_literal: true`, and whether or not there is interpolation.
  *
@@ -15332,9 +15332,6 @@ parse_block_exit(pm_parser_t *parser, pm_node_t *node) {
                     if (parser->version < PM_OPTIONS_VERSION_CRUBY_4_1) {
                         return;
                     }
-                    if (PM_NODE_TYPE_P(node, PM_NEXT_NODE)) {
-                        return;
-                    }
                 }
             PRISM_FALLTHROUGH
             case PM_CONTEXT_DEF:
@@ -22280,8 +22277,8 @@ parse_program(pm_parser_t *parser) {
 
 /**
  * A vendored version of strnstr that is used to find a substring within a
- * string with a given length. This function is used to search for the Ruby
- * engine name within a shebang when the -x option is passed to Ruby.
+ * string with a given length. This function is used to search for "ruby"
+ * within a shebang when the -x option is passed to Ruby.
  *
  * The only modification that we made here is that we don't do NULL byte checks
  * because we know the little parameter will not have a NULL byte and we allow
