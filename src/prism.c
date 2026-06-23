@@ -2249,7 +2249,15 @@ pm_regular_expression_flags_create(pm_parser_t *parser, const pm_token_t *closin
     if (closing->type == PM_TOKEN_REGEXP_END) {
         pm_buffer_t unknown_flags = { 0 };
 
-        for (const uint8_t *flag = closing->start + 1; flag < closing->end; flag++) {
+        // The closing delimiter is normally a single byte, so the options
+        // follow it. A `\r\n` newline delimiter is two bytes, however, so we
+        // skip past it to avoid misreading the trailing `\n` as an option.
+        const uint8_t *flag = closing->start + 1;
+        if ((closing->end - closing->start) >= 2 && closing->start[0] == '\r' && closing->start[1] == '\n') {
+            flag++;
+        }
+
+        for (; flag < closing->end; flag++) {
             switch (*flag) {
                 case 'i': flags |= PM_REGULAR_EXPRESSION_FLAGS_IGNORE_CASE; break;
                 case 'm': flags |= PM_REGULAR_EXPRESSION_FLAGS_MULTI_LINE; break;
@@ -11373,6 +11381,8 @@ parser_lex(pm_parser_t *parser) {
             // First we'll set the beginning of the token.
             parser->current.start = parser->current.end;
 
+            pm_lex_mode_t *lex_mode = parser->lex_modes.current;
+
             // If there's any whitespace at the start of the list, then we're
             // going to trim it off the beginning and create a new token.
             size_t whitespace;
@@ -11382,6 +11392,12 @@ parser_lex(pm_parser_t *parser) {
                 if (peek_offset(parser, (ptrdiff_t)whitespace) == '\n') {
                     whitespace += 1;
                 }
+            } else if (lex_mode->as.list.terminator == '\n') {
+                // When the list delimiter is a newline (e.g. `%w` followed by a
+                // newline), the newline is the terminator rather than a word
+                // separator. We only trim inline whitespace here so that the
+                // terminating newline is left for the terminator handling below.
+                whitespace = pm_strspn_inline_whitespace(parser->current.end, parser->end - parser->current.end);
             } else {
                 whitespace = pm_strspn_whitespace_newlines(parser->current.end, parser->end - parser->current.end, &parser->metadata_arena, &parser->line_offsets, PM_TOKEN_END(parser, &parser->current));
             }
@@ -11403,7 +11419,6 @@ parser_lex(pm_parser_t *parser) {
 
             // Here we'll get a list of the places where strpbrk should break,
             // and then find the first one.
-            pm_lex_mode_t *lex_mode = parser->lex_modes.current;
             const uint8_t *breakpoints = lex_mode->as.list.breakpoints;
             const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
 
@@ -11413,8 +11428,10 @@ parser_lex(pm_parser_t *parser) {
 
             while (breakpoint != NULL) {
                 // If we hit whitespace, then we must have received content by
-                // now, so we can return an element of the list.
-                if (pm_char_is_whitespace(*breakpoint)) {
+                // now, so we can return an element of the list. A whitespace
+                // character that is also the terminator (e.g. a newline
+                // delimiter) is handled by the terminator check below, not here.
+                if (pm_char_is_whitespace(*breakpoint) && *breakpoint != lex_mode->as.list.terminator) {
                     parser->current.end = breakpoint;
                     pm_token_buffer_flush(parser, &token_buffer);
                     LEX(PM_TOKEN_STRING_CONTENT);
@@ -11443,6 +11460,14 @@ parser_lex(pm_parser_t *parser) {
                     // Otherwise, switch back to the default state and return
                     // the end of the list.
                     parser->current.end = breakpoint + 1;
+
+                    // If the terminator is a newline (i.e. the list delimiter
+                    // was a newline), then we need to record it so that line
+                    // numbers after the list remain accurate.
+                    if (*breakpoint == '\n') {
+                        pm_line_offset_list_append(&parser->metadata_arena, &parser->line_offsets, PM_TOKEN_END(parser, &parser->current));
+                    }
+
                     lex_mode_pop(parser);
                     lex_state_set(parser, PM_LEX_STATE_END);
                     LEX(PM_TOKEN_STRING_END);
@@ -19030,8 +19055,11 @@ parse_parentheses(pm_parser_t *parser, pm_binding_power_t binding_power, uint8_t
             lex_state_set(parser, PM_LEX_STATE_ENDARG);
         }
 
-        parser_lex(parser);
+        /* Pop before consuming the closing `)` so the following token (e.g. a
+         * `do`) is lexed in the enclosing context rather than as a block
+         * belonging to the parenthesized expression. */
         pm_accepts_block_stack_pop(parser);
+        parser_lex(parser);
         pop_block_exits(parser, previous_block_exits);
 
         if (PM_NODE_TYPE_P(statement, PM_MULTI_TARGET_NODE) || PM_NODE_TYPE_P(statement, PM_SPLAT_NODE)) {
@@ -19302,6 +19330,13 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, u
 
             accept1(parser, PM_TOKEN_NEWLINE);
 
+            /* Pop before consuming the closing `]` so the following token (e.g.
+             * a `do`) is lexed in the enclosing context rather than as a block
+             * belonging to the array's interior. Otherwise a `do` block would
+             * wrongly bind to a command with an array argument, as in
+             * `foo(m [] do end)`. */
+            pm_accepts_block_stack_pop(parser);
+
             if (!accept1(parser, PM_TOKEN_BRACKET_RIGHT)) {
                 PM_PARSER_ERR_TOKEN_FORMAT(parser, &parser->current, PM_ERR_ARRAY_TERM, pm_token_str(parser->current.type));
                 parser->previous.start = parser->previous.end;
@@ -19309,7 +19344,6 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, u
             }
 
             pm_array_node_close_set(parser, array, &parser->previous);
-            pm_accepts_block_stack_pop(parser);
 
             return UP(array);
         }
@@ -20628,6 +20662,11 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, u
                 }
 
                 parser_warn_indentation_mismatch(parser, opening_newline_index, &operator, false, false);
+
+                /* Pop before consuming the closing `}` so the following token
+                 * (e.g. a `do`) is lexed in the enclosing context rather than
+                 * as a block belonging to the lambda's interior. */
+                pm_accepts_block_stack_pop(parser);
                 expect1_opening(parser, PM_TOKEN_BRACE_RIGHT, PM_ERR_LAMBDA_TERM_BRACE, &opening);
             } else {
                 expect1(parser, PM_TOKEN_KEYWORD_DO, PM_ERR_LAMBDA_OPEN);
@@ -20644,6 +20683,8 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, u
                     parser_warn_indentation_mismatch(parser, opening_newline_index, &operator, false, false);
                 }
 
+                /* As with the brace case above, pop before consuming `end`. */
+                pm_accepts_block_stack_pop(parser);
                 expect1_opening(parser, PM_TOKEN_KEYWORD_END, PM_ERR_LAMBDA_TERM_END, &operator);
             }
 
@@ -20652,7 +20693,6 @@ parse_expression_prefix(pm_parser_t *parser, pm_binding_power_t binding_power, u
             pm_node_t *parameters = parse_blocklike_parameters(parser, UP(block_parameters), &operator, &parser->previous);
 
             pm_parser_scope_pop(parser);
-            pm_accepts_block_stack_pop(parser);
 
             return UP(pm_lambda_node_create(parser, &locals, &operator, &opening, &parser->previous, parameters, body));
         }
