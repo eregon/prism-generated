@@ -5181,6 +5181,7 @@ module Prism
       :KEYWORD_DEF,
       :KEYWORD_DEFINED,
       :KEYWORD_DO_BLOCK,
+      :KEYWORD_DO_LAMBDA,
       :KEYWORD_DO_LOOP,
       :KEYWORD_END_UPCASE,
       :KEYWORD_FALSE,

@@ -180,6 +180,8 @@ pm_token_type(pm_token_type_t token_type) {
             return "KEYWORD_DEFINED";
         case PM_TOKEN_KEYWORD_DO_BLOCK:
             return "KEYWORD_DO_BLOCK";
+        case PM_TOKEN_KEYWORD_DO_LAMBDA:
+            return "KEYWORD_DO_LAMBDA";
         case PM_TOKEN_KEYWORD_DO_LOOP:
             return "KEYWORD_DO_LOOP";
         case PM_TOKEN_KEYWORD_END_UPCASE:
@@ -498,6 +500,8 @@ pm_token_str(pm_token_type_t token_type) {
         case PM_TOKEN_KEYWORD_DO:
             return "'do'";
         case PM_TOKEN_KEYWORD_DO_BLOCK:
+            return "'do'";
+        case PM_TOKEN_KEYWORD_DO_LAMBDA:
             return "'do'";
         case PM_TOKEN_KEYWORD_DO_LOOP:
             return "'do'";

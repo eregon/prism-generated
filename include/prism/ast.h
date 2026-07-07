@@ -277,6 +277,9 @@ typedef enum pm_token_type {
     /** do keyword for a block attached to a command */
     PM_TOKEN_KEYWORD_DO_BLOCK,
 
+    /** do keyword that opens the body of a lambda literal */
+    PM_TOKEN_KEYWORD_DO_LAMBDA,
+
     /** do keyword for a predicate in a while, until, or for loop */
     PM_TOKEN_KEYWORD_DO_LOOP,
 
