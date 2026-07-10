@@ -521,7 +521,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
+      (keys || %i[node_id location new_name old_name keyword_loc keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :new_name                then deconstructed[:new_name] = self.new_name
+        when :old_name                then deconstructed[:old_name] = self.old_name
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -705,7 +716,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, new_name: new_name, old_name: old_name, keyword_loc: keyword_loc }
+      (keys || %i[node_id location new_name old_name keyword_loc keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :new_name                then deconstructed[:new_name] = self.new_name
+        when :old_name                then deconstructed[:old_name] = self.old_name
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -901,7 +923,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
+      (keys || %i[node_id location left right operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :left                    then deconstructed[:left] = self.left
+        when :right                   then deconstructed[:right] = self.right
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -1085,7 +1118,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
+      (keys || %i[node_id location left right operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :left                    then deconstructed[:left] = self.left
+        when :right                   then deconstructed[:right] = self.right
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -1270,7 +1314,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, arguments: arguments }
+      (keys || %i[node_id location arguments]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        end
+      end
     end
 
     # See `Node#type`.
@@ -1445,7 +1497,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, elements: elements, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location elements opening_loc closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :elements                then deconstructed[:elements] = self.elements
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -1697,7 +1761,22 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, constant: constant, requireds: requireds, rest: rest, posts: posts, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location constant requireds rest posts opening_loc closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :constant                then deconstructed[:constant] = self.constant
+        when :requireds               then deconstructed[:requireds] = self.requireds
+        when :rest                    then deconstructed[:rest] = self.rest
+        when :posts                   then deconstructed[:posts] = self.posts
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -1963,7 +2042,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, key: key, value: value, operator_loc: operator_loc }
+      (keys || %i[node_id location key value operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :key                     then deconstructed[:key] = self.key
+        when :value                   then deconstructed[:value] = self.value
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -2160,7 +2250,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, value: value, operator_loc: operator_loc }
+      (keys || %i[node_id location value operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :value                   then deconstructed[:value] = self.value
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -2324,7 +2424,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -2474,7 +2582,22 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, begin_keyword_loc: begin_keyword_loc, statements: statements, rescue_clause: rescue_clause, else_clause: else_clause, ensure_clause: ensure_clause, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location begin_keyword_loc statements rescue_clause else_clause ensure_clause end_keyword_loc begin_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :begin_keyword_loc       then deconstructed[:begin_keyword_loc] = self.begin_keyword_loc
+        when :statements              then deconstructed[:statements] = self.statements
+        when :rescue_clause           then deconstructed[:rescue_clause] = self.rescue_clause
+        when :else_clause             then deconstructed[:else_clause] = self.else_clause
+        when :ensure_clause           then deconstructed[:ensure_clause] = self.ensure_clause
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :begin_keyword           then deconstructed[:begin_keyword] = self.begin_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -2731,7 +2854,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, expression: expression, operator_loc: operator_loc }
+      (keys || %i[node_id location expression operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :expression              then deconstructed[:expression] = self.expression
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -2895,7 +3028,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -3045,7 +3186,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, locals: locals, parameters: parameters, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location locals parameters body opening_loc closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :locals                  then deconstructed[:locals] = self.locals
+        when :parameters              then deconstructed[:parameters] = self.parameters
+        when :body                    then deconstructed[:body] = self.body
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -3283,7 +3438,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
+      (keys || %i[node_id location name name_loc operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -3504,7 +3670,20 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, parameters: parameters, locals: locals, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location parameters locals opening_loc closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :parameters              then deconstructed[:parameters] = self.parameters
+        when :locals                  then deconstructed[:locals] = self.locals
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -3750,7 +3929,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, arguments: arguments, keyword_loc: keyword_loc }
+      (keys || %i[node_id location arguments keyword_loc keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -3931,7 +4120,24 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location receiver call_operator_loc message_loc read_name write_name operator_loc value call_operator message operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :call_operator_loc       then deconstructed[:call_operator_loc] = self.call_operator_loc
+        when :message_loc             then deconstructed[:message_loc] = self.message_loc
+        when :read_name               then deconstructed[:read_name] = self.read_name
+        when :write_name              then deconstructed[:write_name] = self.write_name
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :call_operator           then deconstructed[:call_operator] = self.call_operator
+        when :message                 then deconstructed[:message] = self.message
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -4290,7 +4496,28 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, name: name, message_loc: message_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, equal_loc: equal_loc, block: block }
+      (keys || %i[node_id location receiver call_operator_loc name message_loc opening_loc arguments closing_loc equal_loc block call_operator message opening closing equal]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :call_operator_loc       then deconstructed[:call_operator_loc] = self.call_operator_loc
+        when :name                    then deconstructed[:name] = self.name
+        when :message_loc             then deconstructed[:message_loc] = self.message_loc
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :equal_loc               then deconstructed[:equal_loc] = self.equal_loc
+        when :block                   then deconstructed[:block] = self.block
+        when :call_operator           then deconstructed[:call_operator] = self.call_operator
+        when :message                 then deconstructed[:message] = self.message
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        when :equal                   then deconstructed[:equal] = self.equal
+        end
+      end
     end
 
     # See `Node#type`.
@@ -4729,7 +4956,24 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, binary_operator: binary_operator, binary_operator_loc: binary_operator_loc, value: value }
+      (keys || %i[node_id location receiver call_operator_loc message_loc read_name write_name binary_operator binary_operator_loc value call_operator message]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :call_operator_loc       then deconstructed[:call_operator_loc] = self.call_operator_loc
+        when :message_loc             then deconstructed[:message_loc] = self.message_loc
+        when :read_name               then deconstructed[:read_name] = self.read_name
+        when :write_name              then deconstructed[:write_name] = self.write_name
+        when :binary_operator         then deconstructed[:binary_operator] = self.binary_operator
+        when :binary_operator_loc     then deconstructed[:binary_operator_loc] = self.binary_operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :call_operator           then deconstructed[:call_operator] = self.call_operator
+        when :message                 then deconstructed[:message] = self.message
+        end
+      end
     end
 
     # See `Node#type`.
@@ -5071,7 +5315,24 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, message_loc: message_loc, read_name: read_name, write_name: write_name, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location receiver call_operator_loc message_loc read_name write_name operator_loc value call_operator message operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :call_operator_loc       then deconstructed[:call_operator_loc] = self.call_operator_loc
+        when :message_loc             then deconstructed[:message_loc] = self.message_loc
+        when :read_name               then deconstructed[:read_name] = self.read_name
+        when :write_name              then deconstructed[:write_name] = self.write_name
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :call_operator           then deconstructed[:call_operator] = self.call_operator
+        when :message                 then deconstructed[:message] = self.message
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -5407,7 +5668,20 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, name: name, message_loc: message_loc }
+      (keys || %i[node_id location receiver call_operator_loc name message_loc call_operator message]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :call_operator_loc       then deconstructed[:call_operator_loc] = self.call_operator_loc
+        when :name                    then deconstructed[:name] = self.name
+        when :message_loc             then deconstructed[:message_loc] = self.message_loc
+        when :call_operator           then deconstructed[:call_operator] = self.call_operator
+        when :message                 then deconstructed[:message] = self.message
+        end
+      end
     end
 
     # See `Node#type`.
@@ -5660,7 +5934,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, value: value, target: target, operator_loc: operator_loc }
+      (keys || %i[node_id location value target operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :value                   then deconstructed[:value] = self.value
+        when :target                  then deconstructed[:target] = self.target
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -5855,7 +6140,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location predicate conditions else_clause case_keyword_loc end_keyword_loc case_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :predicate               then deconstructed[:predicate] = self.predicate
+        when :conditions              then deconstructed[:conditions] = self.conditions
+        when :else_clause             then deconstructed[:else_clause] = self.else_clause
+        when :case_keyword_loc        then deconstructed[:case_keyword_loc] = self.case_keyword_loc
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :case_keyword            then deconstructed[:case_keyword] = self.case_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -6101,7 +6400,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, predicate: predicate, conditions: conditions, else_clause: else_clause, case_keyword_loc: case_keyword_loc, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location predicate conditions else_clause case_keyword_loc end_keyword_loc case_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :predicate               then deconstructed[:predicate] = self.predicate
+        when :conditions              then deconstructed[:conditions] = self.conditions
+        when :else_clause             then deconstructed[:else_clause] = self.else_clause
+        when :case_keyword_loc        then deconstructed[:case_keyword_loc] = self.case_keyword_loc
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :case_keyword            then deconstructed[:case_keyword] = self.case_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -6351,7 +6664,25 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, locals: locals, class_keyword_loc: class_keyword_loc, constant_path: constant_path, inheritance_operator_loc: inheritance_operator_loc, superclass: superclass, body: body, end_keyword_loc: end_keyword_loc, name: name }
+      (keys || %i[node_id location locals class_keyword_loc constant_path inheritance_operator_loc superclass body end_keyword_loc name class_keyword inheritance_operator end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :locals                  then deconstructed[:locals] = self.locals
+        when :class_keyword_loc       then deconstructed[:class_keyword_loc] = self.class_keyword_loc
+        when :constant_path           then deconstructed[:constant_path] = self.constant_path
+        when :inheritance_operator_loc then deconstructed[:inheritance_operator_loc] = self.inheritance_operator_loc
+        when :superclass              then deconstructed[:superclass] = self.superclass
+        when :body                    then deconstructed[:body] = self.body
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :name                    then deconstructed[:name] = self.name
+        when :class_keyword           then deconstructed[:class_keyword] = self.class_keyword
+        when :inheritance_operator    then deconstructed[:inheritance_operator] = self.inheritance_operator
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -6649,7 +6980,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -6862,7 +7205,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
+      (keys || %i[node_id location name name_loc binary_operator_loc value binary_operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :binary_operator_loc     then deconstructed[:binary_operator_loc] = self.binary_operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :binary_operator         then deconstructed[:binary_operator] = self.binary_operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -7062,7 +7417,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -7254,7 +7621,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -7383,7 +7758,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -7515,7 +7898,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
+      (keys || %i[node_id location name name_loc value operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -7730,7 +8125,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -7931,7 +8338,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
+      (keys || %i[node_id location name name_loc binary_operator_loc value binary_operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :binary_operator_loc     then deconstructed[:binary_operator_loc] = self.binary_operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :binary_operator         then deconstructed[:binary_operator] = self.binary_operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -8131,7 +8550,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -8329,7 +8760,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location target operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :target                  then deconstructed[:target] = self.target
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -8507,7 +8949,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, parent: parent, name: name, delimiter_loc: delimiter_loc, name_loc: name_loc }
+      (keys || %i[node_id location parent name delimiter_loc name_loc delimiter]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :parent                  then deconstructed[:parent] = self.parent
+        when :name                    then deconstructed[:name] = self.name
+        when :delimiter_loc           then deconstructed[:delimiter_loc] = self.delimiter_loc
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :delimiter               then deconstructed[:delimiter] = self.delimiter
+        end
+      end
     end
 
     # See `Node#type`.
@@ -8728,7 +9182,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, target: target, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
+      (keys || %i[node_id location target binary_operator_loc value binary_operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :target                  then deconstructed[:target] = self.target
+        when :binary_operator_loc     then deconstructed[:binary_operator_loc] = self.binary_operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :binary_operator         then deconstructed[:binary_operator] = self.binary_operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -8904,7 +9369,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location target operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :target                  then deconstructed[:target] = self.target
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -9082,7 +9558,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, parent: parent, name: name, delimiter_loc: delimiter_loc, name_loc: name_loc }
+      (keys || %i[node_id location parent name delimiter_loc name_loc delimiter]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :parent                  then deconstructed[:parent] = self.parent
+        when :name                    then deconstructed[:name] = self.name
+        when :delimiter_loc           then deconstructed[:delimiter_loc] = self.delimiter_loc
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :delimiter               then deconstructed[:delimiter] = self.delimiter
+        end
+      end
     end
 
     # See `Node#type`.
@@ -9286,7 +9774,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, target: target, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location target operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :target                  then deconstructed[:target] = self.target
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -9467,7 +9966,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -9596,7 +10103,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -9728,7 +10243,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
+      (keys || %i[node_id location name name_loc value operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -9966,7 +10493,32 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, receiver: receiver, parameters: parameters, body: body, locals: locals, def_keyword_loc: def_keyword_loc, operator_loc: operator_loc, lparen_loc: lparen_loc, rparen_loc: rparen_loc, equal_loc: equal_loc, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location name name_loc receiver parameters body locals def_keyword_loc operator_loc lparen_loc rparen_loc equal_loc end_keyword_loc def_keyword operator lparen rparen equal end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :parameters              then deconstructed[:parameters] = self.parameters
+        when :body                    then deconstructed[:body] = self.body
+        when :locals                  then deconstructed[:locals] = self.locals
+        when :def_keyword_loc         then deconstructed[:def_keyword_loc] = self.def_keyword_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :lparen_loc              then deconstructed[:lparen_loc] = self.lparen_loc
+        when :rparen_loc              then deconstructed[:rparen_loc] = self.rparen_loc
+        when :equal_loc               then deconstructed[:equal_loc] = self.equal_loc
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :def_keyword             then deconstructed[:def_keyword] = self.def_keyword
+        when :operator                then deconstructed[:operator] = self.operator
+        when :lparen                  then deconstructed[:lparen] = self.lparen
+        when :rparen                  then deconstructed[:rparen] = self.rparen
+        when :equal                   then deconstructed[:equal] = self.equal
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -10389,7 +10941,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, lparen_loc: lparen_loc, value: value, rparen_loc: rparen_loc, keyword_loc: keyword_loc }
+      (keys || %i[node_id location lparen_loc value rparen_loc keyword_loc lparen rparen keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :lparen_loc              then deconstructed[:lparen_loc] = self.lparen_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :rparen_loc              then deconstructed[:rparen_loc] = self.rparen_loc
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :lparen                  then deconstructed[:lparen] = self.lparen
+        when :rparen                  then deconstructed[:rparen] = self.rparen
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -10630,7 +11196,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, else_keyword_loc: else_keyword_loc, statements: statements, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location else_keyword_loc statements end_keyword_loc else_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :else_keyword_loc        then deconstructed[:else_keyword_loc] = self.else_keyword_loc
+        when :statements              then deconstructed[:statements] = self.statements
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :else_keyword            then deconstructed[:else_keyword] = self.else_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -10833,7 +11411,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, statements: statements, closing_loc: closing_loc }
+      (keys || %i[node_id location opening_loc statements closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :statements              then deconstructed[:statements] = self.statements
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -11027,7 +11617,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, operator_loc: operator_loc, variable: variable }
+      (keys || %i[node_id location operator_loc variable operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :variable                then deconstructed[:variable] = self.variable
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -11196,7 +11796,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, ensure_keyword_loc: ensure_keyword_loc, statements: statements, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location ensure_keyword_loc statements end_keyword_loc ensure_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :ensure_keyword_loc      then deconstructed[:ensure_keyword_loc] = self.ensure_keyword_loc
+        when :statements              then deconstructed[:statements] = self.statements
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :ensure_keyword          then deconstructed[:ensure_keyword] = self.ensure_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -11387,7 +11999,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, unexpected: unexpected }
+      (keys || %i[node_id location unexpected]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :unexpected              then deconstructed[:unexpected] = self.unexpected
+        end
+      end
     end
 
     # See `Node#type`.
@@ -11510,7 +12130,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -11652,7 +12279,22 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, constant: constant, left: left, requireds: requireds, right: right, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location constant left requireds right opening_loc closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :constant                then deconstructed[:constant] = self.constant
+        when :left                    then deconstructed[:left] = self.left
+        when :requireds               then deconstructed[:requireds] = self.requireds
+        when :right                   then deconstructed[:right] = self.right
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -11929,7 +12571,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
+      (keys || %i[node_id location left right operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :left                    then deconstructed[:left] = self.left
+        when :right                   then deconstructed[:right] = self.right
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -12107,7 +12760,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, value: value }
+      (keys || %i[node_id location value]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :value                   then deconstructed[:value] = self.value
+        end
+      end
     end
 
     # See `Node#type`.
@@ -12251,7 +12912,25 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, index: index, collection: collection, statements: statements, for_keyword_loc: for_keyword_loc, in_keyword_loc: in_keyword_loc, do_keyword_loc: do_keyword_loc, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location index collection statements for_keyword_loc in_keyword_loc do_keyword_loc end_keyword_loc for_keyword in_keyword do_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :index                   then deconstructed[:index] = self.index
+        when :collection              then deconstructed[:collection] = self.collection
+        when :statements              then deconstructed[:statements] = self.statements
+        when :for_keyword_loc         then deconstructed[:for_keyword_loc] = self.for_keyword_loc
+        when :in_keyword_loc          then deconstructed[:in_keyword_loc] = self.in_keyword_loc
+        when :do_keyword_loc          then deconstructed[:do_keyword_loc] = self.do_keyword_loc
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :for_keyword             then deconstructed[:for_keyword] = self.for_keyword
+        when :in_keyword              then deconstructed[:in_keyword] = self.in_keyword
+        when :do_keyword              then deconstructed[:do_keyword] = self.do_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -12558,7 +13237,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -12671,7 +13357,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -12795,7 +13488,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, block: block }
+      (keys || %i[node_id location keyword_loc block keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :block                   then deconstructed[:block] = self.block
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -12964,7 +13667,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -13165,7 +13880,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
+      (keys || %i[node_id location name name_loc binary_operator_loc value binary_operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :binary_operator_loc     then deconstructed[:binary_operator_loc] = self.binary_operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :binary_operator         then deconstructed[:binary_operator] = self.binary_operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -13365,7 +14092,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -13557,7 +14296,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -13686,7 +14433,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -13818,7 +14573,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
+      (keys || %i[node_id location name name_loc value operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -14031,7 +14798,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, elements: elements, closing_loc: closing_loc }
+      (keys || %i[node_id location opening_loc elements closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :elements                then deconstructed[:elements] = self.elements
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -14259,7 +15038,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, constant: constant, elements: elements, rest: rest, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location constant elements rest opening_loc closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :constant                then deconstructed[:constant] = self.constant
+        when :elements                then deconstructed[:elements] = self.elements
+        when :rest                    then deconstructed[:rest] = self.rest
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -14536,7 +15329,23 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, if_keyword_loc: if_keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, subsequent: subsequent, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location if_keyword_loc predicate then_keyword_loc statements subsequent end_keyword_loc if_keyword then_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :if_keyword_loc          then deconstructed[:if_keyword_loc] = self.if_keyword_loc
+        when :predicate               then deconstructed[:predicate] = self.predicate
+        when :then_keyword_loc        then deconstructed[:then_keyword_loc] = self.then_keyword_loc
+        when :statements              then deconstructed[:statements] = self.statements
+        when :subsequent              then deconstructed[:subsequent] = self.subsequent
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :if_keyword              then deconstructed[:if_keyword] = self.if_keyword
+        when :then_keyword            then deconstructed[:then_keyword] = self.then_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -14844,7 +15653,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, numeric: numeric }
+      (keys || %i[node_id location numeric]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :numeric                 then deconstructed[:numeric] = self.numeric
+        end
+      end
     end
 
     # See `Node#type`.
@@ -14976,7 +15793,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, value: value }
+      (keys || %i[node_id location value]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :value                   then deconstructed[:value] = self.value
+        end
+      end
     end
 
     # See `Node#type`.
@@ -15108,7 +15933,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -15233,7 +16065,20 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, pattern: pattern, statements: statements, in_loc: in_loc, then_loc: then_loc }
+      (keys || %i[node_id location pattern statements in_loc then_loc in then]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :pattern                 then deconstructed[:pattern] = self.pattern
+        when :statements              then deconstructed[:statements] = self.statements
+        when :in_loc                  then deconstructed[:in_loc] = self.in_loc
+        when :then_loc                then deconstructed[:then_loc] = self.then_loc
+        when :in                      then deconstructed[:in] = self.in
+        when :then                    then deconstructed[:then] = self.then
+        end
+      end
     end
 
     # See `Node#type`.
@@ -15463,7 +16308,26 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location receiver call_operator_loc opening_loc arguments closing_loc block operator_loc value call_operator opening closing operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :call_operator_loc       then deconstructed[:call_operator_loc] = self.call_operator_loc
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :block                   then deconstructed[:block] = self.block
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :call_operator           then deconstructed[:call_operator] = self.call_operator
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -15816,7 +16680,26 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, binary_operator: binary_operator, binary_operator_loc: binary_operator_loc, value: value }
+      (keys || %i[node_id location receiver call_operator_loc opening_loc arguments closing_loc block binary_operator binary_operator_loc value call_operator opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :call_operator_loc       then deconstructed[:call_operator_loc] = self.call_operator_loc
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :block                   then deconstructed[:block] = self.block
+        when :binary_operator         then deconstructed[:binary_operator] = self.binary_operator
+        when :binary_operator_loc     then deconstructed[:binary_operator_loc] = self.binary_operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :call_operator           then deconstructed[:call_operator] = self.call_operator
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -16168,7 +17051,26 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, call_operator_loc: call_operator_loc, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location receiver call_operator_loc opening_loc arguments closing_loc block operator_loc value call_operator opening closing operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :call_operator_loc       then deconstructed[:call_operator_loc] = self.call_operator_loc
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :block                   then deconstructed[:block] = self.block
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :call_operator           then deconstructed[:call_operator] = self.call_operator
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -16519,7 +17421,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, receiver: receiver, opening_loc: opening_loc, arguments: arguments, closing_loc: closing_loc, block: block }
+      (keys || %i[node_id location receiver opening_loc arguments closing_loc block opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :receiver                then deconstructed[:receiver] = self.receiver
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :block                   then deconstructed[:block] = self.block
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -16772,7 +17688,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -16973,7 +17901,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, binary_operator: binary_operator }
+      (keys || %i[node_id location name name_loc binary_operator_loc value binary_operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :binary_operator_loc     then deconstructed[:binary_operator_loc] = self.binary_operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :binary_operator         then deconstructed[:binary_operator] = self.binary_operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -17173,7 +18113,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -17365,7 +18317,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -17494,7 +18454,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -17626,7 +18594,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value, operator_loc: operator_loc }
+      (keys || %i[node_id location name name_loc value operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -17834,7 +18814,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, value: value }
+      (keys || %i[node_id location value]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :value                   then deconstructed[:value] = self.value
+        end
+      end
     end
 
     # See `Node#type`.
@@ -17997,7 +18985,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
+      (keys || %i[node_id location opening_loc parts closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :parts                   then deconstructed[:parts] = self.parts
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -18283,7 +19283,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
+      (keys || %i[node_id location opening_loc parts closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :parts                   then deconstructed[:parts] = self.parts
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -18569,7 +19581,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
+      (keys || %i[node_id location opening_loc parts closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :parts                   then deconstructed[:parts] = self.parts
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -18793,7 +19817,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
+      (keys || %i[node_id location opening_loc parts closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :parts                   then deconstructed[:parts] = self.parts
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -19000,7 +20036,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, parts: parts, closing_loc: closing_loc }
+      (keys || %i[node_id location opening_loc parts closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :parts                   then deconstructed[:parts] = self.parts
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -19190,7 +20238,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -19302,7 +20357,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -19417,7 +20479,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, elements: elements }
+      (keys || %i[node_id location elements]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :elements                then deconstructed[:elements] = self.elements
+        end
+      end
     end
 
     # See `Node#type`.
@@ -19557,7 +20627,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
+      (keys || %i[node_id location name name_loc operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -19767,7 +20848,23 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, locals: locals, operator_loc: operator_loc, opening_loc: opening_loc, closing_loc: closing_loc, parameters: parameters, body: body }
+      (keys || %i[node_id location locals operator_loc opening_loc closing_loc parameters body operator opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :locals                  then deconstructed[:locals] = self.locals
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :parameters              then deconstructed[:parameters] = self.parameters
+        when :body                    then deconstructed[:body] = self.body
+        when :operator                then deconstructed[:operator] = self.operator
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -20023,7 +21120,20 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name_loc: name_loc, operator_loc: operator_loc, value: value, name: name, depth: depth }
+      (keys || %i[node_id location name_loc operator_loc value name depth operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :name                    then deconstructed[:name] = self.name
+        when :depth                   then deconstructed[:depth] = self.depth
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -20237,7 +21347,20 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name_loc: name_loc, binary_operator_loc: binary_operator_loc, value: value, name: name, binary_operator: binary_operator, depth: depth }
+      (keys || %i[node_id location name_loc binary_operator_loc value name binary_operator depth]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :binary_operator_loc     then deconstructed[:binary_operator_loc] = self.binary_operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :name                    then deconstructed[:name] = self.name
+        when :binary_operator         then deconstructed[:binary_operator] = self.binary_operator
+        when :depth                   then deconstructed[:depth] = self.depth
+        end
+      end
     end
 
     # See `Node#type`.
@@ -20450,7 +21573,20 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name_loc: name_loc, operator_loc: operator_loc, value: value, name: name, depth: depth }
+      (keys || %i[node_id location name_loc operator_loc value name depth operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :name                    then deconstructed[:name] = self.name
+        when :depth                   then deconstructed[:depth] = self.depth
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -20655,7 +21791,16 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, depth: depth }
+      (keys || %i[node_id location name depth]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :depth                   then deconstructed[:depth] = self.depth
+        end
+      end
     end
 
     # See `Node#type`.
@@ -20810,7 +21955,16 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, depth: depth }
+      (keys || %i[node_id location name depth]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :depth                   then deconstructed[:depth] = self.depth
+        end
+      end
     end
 
     # See `Node#type`.
@@ -20955,7 +22109,20 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, depth: depth, name_loc: name_loc, value: value, operator_loc: operator_loc }
+      (keys || %i[node_id location name depth name_loc value operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :depth                   then deconstructed[:depth] = self.depth
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -21190,7 +22357,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
+      (keys || %i[node_id location opening_loc content_loc closing_loc unescaped opening content closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :content_loc             then deconstructed[:content_loc] = self.content_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :unescaped               then deconstructed[:unescaped] = self.unescaped
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :content                 then deconstructed[:content] = self.content
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -21509,7 +22690,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, value: value, pattern: pattern, operator_loc: operator_loc }
+      (keys || %i[node_id location value pattern operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :value                   then deconstructed[:value] = self.value
+        when :pattern                 then deconstructed[:pattern] = self.pattern
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -21684,7 +22876,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, value: value, pattern: pattern, operator_loc: operator_loc }
+      (keys || %i[node_id location value pattern operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :value                   then deconstructed[:value] = self.value
+        when :pattern                 then deconstructed[:pattern] = self.pattern
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -21905,7 +23108,16 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, call: call, targets: targets }
+      (keys || %i[node_id location call targets]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :call                    then deconstructed[:call] = self.call
+        when :targets                 then deconstructed[:targets] = self.targets
+        end
+      end
     end
 
     # See `Node#type`.
@@ -22057,7 +23269,22 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, locals: locals, module_keyword_loc: module_keyword_loc, constant_path: constant_path, body: body, end_keyword_loc: end_keyword_loc, name: name }
+      (keys || %i[node_id location locals module_keyword_loc constant_path body end_keyword_loc name module_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :locals                  then deconstructed[:locals] = self.locals
+        when :module_keyword_loc      then deconstructed[:module_keyword_loc] = self.module_keyword_loc
+        when :constant_path           then deconstructed[:constant_path] = self.constant_path
+        when :body                    then deconstructed[:body] = self.body
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :name                    then deconstructed[:name] = self.name
+        when :module_keyword          then deconstructed[:module_keyword] = self.module_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -22302,7 +23529,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, lefts: lefts, rest: rest, rights: rights, lparen_loc: lparen_loc, rparen_loc: rparen_loc }
+      (keys || %i[node_id location lefts rest rights lparen_loc rparen_loc lparen rparen]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :lefts                   then deconstructed[:lefts] = self.lefts
+        when :rest                    then deconstructed[:rest] = self.rest
+        when :rights                  then deconstructed[:rights] = self.rights
+        when :lparen_loc              then deconstructed[:lparen_loc] = self.lparen_loc
+        when :rparen_loc              then deconstructed[:rparen_loc] = self.rparen_loc
+        when :lparen                  then deconstructed[:lparen] = self.lparen
+        when :rparen                  then deconstructed[:rparen] = self.rparen
+        end
+      end
     end
 
     # See `Node#type`.
@@ -22578,7 +23819,24 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, lefts: lefts, rest: rest, rights: rights, lparen_loc: lparen_loc, rparen_loc: rparen_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location lefts rest rights lparen_loc rparen_loc operator_loc value lparen rparen operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :lefts                   then deconstructed[:lefts] = self.lefts
+        when :rest                    then deconstructed[:rest] = self.rest
+        when :rights                  then deconstructed[:rights] = self.rights
+        when :lparen_loc              then deconstructed[:lparen_loc] = self.lparen_loc
+        when :rparen_loc              then deconstructed[:rparen_loc] = self.rparen_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :lparen                  then deconstructed[:lparen] = self.lparen
+        when :rparen                  then deconstructed[:rparen] = self.rparen
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -22888,7 +24146,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, arguments: arguments, keyword_loc: keyword_loc }
+      (keys || %i[node_id location arguments keyword_loc keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -23044,7 +24312,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -23161,7 +24436,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, operator_loc: operator_loc, keyword_loc: keyword_loc }
+      (keys || %i[node_id location operator_loc keyword_loc operator keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -23344,7 +24630,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, operator_loc: operator_loc, keyword_loc: keyword_loc }
+      (keys || %i[node_id location operator_loc keyword_loc operator keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -23524,7 +24821,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, maximum: maximum }
+      (keys || %i[node_id location maximum]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :maximum                 then deconstructed[:maximum] = self.maximum
+        end
+      end
     end
 
     # See `Node#type`.
@@ -23649,7 +24954,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, number: number }
+      (keys || %i[node_id location number]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :number                  then deconstructed[:number] = self.number
+        end
+      end
     end
 
     # See `Node#type`.
@@ -23786,7 +25099,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, value: value }
+      (keys || %i[node_id location name name_loc value]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :value                   then deconstructed[:value] = self.value
+        end
+      end
     end
 
     # See `Node#type`.
@@ -23962,7 +25285,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc, value: value }
+      (keys || %i[node_id location name name_loc operator_loc value operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :value                   then deconstructed[:value] = self.value
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -24169,7 +25504,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
+      (keys || %i[node_id location left right operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :left                    then deconstructed[:left] = self.left
+        when :right                   then deconstructed[:right] = self.right
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -24381,7 +25727,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, requireds: requireds, optionals: optionals, rest: rest, posts: posts, keywords: keywords, keyword_rest: keyword_rest, block: block }
+      (keys || %i[node_id location requireds optionals rest posts keywords keyword_rest block]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :requireds               then deconstructed[:requireds] = self.requireds
+        when :optionals               then deconstructed[:optionals] = self.optionals
+        when :rest                    then deconstructed[:rest] = self.rest
+        when :posts                   then deconstructed[:posts] = self.posts
+        when :keywords                then deconstructed[:keywords] = self.keywords
+        when :keyword_rest            then deconstructed[:keyword_rest] = self.keyword_rest
+        when :block                   then deconstructed[:block] = self.block
+        end
+      end
     end
 
     # See `Node#type`.
@@ -24583,7 +25943,19 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, body: body, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location body opening_loc closing_loc opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :body                    then deconstructed[:body] = self.body
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -24790,7 +26162,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, expression: expression, operator_loc: operator_loc, lparen_loc: lparen_loc, rparen_loc: rparen_loc }
+      (keys || %i[node_id location expression operator_loc lparen_loc rparen_loc operator lparen rparen]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :expression              then deconstructed[:expression] = self.expression
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :lparen_loc              then deconstructed[:lparen_loc] = self.lparen_loc
+        when :rparen_loc              then deconstructed[:rparen_loc] = self.rparen_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        when :lparen                  then deconstructed[:lparen] = self.lparen
+        when :rparen                  then deconstructed[:rparen] = self.rparen
+        end
+      end
     end
 
     # See `Node#type`.
@@ -25029,7 +26415,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, variable: variable, operator_loc: operator_loc }
+      (keys || %i[node_id location variable operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :variable                then deconstructed[:variable] = self.variable
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -25202,7 +26598,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, statements: statements, keyword_loc: keyword_loc, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location statements keyword_loc opening_loc closing_loc keyword opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :statements              then deconstructed[:statements] = self.statements
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -25435,7 +26845,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, statements: statements, keyword_loc: keyword_loc, opening_loc: opening_loc, closing_loc: closing_loc }
+      (keys || %i[node_id location statements keyword_loc opening_loc closing_loc keyword opening closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :statements              then deconstructed[:statements] = self.statements
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -25659,7 +27083,16 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, locals: locals, statements: statements }
+      (keys || %i[node_id location locals statements]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :locals                  then deconstructed[:locals] = self.locals
+        when :statements              then deconstructed[:statements] = self.statements
+        end
+      end
     end
 
     # See `Node#type`.
@@ -25808,7 +27241,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, left: left, right: right, operator_loc: operator_loc }
+      (keys || %i[node_id location left right operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :left                    then deconstructed[:left] = self.left
+        when :right                   then deconstructed[:right] = self.right
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -26001,7 +27445,16 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, numerator: numerator, denominator: denominator }
+      (keys || %i[node_id location numerator denominator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :numerator               then deconstructed[:numerator] = self.numerator
+        when :denominator             then deconstructed[:denominator] = self.denominator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -26172,7 +27625,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -26292,7 +27752,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
+      (keys || %i[node_id location opening_loc content_loc closing_loc unescaped opening content closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :content_loc             then deconstructed[:content_loc] = self.content_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :unescaped               then deconstructed[:unescaped] = self.unescaped
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :content                 then deconstructed[:content] = self.content
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -26608,7 +28082,16 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc }
+      (keys || %i[node_id location name name_loc]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        end
+      end
     end
 
     # See `Node#type`.
@@ -26766,7 +28249,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name }
+      (keys || %i[node_id location name]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        end
+      end
     end
 
     # See `Node#type`.
@@ -26906,7 +28397,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, expression: expression, keyword_loc: keyword_loc, rescue_expression: rescue_expression }
+      (keys || %i[node_id location expression keyword_loc rescue_expression keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :expression              then deconstructed[:expression] = self.expression
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :rescue_expression       then deconstructed[:rescue_expression] = self.rescue_expression
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -27101,7 +28603,24 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, exceptions: exceptions, operator_loc: operator_loc, reference: reference, then_keyword_loc: then_keyword_loc, statements: statements, subsequent: subsequent }
+      (keys || %i[node_id location keyword_loc exceptions operator_loc reference then_keyword_loc statements subsequent keyword operator then_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :exceptions              then deconstructed[:exceptions] = self.exceptions
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :reference               then deconstructed[:reference] = self.reference
+        when :then_keyword_loc        then deconstructed[:then_keyword_loc] = self.then_keyword_loc
+        when :statements              then deconstructed[:statements] = self.statements
+        when :subsequent              then deconstructed[:subsequent] = self.subsequent
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :operator                then deconstructed[:operator] = self.operator
+        when :then_keyword            then deconstructed[:then_keyword] = self.then_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -27374,7 +28893,18 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, name: name, name_loc: name_loc, operator_loc: operator_loc }
+      (keys || %i[node_id location name name_loc operator_loc operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :name                    then deconstructed[:name] = self.name
+        when :name_loc                then deconstructed[:name_loc] = self.name_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -27567,7 +29097,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -27686,7 +29223,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, arguments: arguments }
+      (keys || %i[node_id location keyword_loc arguments keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -27842,7 +29389,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -27958,7 +29512,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, write: write }
+      (keys || %i[node_id location write]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :write                   then deconstructed[:write] = self.write
+        end
+      end
     end
 
     # See `Node#type`.
@@ -28123,7 +29685,23 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, locals: locals, class_keyword_loc: class_keyword_loc, operator_loc: operator_loc, expression: expression, body: body, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location locals class_keyword_loc operator_loc expression body end_keyword_loc class_keyword operator end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :locals                  then deconstructed[:locals] = self.locals
+        when :class_keyword_loc       then deconstructed[:class_keyword_loc] = self.class_keyword_loc
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :expression              then deconstructed[:expression] = self.expression
+        when :body                    then deconstructed[:body] = self.body
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :class_keyword           then deconstructed[:class_keyword] = self.class_keyword
+        when :operator                then deconstructed[:operator] = self.operator
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -28368,7 +29946,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -28482,7 +30067,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, filepath: filepath }
+      (keys || %i[node_id location filepath]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :filepath                then deconstructed[:filepath] = self.filepath
+        end
+      end
     end
 
     # See `Node#type`.
@@ -28638,7 +30231,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -28757,7 +30357,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, operator_loc: operator_loc, expression: expression }
+      (keys || %i[node_id location operator_loc expression operator]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :operator_loc            then deconstructed[:operator_loc] = self.operator_loc
+        when :expression              then deconstructed[:expression] = self.expression
+        when :operator                then deconstructed[:operator] = self.operator
+        end
+      end
     end
 
     # See `Node#type`.
@@ -28916,7 +30526,15 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, body: body }
+      (keys || %i[node_id location body]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :body                    then deconstructed[:body] = self.body
+        end
+      end
     end
 
     # See `Node#type`.
@@ -29054,7 +30672,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
+      (keys || %i[node_id location opening_loc content_loc closing_loc unescaped opening content closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :content_loc             then deconstructed[:content_loc] = self.content_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :unescaped               then deconstructed[:unescaped] = self.unescaped
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :content                 then deconstructed[:content] = self.content
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -29339,7 +30971,22 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, lparen_loc: lparen_loc, arguments: arguments, rparen_loc: rparen_loc, block: block }
+      (keys || %i[node_id location keyword_loc lparen_loc arguments rparen_loc block keyword lparen rparen]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :lparen_loc              then deconstructed[:lparen_loc] = self.lparen_loc
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :rparen_loc              then deconstructed[:rparen_loc] = self.rparen_loc
+        when :block                   then deconstructed[:block] = self.block
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :lparen                  then deconstructed[:lparen] = self.lparen
+        when :rparen                  then deconstructed[:rparen] = self.rparen
+        end
+      end
     end
 
     # See `Node#type`.
@@ -29593,7 +31240,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, value_loc: value_loc, closing_loc: closing_loc, unescaped: unescaped }
+      (keys || %i[node_id location opening_loc value_loc closing_loc unescaped opening value closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :value_loc               then deconstructed[:value_loc] = self.value_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :unescaped               then deconstructed[:unescaped] = self.unescaped
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :value                   then deconstructed[:value] = self.value
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -29855,7 +31516,14 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location }
+      (keys || %i[node_id location]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        end
+      end
     end
 
     # See `Node#type`.
@@ -29972,7 +31640,17 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, names: names, keyword_loc: keyword_loc }
+      (keys || %i[node_id location names keyword_loc keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :names                   then deconstructed[:names] = self.names
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -30151,7 +31829,23 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, predicate: predicate, then_keyword_loc: then_keyword_loc, statements: statements, else_clause: else_clause, end_keyword_loc: end_keyword_loc }
+      (keys || %i[node_id location keyword_loc predicate then_keyword_loc statements else_clause end_keyword_loc keyword then_keyword end_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :predicate               then deconstructed[:predicate] = self.predicate
+        when :then_keyword_loc        then deconstructed[:then_keyword_loc] = self.then_keyword_loc
+        when :statements              then deconstructed[:statements] = self.statements
+        when :else_clause             then deconstructed[:else_clause] = self.else_clause
+        when :end_keyword_loc         then deconstructed[:end_keyword_loc] = self.end_keyword_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :then_keyword            then deconstructed[:then_keyword] = self.then_keyword
+        when :end_keyword             then deconstructed[:end_keyword] = self.end_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -30448,7 +32142,22 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, do_keyword_loc: do_keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
+      (keys || %i[node_id location keyword_loc do_keyword_loc closing_loc predicate statements keyword do_keyword closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :do_keyword_loc          then deconstructed[:do_keyword_loc] = self.do_keyword_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :predicate               then deconstructed[:predicate] = self.predicate
+        when :statements              then deconstructed[:statements] = self.statements
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :do_keyword              then deconstructed[:do_keyword] = self.do_keyword
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -30715,7 +32424,20 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, conditions: conditions, then_keyword_loc: then_keyword_loc, statements: statements }
+      (keys || %i[node_id location keyword_loc conditions then_keyword_loc statements keyword then_keyword]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :conditions              then deconstructed[:conditions] = self.conditions
+        when :then_keyword_loc        then deconstructed[:then_keyword_loc] = self.then_keyword_loc
+        when :statements              then deconstructed[:statements] = self.statements
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :then_keyword            then deconstructed[:then_keyword] = self.then_keyword
+        end
+      end
     end
 
     # See `Node#type`.
@@ -30939,7 +32661,22 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, do_keyword_loc: do_keyword_loc, closing_loc: closing_loc, predicate: predicate, statements: statements }
+      (keys || %i[node_id location keyword_loc do_keyword_loc closing_loc predicate statements keyword do_keyword closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :do_keyword_loc          then deconstructed[:do_keyword_loc] = self.do_keyword_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :predicate               then deconstructed[:predicate] = self.predicate
+        when :statements              then deconstructed[:statements] = self.statements
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :do_keyword              then deconstructed[:do_keyword] = self.do_keyword
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -31199,7 +32936,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, opening_loc: opening_loc, content_loc: content_loc, closing_loc: closing_loc, unescaped: unescaped }
+      (keys || %i[node_id location opening_loc content_loc closing_loc unescaped opening content closing]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
+        when :content_loc             then deconstructed[:content_loc] = self.content_loc
+        when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
+        when :unescaped               then deconstructed[:unescaped] = self.unescaped
+        when :opening                 then deconstructed[:opening] = self.opening
+        when :content                 then deconstructed[:content] = self.content
+        when :closing                 then deconstructed[:closing] = self.closing
+        end
+      end
     end
 
     # See `Node#type`.
@@ -31449,7 +33200,21 @@ module Prism
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      { node_id: node_id, location: location, keyword_loc: keyword_loc, lparen_loc: lparen_loc, arguments: arguments, rparen_loc: rparen_loc }
+      (keys || %i[node_id location keyword_loc lparen_loc arguments rparen_loc keyword lparen rparen]).each_with_object(
+        {} #: Hash[Symbol, untyped]
+      ) do |key, deconstructed|
+        case key
+        when :node_id                 then deconstructed[:node_id] = self.node_id
+        when :location                then deconstructed[:location] = self.location
+        when :keyword_loc             then deconstructed[:keyword_loc] = self.keyword_loc
+        when :lparen_loc              then deconstructed[:lparen_loc] = self.lparen_loc
+        when :arguments               then deconstructed[:arguments] = self.arguments
+        when :rparen_loc              then deconstructed[:rparen_loc] = self.rparen_loc
+        when :keyword                 then deconstructed[:keyword] = self.keyword
+        when :lparen                  then deconstructed[:lparen] = self.lparen
+        when :rparen                  then deconstructed[:rparen] = self.rparen
+        end
+      end
     end
 
     # See `Node#type`.
