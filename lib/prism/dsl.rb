@@ -582,9 +582,9 @@ module Prism
 
     # Create a new InNode node.
     #--
-    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?pattern: Prism::node, ?statements: StatementsNode?, ?in_loc: Location, ?then_loc: Location?) -> InNode
-    def in_node(source: default_source, node_id: 0, location: default_location, flags: 0, pattern: default_node(source, location), statements: nil, in_loc: location, then_loc: nil)
-      InNode.new(source, node_id, location, flags, pattern, statements, in_loc, then_loc)
+    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?pattern: Prism::node, ?statements: StatementsNode?, ?in_keyword_loc: Location, ?then_keyword_loc: Location?) -> InNode
+    def in_node(source: default_source, node_id: 0, location: default_location, flags: 0, pattern: default_node(source, location), statements: nil, in_keyword_loc: location, then_keyword_loc: nil)
+      InNode.new(source, node_id, location, flags, pattern, statements, in_keyword_loc, then_keyword_loc)
     end
 
     # Create a new IndexAndWriteNode node.
@@ -785,9 +785,9 @@ module Prism
 
     # Create a new MatchPredicateNode node.
     #--
-    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node, ?pattern: Prism::node, ?operator_loc: Location) -> MatchPredicateNode
-    def match_predicate_node(source: default_source, node_id: 0, location: default_location, flags: 0, value: default_node(source, location), pattern: default_node(source, location), operator_loc: location)
-      MatchPredicateNode.new(source, node_id, location, flags, value, pattern, operator_loc)
+    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?value: Prism::node, ?pattern: Prism::node, ?keyword_loc: Location) -> MatchPredicateNode
+    def match_predicate_node(source: default_source, node_id: 0, location: default_location, flags: 0, value: default_node(source, location), pattern: default_node(source, location), keyword_loc: location)
+      MatchPredicateNode.new(source, node_id, location, flags, value, pattern, keyword_loc)
     end
 
     # Create a new MatchRequiredNode node.
@@ -1107,30 +1107,30 @@ module Prism
 
     # Create a new UnlessNode node.
     #--
-    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?else_clause: ElseNode?, ?end_keyword_loc: Location?) -> UnlessNode
-    def unless_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, else_clause: nil, end_keyword_loc: nil)
-      UnlessNode.new(source, node_id, location, flags, keyword_loc, predicate, then_keyword_loc, statements, else_clause, end_keyword_loc)
+    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?unless_keyword_loc: Location, ?predicate: Prism::node, ?then_keyword_loc: Location?, ?statements: StatementsNode?, ?else_clause: ElseNode?, ?end_keyword_loc: Location?) -> UnlessNode
+    def unless_node(source: default_source, node_id: 0, location: default_location, flags: 0, unless_keyword_loc: location, predicate: default_node(source, location), then_keyword_loc: nil, statements: nil, else_clause: nil, end_keyword_loc: nil)
+      UnlessNode.new(source, node_id, location, flags, unless_keyword_loc, predicate, then_keyword_loc, statements, else_clause, end_keyword_loc)
     end
 
     # Create a new UntilNode node.
     #--
-    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?do_keyword_loc: Location?, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> UntilNode
-    def until_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, do_keyword_loc: nil, closing_loc: nil, predicate: default_node(source, location), statements: nil)
-      UntilNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
+    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?until_keyword_loc: Location, ?do_keyword_loc: Location?, ?end_keyword_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> UntilNode
+    def until_node(source: default_source, node_id: 0, location: default_location, flags: 0, until_keyword_loc: location, do_keyword_loc: nil, end_keyword_loc: nil, predicate: default_node(source, location), statements: nil)
+      UntilNode.new(source, node_id, location, flags, until_keyword_loc, do_keyword_loc, end_keyword_loc, predicate, statements)
     end
 
     # Create a new WhenNode node.
     #--
-    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?conditions: Array[Prism::node], ?then_keyword_loc: Location?, ?statements: StatementsNode?) -> WhenNode
-    def when_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, conditions: [], then_keyword_loc: nil, statements: nil)
-      WhenNode.new(source, node_id, location, flags, keyword_loc, conditions, then_keyword_loc, statements)
+    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?when_keyword_loc: Location, ?conditions: Array[Prism::node], ?then_keyword_loc: Location?, ?statements: StatementsNode?) -> WhenNode
+    def when_node(source: default_source, node_id: 0, location: default_location, flags: 0, when_keyword_loc: location, conditions: [], then_keyword_loc: nil, statements: nil)
+      WhenNode.new(source, node_id, location, flags, when_keyword_loc, conditions, then_keyword_loc, statements)
     end
 
     # Create a new WhileNode node.
     #--
-    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?keyword_loc: Location, ?do_keyword_loc: Location?, ?closing_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> WhileNode
-    def while_node(source: default_source, node_id: 0, location: default_location, flags: 0, keyword_loc: location, do_keyword_loc: nil, closing_loc: nil, predicate: default_node(source, location), statements: nil)
-      WhileNode.new(source, node_id, location, flags, keyword_loc, do_keyword_loc, closing_loc, predicate, statements)
+    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?while_keyword_loc: Location, ?do_keyword_loc: Location?, ?end_keyword_loc: Location?, ?predicate: Prism::node, ?statements: StatementsNode?) -> WhileNode
+    def while_node(source: default_source, node_id: 0, location: default_location, flags: 0, while_keyword_loc: location, do_keyword_loc: nil, end_keyword_loc: nil, predicate: default_node(source, location), statements: nil)
+      WhileNode.new(source, node_id, location, flags, while_keyword_loc, do_keyword_loc, end_keyword_loc, predicate, statements)
     end
 
     # Create a new XStringNode node.

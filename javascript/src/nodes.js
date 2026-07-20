@@ -8170,12 +8170,12 @@ export class InNode {
   /**
    * @type Location
    */
-  inLoc;
+  inKeywordLoc;
 
   /**
    * @type Location | null
    */
-  thenLoc;
+  thenKeywordLoc;
 
   /**
    * Construct a new InNode.
@@ -8185,17 +8185,17 @@ export class InNode {
    * @param {number} flags
    * @param {Node} pattern
    * @param {StatementsNode | null} statements
-   * @param {Location} inLoc
-   * @param {Location | null} thenLoc
+   * @param {Location} inKeywordLoc
+   * @param {Location | null} thenKeywordLoc
    */
-  constructor(nodeID, location, flags, pattern, statements, inLoc, thenLoc) {
+  constructor(nodeID, location, flags, pattern, statements, inKeywordLoc, thenKeywordLoc) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
     this.pattern = pattern;
     this.statements = statements;
-    this.inLoc = inLoc;
-    this.thenLoc = thenLoc;
+    this.inKeywordLoc = inKeywordLoc;
+    this.thenKeywordLoc = thenKeywordLoc;
   }
 
   /**
@@ -8245,8 +8245,8 @@ export class InNode {
       flags: this.#flags,
       pattern: this.pattern,
       statements: this.statements,
-      inLoc: this.inLoc,
-      thenLoc: this.thenLoc,
+      inKeywordLoc: this.inKeywordLoc,
+      thenKeywordLoc: this.thenKeywordLoc,
     };
   }
 }
@@ -11833,7 +11833,7 @@ export class MatchPredicateNode {
   /**
    * @type Location
    */
-  operatorLoc;
+  keywordLoc;
 
   /**
    * Construct a new MatchPredicateNode.
@@ -11843,15 +11843,15 @@ export class MatchPredicateNode {
    * @param {number} flags
    * @param {Node} value
    * @param {Node} pattern
-   * @param {Location} operatorLoc
+   * @param {Location} keywordLoc
    */
-  constructor(nodeID, location, flags, value, pattern, operatorLoc) {
+  constructor(nodeID, location, flags, value, pattern, keywordLoc) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
     this.value = value;
     this.pattern = pattern;
-    this.operatorLoc = operatorLoc;
+    this.keywordLoc = keywordLoc;
   }
 
   /**
@@ -11893,7 +11893,7 @@ export class MatchPredicateNode {
       flags: this.#flags,
       value: this.value,
       pattern: this.pattern,
-      operatorLoc: this.operatorLoc,
+      keywordLoc: this.keywordLoc,
     };
   }
 }
@@ -16780,7 +16780,7 @@ export class UnlessNode {
   /**
    * @type Location
    */
-  keywordLoc;
+  unlessKeywordLoc;
 
   /**
    * @type Node
@@ -16813,18 +16813,18 @@ export class UnlessNode {
    * @param {number} nodeID
    * @param {Location} location
    * @param {number} flags
-   * @param {Location} keywordLoc
+   * @param {Location} unlessKeywordLoc
    * @param {Node} predicate
    * @param {Location | null} thenKeywordLoc
    * @param {StatementsNode | null} statements
    * @param {ElseNode | null} elseClause
    * @param {Location | null} endKeywordLoc
    */
-  constructor(nodeID, location, flags, keywordLoc, predicate, thenKeywordLoc, statements, elseClause, endKeywordLoc) {
+  constructor(nodeID, location, flags, unlessKeywordLoc, predicate, thenKeywordLoc, statements, elseClause, endKeywordLoc) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
-    this.keywordLoc = keywordLoc;
+    this.unlessKeywordLoc = unlessKeywordLoc;
     this.predicate = predicate;
     this.thenKeywordLoc = thenKeywordLoc;
     this.statements = statements;
@@ -16880,7 +16880,7 @@ export class UnlessNode {
       type: "UnlessNode",
       location: this.location,
       flags: this.#flags,
-      keywordLoc: this.keywordLoc,
+      unlessKeywordLoc: this.unlessKeywordLoc,
       predicate: this.predicate,
       thenKeywordLoc: this.thenKeywordLoc,
       statements: this.statements,
@@ -16918,7 +16918,7 @@ export class UntilNode {
   /**
    * @type Location
    */
-  keywordLoc;
+  untilKeywordLoc;
 
   /**
    * @type Location | null
@@ -16928,7 +16928,7 @@ export class UntilNode {
   /**
    * @type Location | null
    */
-  closingLoc;
+  endKeywordLoc;
 
   /**
    * @type Node
@@ -16946,19 +16946,19 @@ export class UntilNode {
    * @param {number} nodeID
    * @param {Location} location
    * @param {number} flags
-   * @param {Location} keywordLoc
+   * @param {Location} untilKeywordLoc
    * @param {Location | null} doKeywordLoc
-   * @param {Location | null} closingLoc
+   * @param {Location | null} endKeywordLoc
    * @param {Node} predicate
    * @param {StatementsNode | null} statements
    */
-  constructor(nodeID, location, flags, keywordLoc, doKeywordLoc, closingLoc, predicate, statements) {
+  constructor(nodeID, location, flags, untilKeywordLoc, doKeywordLoc, endKeywordLoc, predicate, statements) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
-    this.keywordLoc = keywordLoc;
+    this.untilKeywordLoc = untilKeywordLoc;
     this.doKeywordLoc = doKeywordLoc;
-    this.closingLoc = closingLoc;
+    this.endKeywordLoc = endKeywordLoc;
     this.predicate = predicate;
     this.statements = statements;
   }
@@ -17017,9 +17017,9 @@ export class UntilNode {
       type: "UntilNode",
       location: this.location,
       flags: this.#flags,
-      keywordLoc: this.keywordLoc,
+      untilKeywordLoc: this.untilKeywordLoc,
       doKeywordLoc: this.doKeywordLoc,
-      closingLoc: this.closingLoc,
+      endKeywordLoc: this.endKeywordLoc,
       predicate: this.predicate,
       statements: this.statements,
     };
@@ -17053,7 +17053,7 @@ export class WhenNode {
   /**
    * @type Location
    */
-  keywordLoc;
+  whenKeywordLoc;
 
   /**
    * @type Node[]
@@ -17076,16 +17076,16 @@ export class WhenNode {
    * @param {number} nodeID
    * @param {Location} location
    * @param {number} flags
-   * @param {Location} keywordLoc
+   * @param {Location} whenKeywordLoc
    * @param {Node[]} conditions
    * @param {Location | null} thenKeywordLoc
    * @param {StatementsNode | null} statements
    */
-  constructor(nodeID, location, flags, keywordLoc, conditions, thenKeywordLoc, statements) {
+  constructor(nodeID, location, flags, whenKeywordLoc, conditions, thenKeywordLoc, statements) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
-    this.keywordLoc = keywordLoc;
+    this.whenKeywordLoc = whenKeywordLoc;
     this.conditions = conditions;
     this.thenKeywordLoc = thenKeywordLoc;
     this.statements = statements;
@@ -17135,7 +17135,7 @@ export class WhenNode {
       type: "WhenNode",
       location: this.location,
       flags: this.#flags,
-      keywordLoc: this.keywordLoc,
+      whenKeywordLoc: this.whenKeywordLoc,
       conditions: this.conditions,
       thenKeywordLoc: this.thenKeywordLoc,
       statements: this.statements,
@@ -17171,7 +17171,7 @@ export class WhileNode {
   /**
    * @type Location
    */
-  keywordLoc;
+  whileKeywordLoc;
 
   /**
    * @type Location | null
@@ -17181,7 +17181,7 @@ export class WhileNode {
   /**
    * @type Location | null
    */
-  closingLoc;
+  endKeywordLoc;
 
   /**
    * @type Node
@@ -17199,19 +17199,19 @@ export class WhileNode {
    * @param {number} nodeID
    * @param {Location} location
    * @param {number} flags
-   * @param {Location} keywordLoc
+   * @param {Location} whileKeywordLoc
    * @param {Location | null} doKeywordLoc
-   * @param {Location | null} closingLoc
+   * @param {Location | null} endKeywordLoc
    * @param {Node} predicate
    * @param {StatementsNode | null} statements
    */
-  constructor(nodeID, location, flags, keywordLoc, doKeywordLoc, closingLoc, predicate, statements) {
+  constructor(nodeID, location, flags, whileKeywordLoc, doKeywordLoc, endKeywordLoc, predicate, statements) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
-    this.keywordLoc = keywordLoc;
+    this.whileKeywordLoc = whileKeywordLoc;
     this.doKeywordLoc = doKeywordLoc;
-    this.closingLoc = closingLoc;
+    this.endKeywordLoc = endKeywordLoc;
     this.predicate = predicate;
     this.statements = statements;
   }
@@ -17270,9 +17270,9 @@ export class WhileNode {
       type: "WhileNode",
       location: this.location,
       flags: this.#flags,
-      keywordLoc: this.keywordLoc,
+      whileKeywordLoc: this.whileKeywordLoc,
       doKeywordLoc: this.doKeywordLoc,
-      closingLoc: this.closingLoc,
+      endKeywordLoc: this.endKeywordLoc,
       predicate: this.predicate,
       statements: this.statements,
     };

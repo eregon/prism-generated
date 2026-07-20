@@ -3860,13 +3860,13 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 226 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
-                    // in_loc
+                    // in_keyword_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[6] = pm_location_new(cast->in_loc.start, cast->in_loc.length, source, freeze);
+                    argv[6] = pm_location_new(cast->in_keyword_loc.start, cast->in_keyword_loc.length, source, freeze);
 
-                    // then_loc
+                    // then_keyword_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[7] = cast->then_loc.length == 0 ? Qnil : pm_location_new(cast->then_loc.start, cast->then_loc.length, source, freeze);
+                    argv[7] = cast->then_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->then_keyword_loc.start, cast->then_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismInNode);
                     if (freeze) rb_obj_freeze(value);
@@ -5000,9 +5000,9 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 226 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
-                    // operator_loc
+                    // keyword_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
+                    argv[6] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismMatchPredicateNode);
                     if (freeze) rb_obj_freeze(value);
@@ -6601,9 +6601,9 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // flags
                     argv[3] = ULONG2NUM(node->flags);
 
-                    // keyword_loc
+                    // unless_keyword_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
+                    argv[4] = pm_location_new(cast->unless_keyword_loc.start, cast->unless_keyword_loc.length, source, freeze);
 
                     // predicate
 #line 226 "prism/templates/ext/prism/api_node.c.erb"
@@ -6648,17 +6648,17 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // flags
                     argv[3] = ULONG2NUM(node->flags);
 
-                    // keyword_loc
+                    // until_keyword_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
+                    argv[4] = pm_location_new(cast->until_keyword_loc.start, cast->until_keyword_loc.length, source, freeze);
 
                     // do_keyword_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->do_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->do_keyword_loc.start, cast->do_keyword_loc.length, source, freeze);
 
-                    // closing_loc
+                    // end_keyword_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[6] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
+                    argv[6] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     // predicate
 #line 226 "prism/templates/ext/prism/api_node.c.erb"
@@ -6691,9 +6691,9 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // flags
                     argv[3] = ULONG2NUM(node->flags);
 
-                    // keyword_loc
+                    // when_keyword_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
+                    argv[4] = pm_location_new(cast->when_keyword_loc.start, cast->when_keyword_loc.length, source, freeze);
 
                     // conditions
 #line 229 "prism/templates/ext/prism/api_node.c.erb"
@@ -6734,17 +6734,17 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // flags
                     argv[3] = ULONG2NUM(node->flags);
 
-                    // keyword_loc
+                    // while_keyword_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
+                    argv[4] = pm_location_new(cast->while_keyword_loc.start, cast->while_keyword_loc.length, source, freeze);
 
                     // do_keyword_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->do_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->do_keyword_loc.start, cast->do_keyword_loc.length, source, freeze);
 
-                    // closing_loc
+                    // end_keyword_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[6] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
+                    argv[6] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     // predicate
 #line 226 "prism/templates/ext/prism/api_node.c.erb"

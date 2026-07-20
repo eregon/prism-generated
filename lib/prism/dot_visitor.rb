@@ -2267,12 +2267,12 @@ module Prism
         digraph.edge("#{id}:statements -> #{node_id(statements)};")
       end
 
-      # in_loc
-      table.field("in_loc", location_inspect(node.in_loc))
+      # in_keyword_loc
+      table.field("in_keyword_loc", location_inspect(node.in_keyword_loc))
 
-      # then_loc
-      unless (then_loc = node.then_loc).nil?
-        table.field("then_loc", location_inspect(then_loc))
+      # then_keyword_loc
+      unless (then_keyword_loc = node.then_keyword_loc).nil?
+        table.field("then_keyword_loc", location_inspect(then_keyword_loc))
       end
 
       digraph.node(<<~DOT)
@@ -3161,8 +3161,8 @@ module Prism
       table.field("pattern", port: true)
       digraph.edge("#{id}:pattern -> #{node_id(node.pattern)};")
 
-      # operator_loc
-      table.field("operator_loc", location_inspect(node.operator_loc))
+      # keyword_loc
+      table.field("keyword_loc", location_inspect(node.keyword_loc))
 
       digraph.node(<<~DOT)
         #{id} [
@@ -4431,8 +4431,8 @@ module Prism
       table = Table.new("UnlessNode")
       id = node_id(node)
 
-      # keyword_loc
-      table.field("keyword_loc", location_inspect(node.keyword_loc))
+      # unless_keyword_loc
+      table.field("unless_keyword_loc", location_inspect(node.unless_keyword_loc))
 
       # predicate
       table.field("predicate", port: true)
@@ -4477,17 +4477,17 @@ module Prism
       # flags
       table.field("flags", loop_flags_inspect(node))
 
-      # keyword_loc
-      table.field("keyword_loc", location_inspect(node.keyword_loc))
+      # until_keyword_loc
+      table.field("until_keyword_loc", location_inspect(node.until_keyword_loc))
 
       # do_keyword_loc
       unless (do_keyword_loc = node.do_keyword_loc).nil?
         table.field("do_keyword_loc", location_inspect(do_keyword_loc))
       end
 
-      # closing_loc
-      unless (closing_loc = node.closing_loc).nil?
-        table.field("closing_loc", location_inspect(closing_loc))
+      # end_keyword_loc
+      unless (end_keyword_loc = node.end_keyword_loc).nil?
+        table.field("end_keyword_loc", location_inspect(end_keyword_loc))
       end
 
       # predicate
@@ -4514,8 +4514,8 @@ module Prism
       table = Table.new("WhenNode")
       id = node_id(node)
 
-      # keyword_loc
-      table.field("keyword_loc", location_inspect(node.keyword_loc))
+      # when_keyword_loc
+      table.field("when_keyword_loc", location_inspect(node.when_keyword_loc))
 
       # conditions
       if node.conditions.any?
@@ -4558,17 +4558,17 @@ module Prism
       # flags
       table.field("flags", loop_flags_inspect(node))
 
-      # keyword_loc
-      table.field("keyword_loc", location_inspect(node.keyword_loc))
+      # while_keyword_loc
+      table.field("while_keyword_loc", location_inspect(node.while_keyword_loc))
 
       # do_keyword_loc
       unless (do_keyword_loc = node.do_keyword_loc).nil?
         table.field("do_keyword_loc", location_inspect(do_keyword_loc))
       end
 
-      # closing_loc
-      unless (closing_loc = node.closing_loc).nil?
-        table.field("closing_loc", location_inspect(closing_loc))
+      # end_keyword_loc
+      unless (end_keyword_loc = node.end_keyword_loc).nil?
+        table.field("end_keyword_loc", location_inspect(end_keyword_loc))
       end
 
       # predicate
