@@ -8716,6 +8716,13 @@ lex_identifier(pm_parser_t *parser, bool previous_command_start) {
     if (encoding_changed) {
         return parser->encoding->isupper_char(current_start, end - current_start) ? PM_TOKEN_CONSTANT : PM_TOKEN_IDENTIFIER;
     }
+
+    /* Identifiers usually start with an ASCII byte, for which the uppercase
+     * check is a simple range comparison. This avoids the call into the
+     * encoding module for every identifier. */
+    if (*current_start < 0x80) {
+        return (*current_start >= 'A' && *current_start <= 'Z') ? PM_TOKEN_CONSTANT : PM_TOKEN_IDENTIFIER;
+    }
     return pm_encoding_utf_8_isupper_char(current_start, end - current_start) ? PM_TOKEN_CONSTANT : PM_TOKEN_IDENTIFIER;
 }
 
@@ -10093,7 +10100,11 @@ parser_lex(pm_parser_t *parser) {
             // token. Skip runs of inline whitespace in bulk to avoid per-character
             // stores back to parser->current.end.
             bool chomping = true;
-            while (parser->current.end < parser->end && chomping) {
+            while (chomping) {
+                /* Skip the run of inline whitespace in bulk, then decide what
+                 * to do based on the first byte after it. Handling both in a
+                 * single pass avoids re-entering the scan when the run was
+                 * non-empty, which is the common case. */
                 {
                     static const uint8_t inline_whitespace[256] = {
                         [' '] = 1, ['\t'] = 1, ['\f'] = 1, ['\v'] = 1
@@ -10103,8 +10114,8 @@ parser_lex(pm_parser_t *parser) {
                     if (scan > parser->current.end) {
                         parser->current.end = scan;
                         space_seen = true;
-                        continue;
                     }
+                    if (scan >= parser->end) break;
                 }
 
                 switch (*parser->current.end) {
@@ -23373,6 +23384,41 @@ pm_serialize_parse_stream(pm_buffer_t *buffer, pm_source_t *source, const char *
     pm_parser_free(parser);
     pm_arena_cleanup(&arena);
     pm_options_cleanup(&options);
+}
+
+/**
+ * Parse the given source and format any errors that are encountered into the
+ * given buffer using the given format type. If the source parses without any
+ * errors, then -1 is returned and the buffer is left empty. Otherwise, the
+ * name of the encoding of the source is written to the buffer, followed by a
+ * null byte, followed by the formatted errors, and the error level of the
+ * error with the highest precedence is returned.
+ */
+int8_t
+pm_serialize_parse_errors_format(pm_buffer_t *buffer, const uint8_t *source, size_t size, const char *data, pm_errors_format_type_t format_type) {
+    pm_options_t options = { 0 };
+    pm_options_read(&options, data);
+
+    pm_arena_t arena = { 0 };
+    pm_parser_t parser;
+    pm_parser_init(&arena, &parser, source, size, &options);
+
+    pm_parse(&parser);
+
+    int8_t result = -1;
+    if (parser.error_list.size > 0) {
+        const char *encoding_name = parser.encoding->name;
+        pm_buffer_append_string(buffer, encoding_name, strlen(encoding_name));
+        pm_buffer_append_byte(buffer, '\0');
+
+        result = (int8_t) pm_errors_format(&parser, buffer, format_type);
+    }
+
+    pm_parser_cleanup(&parser);
+    pm_arena_cleanup(&arena);
+    pm_options_cleanup(&options);
+
+    return result;
 }
 
 /**
