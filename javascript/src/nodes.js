@@ -917,11 +917,11 @@ export class ArrayPatternNode {
     if (this.constant) {
       compact.push(this.constant);
     }
-    compact.concat(this.requireds);
+    compact.push(...this.requireds);
     if (this.rest) {
       compact.push(this.rest);
     }
-    compact.concat(this.posts);
+    compact.push(...this.posts);
 
     return compact;
   }
@@ -1891,7 +1891,7 @@ export class BlockParametersNode {
     if (this.parameters) {
       compact.push(this.parameters);
     }
-    compact.concat(this.locals);
+    compact.push(...this.locals);
 
     return compact;
   }
@@ -3112,7 +3112,7 @@ export class CaseMatchNode {
     if (this.predicate) {
       compact.push(this.predicate);
     }
-    compact.concat(this.conditions);
+    compact.push(...this.conditions);
     if (this.elseClause) {
       compact.push(this.elseClause);
     }
@@ -3240,7 +3240,7 @@ export class CaseNode {
     if (this.predicate) {
       compact.push(this.predicate);
     }
-    compact.concat(this.conditions);
+    compact.push(...this.conditions);
     if (this.elseClause) {
       compact.push(this.elseClause);
     }
@@ -6263,7 +6263,7 @@ export class FindPatternNode {
     }
     compact.push(this.left);
 
-    compact.concat(this.requireds);
+    compact.push(...this.requireds);
     compact.push(this.right);
 
 
@@ -7708,7 +7708,7 @@ export class HashPatternNode {
     if (this.constant) {
       compact.push(this.constant);
     }
-    compact.concat(this.elements);
+    compact.push(...this.elements);
     if (this.rest) {
       compact.push(this.rest);
     }
@@ -12323,11 +12323,11 @@ export class MultiTargetNode {
   compactChildNodes() {
     const compact = [];
 
-    compact.concat(this.lefts);
+    compact.push(...this.lefts);
     if (this.rest) {
       compact.push(this.rest);
     }
-    compact.concat(this.rights);
+    compact.push(...this.rights);
 
     return compact;
   }
@@ -12461,11 +12461,11 @@ export class MultiWriteNode {
   compactChildNodes() {
     const compact = [];
 
-    compact.concat(this.lefts);
+    compact.push(...this.lefts);
     if (this.rest) {
       compact.push(this.rest);
     }
-    compact.concat(this.rights);
+    compact.push(...this.rights);
     compact.push(this.value);
 
 
@@ -13460,13 +13460,13 @@ export class ParametersNode {
   compactChildNodes() {
     const compact = [];
 
-    compact.concat(this.requireds);
-    compact.concat(this.optionals);
+    compact.push(...this.requireds);
+    compact.push(...this.optionals);
     if (this.rest) {
       compact.push(this.rest);
     }
-    compact.concat(this.posts);
-    compact.concat(this.keywords);
+    compact.push(...this.posts);
+    compact.push(...this.keywords);
     if (this.keywordRest) {
       compact.push(this.keywordRest);
     }
@@ -15073,7 +15073,7 @@ export class RescueNode {
   compactChildNodes() {
     const compact = [];
 
-    compact.concat(this.exceptions);
+    compact.push(...this.exceptions);
     if (this.reference) {
       compact.push(this.reference);
     }
@@ -17117,7 +17117,7 @@ export class WhenNode {
   compactChildNodes() {
     const compact = [];
 
-    compact.concat(this.conditions);
+    compact.push(...this.conditions);
     if (this.statements) {
       compact.push(this.statements);
     }
