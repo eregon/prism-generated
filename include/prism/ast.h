@@ -97,7 +97,7 @@ typedef enum pm_token_type {
     /** &= */
     PM_TOKEN_AMPERSAND_EQUAL,
 
-    /** \` */
+    /** \` as a method name */
     PM_TOKEN_BACKTICK,
 
     /** a back reference */
@@ -114,6 +114,12 @@ typedef enum pm_token_type {
 
     /** { */
     PM_TOKEN_BRACE_LEFT,
+
+    /** { for a block following a parenthesized argument */
+    PM_TOKEN_BRACE_LEFT_ARGUMENT,
+
+    /** { for a hash literal */
+    PM_TOKEN_BRACE_LEFT_HASH,
 
     /** [ */
     PM_TOKEN_BRACKET_LEFT,
@@ -409,6 +415,9 @@ typedef enum pm_token_type {
     /** ( */
     PM_TOKEN_PARENTHESIS_LEFT,
 
+    /** ( scanned at the beginning of an expression */
+    PM_TOKEN_PARENTHESIS_LEFT_GROUPING,
+
     /** ( for a parentheses node */
     PM_TOKEN_PARENTHESIS_LEFT_PARENTHESES,
 
@@ -519,6 +528,9 @@ typedef enum pm_token_type {
 
     /** a separator between words in a list */
     PM_TOKEN_WORDS_SEP,
+
+    /** the beginning of an execution string */
+    PM_TOKEN_XSTRING_BEGIN,
 
     /** marker for the point in the file at which the parser should stop */
     PM_TOKEN___END__,

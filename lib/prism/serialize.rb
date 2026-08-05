@@ -5127,6 +5127,8 @@ module Prism
       :BANG_EQUAL,
       :BANG_TILDE,
       :BRACE_LEFT,
+      :BRACE_LEFT_ARGUMENT,
+      :BRACE_LEFT_HASH,
       :BRACKET_LEFT,
       :BRACKET_LEFT_ARRAY,
       :BRACKET_LEFT_RIGHT,
@@ -5225,6 +5227,7 @@ module Prism
       :MINUS_GREATER,
       :NUMBERED_REFERENCE,
       :PARENTHESIS_LEFT,
+      :PARENTHESIS_LEFT_GROUPING,
       :PARENTHESIS_LEFT_PARENTHESES,
       :PERCENT,
       :PERCENT_EQUAL,
@@ -5262,6 +5265,7 @@ module Prism
       :USTAR,
       :USTAR_STAR,
       :WORDS_SEP,
+      :XSTRING_BEGIN,
       :__END__,
     ].freeze #: Array[Symbol?]
 

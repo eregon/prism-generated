@@ -72,6 +72,10 @@ pm_token_type(pm_token_type_t token_type) {
             return "BANG_TILDE";
         case PM_TOKEN_BRACE_LEFT:
             return "BRACE_LEFT";
+        case PM_TOKEN_BRACE_LEFT_ARGUMENT:
+            return "BRACE_LEFT_ARGUMENT";
+        case PM_TOKEN_BRACE_LEFT_HASH:
+            return "BRACE_LEFT_HASH";
         case PM_TOKEN_BRACKET_LEFT:
             return "BRACKET_LEFT";
         case PM_TOKEN_BRACKET_LEFT_ARRAY:
@@ -268,6 +272,8 @@ pm_token_type(pm_token_type_t token_type) {
             return "NUMBERED_REFERENCE";
         case PM_TOKEN_PARENTHESIS_LEFT:
             return "PARENTHESIS_LEFT";
+        case PM_TOKEN_PARENTHESIS_LEFT_GROUPING:
+            return "PARENTHESIS_LEFT_GROUPING";
         case PM_TOKEN_PARENTHESIS_LEFT_PARENTHESES:
             return "PARENTHESIS_LEFT_PARENTHESES";
         case PM_TOKEN_PERCENT:
@@ -342,6 +348,8 @@ pm_token_type(pm_token_type_t token_type) {
             return "USTAR_STAR";
         case PM_TOKEN_WORDS_SEP:
             return "WORDS_SEP";
+        case PM_TOKEN_XSTRING_BEGIN:
+            return "XSTRING_BEGIN";
         case PM_TOKEN___END__:
             return "__END__";
         case PM_TOKEN_MAXIMUM:
@@ -384,6 +392,10 @@ pm_token_str(pm_token_type_t token_type) {
         case PM_TOKEN_BANG_TILDE:
             return "'!~'";
         case PM_TOKEN_BRACE_LEFT:
+            return "'{'";
+        case PM_TOKEN_BRACE_LEFT_ARGUMENT:
+            return "'{'";
+        case PM_TOKEN_BRACE_LEFT_HASH:
             return "'{'";
         case PM_TOKEN_BRACE_RIGHT:
             return "'}'";
@@ -607,6 +619,8 @@ pm_token_str(pm_token_type_t token_type) {
             return "numbered reference";
         case PM_TOKEN_PARENTHESIS_LEFT:
             return "'('";
+        case PM_TOKEN_PARENTHESIS_LEFT_GROUPING:
+            return "'('";
         case PM_TOKEN_PARENTHESIS_LEFT_PARENTHESES:
             return "'('";
         case PM_TOKEN_PARENTHESIS_RIGHT:
@@ -687,6 +701,8 @@ pm_token_str(pm_token_type_t token_type) {
             return "**";
         case PM_TOKEN_WORDS_SEP:
             return "string separator";
+        case PM_TOKEN_XSTRING_BEGIN:
+            return "backtick string literal";
         case PM_TOKEN___END__:
             return "'__END__'";
         case PM_TOKEN_MAXIMUM:
