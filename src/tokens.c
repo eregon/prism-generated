@@ -44,6 +44,8 @@ pm_token_type(pm_token_type_t token_type) {
             return "KEYWORD_WHEN";
         case PM_TOKEN_NEWLINE:
             return "NEWLINE";
+        case PM_TOKEN_NEWLINE_TERMINATOR:
+            return "NEWLINE_TERMINATOR";
         case PM_TOKEN_PARENTHESIS_RIGHT:
             return "PARENTHESIS_RIGHT";
         case PM_TOKEN_PIPE:
@@ -614,6 +616,8 @@ pm_token_str(pm_token_type_t token_type) {
         case PM_TOKEN_MINUS_GREATER:
             return "'->'";
         case PM_TOKEN_NEWLINE:
+            return "newline";
+        case PM_TOKEN_NEWLINE_TERMINATOR:
             return "newline";
         case PM_TOKEN_NUMBERED_REFERENCE:
             return "numbered reference";

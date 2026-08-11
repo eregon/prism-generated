@@ -5113,6 +5113,7 @@ module Prism
       :KEYWORD_THEN,
       :KEYWORD_WHEN,
       :NEWLINE,
+      :NEWLINE_TERMINATOR,
       :PARENTHESIS_RIGHT,
       :PIPE,
       :SEMICOLON,

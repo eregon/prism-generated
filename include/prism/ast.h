@@ -73,6 +73,9 @@ typedef enum pm_token_type {
     /** a newline character outside of other tokens */
     PM_TOKEN_NEWLINE,
 
+    /** a newline that terminates a construct where a newline is otherwise insignificant */
+    PM_TOKEN_NEWLINE_TERMINATOR,
+
     /** ) */
     PM_TOKEN_PARENTHESIS_RIGHT,
 
