@@ -49,7 +49,7 @@ module Prism
     end
 
     # Compose an inspect string for the given node.
-    #--
+    #
     #: (node node) -> String
     def self.compose(node)
       visitor = new
@@ -58,7 +58,7 @@ module Prism
     end
 
     # Compose the final string.
-    #--
+    #
     #: () -> String
     def compose # :nodoc:
       buffer = +""
@@ -2404,7 +2404,7 @@ module Prism
     private
 
     # Compose a header for the given node.
-    #--
+    #
     #: (String name, node node) -> String
     def inspect_node(name, node) # :nodoc:
       location = node.location
@@ -2412,7 +2412,7 @@ module Prism
     end
 
     # Compose a string representing the given inner location field.
-    #--
+    #
     #: (Location? location) -> String
     def inspect_location(location) # :nodoc:
       if location

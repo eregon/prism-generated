@@ -34,7 +34,7 @@ module Prism
     #
     # The formatting of the source of this method is purposeful to illustrate
     # the structure of the serialized data.
-    #--
+    #
     #: (String input, String serialized, bool freeze) -> ParseResult
     def self.load_parse(input, serialized, freeze)
       input = input.dup
@@ -90,7 +90,7 @@ module Prism
     #
     # The formatting of the source of this method is purposeful to illustrate
     # the structure of the serialized data.
-    #--
+    #
     #: (String input, String serialized, bool freeze) -> LexResult
     def self.load_lex(input, serialized, freeze)
       source = Source.for(input, 1, [])
@@ -137,7 +137,7 @@ module Prism
     #
     # The formatting of the source of this method is purposeful to illustrate
     # the structure of the serialized data.
-    #--
+    #
     #: (String input, String serialized, bool freeze) -> Array[Comment]
     def self.load_parse_comments(input, serialized, freeze)
       source = Source.for(input, 1, [])
@@ -163,7 +163,7 @@ module Prism
     #
     # The formatting of the source of this method is purposeful to illustrate
     # the structure of the serialized data.
-    #--
+    #
     #: (String input, String serialized, bool freeze) -> ParseLexResult
     def self.load_parse_lex(input, serialized, freeze)
       source = Source.for(input, 1, [])
@@ -785,7 +785,7 @@ module Prism
 
       # variable-length integer using https://en.wikipedia.org/wiki/LEB128
       # This is also what protobuf uses: https://protobuf.dev/programming-guides/encoding/#varints
-      #--
+      #
       #: () -> Integer
       def load_varuint
         n = (io.getbyte or raise)
@@ -857,7 +857,7 @@ module Prism
       # Load a location object from the serialized data. Note that we are lying
       # about the signature a bit here, because we sometimes load it as a packed
       # integer instead of an object.
-      #--
+      #
       #: (bool freeze) -> Location
       def load_location(freeze)
         return load_location_object(freeze) if freeze
@@ -867,7 +867,7 @@ module Prism
       # Load an optional location object from the serialized data if it is
       # present. Note that we are lying about the signature a bit here, because
       # we sometimes load it as a packed integer instead of an object.
-      #--
+      #
       #: (bool freeze) -> Location?
       def load_optional_location(freeze)
         load_location(freeze) if io.getbyte != 0

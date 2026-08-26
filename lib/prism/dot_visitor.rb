@@ -123,14 +123,14 @@ module Prism
     attr_reader :digraph #: Digraph
 
     # Initialize a new dot visitor.
-    #--
+    #
     #: () -> void
     def initialize
       @digraph = Digraph.new
     end
 
     # Convert this visitor into a graphviz dot graph string.
-    #--
+    #
     #: () -> String
     def to_dot
       digraph.to_dot
@@ -4655,14 +4655,14 @@ module Prism
     private
 
     # Generate a unique node ID for a node throughout the digraph.
-    #--
+    #
     #: (node) -> String
     def node_id(node) # :nodoc:
       "Node_#{node.object_id}"
     end
 
     # Inspect a location to display the start and end line and columns in bytes.
-    #--
+    #
     #: (Location) -> String
     def location_inspect(location) # :nodoc:
       "(#{location.start_line},#{location.start_column})-(#{location.end_line},#{location.end_column})"
@@ -4670,7 +4670,7 @@ module Prism
 
     # Inspect a node that has arguments_node_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (ArgumentsNode node) -> String
     def arguments_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4684,7 +4684,7 @@ module Prism
 
     # Inspect a node that has array_node_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (ArrayNode node) -> String
     def array_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4694,7 +4694,7 @@ module Prism
 
     # Inspect a node that has call_node_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (CallAndWriteNode | CallNode | CallOperatorWriteNode | CallOrWriteNode | CallTargetNode | IndexAndWriteNode | IndexOperatorWriteNode | IndexOrWriteNode | IndexTargetNode node) -> String
     def call_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4707,7 +4707,7 @@ module Prism
 
     # Inspect a node that has encoding_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (XStringNode node) -> String
     def encoding_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4718,7 +4718,7 @@ module Prism
 
     # Inspect a node that has integer_base_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (IntegerNode | RationalNode node) -> String
     def integer_base_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4731,7 +4731,7 @@ module Prism
 
     # Inspect a node that has interpolated_string_node_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (InterpolatedStringNode node) -> String
     def interpolated_string_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4742,7 +4742,7 @@ module Prism
 
     # Inspect a node that has keyword_hash_node_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (KeywordHashNode node) -> String
     def keyword_hash_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4752,7 +4752,7 @@ module Prism
 
     # Inspect a node that has loop_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (UntilNode | WhileNode node) -> String
     def loop_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4762,7 +4762,7 @@ module Prism
 
     # Inspect a node that has parameter_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (BlockLocalVariableNode | BlockParameterNode | KeywordRestParameterNode | OptionalKeywordParameterNode | OptionalParameterNode | RequiredKeywordParameterNode | RequiredParameterNode | RestParameterNode node) -> String
     def parameter_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4772,7 +4772,7 @@ module Prism
 
     # Inspect a node that has parentheses_node_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (ParenthesesNode node) -> String
     def parentheses_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4782,7 +4782,7 @@ module Prism
 
     # Inspect a node that has range_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (FlipFlopNode | RangeNode node) -> String
     def range_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4792,7 +4792,7 @@ module Prism
 
     # Inspect a node that has regular_expression_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (InterpolatedMatchLastLineNode | InterpolatedRegularExpressionNode | MatchLastLineNode | RegularExpressionNode node) -> String
     def regular_expression_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4812,7 +4812,7 @@ module Prism
 
     # Inspect a node that has shareable_constant_node_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (ShareableConstantNode node) -> String
     def shareable_constant_node_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4824,7 +4824,7 @@ module Prism
 
     # Inspect a node that has string_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (SourceFileNode | StringNode node) -> String
     def string_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
@@ -4837,7 +4837,7 @@ module Prism
 
     # Inspect a node that has symbol_flags flags to display the flags as a
     # comma-separated list.
-    #--
+    #
     #: (SymbolNode node) -> String
     def symbol_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]

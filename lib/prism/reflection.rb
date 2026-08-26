@@ -24,7 +24,7 @@ module Prism
       attr_reader :name #: Symbol
 
       # Initializes the field with the given name.
-      #--
+      #
       #: (Symbol name) -> void
       def initialize(name)
         @name = name
@@ -102,7 +102,7 @@ module Prism
       attr_reader :flags #: Array[Symbol]
 
       # Initializes the flags field with the given name and flags.
-      #--
+      #
       #: (Symbol name, Array[Symbol] flags) -> void
       def initialize(name, flags)
         super(name)
@@ -111,7 +111,7 @@ module Prism
     end
 
     # Returns the fields for the given node.
-    #--
+    #
     #: (singleton(Node) node) -> Array[Field]
     def self.fields_for(node)
       case node.type
