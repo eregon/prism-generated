@@ -4361,9 +4361,7 @@ module Prism
       end
 
       # value_loc
-      unless (value_loc = node.value_loc).nil?
-        table.field("value_loc", location_inspect(value_loc))
-      end
+      table.field("value_loc", location_inspect(node.value_loc))
 
       # closing_loc
       unless (closing_loc = node.closing_loc).nil?

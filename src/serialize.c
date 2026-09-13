@@ -1879,12 +1879,7 @@ pm_serialize_node(pm_parser_t *parser, pm_node_t *node, pm_buffer_t *buffer) {
                 pm_buffer_append_byte(buffer, 1);
                 pm_serialize_location(&((pm_symbol_node_t *)node)->opening_loc, buffer);
             }
-            if (((pm_symbol_node_t *)node)->value_loc.length == 0) {
-                pm_buffer_append_byte(buffer, 0);
-            } else {
-                pm_buffer_append_byte(buffer, 1);
-                pm_serialize_location(&((pm_symbol_node_t *)node)->value_loc, buffer);
-            }
+            pm_serialize_location(&((pm_symbol_node_t *)node)->value_loc, buffer);
             if (((pm_symbol_node_t *)node)->closing_loc.length == 0) {
                 pm_buffer_append_byte(buffer, 0);
             } else {

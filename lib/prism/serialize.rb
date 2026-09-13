@@ -2434,7 +2434,7 @@ module Prism
                 location,
                 load_varuint,
                 load_optional_location(freeze),
-                load_optional_location(freeze),
+                load_location(freeze),
                 load_optional_location(freeze),
                 load_string(encoding),
               )
@@ -4942,7 +4942,7 @@ module Prism
                   location,
                   load_varuint,
                   load_optional_location(freeze),
-                  load_optional_location(freeze),
+                  load_location(freeze),
                   load_optional_location(freeze),
                   load_string(encoding),
                 )

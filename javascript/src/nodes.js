@@ -6,13 +6,14 @@
 /* template                                                                   */
 /*----------------------------------------------------------------------------*/
 
+import { Location } from "./location.js"
 import * as visitors from "./visitor.js"
 
 
 /**
  * Flags for arguments nodes.
  */
-const ArgumentsNodeFlags = {
+export const ArgumentsNodeFlags = {
   CONTAINS_FORWARDING: 1 << 2,
   CONTAINS_KEYWORDS: 1 << 3,
   CONTAINS_KEYWORD_SPLAT: 1 << 4,
@@ -23,14 +24,14 @@ const ArgumentsNodeFlags = {
 /**
  * Flags for array nodes.
  */
-const ArrayNodeFlags = {
+export const ArrayNodeFlags = {
   CONTAINS_SPLAT: 1 << 2,
 };
 
 /**
  * Flags for call nodes.
  */
-const CallNodeFlags = {
+export const CallNodeFlags = {
   SAFE_NAVIGATION: 1 << 2,
   VARIABLE_CALL: 1 << 3,
   ATTRIBUTE_WRITE: 1 << 4,
@@ -40,7 +41,7 @@ const CallNodeFlags = {
 /**
  * Flags for nodes that have unescaped content.
  */
-const EncodingFlags = {
+export const EncodingFlags = {
   FORCED_UTF8_ENCODING: 1 << 2,
   FORCED_BINARY_ENCODING: 1 << 3,
 };
@@ -48,7 +49,7 @@ const EncodingFlags = {
 /**
  * Flags for integer nodes that correspond to the base of the integer.
  */
-const IntegerBaseFlags = {
+export const IntegerBaseFlags = {
   BINARY: 1 << 2,
   DECIMAL: 1 << 3,
   OCTAL: 1 << 4,
@@ -58,7 +59,7 @@ const IntegerBaseFlags = {
 /**
  * Flags for interpolated string nodes that indicated mutability if they are also marked as literals.
  */
-const InterpolatedStringNodeFlags = {
+export const InterpolatedStringNodeFlags = {
   FROZEN: 1 << 2,
   MUTABLE: 1 << 3,
 };
@@ -66,42 +67,42 @@ const InterpolatedStringNodeFlags = {
 /**
  * Flags for keyword hash nodes.
  */
-const KeywordHashNodeFlags = {
+export const KeywordHashNodeFlags = {
   SYMBOL_KEYS: 1 << 2,
 };
 
 /**
  * Flags for while and until loop nodes.
  */
-const LoopFlags = {
+export const LoopFlags = {
   BEGIN_MODIFIER: 1 << 2,
 };
 
 /**
  * Flags for parameter nodes.
  */
-const ParameterFlags = {
+export const ParameterFlags = {
   REPEATED_PARAMETER: 1 << 2,
 };
 
 /**
  * Flags for parentheses nodes.
  */
-const ParenthesesNodeFlags = {
+export const ParenthesesNodeFlags = {
   MULTIPLE_STATEMENTS: 1 << 2,
 };
 
 /**
  * Flags for range and flip-flop nodes.
  */
-const RangeFlags = {
+export const RangeFlags = {
   EXCLUDE_END: 1 << 2,
 };
 
 /**
  * Flags for regular expression and match last line nodes.
  */
-const RegularExpressionFlags = {
+export const RegularExpressionFlags = {
   IGNORE_CASE: 1 << 2,
   EXTENDED: 1 << 3,
   MULTI_LINE: 1 << 4,
@@ -118,7 +119,7 @@ const RegularExpressionFlags = {
 /**
  * Flags for shareable constant nodes.
  */
-const ShareableConstantNodeFlags = {
+export const ShareableConstantNodeFlags = {
   LITERAL: 1 << 2,
   EXPERIMENTAL_EVERYTHING: 1 << 3,
   EXPERIMENTAL_COPY: 1 << 4,
@@ -127,7 +128,7 @@ const ShareableConstantNodeFlags = {
 /**
  * Flags for string nodes.
  */
-const StringFlags = {
+export const StringFlags = {
   FORCED_UTF8_ENCODING: 1 << 2,
   FORCED_BINARY_ENCODING: 1 << 3,
   FROZEN: 1 << 4,
@@ -137,17 +138,11 @@ const StringFlags = {
 /**
  * Flags for symbol nodes.
  */
-const SymbolFlags = {
+export const SymbolFlags = {
   FORCED_UTF8_ENCODING: 1 << 2,
   FORCED_BINARY_ENCODING: 1 << 3,
   FORCED_US_ASCII_ENCODING: 1 << 4,
 };
-
-/**
- * A location in the source code.
- *
- * @typedef {{ startOffset: number, length: number }} Location
- */
 
 /**
  * An encoded Ruby string.
@@ -232,7 +227,7 @@ export class AliasGlobalVariableNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.newName, this.oldName]
+    return [this.newName, this.oldName];
   }
 
   /**
@@ -332,7 +327,7 @@ export class AliasMethodNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.newName, this.oldName]
+    return [this.newName, this.oldName];
   }
 
   /**
@@ -432,7 +427,7 @@ export class AlternationPatternNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.left, this.right]
+    return [this.left, this.right];
   }
 
   /**
@@ -532,7 +527,7 @@ export class AndNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.left, this.right]
+    return [this.left, this.right];
   }
 
   /**
@@ -663,7 +658,7 @@ export class ArgumentsNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.arguments_]
+    return [...this.arguments_];
   }
 
   /**
@@ -770,7 +765,7 @@ export class ArrayNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.elements]
+    return [...this.elements];
   }
 
   /**
@@ -903,7 +898,7 @@ export class ArrayPatternNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.constant, ...this.requireds, this.rest, ...this.posts]
+    return [this.constant, ...this.requireds, this.rest, ...this.posts];
   }
 
   /**
@@ -1017,7 +1012,7 @@ export class AssocNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.key, this.value]
+    return [this.key, this.value];
   }
 
   /**
@@ -1110,7 +1105,7 @@ export class AssocSplatNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -1201,7 +1196,7 @@ export class BackReferenceReadNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -1322,7 +1317,7 @@ export class BeginNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.statements, this.rescueClause, this.elseClause, this.ensureClause]
+    return [this.statements, this.rescueClause, this.elseClause, this.ensureClause];
   }
 
   /**
@@ -1433,7 +1428,7 @@ export class BlockArgumentNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.expression]
+    return [this.expression];
   }
 
   /**
@@ -1533,7 +1528,7 @@ export class BlockLocalVariableNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -1645,7 +1640,7 @@ export class BlockNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.parameters, this.body]
+    return [this.parameters, this.body];
   }
 
   /**
@@ -1766,7 +1761,7 @@ export class BlockParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -1877,7 +1872,7 @@ export class BlockParametersNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.parameters, ...this.locals]
+    return [this.parameters, ...this.locals];
   }
 
   /**
@@ -1978,7 +1973,7 @@ export class BreakNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.arguments_]
+    return [this.arguments_];
   }
 
   /**
@@ -2147,7 +2142,7 @@ export class CallAndWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.value]
+    return [this.receiver, this.value];
   }
 
   /**
@@ -2352,7 +2347,7 @@ export class CallNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.arguments_, this.block]
+    return [this.receiver, this.arguments_, this.block];
   }
 
   /**
@@ -2541,7 +2536,7 @@ export class CallOperatorWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.value]
+    return [this.receiver, this.value];
   }
 
   /**
@@ -2718,7 +2713,7 @@ export class CallOrWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.value]
+    return [this.receiver, this.value];
   }
 
   /**
@@ -2881,7 +2876,7 @@ export class CallTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver]
+    return [this.receiver];
   }
 
   /**
@@ -2982,7 +2977,7 @@ export class CapturePatternNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value, this.target]
+    return [this.value, this.target];
   }
 
   /**
@@ -3098,7 +3093,7 @@ export class CaseMatchNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, ...this.conditions, this.elseClause]
+    return [this.predicate, ...this.conditions, this.elseClause];
   }
 
   /**
@@ -3226,7 +3221,7 @@ export class CaseNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, ...this.conditions, this.elseClause]
+    return [this.predicate, ...this.conditions, this.elseClause];
   }
 
   /**
@@ -3373,7 +3368,7 @@ export class ClassNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.constantPath, this.superclass, this.body]
+    return [this.constantPath, this.superclass, this.body];
   }
 
   /**
@@ -3496,7 +3491,7 @@ export class ClassVariableAndWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -3611,7 +3606,7 @@ export class ClassVariableOperatorWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -3720,7 +3715,7 @@ export class ClassVariableOrWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -3807,7 +3802,7 @@ export class ClassVariableReadNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -3891,7 +3886,7 @@ export class ClassVariableTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -3996,7 +3991,7 @@ export class ClassVariableWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -4104,7 +4099,7 @@ export class ConstantAndWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -4219,7 +4214,7 @@ export class ConstantOperatorWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -4328,7 +4323,7 @@ export class ConstantOrWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -4429,7 +4424,7 @@ export class ConstantPathAndWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.target, this.value]
+    return [this.target, this.value];
   }
 
   /**
@@ -4536,7 +4531,7 @@ export class ConstantPathNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.parent]
+    return [this.parent];
   }
 
   /**
@@ -4650,7 +4645,7 @@ export class ConstantPathOperatorWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.target, this.value]
+    return [this.target, this.value];
   }
 
   /**
@@ -4751,7 +4746,7 @@ export class ConstantPathOrWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.target, this.value]
+    return [this.target, this.value];
   }
 
   /**
@@ -4858,7 +4853,7 @@ export class ConstantPathTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.parent]
+    return [this.parent];
   }
 
   /**
@@ -4971,7 +4966,7 @@ export class ConstantPathWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.target, this.value]
+    return [this.target, this.value];
   }
 
   /**
@@ -5057,7 +5052,7 @@ export class ConstantReadNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -5141,7 +5136,7 @@ export class ConstantTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -5246,7 +5241,7 @@ export class ConstantWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -5411,7 +5406,7 @@ export class DefNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.parameters, this.body]
+    return [this.receiver, this.parameters, this.body];
   }
 
   /**
@@ -5539,7 +5534,7 @@ export class DefinedNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -5640,7 +5635,7 @@ export class ElseNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.statements]
+    return [this.statements];
   }
 
   /**
@@ -5746,7 +5741,7 @@ export class EmbeddedStatementsNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.statements]
+    return [this.statements];
   }
 
   /**
@@ -5845,7 +5840,7 @@ export class EmbeddedVariableNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.variable]
+    return [this.variable];
   }
 
   /**
@@ -5948,7 +5943,7 @@ export class EnsureNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.statements]
+    return [this.statements];
   }
 
   /**
@@ -6037,7 +6032,7 @@ export class ErrorRecoveryNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.unexpected]
+    return [this.unexpected];
   }
 
   /**
@@ -6120,7 +6115,7 @@ export class FalseNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -6247,7 +6242,7 @@ export class FindPatternNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.constant, this.left, ...this.requireds, this.right]
+    return [this.constant, this.left, ...this.requireds, this.right];
   }
 
   /**
@@ -6370,7 +6365,7 @@ export class FlipFlopNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.left, this.right]
+    return [this.left, this.right];
   }
 
   /**
@@ -6465,7 +6460,7 @@ export class FloatNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -6591,7 +6586,7 @@ export class ForNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.index, this.collection, this.statements]
+    return [this.index, this.collection, this.statements];
   }
 
   /**
@@ -6686,7 +6681,7 @@ export class ForwardingArgumentsNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -6763,7 +6758,7 @@ export class ForwardingParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -6858,7 +6853,7 @@ export class ForwardingSuperNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.block]
+    return [this.block];
   }
 
   /**
@@ -6970,7 +6965,7 @@ export class GlobalVariableAndWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -7085,7 +7080,7 @@ export class GlobalVariableOperatorWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -7194,7 +7189,7 @@ export class GlobalVariableOrWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -7281,7 +7276,7 @@ export class GlobalVariableReadNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -7365,7 +7360,7 @@ export class GlobalVariableTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -7470,7 +7465,7 @@ export class GlobalVariableWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -7571,7 +7566,7 @@ export class HashNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.elements]
+    return [...this.elements];
   }
 
   /**
@@ -7694,7 +7689,7 @@ export class HashPatternNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.constant, ...this.elements, this.rest]
+    return [this.constant, ...this.elements, this.rest];
   }
 
   /**
@@ -7833,7 +7828,7 @@ export class IfNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, this.statements, this.subsequent]
+    return [this.predicate, this.statements, this.subsequent];
   }
 
   /**
@@ -7933,7 +7928,7 @@ export class ImaginaryNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.numeric]
+    return [this.numeric];
   }
 
   /**
@@ -8023,7 +8018,7 @@ export class ImplicitNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -8109,7 +8104,7 @@ export class ImplicitRestNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -8213,7 +8208,7 @@ export class InNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.pattern, this.statements]
+    return [this.pattern, this.statements];
   }
 
   /**
@@ -8393,7 +8388,7 @@ export class IndexAndWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.arguments_, this.block, this.value]
+    return [this.receiver, this.arguments_, this.block, this.value];
   }
 
   /**
@@ -8590,7 +8585,7 @@ export class IndexOperatorWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.arguments_, this.block, this.value]
+    return [this.receiver, this.arguments_, this.block, this.value];
   }
 
   /**
@@ -8781,7 +8776,7 @@ export class IndexOrWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.arguments_, this.block, this.value]
+    return [this.receiver, this.arguments_, this.block, this.value];
   }
 
   /**
@@ -8958,7 +8953,7 @@ export class IndexTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.receiver, this.arguments_, this.block]
+    return [this.receiver, this.arguments_, this.block];
   }
 
   /**
@@ -9078,7 +9073,7 @@ export class InstanceVariableAndWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -9193,7 +9188,7 @@ export class InstanceVariableOperatorWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -9302,7 +9297,7 @@ export class InstanceVariableOrWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -9389,7 +9384,7 @@ export class InstanceVariableReadNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -9473,7 +9468,7 @@ export class InstanceVariableTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -9578,7 +9573,7 @@ export class InstanceVariableWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -9701,7 +9696,7 @@ export class IntegerNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -9898,7 +9893,7 @@ export class InterpolatedMatchLastLineNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.parts]
+    return [...this.parts];
   }
 
   /**
@@ -10097,7 +10092,7 @@ export class InterpolatedRegularExpressionNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.parts]
+    return [...this.parts];
   }
 
   /**
@@ -10215,7 +10210,7 @@ export class InterpolatedStringNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.parts]
+    return [...this.parts];
   }
 
   /**
@@ -10315,7 +10310,7 @@ export class InterpolatedSymbolNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.parts]
+    return [...this.parts];
   }
 
   /**
@@ -10415,7 +10410,7 @@ export class InterpolatedXStringNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.parts]
+    return [...this.parts];
   }
 
   /**
@@ -10494,7 +10489,7 @@ export class ItLocalVariableReadNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -10570,7 +10565,7 @@ export class ItParametersNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -10662,7 +10657,7 @@ export class KeywordHashNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.elements]
+    return [...this.elements];
   }
 
   /**
@@ -10770,7 +10765,7 @@ export class KeywordRestParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -10891,7 +10886,7 @@ export class LambdaNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.parameters, this.body]
+    return [this.parameters, this.body];
   }
 
   /**
@@ -11017,7 +11012,7 @@ export class LocalVariableAndWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -11140,7 +11135,7 @@ export class LocalVariableOperatorWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -11257,7 +11252,7 @@ export class LocalVariableOrWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -11352,7 +11347,7 @@ export class LocalVariableReadNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -11447,7 +11442,7 @@ export class LocalVariableTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -11560,7 +11555,7 @@ export class LocalVariableWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -11768,7 +11763,7 @@ export class MatchLastLineNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -11869,7 +11864,7 @@ export class MatchPredicateNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value, this.pattern]
+    return [this.value, this.pattern];
   }
 
   /**
@@ -11969,7 +11964,7 @@ export class MatchRequiredNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value, this.pattern]
+    return [this.value, this.pattern];
   }
 
   /**
@@ -12062,7 +12057,7 @@ export class MatchWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.call, ...this.targets]
+    return [this.call, ...this.targets];
   }
 
   /**
@@ -12182,7 +12177,7 @@ export class ModuleNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.constantPath, this.body]
+    return [this.constantPath, this.body];
   }
 
   /**
@@ -12312,7 +12307,7 @@ export class MultiTargetNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.lefts, this.rest, ...this.rights]
+    return [...this.lefts, this.rest, ...this.rights];
   }
 
   /**
@@ -12450,7 +12445,7 @@ export class MultiWriteNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.lefts, this.rest, ...this.rights, this.value]
+    return [...this.lefts, this.rest, ...this.rights, this.value];
   }
 
   /**
@@ -12557,7 +12552,7 @@ export class NextNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.arguments_]
+    return [this.arguments_];
   }
 
   /**
@@ -12641,7 +12636,7 @@ export class NilNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -12732,7 +12727,7 @@ export class NoBlockParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -12825,7 +12820,7 @@ export class NoKeywordsParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -12910,7 +12905,7 @@ export class NumberedParametersNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -12994,7 +12989,7 @@ export class NumberedReferenceReadNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -13102,7 +13097,7 @@ export class OptionalKeywordParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -13219,7 +13214,7 @@ export class OptionalParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.value]
+    return [this.value];
   }
 
   /**
@@ -13320,7 +13315,7 @@ export class OrNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.left, this.right]
+    return [this.left, this.right];
   }
 
   /**
@@ -13449,7 +13444,7 @@ export class ParametersNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.requireds, ...this.optionals, this.rest, ...this.posts, ...this.keywords, this.keywordRest, this.block]
+    return [...this.requireds, ...this.optionals, this.rest, ...this.posts, ...this.keywords, this.keywordRest, this.block];
   }
 
   /**
@@ -13578,7 +13573,7 @@ export class ParenthesesNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.body]
+    return [this.body];
   }
 
   /**
@@ -13691,7 +13686,7 @@ export class PinnedExpressionNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.expression]
+    return [this.expression];
   }
 
   /**
@@ -13785,7 +13780,7 @@ export class PinnedVariableNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.variable]
+    return [this.variable];
   }
 
   /**
@@ -13891,7 +13886,7 @@ export class PostExecutionNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.statements]
+    return [this.statements];
   }
 
   /**
@@ -14005,7 +14000,7 @@ export class PreExecutionNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.statements]
+    return [this.statements];
   }
 
   /**
@@ -14102,7 +14097,7 @@ export class ProgramNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.statements]
+    return [this.statements];
   }
 
   /**
@@ -14213,7 +14208,7 @@ export class RangeNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.left, this.right]
+    return [this.left, this.right];
   }
 
   /**
@@ -14351,7 +14346,7 @@ export class RationalNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -14429,7 +14424,7 @@ export class RedoNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -14632,7 +14627,7 @@ export class RegularExpressionNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -14736,7 +14731,7 @@ export class RequiredKeywordParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -14831,7 +14826,7 @@ export class RequiredParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -14929,7 +14924,7 @@ export class RescueModifierNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.expression, this.rescueExpression]
+    return [this.expression, this.rescueExpression];
   }
 
   /**
@@ -15062,7 +15057,7 @@ export class RescueNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.exceptions, this.reference, this.statements, this.subsequent]
+    return [...this.exceptions, this.reference, this.statements, this.subsequent];
   }
 
   /**
@@ -15189,7 +15184,7 @@ export class RestParameterNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -15268,7 +15263,7 @@ export class RetryNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -15358,7 +15353,7 @@ export class ReturnNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.arguments_]
+    return [this.arguments_];
   }
 
   /**
@@ -15442,7 +15437,7 @@ export class SelfNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -15553,7 +15548,7 @@ export class ShareableConstantNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.write]
+    return [this.write];
   }
 
   /**
@@ -15672,7 +15667,7 @@ export class SingletonClassNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.expression, this.body]
+    return [this.expression, this.body];
   }
 
   /**
@@ -15762,7 +15757,7 @@ export class SourceEncodingNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -15881,7 +15876,7 @@ export class SourceFileNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -15958,7 +15953,7 @@ export class SourceLineNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -16048,7 +16043,7 @@ export class SplatNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.expression]
+    return [this.expression];
   }
 
   /**
@@ -16139,7 +16134,7 @@ export class StatementsNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.body]
+    return [...this.body];
   }
 
   /**
@@ -16286,7 +16281,7 @@ export class StringNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -16406,7 +16401,7 @@ export class SuperNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.arguments_, this.block]
+    return [this.arguments_, this.block];
   }
 
   /**
@@ -16477,7 +16472,7 @@ export class SymbolNode {
   openingLoc;
 
   /**
-   * @type Location | null
+   * @type Location
    */
   valueLoc;
 
@@ -16498,7 +16493,7 @@ export class SymbolNode {
    * @param {Location} location
    * @param {number} flags
    * @param {Location | null} openingLoc
-   * @param {Location | null} valueLoc
+   * @param {Location} valueLoc
    * @param {Location | null} closingLoc
    * @param {RubyString} unescaped
    */
@@ -16554,7 +16549,7 @@ export class SymbolNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -16634,7 +16629,7 @@ export class TrueNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -16724,7 +16719,7 @@ export class UndefNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.names]
+    return [...this.names];
   }
 
   /**
@@ -16847,7 +16842,7 @@ export class UnlessNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, this.statements, this.elseClause]
+    return [this.predicate, this.statements, this.elseClause];
   }
 
   /**
@@ -16987,7 +16982,7 @@ export class UntilNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, this.statements]
+    return [this.predicate, this.statements];
   }
 
   /**
@@ -17106,7 +17101,7 @@ export class WhenNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [...this.conditions, this.statements]
+    return [...this.conditions, this.statements];
   }
 
   /**
@@ -17240,7 +17235,7 @@ export class WhileNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.predicate, this.statements]
+    return [this.predicate, this.statements];
   }
 
   /**
@@ -17375,7 +17370,7 @@ export class XStringNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return []
+    return [];
   }
 
   /**
@@ -17483,7 +17478,7 @@ export class YieldNode {
    * @returns {(Node | null)[]} An array of child nodes.
    */
   childNodes() {
-    return [this.arguments_]
+    return [this.arguments_];
   }
 
   /**

@@ -1086,8 +1086,8 @@ module Prism
 
     # Create a new SymbolNode node.
     #
-    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?value_loc: Location?, ?closing_loc: Location?, ?unescaped: String) -> SymbolNode
-    def symbol_node(source: default_source, node_id: 0, location: default_location, flags: 0, opening_loc: nil, value_loc: nil, closing_loc: nil, unescaped: "")
+    #: (?source: Source, ?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?value_loc: Location, ?closing_loc: Location?, ?unescaped: String) -> SymbolNode
+    def symbol_node(source: default_source, node_id: 0, location: default_location, flags: 0, opening_loc: nil, value_loc: location, closing_loc: nil, unescaped: "")
       SymbolNode.new(source, node_id, location, flags, opening_loc, value_loc, closing_loc, unescaped)
     end
 
