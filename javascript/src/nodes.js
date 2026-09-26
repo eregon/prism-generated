@@ -16474,7 +16474,7 @@ export class SymbolNode {
   /**
    * @type Location
    */
-  valueLoc;
+  contentLoc;
 
   /**
    * @type Location | null
@@ -16493,16 +16493,16 @@ export class SymbolNode {
    * @param {Location} location
    * @param {number} flags
    * @param {Location | null} openingLoc
-   * @param {Location} valueLoc
+   * @param {Location} contentLoc
    * @param {Location | null} closingLoc
    * @param {RubyString} unescaped
    */
-  constructor(nodeID, location, flags, openingLoc, valueLoc, closingLoc, unescaped) {
+  constructor(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped) {
     this.nodeID = nodeID;
     this.location = location;
     this.#flags = flags;
     this.openingLoc = openingLoc;
-    this.valueLoc = valueLoc;
+    this.contentLoc = contentLoc;
     this.closingLoc = closingLoc;
     this.unescaped = unescaped;
   }
@@ -16572,7 +16572,7 @@ export class SymbolNode {
       location: this.location,
       flags: this.#flags,
       openingLoc: this.openingLoc,
-      valueLoc: this.valueLoc,
+      contentLoc: this.contentLoc,
       closingLoc: this.closingLoc,
       unescaped: this.unescaped,
     };

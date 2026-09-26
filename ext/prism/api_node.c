@@ -6509,9 +6509,9 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
-                    // value_loc
+                    // content_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
-                    argv[5] = pm_location_new(cast->value_loc.start, cast->value_loc.length, source, freeze);
+                    argv[5] = pm_location_new(cast->content_loc.start, cast->content_loc.length, source, freeze);
 
                     // closing_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"

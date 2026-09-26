@@ -31160,20 +31160,20 @@ module Prism
   #        ^^^
   class SymbolNode < Node
     # @rbs @opening_loc: Location?
-    # @rbs @value_loc: Location
+    # @rbs @content_loc: Location
     # @rbs @closing_loc: Location?
     # @rbs @unescaped: String
 
     # Initialize a new SymbolNode node.
     #
-    #: (Source source, Integer node_id, Location location, Integer flags, Location? opening_loc, Location value_loc, Location? closing_loc, String unescaped) -> void
-    def initialize(source, node_id, location, flags, opening_loc, value_loc, closing_loc, unescaped)
+    #: (Source source, Integer node_id, Location location, Integer flags, Location? opening_loc, Location content_loc, Location? closing_loc, String unescaped) -> void
+    def initialize(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
       @source = source
       @node_id = node_id
       @location = location
       @flags = flags
       @opening_loc = opening_loc
-      @value_loc = value_loc
+      @content_loc = content_loc
       @closing_loc = closing_loc
       @unescaped = unescaped
     end
@@ -31223,7 +31223,7 @@ module Prism
     #
     #: () -> Array[node | Location]
     def comment_targets
-      [*opening_loc, value_loc, *closing_loc] #: Array[Prism::node | Location]
+      [*opening_loc, content_loc, *closing_loc] #: Array[Prism::node | Location]
     end
 
     # :call-seq:
@@ -31231,27 +31231,27 @@ module Prism
     #
     # Creates a copy of self with the given fields, using self as the template.
     #
-    #: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?value_loc: Location, ?closing_loc: Location?, ?unescaped: String) -> SymbolNode
-    def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, value_loc: self.value_loc, closing_loc: self.closing_loc, unescaped: self.unescaped)
-      SymbolNode.new(source, node_id, location, flags, opening_loc, value_loc, closing_loc, unescaped)
+    #: (?node_id: Integer, ?location: Location, ?flags: Integer, ?opening_loc: Location?, ?content_loc: Location, ?closing_loc: Location?, ?unescaped: String) -> SymbolNode
+    def copy(node_id: self.node_id, location: self.location, flags: self.flags, opening_loc: self.opening_loc, content_loc: self.content_loc, closing_loc: self.closing_loc, unescaped: self.unescaped)
+      SymbolNode.new(source, node_id, location, flags, opening_loc, content_loc, closing_loc, unescaped)
     end
 
     alias deconstruct child_nodes
 
     #: (Array[Symbol]? keys) -> Hash[Symbol, untyped]
     def deconstruct_keys(keys) # :nodoc:
-      (keys || %i[node_id location opening_loc value_loc closing_loc unescaped opening value closing]).each_with_object(
+      (keys || %i[node_id location opening_loc content_loc closing_loc unescaped opening content closing]).each_with_object(
         {} #: Hash[Symbol, untyped]
       ) do |key, deconstructed|
         case key
         when :node_id                 then deconstructed[:node_id] = self.node_id
         when :location                then deconstructed[:location] = self.location
         when :opening_loc             then deconstructed[:opening_loc] = self.opening_loc
-        when :value_loc               then deconstructed[:value_loc] = self.value_loc
+        when :content_loc             then deconstructed[:content_loc] = self.content_loc
         when :closing_loc             then deconstructed[:closing_loc] = self.closing_loc
         when :unescaped               then deconstructed[:unescaped] = self.unescaped
         when :opening                 then deconstructed[:opening] = self.opening
-        when :value                   then deconstructed[:value] = self.value
+        when :content                 then deconstructed[:content] = self.content
         when :closing                 then deconstructed[:closing] = self.closing
         end
       end
@@ -31331,24 +31331,24 @@ module Prism
     end
     # :category: Locations
     # :call-seq:
-    #   value_loc -> Location
+    #   content_loc -> Location
     #
-    # Returns the Location represented by `value_loc`.
+    # Returns the Location represented by `content_loc`.
     #
     #: () -> Location
-    def value_loc
-      location = @value_loc
+    def content_loc
+      location = @content_loc
       return location if location.is_a?(Location)
-      @value_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
+      @content_loc = Location.new(source, location >> 32, location & 0xFFFFFFFF)
     end
 
     # :category: Repository
-    # Save the value_loc location using the given saved source so that
+    # Save the content_loc location using the given saved source so that
     # it can be retrieved later.
     #
     #: (_Repository repository) -> Relocation::Entry
-    def save_value_loc(repository)
-      repository.enter(node_id, :value_loc)
+    def save_content_loc(repository)
+      repository.enter(node_id, :content_loc)
     end
 
     # :category: Locations
@@ -31401,13 +31401,13 @@ module Prism
     end
 
     # :call-seq:
-    #   value -> String
+    #   content -> String
     #
-    # Slice the location of value_loc from the source.
+    # Slice the location of content_loc from the source.
     #
     #: () -> String
-    def value
-      value_loc.slice
+    def content
+      content_loc.slice
     end
 
     # :call-seq:
@@ -31427,7 +31427,7 @@ module Prism
       other.is_a?(SymbolNode) &&
         (flags === other.flags) &&
         (opening_loc.nil? == other.opening_loc.nil?) &&
-        (value_loc.nil? == other.value_loc.nil?) &&
+        (content_loc.nil? == other.content_loc.nil?) &&
         (closing_loc.nil? == other.closing_loc.nil?) &&
         (unescaped === other.unescaped)
     end
