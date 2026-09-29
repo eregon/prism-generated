@@ -532,6 +532,9 @@ typedef enum pm_token_type {
     /** a separator between words in a list */
     PM_TOKEN_WORDS_SEP,
 
+    /** a separator between words in a list that has no source characters */
+    PM_TOKEN_WORDS_SEP_IMPLICIT,
+
     /** the beginning of an execution string */
     PM_TOKEN_XSTRING_BEGIN,
 

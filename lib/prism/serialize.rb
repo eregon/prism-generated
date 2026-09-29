@@ -5266,6 +5266,7 @@ module Prism
       :USTAR,
       :USTAR_STAR,
       :WORDS_SEP,
+      :WORDS_SEP_IMPLICIT,
       :XSTRING_BEGIN,
       :__END__,
     ].freeze #: Array[Symbol?]
