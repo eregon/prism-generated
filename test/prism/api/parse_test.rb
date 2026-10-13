@@ -61,6 +61,14 @@ module Prism
       end
     end
 
+    def test_parse_file_null_byte
+      Dir.mktmpdir do |dir|
+        path = File.join(dir, "target.txt")
+        File.write(path, "# secret")
+        assert_raise(ArgumentError) { Prism.parse_file("#{path}\0.rb") }
+      end
+    end
+
     def test_parse_tempfile
       Tempfile.create(["test_parse_tempfile", ".rb"]) do |t|
         t.puts ["begin\n", " end\n"]
@@ -171,6 +179,17 @@ module Prism
 
     def test_nearest
       assert Prism.parse_success?("1 + 1", version: "nearest")
+    end
+
+    def test_version_default
+      # Trailing commas in method parameters are only valid as of Ruby 4.1.
+      source = "def foo(a,); end"
+      expected = RUBY_VERSION >= "4.1"
+
+      assert_equal expected, Prism.parse_success?(source)
+      assert_equal expected, Prism.parse_success?(source, version: nil)
+      assert_equal expected, Prism.parse_success?(source, version: "nearest")
+      assert Prism.parse_success?(source, version: "latest")
     end
 
     def test_scopes
