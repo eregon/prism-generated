@@ -44,9 +44,11 @@ module Prism
                        loader.load_header
       encoding =       loader.load_encoding
       start_line =     loader.load_varsint
+      checksum =       loader.load_uint64
       offsets =        loader.load_line_offsets(freeze)
 
       source.replace_start_line(start_line)
+      source.replace_checksum(checksum)
       source.replace_offsets(offsets)
 
                        loader.load_comments(source.comments, freeze)
@@ -100,9 +102,11 @@ module Prism
       tokens =         loader.load_tokens
       encoding =       loader.load_encoding
       start_line =     loader.load_varsint
+      checksum =       loader.load_uint64
       offsets =        loader.load_line_offsets(freeze)
 
       source.replace_start_line(start_line)
+      source.replace_checksum(checksum)
       source.replace_offsets(offsets)
 
                        loader.load_comments(source.comments, freeze)
@@ -145,16 +149,18 @@ module Prism
       source = Source.for(input, 1, [])
       loader = Loader.new(source, serialized)
 
-                   loader.load_header
-                   loader.load_encoding
-      start_line = loader.load_varsint
-      offsets    = loader.load_line_offsets(freeze)
+                    loader.load_header
+                    loader.load_encoding
+      start_line =  loader.load_varsint
+      checksum =    loader.load_uint64
+      offsets =     loader.load_line_offsets(freeze)
 
       source.replace_start_line(start_line)
+      source.replace_checksum(checksum)
       source.replace_offsets(offsets)
 
-      result =     loader.load_comments(source.comments, freeze)
-      raise unless loader.eof?
+      result =      loader.load_comments(source.comments, freeze)
+      raise unless  loader.eof?
 
       source.deep_freeze if freeze
       result
@@ -175,9 +181,11 @@ module Prism
                        loader.load_header
       encoding =       loader.load_encoding
       start_line =     loader.load_varsint
+      checksum =       loader.load_uint64
       offsets =        loader.load_line_offsets(freeze)
 
       source.replace_start_line(start_line)
+      source.replace_checksum(checksum)
       source.replace_offsets(offsets)
 
                        loader.load_comments(source.comments, freeze)
@@ -861,6 +869,11 @@ module Prism
       #: () -> Integer
       def load_uint32
         (io.read(4) or raise).unpack1("L") #: Integer
+      end
+
+      #: () -> Integer
+      def load_uint64
+        (io.read(8) or raise).unpack1("Q") #: Integer
       end
 
       #: (ConstantPool constant_pool, Encoding encoding, bool freeze) -> node?
