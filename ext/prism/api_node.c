@@ -284,17 +284,14 @@ pm_node_stack_pop(pm_node_stack_node_t **stack) {
     return visit;
 }
 
-typedef struct {
-    VALUE constants;
-    rb_encoding *encoding;
-} pm_ast_constants_each_data_t;
-
-static void
-pm_ast_constants_each(const pm_constant_t *constant, void *data) {
-    pm_ast_constants_each_data_t *constants_data = (pm_ast_constants_each_data_t *) data;
+/**
+ * Build the Symbol for the given constant.
+ */
+static VALUE
+pm_ast_constant(const pm_constant_t *constant, rb_encoding *encoding) {
     int state = 0;
 
-    VALUE string = rb_enc_str_new((const char *) pm_constant_start(constant), pm_constant_length(constant), constants_data->encoding);
+    VALUE string = rb_enc_str_new((const char *) pm_constant_start(constant), pm_constant_length(constant), encoding);
     VALUE value = rb_protect(rb_str_intern, string, &state);
 
     if (state != 0) {
@@ -302,14 +299,17 @@ pm_ast_constants_each(const pm_constant_t *constant, void *data) {
         rb_set_errinfo(Qnil);
     }
 
-    rb_ary_push(constants_data->constants, value);
+    return value;
 }
 
 VALUE
 pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encoding, VALUE source, bool freeze) {
-    VALUE constants = rb_ary_new_capa(pm_parser_constants_size(parser));
-    pm_ast_constants_each_data_t constants_data = { .constants = constants, .encoding = encoding };
-    pm_parser_constants_each(parser, pm_ast_constants_each, &constants_data);
+    size_t constants_size = pm_parser_constants_size(parser);
+    VALUE constants = rb_ary_new_capa((long) constants_size);
+
+    for (size_t index = 0; index < constants_size; index++) {
+        rb_ary_push(constants, pm_ast_constant(pm_parser_constant_at(parser, index), encoding));
+    }
 
     pm_arena_t *node_arena = pm_arena_new();
     pm_node_stack_node_t *node_stack = NULL;
@@ -1481,7 +1481,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismBackReferenceReadNode);
                     if (freeze) rb_obj_freeze(value);
@@ -1587,7 +1587,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismBlockLocalVariableNode);
                     if (freeze) rb_obj_freeze(value);
@@ -1617,7 +1617,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         assert(cast->locals.ids[index] != 0);
-                        rb_ary_push(argv[4], RARRAY_AREF(constants, cast->locals.ids[index] - 1));
+                        rb_ary_push(argv[4], RARRAY_AREF(constants, pm_constant_id_index(cast->locals.ids[index])));
                     }
                     if (freeze) rb_obj_freeze(argv[4]);
 
@@ -1661,7 +1661,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-                    argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
@@ -1783,12 +1783,12 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // read_name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->read_name != 0);
-                    argv[7] = RARRAY_AREF(constants, cast->read_name - 1);
+                    argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->read_name));
 
                     // write_name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->write_name != 0);
-                    argv[8] = RARRAY_AREF(constants, cast->write_name - 1);
+                    argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->write_name));
 
                     // operator_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -1832,7 +1832,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[6] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[6] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // message_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
@@ -1896,17 +1896,17 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // read_name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->read_name != 0);
-                    argv[7] = RARRAY_AREF(constants, cast->read_name - 1);
+                    argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->read_name));
 
                     // write_name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->write_name != 0);
-                    argv[8] = RARRAY_AREF(constants, cast->write_name - 1);
+                    argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->write_name));
 
                     // binary_operator
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->binary_operator != 0);
-                    argv[9] = RARRAY_AREF(constants, cast->binary_operator - 1);
+                    argv[9] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     // binary_operator_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -1954,12 +1954,12 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // read_name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->read_name != 0);
-                    argv[7] = RARRAY_AREF(constants, cast->read_name - 1);
+                    argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->read_name));
 
                     // write_name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->write_name != 0);
-                    argv[8] = RARRAY_AREF(constants, cast->write_name - 1);
+                    argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->write_name));
 
                     // operator_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2003,7 +2003,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[6] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[6] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // message_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2166,7 +2166,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         assert(cast->locals.ids[index] != 0);
-                        rb_ary_push(argv[4], RARRAY_AREF(constants, cast->locals.ids[index] - 1));
+                        rb_ary_push(argv[4], RARRAY_AREF(constants, pm_constant_id_index(cast->locals.ids[index])));
                     }
                     if (freeze) rb_obj_freeze(argv[4]);
 
@@ -2197,7 +2197,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[11] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[11] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(12, argv, rb_cPrismClassNode);
                     if (freeze) rb_obj_freeze(value);
@@ -2225,7 +2225,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2265,7 +2265,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2282,7 +2282,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // binary_operator
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->binary_operator != 0);
-                    argv[8] = RARRAY_AREF(constants, cast->binary_operator - 1);
+                    argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismClassVariableOperatorWriteNode);
                     if (freeze) rb_obj_freeze(value);
@@ -2310,7 +2310,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2350,7 +2350,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismClassVariableReadNode);
                     if (freeze) rb_obj_freeze(value);
@@ -2378,7 +2378,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismClassVariableTargetNode);
                     if (freeze) rb_obj_freeze(value);
@@ -2406,7 +2406,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2446,7 +2446,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2486,7 +2486,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2503,7 +2503,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // binary_operator
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->binary_operator != 0);
-                    argv[8] = RARRAY_AREF(constants, cast->binary_operator - 1);
+                    argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismConstantOperatorWriteNode);
                     if (freeze) rb_obj_freeze(value);
@@ -2531,7 +2531,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2608,7 +2608,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = rb_ary_pop(value_stack);
 
                     // name
-                    argv[5] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, cast->name - 1);
+                    argv[5] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // delimiter_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2656,7 +2656,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // binary_operator
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->binary_operator != 0);
-                    argv[7] = RARRAY_AREF(constants, cast->binary_operator - 1);
+                    argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismConstantPathOperatorWriteNode);
                     if (freeze) rb_obj_freeze(value);
@@ -2721,7 +2721,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = rb_ary_pop(value_stack);
 
                     // name
-                    argv[5] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, cast->name - 1);
+                    argv[5] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // delimiter_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2792,7 +2792,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismConstantReadNode);
                     if (freeze) rb_obj_freeze(value);
@@ -2820,7 +2820,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismConstantTargetNode);
                     if (freeze) rb_obj_freeze(value);
@@ -2848,7 +2848,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2888,7 +2888,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -2911,7 +2911,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[9] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         assert(cast->locals.ids[index] != 0);
-                        rb_ary_push(argv[9], RARRAY_AREF(constants, cast->locals.ids[index] - 1));
+                        rb_ary_push(argv[9], RARRAY_AREF(constants, pm_constant_id_index(cast->locals.ids[index])));
                     }
                     if (freeze) rb_obj_freeze(argv[9]);
 
@@ -3427,7 +3427,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -3467,7 +3467,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -3484,7 +3484,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // binary_operator
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->binary_operator != 0);
-                    argv[8] = RARRAY_AREF(constants, cast->binary_operator - 1);
+                    argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismGlobalVariableOperatorWriteNode);
                     if (freeze) rb_obj_freeze(value);
@@ -3512,7 +3512,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -3552,7 +3552,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismGlobalVariableReadNode);
                     if (freeze) rb_obj_freeze(value);
@@ -3580,7 +3580,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismGlobalVariableTargetNode);
                     if (freeze) rb_obj_freeze(value);
@@ -3608,7 +3608,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -3973,7 +3973,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // binary_operator
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->binary_operator != 0);
-                    argv[10] = RARRAY_AREF(constants, cast->binary_operator - 1);
+                    argv[10] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     // binary_operator_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -4107,7 +4107,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -4147,7 +4147,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -4164,7 +4164,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // binary_operator
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->binary_operator != 0);
-                    argv[8] = RARRAY_AREF(constants, cast->binary_operator - 1);
+                    argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismInstanceVariableOperatorWriteNode);
                     if (freeze) rb_obj_freeze(value);
@@ -4192,7 +4192,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -4232,7 +4232,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismInstanceVariableReadNode);
                     if (freeze) rb_obj_freeze(value);
@@ -4260,7 +4260,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismInstanceVariableTargetNode);
                     if (freeze) rb_obj_freeze(value);
@@ -4288,7 +4288,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -4623,7 +4623,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-                    argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
@@ -4661,7 +4661,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         assert(cast->locals.ids[index] != 0);
-                        rb_ary_push(argv[4], RARRAY_AREF(constants, cast->locals.ids[index] - 1));
+                        rb_ary_push(argv[4], RARRAY_AREF(constants, pm_constant_id_index(cast->locals.ids[index])));
                     }
                     if (freeze) rb_obj_freeze(argv[4]);
 
@@ -4723,7 +4723,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[7] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
 #line 262 "prism/templates/ext/prism/api_node.c.erb"
@@ -4767,12 +4767,12 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[7] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // binary_operator
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->binary_operator != 0);
-                    argv[8] = RARRAY_AREF(constants, cast->binary_operator - 1);
+                    argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     // depth
 #line 262 "prism/templates/ext/prism/api_node.c.erb"
@@ -4816,7 +4816,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[7] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
 #line 262 "prism/templates/ext/prism/api_node.c.erb"
@@ -4848,7 +4848,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
 #line 262 "prism/templates/ext/prism/api_node.c.erb"
@@ -4880,7 +4880,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
 #line 262 "prism/templates/ext/prism/api_node.c.erb"
@@ -4912,7 +4912,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
 #line 262 "prism/templates/ext/prism/api_node.c.erb"
@@ -5102,7 +5102,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         assert(cast->locals.ids[index] != 0);
-                        rb_ary_push(argv[4], RARRAY_AREF(constants, cast->locals.ids[index] - 1));
+                        rb_ary_push(argv[4], RARRAY_AREF(constants, pm_constant_id_index(cast->locals.ids[index])));
                     }
                     if (freeze) rb_obj_freeze(argv[4]);
 
@@ -5125,7 +5125,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[9] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[9] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismModuleNode);
                     if (freeze) rb_obj_freeze(value);
@@ -5432,7 +5432,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -5468,7 +5468,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -5795,7 +5795,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         assert(cast->locals.ids[index] != 0);
-                        rb_ary_push(argv[4], RARRAY_AREF(constants, cast->locals.ids[index] - 1));
+                        rb_ary_push(argv[4], RARRAY_AREF(constants, pm_constant_id_index(cast->locals.ids[index])));
                     }
                     if (freeze) rb_obj_freeze(argv[4]);
 
@@ -5956,7 +5956,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 253 "prism/templates/ext/prism/api_node.c.erb"
@@ -5988,7 +5988,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     // name
 #line 239 "prism/templates/ext/prism/api_node.c.erb"
                     assert(cast->name != 0);
-                    argv[4] = RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismRequiredParameterNode);
                     if (freeze) rb_obj_freeze(value);
@@ -6104,7 +6104,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-                    argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, cast->name - 1);
+                    argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
 #line 256 "prism/templates/ext/prism/api_node.c.erb"
@@ -6243,7 +6243,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         assert(cast->locals.ids[index] != 0);
-                        rb_ary_push(argv[4], RARRAY_AREF(constants, cast->locals.ids[index] - 1));
+                        rb_ary_push(argv[4], RARRAY_AREF(constants, pm_constant_id_index(cast->locals.ids[index])));
                     }
                     if (freeze) rb_obj_freeze(argv[4]);
 

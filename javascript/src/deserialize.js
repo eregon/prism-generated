@@ -666,332 +666,1636 @@ export function deserialize(source, array) {
   const constantPoolOffset = buffer.readUint32();
   const constants = Array.from({ length: buffer.readVarInt() }, () => null);
 
-  return new ParseResult(readRequiredNode(), comments, magicComments, dataLoc, errors, warnings, continuable);
+  return new ParseResult(readNodes(constantPoolOffset), comments, magicComments, dataLoc, errors, warnings, continuable);
 
-  function readRequiredNode() {
-    const type = buffer.readByte();
-    const nodeID = buffer.readVarInt();
-    const location = buffer.readLocation();
-    let flags;
+  /* Read the nodes that are serialized before the given offset and return the
+   * root. Nodes are serialized in post-order, so the children of each node are
+   * the topmost values on the stack, in field order, by the time its record is
+   * read. */
+  function readNodes(finish) {
+    const stack = [];
 
-    switch (type) {
-      case 1:
-        return new nodes.AliasGlobalVariableNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
-      case 2:
-        return new nodes.AliasMethodNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
-      case 3:
-        return new nodes.AlternationPatternNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
-      case 4:
-        return new nodes.AndNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
-      case 5:
-        return new nodes.ArgumentsNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode));
-      case 6:
-        return new nodes.ArrayNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), buffer.readOptionalLocation());
-      case 7:
-        return new nodes.ArrayPatternNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), buffer.readOptionalLocation());
-      case 8:
-        return new nodes.AssocNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readOptionalLocation());
-      case 9:
-        return new nodes.AssocSplatNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readLocation());
-      case 10:
-        return new nodes.BackReferenceReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 11:
-        return new nodes.BeginNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode(), readOptionalNode(), readOptionalNode(), buffer.readOptionalLocation());
-      case 12:
-        return new nodes.BlockArgumentNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readLocation());
-      case 13:
-        return new nodes.BlockLocalVariableNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 14:
-        return new nodes.BlockNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), readOptionalNode(), readOptionalNode(), buffer.readLocation(), buffer.readLocation());
-      case 15:
-        return new nodes.BlockParameterNode(nodeID, location, flags = buffer.readVarInt(), readOptionalConstant(), buffer.readOptionalLocation(), buffer.readLocation());
-      case 16:
-        return new nodes.BlockParametersNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), buffer.readOptionalLocation());
-      case 17:
-        return new nodes.BreakNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readLocation());
-      case 18:
-        return new nodes.CallAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredConstant(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
-      case 19:
-        return new nodes.CallNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), readRequiredConstant(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readOptionalNode());
-      case 20:
-        return new nodes.CallOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredConstant(), readRequiredConstant(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
-      case 21:
-        return new nodes.CallOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredConstant(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
-      case 22:
-        return new nodes.CallTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readRequiredConstant(), buffer.readLocation());
-      case 23:
-        return new nodes.CapturePatternNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
-      case 24:
-        return new nodes.CaseMatchNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), buffer.readLocation(), buffer.readLocation());
-      case 25:
-        return new nodes.CaseNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), buffer.readLocation(), buffer.readLocation());
-      case 26:
-        return new nodes.ClassNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), buffer.readLocation(), readRequiredNode(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode(), buffer.readLocation(), readRequiredConstant());
-      case 27:
-        return new nodes.ClassVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 28:
-        return new nodes.ClassVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
-      case 29:
-        return new nodes.ClassVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 30:
-        return new nodes.ClassVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 31:
-        return new nodes.ClassVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 32:
-        return new nodes.ClassVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
-      case 33:
-        return new nodes.ConstantAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 34:
-        return new nodes.ConstantOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
-      case 35:
-        return new nodes.ConstantOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 36:
-        return new nodes.ConstantPathAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readRequiredNode());
-      case 37:
-        return new nodes.ConstantPathNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readOptionalConstant(), buffer.readLocation(), buffer.readLocation());
-      case 38:
-        return new nodes.ConstantPathOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
-      case 39:
-        return new nodes.ConstantPathOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readRequiredNode());
-      case 40:
-        return new nodes.ConstantPathTargetNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readOptionalConstant(), buffer.readLocation(), buffer.readLocation());
-      case 41:
-        return new nodes.ConstantPathWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readRequiredNode());
-      case 42:
-        return new nodes.ConstantReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 43:
-        return new nodes.ConstantTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 44:
-        return new nodes.ConstantWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
-      case 45:
-        buffer.readUint32();
-        return new nodes.DefNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readOptionalNode(), readOptionalNode(), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), buffer.readOptionalLocation());
-      case 46:
-        return new nodes.DefinedNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), readRequiredNode(), buffer.readOptionalLocation(), buffer.readLocation());
-      case 47:
-        return new nodes.ElseNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readOptionalNode(), buffer.readOptionalLocation());
-      case 48:
-        return new nodes.EmbeddedStatementsNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readOptionalNode(), buffer.readLocation());
-      case 49:
-        return new nodes.EmbeddedVariableNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readRequiredNode());
-      case 50:
-        return new nodes.EnsureNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readOptionalNode(), buffer.readLocation());
-      case 51:
-        return new nodes.ErrorRecoveryNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode());
-      case 52:
-        return new nodes.FalseNode(nodeID, location, flags = buffer.readVarInt());
-      case 53:
-        return new nodes.FindPatternNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readRequiredNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readRequiredNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation());
-      case 54:
-        return new nodes.FlipFlopNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readOptionalNode(), buffer.readLocation());
-      case 55:
-        return new nodes.FloatNode(nodeID, location, flags = buffer.readVarInt(), buffer.readDouble());
-      case 56:
-        return new nodes.ForNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), readOptionalNode(), buffer.readLocation(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readLocation());
-      case 57:
-        return new nodes.ForwardingArgumentsNode(nodeID, location, flags = buffer.readVarInt());
-      case 58:
-        return new nodes.ForwardingParameterNode(nodeID, location, flags = buffer.readVarInt());
-      case 59:
-        return new nodes.ForwardingSuperNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readOptionalNode());
-      case 60:
-        return new nodes.GlobalVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 61:
-        return new nodes.GlobalVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
-      case 62:
-        return new nodes.GlobalVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 63:
-        return new nodes.GlobalVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 64:
-        return new nodes.GlobalVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 65:
-        return new nodes.GlobalVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
-      case 66:
-        return new nodes.HashNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
-      case 67:
-        return new nodes.HashPatternNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), buffer.readOptionalLocation(), buffer.readOptionalLocation());
-      case 68:
-        return new nodes.IfNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), readRequiredNode(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode(), buffer.readOptionalLocation());
-      case 69:
-        return new nodes.ImaginaryNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode());
-      case 70:
-        return new nodes.ImplicitNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode());
-      case 71:
-        return new nodes.ImplicitRestNode(nodeID, location, flags = buffer.readVarInt());
-      case 72:
-        return new nodes.InNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readOptionalNode(), buffer.readLocation(), buffer.readOptionalLocation());
-      case 73:
-        return new nodes.IndexAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readRequiredNode());
-      case 74:
-        return new nodes.IndexOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
-      case 75:
-        return new nodes.IndexOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readOptionalLocation(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readRequiredNode());
-      case 76:
-        return new nodes.IndexTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readOptionalNode(), buffer.readLocation(), readOptionalNode());
-      case 77:
-        return new nodes.InstanceVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 78:
-        return new nodes.InstanceVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant());
-      case 79:
-        return new nodes.InstanceVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 80:
-        return new nodes.InstanceVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 81:
-        return new nodes.InstanceVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 82:
-        return new nodes.InstanceVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
-      case 83:
-        return new nodes.IntegerNode(nodeID, location, flags = buffer.readVarInt(), readInteger());
-      case 84:
-        return new nodes.InterpolatedMatchLastLineNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
-      case 85:
-        return new nodes.InterpolatedRegularExpressionNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
-      case 86:
-        return new nodes.InterpolatedStringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation());
-      case 87:
-        return new nodes.InterpolatedSymbolNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation());
-      case 88:
-        return new nodes.InterpolatedXStringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
-      case 89:
-        return new nodes.ItLocalVariableReadNode(nodeID, location, flags = buffer.readVarInt());
-      case 90:
-        return new nodes.ItParametersNode(nodeID, location, flags = buffer.readVarInt());
-      case 91:
-        return new nodes.KeywordHashNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode));
-      case 92:
-        return new nodes.KeywordRestParameterNode(nodeID, location, flags = buffer.readVarInt(), readOptionalConstant(), buffer.readOptionalLocation(), buffer.readLocation());
-      case 93:
-        return new nodes.LambdaNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), readOptionalNode(), readOptionalNode());
-      case 94:
-        return new nodes.LocalVariableAndWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), buffer.readVarInt());
-      case 95:
-        return new nodes.LocalVariableOperatorWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), readRequiredConstant(), buffer.readVarInt());
-      case 96:
-        return new nodes.LocalVariableOrWriteNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readRequiredConstant(), buffer.readVarInt());
-      case 97:
-        return new nodes.LocalVariableReadNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt());
-      case 98:
-        return new nodes.LocalVariableTargetNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt());
-      case 99:
-        return new nodes.LocalVariableWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readVarInt(), buffer.readLocation(), readRequiredNode(), buffer.readLocation());
-      case 100:
-        return new nodes.MatchLastLineNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), buffer.readStringField(flags));
-      case 101:
-        return new nodes.MatchPredicateNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
-      case 102:
-        return new nodes.MatchRequiredNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
-      case 103:
-        return new nodes.MatchWriteNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode));
-      case 104:
-        return new nodes.ModuleNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), buffer.readLocation(), readRequiredNode(), readOptionalNode(), buffer.readLocation(), readRequiredConstant());
-      case 105:
-        return new nodes.MultiTargetNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), buffer.readOptionalLocation());
-      case 106:
-        return new nodes.MultiWriteNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), buffer.readOptionalLocation(), buffer.readLocation(), readRequiredNode());
-      case 107:
-        return new nodes.NextNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readLocation());
-      case 108:
-        return new nodes.NilNode(nodeID, location, flags = buffer.readVarInt());
-      case 109:
-        return new nodes.NoBlockParameterNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation());
-      case 110:
-        return new nodes.NoKeywordsParameterNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation());
-      case 111:
-        return new nodes.NumberedParametersNode(nodeID, location, flags = buffer.readVarInt(), buffer.readByte());
-      case 112:
-        return new nodes.NumberedReferenceReadNode(nodeID, location, flags = buffer.readVarInt(), buffer.readVarInt());
-      case 113:
-        return new nodes.OptionalKeywordParameterNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), readRequiredNode());
-      case 114:
-        return new nodes.OptionalParameterNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation(), buffer.readLocation(), readRequiredNode());
-      case 115:
-        return new nodes.OrNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), readRequiredNode(), buffer.readLocation());
-      case 116:
-        return new nodes.ParametersNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), Array.from({ length: buffer.readVarInt() }, readRequiredNode), readOptionalNode(), readOptionalNode());
-      case 117:
-        return new nodes.ParenthesesNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readLocation(), buffer.readLocation());
-      case 118:
-        return new nodes.PinnedExpressionNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation());
-      case 119:
-        return new nodes.PinnedVariableNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation());
-      case 120:
-        return new nodes.PostExecutionNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation());
-      case 121:
-        return new nodes.PreExecutionNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation());
-      case 122:
-        return new nodes.ProgramNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), readRequiredNode());
-      case 123:
-        return new nodes.RangeNode(nodeID, location, flags = buffer.readVarInt(), readOptionalNode(), readOptionalNode(), buffer.readLocation());
-      case 124:
-        return new nodes.RationalNode(nodeID, location, flags = buffer.readVarInt(), readInteger(), readInteger());
-      case 125:
-        return new nodes.RedoNode(nodeID, location, flags = buffer.readVarInt());
-      case 126:
-        return new nodes.RegularExpressionNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), buffer.readStringField(flags));
-      case 127:
-        return new nodes.RequiredKeywordParameterNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant(), buffer.readLocation());
-      case 128:
-        return new nodes.RequiredParameterNode(nodeID, location, flags = buffer.readVarInt(), readRequiredConstant());
-      case 129:
-        return new nodes.RescueModifierNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode(), buffer.readLocation(), readRequiredNode());
-      case 130:
-        return new nodes.RescueNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), readOptionalNode(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode());
-      case 131:
-        return new nodes.RestParameterNode(nodeID, location, flags = buffer.readVarInt(), readOptionalConstant(), buffer.readOptionalLocation(), buffer.readLocation());
-      case 132:
-        return new nodes.RetryNode(nodeID, location, flags = buffer.readVarInt());
-      case 133:
-        return new nodes.ReturnNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readOptionalNode());
-      case 134:
-        return new nodes.SelfNode(nodeID, location, flags = buffer.readVarInt());
-      case 135:
-        return new nodes.ShareableConstantNode(nodeID, location, flags = buffer.readVarInt(), readRequiredNode());
-      case 136:
-        return new nodes.SingletonClassNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredConstant), buffer.readLocation(), buffer.readLocation(), readRequiredNode(), readOptionalNode(), buffer.readLocation());
-      case 137:
-        return new nodes.SourceEncodingNode(nodeID, location, flags = buffer.readVarInt());
-      case 138:
-        return new nodes.SourceFileNode(nodeID, location, flags = buffer.readVarInt(), buffer.readStringField(flags));
-      case 139:
-        return new nodes.SourceLineNode(nodeID, location, flags = buffer.readVarInt());
-      case 140:
-        return new nodes.SplatNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readOptionalNode());
-      case 141:
-        return new nodes.StatementsNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode));
-      case 142:
-        return new nodes.StringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readStringField(flags));
-      case 143:
-        return new nodes.SuperNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readOptionalLocation(), readOptionalNode(), buffer.readOptionalLocation(), readOptionalNode());
-      case 144:
-        return new nodes.SymbolNode(nodeID, location, flags = buffer.readVarInt(), buffer.readOptionalLocation(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readStringField(flags));
-      case 145:
-        return new nodes.TrueNode(nodeID, location, flags = buffer.readVarInt());
-      case 146:
-        return new nodes.UndefNode(nodeID, location, flags = buffer.readVarInt(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readLocation());
-      case 147:
-        return new nodes.UnlessNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), readRequiredNode(), buffer.readOptionalLocation(), readOptionalNode(), readOptionalNode(), buffer.readOptionalLocation());
-      case 148:
-        return new nodes.UntilNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredNode(), readOptionalNode());
-      case 149:
-        return new nodes.WhenNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), Array.from({ length: buffer.readVarInt() }, readRequiredNode), buffer.readOptionalLocation(), readOptionalNode());
-      case 150:
-        return new nodes.WhileNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readOptionalLocation(), buffer.readOptionalLocation(), readRequiredNode(), readOptionalNode());
-      case 151:
-        return new nodes.XStringNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readLocation(), buffer.readLocation(), buffer.readStringField(flags));
-      case 152:
-        return new nodes.YieldNode(nodeID, location, flags = buffer.readVarInt(), buffer.readLocation(), buffer.readOptionalLocation(), readOptionalNode(), buffer.readOptionalLocation());
-      default:
-        throw new Error(`Unknown node type: ${type}`);
+    while (buffer.index < finish) {
+      const type = buffer.readByte();
+
+      switch (type) {
+        case 0:
+          stack.push(null);
+          break;
+        case 255:
+          buffer.readUint32();
+          buffer.readUint32();
+          break;
+        case 1: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const oldName = stack.pop();
+          const newName = stack.pop();
+          stack.push(new nodes.AliasGlobalVariableNode(nodeID, location, flags, newName, oldName, keywordLoc));
+          break;
+        }
+        case 2: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const oldName = stack.pop();
+          const newName = stack.pop();
+          stack.push(new nodes.AliasMethodNode(nodeID, location, flags, newName, oldName, keywordLoc));
+          break;
+        }
+        case 3: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const right = stack.pop();
+          const left = stack.pop();
+          stack.push(new nodes.AlternationPatternNode(nodeID, location, flags, left, right, operatorLoc));
+          break;
+        }
+        case 4: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const right = stack.pop();
+          const left = stack.pop();
+          stack.push(new nodes.AndNode(nodeID, location, flags, left, right, operatorLoc));
+          break;
+        }
+        case 5: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const arguments_Size = buffer.readVarInt();
+          const arguments_ = stack.splice(stack.length - arguments_Size, arguments_Size);
+          stack.push(new nodes.ArgumentsNode(nodeID, location, flags, arguments_));
+          break;
+        }
+        case 6: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const elementsSize = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const closingLoc = buffer.readOptionalLocation();
+          const elements = stack.splice(stack.length - elementsSize, elementsSize);
+          stack.push(new nodes.ArrayNode(nodeID, location, flags, elements, openingLoc, closingLoc));
+          break;
+        }
+        case 7: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const requiredsSize = buffer.readVarInt();
+          const postsSize = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const closingLoc = buffer.readOptionalLocation();
+          const posts = stack.splice(stack.length - postsSize, postsSize);
+          const rest = stack.pop();
+          const requireds = stack.splice(stack.length - requiredsSize, requiredsSize);
+          const constant = stack.pop();
+          stack.push(new nodes.ArrayPatternNode(nodeID, location, flags, constant, requireds, rest, posts, openingLoc, closingLoc));
+          break;
+        }
+        case 8: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readOptionalLocation();
+          const value = stack.pop();
+          const key = stack.pop();
+          stack.push(new nodes.AssocNode(nodeID, location, flags, key, value, operatorLoc));
+          break;
+        }
+        case 9: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.AssocSplatNode(nodeID, location, flags, value, operatorLoc));
+          break;
+        }
+        case 10: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.BackReferenceReadNode(nodeID, location, flags, name));
+          break;
+        }
+        case 11: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const beginKeywordLoc = buffer.readOptionalLocation();
+          const endKeywordLoc = buffer.readOptionalLocation();
+          const ensureClause = stack.pop();
+          const elseClause = stack.pop();
+          const rescueClause = stack.pop();
+          const statements = stack.pop();
+          stack.push(new nodes.BeginNode(nodeID, location, flags, beginKeywordLoc, statements, rescueClause, elseClause, ensureClause, endKeywordLoc));
+          break;
+        }
+        case 12: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const expression = stack.pop();
+          stack.push(new nodes.BlockArgumentNode(nodeID, location, flags, expression, operatorLoc));
+          break;
+        }
+        case 13: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.BlockLocalVariableNode(nodeID, location, flags, name));
+          break;
+        }
+        case 14: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const locals = Array.from({ length: buffer.readVarInt() }, readRequiredConstant);
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const body = stack.pop();
+          const parameters = stack.pop();
+          stack.push(new nodes.BlockNode(nodeID, location, flags, locals, parameters, body, openingLoc, closingLoc));
+          break;
+        }
+        case 15: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readOptionalConstant();
+          const nameLoc = buffer.readOptionalLocation();
+          const operatorLoc = buffer.readLocation();
+          stack.push(new nodes.BlockParameterNode(nodeID, location, flags, name, nameLoc, operatorLoc));
+          break;
+        }
+        case 16: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const localsSize = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const closingLoc = buffer.readOptionalLocation();
+          const locals = stack.splice(stack.length - localsSize, localsSize);
+          const parameters = stack.pop();
+          stack.push(new nodes.BlockParametersNode(nodeID, location, flags, parameters, locals, openingLoc, closingLoc));
+          break;
+        }
+        case 17: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const arguments_ = stack.pop();
+          stack.push(new nodes.BreakNode(nodeID, location, flags, arguments_, keywordLoc));
+          break;
+        }
+        case 18: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const callOperatorLoc = buffer.readOptionalLocation();
+          const messageLoc = buffer.readOptionalLocation();
+          const readName = readRequiredConstant();
+          const writeName = readRequiredConstant();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.CallAndWriteNode(nodeID, location, flags, receiver, callOperatorLoc, messageLoc, readName, writeName, operatorLoc, value));
+          break;
+        }
+        case 19: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const callOperatorLoc = buffer.readOptionalLocation();
+          const name = readRequiredConstant();
+          const messageLoc = buffer.readOptionalLocation();
+          const openingLoc = buffer.readOptionalLocation();
+          const closingLoc = buffer.readOptionalLocation();
+          const equalLoc = buffer.readOptionalLocation();
+          const block = stack.pop();
+          const arguments_ = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.CallNode(nodeID, location, flags, receiver, callOperatorLoc, name, messageLoc, openingLoc, arguments_, closingLoc, equalLoc, block));
+          break;
+        }
+        case 20: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const callOperatorLoc = buffer.readOptionalLocation();
+          const messageLoc = buffer.readOptionalLocation();
+          const readName = readRequiredConstant();
+          const writeName = readRequiredConstant();
+          const binaryOperator = readRequiredConstant();
+          const binaryOperatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.CallOperatorWriteNode(nodeID, location, flags, receiver, callOperatorLoc, messageLoc, readName, writeName, binaryOperator, binaryOperatorLoc, value));
+          break;
+        }
+        case 21: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const callOperatorLoc = buffer.readOptionalLocation();
+          const messageLoc = buffer.readOptionalLocation();
+          const readName = readRequiredConstant();
+          const writeName = readRequiredConstant();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.CallOrWriteNode(nodeID, location, flags, receiver, callOperatorLoc, messageLoc, readName, writeName, operatorLoc, value));
+          break;
+        }
+        case 22: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const callOperatorLoc = buffer.readLocation();
+          const name = readRequiredConstant();
+          const messageLoc = buffer.readLocation();
+          const receiver = stack.pop();
+          stack.push(new nodes.CallTargetNode(nodeID, location, flags, receiver, callOperatorLoc, name, messageLoc));
+          break;
+        }
+        case 23: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const target = stack.pop();
+          const value = stack.pop();
+          stack.push(new nodes.CapturePatternNode(nodeID, location, flags, value, target, operatorLoc));
+          break;
+        }
+        case 24: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const conditionsSize = buffer.readVarInt();
+          const caseKeywordLoc = buffer.readLocation();
+          const endKeywordLoc = buffer.readLocation();
+          const elseClause = stack.pop();
+          const conditions = stack.splice(stack.length - conditionsSize, conditionsSize);
+          const predicate = stack.pop();
+          stack.push(new nodes.CaseMatchNode(nodeID, location, flags, predicate, conditions, elseClause, caseKeywordLoc, endKeywordLoc));
+          break;
+        }
+        case 25: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const conditionsSize = buffer.readVarInt();
+          const caseKeywordLoc = buffer.readLocation();
+          const endKeywordLoc = buffer.readLocation();
+          const elseClause = stack.pop();
+          const conditions = stack.splice(stack.length - conditionsSize, conditionsSize);
+          const predicate = stack.pop();
+          stack.push(new nodes.CaseNode(nodeID, location, flags, predicate, conditions, elseClause, caseKeywordLoc, endKeywordLoc));
+          break;
+        }
+        case 26: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const locals = Array.from({ length: buffer.readVarInt() }, readRequiredConstant);
+          const classKeywordLoc = buffer.readLocation();
+          const inheritanceOperatorLoc = buffer.readOptionalLocation();
+          const endKeywordLoc = buffer.readLocation();
+          const name = readRequiredConstant();
+          const body = stack.pop();
+          const superclass = stack.pop();
+          const constantPath = stack.pop();
+          stack.push(new nodes.ClassNode(nodeID, location, flags, locals, classKeywordLoc, constantPath, inheritanceOperatorLoc, superclass, body, endKeywordLoc, name));
+          break;
+        }
+        case 27: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.ClassVariableAndWriteNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 28: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const binaryOperatorLoc = buffer.readLocation();
+          const binaryOperator = readRequiredConstant();
+          const value = stack.pop();
+          stack.push(new nodes.ClassVariableOperatorWriteNode(nodeID, location, flags, name, nameLoc, binaryOperatorLoc, value, binaryOperator));
+          break;
+        }
+        case 29: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.ClassVariableOrWriteNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 30: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.ClassVariableReadNode(nodeID, location, flags, name));
+          break;
+        }
+        case 31: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.ClassVariableTargetNode(nodeID, location, flags, name));
+          break;
+        }
+        case 32: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.ClassVariableWriteNode(nodeID, location, flags, name, nameLoc, value, operatorLoc));
+          break;
+        }
+        case 33: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.ConstantAndWriteNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 34: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const binaryOperatorLoc = buffer.readLocation();
+          const binaryOperator = readRequiredConstant();
+          const value = stack.pop();
+          stack.push(new nodes.ConstantOperatorWriteNode(nodeID, location, flags, name, nameLoc, binaryOperatorLoc, value, binaryOperator));
+          break;
+        }
+        case 35: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.ConstantOrWriteNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 36: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const target = stack.pop();
+          stack.push(new nodes.ConstantPathAndWriteNode(nodeID, location, flags, target, operatorLoc, value));
+          break;
+        }
+        case 37: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readOptionalConstant();
+          const delimiterLoc = buffer.readLocation();
+          const nameLoc = buffer.readLocation();
+          const parent = stack.pop();
+          stack.push(new nodes.ConstantPathNode(nodeID, location, flags, parent, name, delimiterLoc, nameLoc));
+          break;
+        }
+        case 38: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const binaryOperatorLoc = buffer.readLocation();
+          const binaryOperator = readRequiredConstant();
+          const value = stack.pop();
+          const target = stack.pop();
+          stack.push(new nodes.ConstantPathOperatorWriteNode(nodeID, location, flags, target, binaryOperatorLoc, value, binaryOperator));
+          break;
+        }
+        case 39: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const target = stack.pop();
+          stack.push(new nodes.ConstantPathOrWriteNode(nodeID, location, flags, target, operatorLoc, value));
+          break;
+        }
+        case 40: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readOptionalConstant();
+          const delimiterLoc = buffer.readLocation();
+          const nameLoc = buffer.readLocation();
+          const parent = stack.pop();
+          stack.push(new nodes.ConstantPathTargetNode(nodeID, location, flags, parent, name, delimiterLoc, nameLoc));
+          break;
+        }
+        case 41: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const target = stack.pop();
+          stack.push(new nodes.ConstantPathWriteNode(nodeID, location, flags, target, operatorLoc, value));
+          break;
+        }
+        case 42: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.ConstantReadNode(nodeID, location, flags, name));
+          break;
+        }
+        case 43: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.ConstantTargetNode(nodeID, location, flags, name));
+          break;
+        }
+        case 44: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.ConstantWriteNode(nodeID, location, flags, name, nameLoc, value, operatorLoc));
+          break;
+        }
+        case 45: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const locals = Array.from({ length: buffer.readVarInt() }, readRequiredConstant);
+          const defKeywordLoc = buffer.readLocation();
+          const operatorLoc = buffer.readOptionalLocation();
+          const lparenLoc = buffer.readOptionalLocation();
+          const rparenLoc = buffer.readOptionalLocation();
+          const equalLoc = buffer.readOptionalLocation();
+          const endKeywordLoc = buffer.readOptionalLocation();
+          const body = stack.pop();
+          const parameters = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.DefNode(nodeID, location, flags, name, nameLoc, receiver, parameters, body, locals, defKeywordLoc, operatorLoc, lparenLoc, rparenLoc, equalLoc, endKeywordLoc));
+          break;
+        }
+        case 46: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const lparenLoc = buffer.readOptionalLocation();
+          const rparenLoc = buffer.readOptionalLocation();
+          const keywordLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.DefinedNode(nodeID, location, flags, lparenLoc, value, rparenLoc, keywordLoc));
+          break;
+        }
+        case 47: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const elseKeywordLoc = buffer.readLocation();
+          const endKeywordLoc = buffer.readOptionalLocation();
+          const statements = stack.pop();
+          stack.push(new nodes.ElseNode(nodeID, location, flags, elseKeywordLoc, statements, endKeywordLoc));
+          break;
+        }
+        case 48: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const statements = stack.pop();
+          stack.push(new nodes.EmbeddedStatementsNode(nodeID, location, flags, openingLoc, statements, closingLoc));
+          break;
+        }
+        case 49: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const variable = stack.pop();
+          stack.push(new nodes.EmbeddedVariableNode(nodeID, location, flags, operatorLoc, variable));
+          break;
+        }
+        case 50: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const ensureKeywordLoc = buffer.readLocation();
+          const endKeywordLoc = buffer.readLocation();
+          const statements = stack.pop();
+          stack.push(new nodes.EnsureNode(nodeID, location, flags, ensureKeywordLoc, statements, endKeywordLoc));
+          break;
+        }
+        case 51: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const unexpected = stack.pop();
+          stack.push(new nodes.ErrorRecoveryNode(nodeID, location, flags, unexpected));
+          break;
+        }
+        case 52: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.FalseNode(nodeID, location, flags));
+          break;
+        }
+        case 53: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const requiredsSize = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const closingLoc = buffer.readOptionalLocation();
+          const right = stack.pop();
+          const requireds = stack.splice(stack.length - requiredsSize, requiredsSize);
+          const left = stack.pop();
+          const constant = stack.pop();
+          stack.push(new nodes.FindPatternNode(nodeID, location, flags, constant, left, requireds, right, openingLoc, closingLoc));
+          break;
+        }
+        case 54: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const right = stack.pop();
+          const left = stack.pop();
+          stack.push(new nodes.FlipFlopNode(nodeID, location, flags, left, right, operatorLoc));
+          break;
+        }
+        case 55: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const value = buffer.readDouble();
+          stack.push(new nodes.FloatNode(nodeID, location, flags, value));
+          break;
+        }
+        case 56: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const forKeywordLoc = buffer.readLocation();
+          const inKeywordLoc = buffer.readLocation();
+          const doKeywordLoc = buffer.readOptionalLocation();
+          const endKeywordLoc = buffer.readLocation();
+          const statements = stack.pop();
+          const collection = stack.pop();
+          const index = stack.pop();
+          stack.push(new nodes.ForNode(nodeID, location, flags, index, collection, statements, forKeywordLoc, inKeywordLoc, doKeywordLoc, endKeywordLoc));
+          break;
+        }
+        case 57: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.ForwardingArgumentsNode(nodeID, location, flags));
+          break;
+        }
+        case 58: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.ForwardingParameterNode(nodeID, location, flags));
+          break;
+        }
+        case 59: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const block = stack.pop();
+          stack.push(new nodes.ForwardingSuperNode(nodeID, location, flags, keywordLoc, block));
+          break;
+        }
+        case 60: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.GlobalVariableAndWriteNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 61: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const binaryOperatorLoc = buffer.readLocation();
+          const binaryOperator = readRequiredConstant();
+          const value = stack.pop();
+          stack.push(new nodes.GlobalVariableOperatorWriteNode(nodeID, location, flags, name, nameLoc, binaryOperatorLoc, value, binaryOperator));
+          break;
+        }
+        case 62: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.GlobalVariableOrWriteNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 63: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.GlobalVariableReadNode(nodeID, location, flags, name));
+          break;
+        }
+        case 64: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.GlobalVariableTargetNode(nodeID, location, flags, name));
+          break;
+        }
+        case 65: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.GlobalVariableWriteNode(nodeID, location, flags, name, nameLoc, value, operatorLoc));
+          break;
+        }
+        case 66: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const elementsSize = buffer.readVarInt();
+          const closingLoc = buffer.readLocation();
+          const elements = stack.splice(stack.length - elementsSize, elementsSize);
+          stack.push(new nodes.HashNode(nodeID, location, flags, openingLoc, elements, closingLoc));
+          break;
+        }
+        case 67: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const elementsSize = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const closingLoc = buffer.readOptionalLocation();
+          const rest = stack.pop();
+          const elements = stack.splice(stack.length - elementsSize, elementsSize);
+          const constant = stack.pop();
+          stack.push(new nodes.HashPatternNode(nodeID, location, flags, constant, elements, rest, openingLoc, closingLoc));
+          break;
+        }
+        case 68: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const ifKeywordLoc = buffer.readOptionalLocation();
+          const thenKeywordLoc = buffer.readOptionalLocation();
+          const endKeywordLoc = buffer.readOptionalLocation();
+          const subsequent = stack.pop();
+          const statements = stack.pop();
+          const predicate = stack.pop();
+          stack.push(new nodes.IfNode(nodeID, location, flags, ifKeywordLoc, predicate, thenKeywordLoc, statements, subsequent, endKeywordLoc));
+          break;
+        }
+        case 69: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const numeric = stack.pop();
+          stack.push(new nodes.ImaginaryNode(nodeID, location, flags, numeric));
+          break;
+        }
+        case 70: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const value = stack.pop();
+          stack.push(new nodes.ImplicitNode(nodeID, location, flags, value));
+          break;
+        }
+        case 71: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.ImplicitRestNode(nodeID, location, flags));
+          break;
+        }
+        case 72: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const inKeywordLoc = buffer.readLocation();
+          const thenKeywordLoc = buffer.readOptionalLocation();
+          const statements = stack.pop();
+          const pattern = stack.pop();
+          stack.push(new nodes.InNode(nodeID, location, flags, pattern, statements, inKeywordLoc, thenKeywordLoc));
+          break;
+        }
+        case 73: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const callOperatorLoc = buffer.readOptionalLocation();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const block = stack.pop();
+          const arguments_ = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.IndexAndWriteNode(nodeID, location, flags, receiver, callOperatorLoc, openingLoc, arguments_, closingLoc, block, operatorLoc, value));
+          break;
+        }
+        case 74: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const callOperatorLoc = buffer.readOptionalLocation();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const binaryOperator = readRequiredConstant();
+          const binaryOperatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const block = stack.pop();
+          const arguments_ = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.IndexOperatorWriteNode(nodeID, location, flags, receiver, callOperatorLoc, openingLoc, arguments_, closingLoc, block, binaryOperator, binaryOperatorLoc, value));
+          break;
+        }
+        case 75: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const callOperatorLoc = buffer.readOptionalLocation();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const block = stack.pop();
+          const arguments_ = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.IndexOrWriteNode(nodeID, location, flags, receiver, callOperatorLoc, openingLoc, arguments_, closingLoc, block, operatorLoc, value));
+          break;
+        }
+        case 76: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const block = stack.pop();
+          const arguments_ = stack.pop();
+          const receiver = stack.pop();
+          stack.push(new nodes.IndexTargetNode(nodeID, location, flags, receiver, openingLoc, arguments_, closingLoc, block));
+          break;
+        }
+        case 77: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.InstanceVariableAndWriteNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 78: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const binaryOperatorLoc = buffer.readLocation();
+          const binaryOperator = readRequiredConstant();
+          const value = stack.pop();
+          stack.push(new nodes.InstanceVariableOperatorWriteNode(nodeID, location, flags, name, nameLoc, binaryOperatorLoc, value, binaryOperator));
+          break;
+        }
+        case 79: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.InstanceVariableOrWriteNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 80: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.InstanceVariableReadNode(nodeID, location, flags, name));
+          break;
+        }
+        case 81: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.InstanceVariableTargetNode(nodeID, location, flags, name));
+          break;
+        }
+        case 82: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.InstanceVariableWriteNode(nodeID, location, flags, name, nameLoc, value, operatorLoc));
+          break;
+        }
+        case 83: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const value = readInteger();
+          stack.push(new nodes.IntegerNode(nodeID, location, flags, value));
+          break;
+        }
+        case 84: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const partsSize = buffer.readVarInt();
+          const closingLoc = buffer.readLocation();
+          const parts = stack.splice(stack.length - partsSize, partsSize);
+          stack.push(new nodes.InterpolatedMatchLastLineNode(nodeID, location, flags, openingLoc, parts, closingLoc));
+          break;
+        }
+        case 85: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const partsSize = buffer.readVarInt();
+          const closingLoc = buffer.readLocation();
+          const parts = stack.splice(stack.length - partsSize, partsSize);
+          stack.push(new nodes.InterpolatedRegularExpressionNode(nodeID, location, flags, openingLoc, parts, closingLoc));
+          break;
+        }
+        case 86: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const partsSize = buffer.readVarInt();
+          const closingLoc = buffer.readOptionalLocation();
+          const parts = stack.splice(stack.length - partsSize, partsSize);
+          stack.push(new nodes.InterpolatedStringNode(nodeID, location, flags, openingLoc, parts, closingLoc));
+          break;
+        }
+        case 87: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const partsSize = buffer.readVarInt();
+          const closingLoc = buffer.readOptionalLocation();
+          const parts = stack.splice(stack.length - partsSize, partsSize);
+          stack.push(new nodes.InterpolatedSymbolNode(nodeID, location, flags, openingLoc, parts, closingLoc));
+          break;
+        }
+        case 88: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const partsSize = buffer.readVarInt();
+          const closingLoc = buffer.readLocation();
+          const parts = stack.splice(stack.length - partsSize, partsSize);
+          stack.push(new nodes.InterpolatedXStringNode(nodeID, location, flags, openingLoc, parts, closingLoc));
+          break;
+        }
+        case 89: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.ItLocalVariableReadNode(nodeID, location, flags));
+          break;
+        }
+        case 90: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.ItParametersNode(nodeID, location, flags));
+          break;
+        }
+        case 91: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const elementsSize = buffer.readVarInt();
+          const elements = stack.splice(stack.length - elementsSize, elementsSize);
+          stack.push(new nodes.KeywordHashNode(nodeID, location, flags, elements));
+          break;
+        }
+        case 92: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readOptionalConstant();
+          const nameLoc = buffer.readOptionalLocation();
+          const operatorLoc = buffer.readLocation();
+          stack.push(new nodes.KeywordRestParameterNode(nodeID, location, flags, name, nameLoc, operatorLoc));
+          break;
+        }
+        case 93: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const locals = Array.from({ length: buffer.readVarInt() }, readRequiredConstant);
+          const operatorLoc = buffer.readLocation();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const body = stack.pop();
+          const parameters = stack.pop();
+          stack.push(new nodes.LambdaNode(nodeID, location, flags, locals, operatorLoc, openingLoc, closingLoc, parameters, body));
+          break;
+        }
+        case 94: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const name = readRequiredConstant();
+          const depth = buffer.readVarInt();
+          const value = stack.pop();
+          stack.push(new nodes.LocalVariableAndWriteNode(nodeID, location, flags, nameLoc, operatorLoc, value, name, depth));
+          break;
+        }
+        case 95: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const nameLoc = buffer.readLocation();
+          const binaryOperatorLoc = buffer.readLocation();
+          const name = readRequiredConstant();
+          const binaryOperator = readRequiredConstant();
+          const depth = buffer.readVarInt();
+          const value = stack.pop();
+          stack.push(new nodes.LocalVariableOperatorWriteNode(nodeID, location, flags, nameLoc, binaryOperatorLoc, value, name, binaryOperator, depth));
+          break;
+        }
+        case 96: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const name = readRequiredConstant();
+          const depth = buffer.readVarInt();
+          const value = stack.pop();
+          stack.push(new nodes.LocalVariableOrWriteNode(nodeID, location, flags, nameLoc, operatorLoc, value, name, depth));
+          break;
+        }
+        case 97: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const depth = buffer.readVarInt();
+          stack.push(new nodes.LocalVariableReadNode(nodeID, location, flags, name, depth));
+          break;
+        }
+        case 98: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const depth = buffer.readVarInt();
+          stack.push(new nodes.LocalVariableTargetNode(nodeID, location, flags, name, depth));
+          break;
+        }
+        case 99: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const depth = buffer.readVarInt();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.LocalVariableWriteNode(nodeID, location, flags, name, depth, nameLoc, value, operatorLoc));
+          break;
+        }
+        case 100: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const contentLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const unescaped = buffer.readStringField(flags);
+          stack.push(new nodes.MatchLastLineNode(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped));
+          break;
+        }
+        case 101: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const pattern = stack.pop();
+          const value = stack.pop();
+          stack.push(new nodes.MatchPredicateNode(nodeID, location, flags, value, pattern, keywordLoc));
+          break;
+        }
+        case 102: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const pattern = stack.pop();
+          const value = stack.pop();
+          stack.push(new nodes.MatchRequiredNode(nodeID, location, flags, value, pattern, operatorLoc));
+          break;
+        }
+        case 103: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const targetsSize = buffer.readVarInt();
+          const targets = stack.splice(stack.length - targetsSize, targetsSize);
+          const call = stack.pop();
+          stack.push(new nodes.MatchWriteNode(nodeID, location, flags, call, targets));
+          break;
+        }
+        case 104: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const locals = Array.from({ length: buffer.readVarInt() }, readRequiredConstant);
+          const moduleKeywordLoc = buffer.readLocation();
+          const endKeywordLoc = buffer.readLocation();
+          const name = readRequiredConstant();
+          const body = stack.pop();
+          const constantPath = stack.pop();
+          stack.push(new nodes.ModuleNode(nodeID, location, flags, locals, moduleKeywordLoc, constantPath, body, endKeywordLoc, name));
+          break;
+        }
+        case 105: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const leftsSize = buffer.readVarInt();
+          const rightsSize = buffer.readVarInt();
+          const lparenLoc = buffer.readOptionalLocation();
+          const rparenLoc = buffer.readOptionalLocation();
+          const rights = stack.splice(stack.length - rightsSize, rightsSize);
+          const rest = stack.pop();
+          const lefts = stack.splice(stack.length - leftsSize, leftsSize);
+          stack.push(new nodes.MultiTargetNode(nodeID, location, flags, lefts, rest, rights, lparenLoc, rparenLoc));
+          break;
+        }
+        case 106: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const leftsSize = buffer.readVarInt();
+          const rightsSize = buffer.readVarInt();
+          const lparenLoc = buffer.readOptionalLocation();
+          const rparenLoc = buffer.readOptionalLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          const rights = stack.splice(stack.length - rightsSize, rightsSize);
+          const rest = stack.pop();
+          const lefts = stack.splice(stack.length - leftsSize, leftsSize);
+          stack.push(new nodes.MultiWriteNode(nodeID, location, flags, lefts, rest, rights, lparenLoc, rparenLoc, operatorLoc, value));
+          break;
+        }
+        case 107: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const arguments_ = stack.pop();
+          stack.push(new nodes.NextNode(nodeID, location, flags, arguments_, keywordLoc));
+          break;
+        }
+        case 108: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.NilNode(nodeID, location, flags));
+          break;
+        }
+        case 109: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const keywordLoc = buffer.readLocation();
+          stack.push(new nodes.NoBlockParameterNode(nodeID, location, flags, operatorLoc, keywordLoc));
+          break;
+        }
+        case 110: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const keywordLoc = buffer.readLocation();
+          stack.push(new nodes.NoKeywordsParameterNode(nodeID, location, flags, operatorLoc, keywordLoc));
+          break;
+        }
+        case 111: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const maximum = buffer.readByte();
+          stack.push(new nodes.NumberedParametersNode(nodeID, location, flags, maximum));
+          break;
+        }
+        case 112: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const number = buffer.readVarInt();
+          stack.push(new nodes.NumberedReferenceReadNode(nodeID, location, flags, number));
+          break;
+        }
+        case 113: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.OptionalKeywordParameterNode(nodeID, location, flags, name, nameLoc, value));
+          break;
+        }
+        case 114: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const value = stack.pop();
+          stack.push(new nodes.OptionalParameterNode(nodeID, location, flags, name, nameLoc, operatorLoc, value));
+          break;
+        }
+        case 115: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const right = stack.pop();
+          const left = stack.pop();
+          stack.push(new nodes.OrNode(nodeID, location, flags, left, right, operatorLoc));
+          break;
+        }
+        case 116: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const requiredsSize = buffer.readVarInt();
+          const optionalsSize = buffer.readVarInt();
+          const postsSize = buffer.readVarInt();
+          const keywordsSize = buffer.readVarInt();
+          const block = stack.pop();
+          const keywordRest = stack.pop();
+          const keywords = stack.splice(stack.length - keywordsSize, keywordsSize);
+          const posts = stack.splice(stack.length - postsSize, postsSize);
+          const rest = stack.pop();
+          const optionals = stack.splice(stack.length - optionalsSize, optionalsSize);
+          const requireds = stack.splice(stack.length - requiredsSize, requiredsSize);
+          stack.push(new nodes.ParametersNode(nodeID, location, flags, requireds, optionals, rest, posts, keywords, keywordRest, block));
+          break;
+        }
+        case 117: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const body = stack.pop();
+          stack.push(new nodes.ParenthesesNode(nodeID, location, flags, body, openingLoc, closingLoc));
+          break;
+        }
+        case 118: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const lparenLoc = buffer.readLocation();
+          const rparenLoc = buffer.readLocation();
+          const expression = stack.pop();
+          stack.push(new nodes.PinnedExpressionNode(nodeID, location, flags, expression, operatorLoc, lparenLoc, rparenLoc));
+          break;
+        }
+        case 119: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const variable = stack.pop();
+          stack.push(new nodes.PinnedVariableNode(nodeID, location, flags, variable, operatorLoc));
+          break;
+        }
+        case 120: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const statements = stack.pop();
+          stack.push(new nodes.PostExecutionNode(nodeID, location, flags, statements, keywordLoc, openingLoc, closingLoc));
+          break;
+        }
+        case 121: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const openingLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const statements = stack.pop();
+          stack.push(new nodes.PreExecutionNode(nodeID, location, flags, statements, keywordLoc, openingLoc, closingLoc));
+          break;
+        }
+        case 122: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const locals = Array.from({ length: buffer.readVarInt() }, readRequiredConstant);
+          const statements = stack.pop();
+          stack.push(new nodes.ProgramNode(nodeID, location, flags, locals, statements));
+          break;
+        }
+        case 123: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const right = stack.pop();
+          const left = stack.pop();
+          stack.push(new nodes.RangeNode(nodeID, location, flags, left, right, operatorLoc));
+          break;
+        }
+        case 124: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const numerator = readInteger();
+          const denominator = readInteger();
+          stack.push(new nodes.RationalNode(nodeID, location, flags, numerator, denominator));
+          break;
+        }
+        case 125: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.RedoNode(nodeID, location, flags));
+          break;
+        }
+        case 126: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const contentLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const unescaped = buffer.readStringField(flags);
+          stack.push(new nodes.RegularExpressionNode(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped));
+          break;
+        }
+        case 127: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          const nameLoc = buffer.readLocation();
+          stack.push(new nodes.RequiredKeywordParameterNode(nodeID, location, flags, name, nameLoc));
+          break;
+        }
+        case 128: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readRequiredConstant();
+          stack.push(new nodes.RequiredParameterNode(nodeID, location, flags, name));
+          break;
+        }
+        case 129: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const rescueExpression = stack.pop();
+          const expression = stack.pop();
+          stack.push(new nodes.RescueModifierNode(nodeID, location, flags, expression, keywordLoc, rescueExpression));
+          break;
+        }
+        case 130: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const exceptionsSize = buffer.readVarInt();
+          const operatorLoc = buffer.readOptionalLocation();
+          const thenKeywordLoc = buffer.readOptionalLocation();
+          const subsequent = stack.pop();
+          const statements = stack.pop();
+          const reference = stack.pop();
+          const exceptions = stack.splice(stack.length - exceptionsSize, exceptionsSize);
+          stack.push(new nodes.RescueNode(nodeID, location, flags, keywordLoc, exceptions, operatorLoc, reference, thenKeywordLoc, statements, subsequent));
+          break;
+        }
+        case 131: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const name = readOptionalConstant();
+          const nameLoc = buffer.readOptionalLocation();
+          const operatorLoc = buffer.readLocation();
+          stack.push(new nodes.RestParameterNode(nodeID, location, flags, name, nameLoc, operatorLoc));
+          break;
+        }
+        case 132: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.RetryNode(nodeID, location, flags));
+          break;
+        }
+        case 133: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const arguments_ = stack.pop();
+          stack.push(new nodes.ReturnNode(nodeID, location, flags, keywordLoc, arguments_));
+          break;
+        }
+        case 134: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.SelfNode(nodeID, location, flags));
+          break;
+        }
+        case 135: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const write = stack.pop();
+          stack.push(new nodes.ShareableConstantNode(nodeID, location, flags, write));
+          break;
+        }
+        case 136: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const locals = Array.from({ length: buffer.readVarInt() }, readRequiredConstant);
+          const classKeywordLoc = buffer.readLocation();
+          const operatorLoc = buffer.readLocation();
+          const endKeywordLoc = buffer.readLocation();
+          const body = stack.pop();
+          const expression = stack.pop();
+          stack.push(new nodes.SingletonClassNode(nodeID, location, flags, locals, classKeywordLoc, operatorLoc, expression, body, endKeywordLoc));
+          break;
+        }
+        case 137: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.SourceEncodingNode(nodeID, location, flags));
+          break;
+        }
+        case 138: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const filepath = buffer.readStringField(flags);
+          stack.push(new nodes.SourceFileNode(nodeID, location, flags, filepath));
+          break;
+        }
+        case 139: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.SourceLineNode(nodeID, location, flags));
+          break;
+        }
+        case 140: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const operatorLoc = buffer.readLocation();
+          const expression = stack.pop();
+          stack.push(new nodes.SplatNode(nodeID, location, flags, operatorLoc, expression));
+          break;
+        }
+        case 141: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const bodySize = buffer.readVarInt();
+          const body = stack.splice(stack.length - bodySize, bodySize);
+          stack.push(new nodes.StatementsNode(nodeID, location, flags, body));
+          break;
+        }
+        case 142: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const contentLoc = buffer.readLocation();
+          const closingLoc = buffer.readOptionalLocation();
+          const unescaped = buffer.readStringField(flags);
+          stack.push(new nodes.StringNode(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped));
+          break;
+        }
+        case 143: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const lparenLoc = buffer.readOptionalLocation();
+          const rparenLoc = buffer.readOptionalLocation();
+          const block = stack.pop();
+          const arguments_ = stack.pop();
+          stack.push(new nodes.SuperNode(nodeID, location, flags, keywordLoc, lparenLoc, arguments_, rparenLoc, block));
+          break;
+        }
+        case 144: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readOptionalLocation();
+          const contentLoc = buffer.readLocation();
+          const closingLoc = buffer.readOptionalLocation();
+          const unescaped = buffer.readStringField(flags);
+          stack.push(new nodes.SymbolNode(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped));
+          break;
+        }
+        case 145: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          stack.push(new nodes.TrueNode(nodeID, location, flags));
+          break;
+        }
+        case 146: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const namesSize = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const names = stack.splice(stack.length - namesSize, namesSize);
+          stack.push(new nodes.UndefNode(nodeID, location, flags, names, keywordLoc));
+          break;
+        }
+        case 147: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const unlessKeywordLoc = buffer.readLocation();
+          const thenKeywordLoc = buffer.readOptionalLocation();
+          const endKeywordLoc = buffer.readOptionalLocation();
+          const elseClause = stack.pop();
+          const statements = stack.pop();
+          const predicate = stack.pop();
+          stack.push(new nodes.UnlessNode(nodeID, location, flags, unlessKeywordLoc, predicate, thenKeywordLoc, statements, elseClause, endKeywordLoc));
+          break;
+        }
+        case 148: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const untilKeywordLoc = buffer.readLocation();
+          const doKeywordLoc = buffer.readOptionalLocation();
+          const endKeywordLoc = buffer.readOptionalLocation();
+          const statements = stack.pop();
+          const predicate = stack.pop();
+          stack.push(new nodes.UntilNode(nodeID, location, flags, untilKeywordLoc, doKeywordLoc, endKeywordLoc, predicate, statements));
+          break;
+        }
+        case 149: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const whenKeywordLoc = buffer.readLocation();
+          const conditionsSize = buffer.readVarInt();
+          const thenKeywordLoc = buffer.readOptionalLocation();
+          const statements = stack.pop();
+          const conditions = stack.splice(stack.length - conditionsSize, conditionsSize);
+          stack.push(new nodes.WhenNode(nodeID, location, flags, whenKeywordLoc, conditions, thenKeywordLoc, statements));
+          break;
+        }
+        case 150: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const whileKeywordLoc = buffer.readLocation();
+          const doKeywordLoc = buffer.readOptionalLocation();
+          const endKeywordLoc = buffer.readOptionalLocation();
+          const statements = stack.pop();
+          const predicate = stack.pop();
+          stack.push(new nodes.WhileNode(nodeID, location, flags, whileKeywordLoc, doKeywordLoc, endKeywordLoc, predicate, statements));
+          break;
+        }
+        case 151: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const openingLoc = buffer.readLocation();
+          const contentLoc = buffer.readLocation();
+          const closingLoc = buffer.readLocation();
+          const unescaped = buffer.readStringField(flags);
+          stack.push(new nodes.XStringNode(nodeID, location, flags, openingLoc, contentLoc, closingLoc, unescaped));
+          break;
+        }
+        case 152: {
+          const nodeID = buffer.readVarInt();
+          const location = buffer.readLocation();
+          const flags = buffer.readVarInt();
+          const keywordLoc = buffer.readLocation();
+          const lparenLoc = buffer.readOptionalLocation();
+          const rparenLoc = buffer.readOptionalLocation();
+          const arguments_ = stack.pop();
+          stack.push(new nodes.YieldNode(nodeID, location, flags, keywordLoc, lparenLoc, arguments_, rparenLoc));
+          break;
+        }
+        default:
+          throw new Error(`Unknown node type: ${type}`);
+      }
     }
-  }
 
-  function readOptionalNode() {
-    if (buffer.readByte() != 0) {
-      buffer.index -= 1;
-      return readRequiredNode();
-    } else {
-      return null;
+    if (buffer.index !== finish || stack.length !== 1) {
+      throw new Error("Expected the serialized nodes to end at the constant pool with exactly one root");
     }
+
+    return stack[0];
   }
 
   function scanConstant(constantIndex) {

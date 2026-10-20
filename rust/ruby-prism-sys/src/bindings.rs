@@ -7,9 +7,9 @@
 /** A constant id is a unique identifier for a constant in the constant pool.
 */
 pub type pm_constant_id_t = u32;
-/** The type of the string. This field determines how the string should be freed.
+/** A list of nodes in the source, most often used for lists of children.
 */
-pub type pm_string_t__bindgen_ty_1 = ::std::os::raw::c_uint;
+pub type pm_node_list_t = pm_node_list;
 /** This is the type of node embedded in the node struct. We explicitly control
  the size of it here to avoid having the variable-width enum.
 */
@@ -2583,37 +2583,6 @@ pub type pm_x_string_node_t = pm_x_string_node;
  @extends pm_node_t
 */
 pub type pm_yield_node_t = pm_yield_node;
-/** A callback function that can be used to process comments found while parsing.
-*/
-pub type pm_comment_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(comment: *const pm_comment_t, data: *mut ::std::os::raw::c_void),
->;
-/** A callback function that can be used to process magic comments found while parsing.
-*/
-pub type pm_magic_comment_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        magic_comment: *const pm_magic_comment_t,
-        data: *mut ::std::os::raw::c_void,
-    ),
->;
-/** A callback function that can be used to process diagnostics found while
- parsing.
-*/
-pub type pm_diagnostic_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        diagnostic: *const pm_diagnostic_t,
-        data: *mut ::std::os::raw::c_void,
-    ),
->;
-/** A callback function that can be used to process constants found while
- parsing.
-*/
-pub type pm_constant_callback_t = ::std::option::Option<
-    unsafe extern "C" fn(
-        constant: *const pm_constant_t,
-        data: *mut ::std::os::raw::c_void,
-    ),
->;
 /** Represents the results of a slice query.
 */
 pub type pm_string_query_t = ::std::os::raw::c_int;
@@ -2667,7 +2636,8 @@ pub struct pm_integer_t {
 */
     pub negative: bool,
 }
-/** A generic string type that can have various ownership semantics.
+/** A view of a sequence of bytes. The string does not own the bytes, so they
+ must remain valid for as long as the string is in use.
 */
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2678,7 +2648,6 @@ pub struct pm_string_t {
     /** The length of the string in bytes of memory.
 */
     pub length: usize,
-    pub type_: pm_string_t__bindgen_ty_1,
 }
 /** This struct represents a slice in the source code, defined by an offset and
  a length. Note that we have confirmation that we can represent all locations
@@ -2728,7 +2697,9 @@ pub struct pm_node {
 */
     pub flags: pm_node_flags_t,
     /** The unique identifier for this node, which is deterministic based on the
- source. It is used to identify unique nodes across parses.
+ source. It is used to identify unique nodes across parses. Nodes created
+ outside of parsing have no position in the source and can use 0, which
+ no parsed node uses.
 */
     pub node_id: u32,
     /** This is the location of the node in the source. It is a range of bytes
@@ -9691,15 +9662,6 @@ pub struct pm_options_t {
 pub struct pm_parser_t {
     _unused: [u8; 0],
 }
-/** This string is a constant string, and should not be freed.
-*/
-pub const PM_STRING_CONSTANT: pm_string_t__bindgen_ty_1 = 0;
-/** This is a slice of another string, and should not be freed.
-*/
-pub const PM_STRING_SHARED: pm_string_t__bindgen_ty_1 = 1;
-/** This string owns its memory, and should be freed internally.
-*/
-pub const PM_STRING_OWNED: pm_string_t__bindgen_ty_1 = 2;
 /** The default value for parameters.
 */
 pub const PM_OPTIONS_SCOPE_FORWARDING_NONE: u8 = 0;
@@ -11659,17 +11621,14 @@ unsafe extern "C" {
  @returns The length of the constant.
 */
     pub fn pm_constant_length(constant: *const pm_constant_t) -> usize;
-    /** Initialize a constant string that doesn't own its memory source.
+    /** Initialize a string that views the given bytes. The bytes are not copied, so
+ they must remain valid for as long as the string is in use.
 
  @param string The string to initialize.
- @param source The source of the string.
- @param length The length of the string.
+ @param source The start of the bytes.
+ @param length The number of bytes.
 */
-    pub fn pm_string_constant_init(
-        string: *mut pm_string_t,
-        source: *const ::std::os::raw::c_char,
-        length: usize,
-    );
+    pub fn pm_string_init(string: *mut pm_string_t, source: *const u8, length: usize);
     /** Returns the length associated with the string.
 
  @param string The string to get the length of.
@@ -11728,6 +11687,16 @@ unsafe extern "C" {
     pub fn pm_diagnostic_warning_level(
         diagnostic: *const pm_diagnostic_t,
     ) -> pm_warning_level_t;
+    /** Get the diagnostic that follows the given diagnostic among the errors or the
+ warnings of the parser that produced it.
+
+ @param diagnostic The diagnostic to get the successor of.
+ @returns The next diagnostic of the same kind, or NULL if the given
+     diagnostic is the last one.
+*/
+    pub fn pm_diagnostic_next(
+        diagnostic: *const pm_diagnostic_t,
+    ) -> *const pm_diagnostic_t;
     /** Returns the location associated with the given comment.
 
  @param comment the comment whose location we want to get
@@ -11741,6 +11710,13 @@ unsafe extern "C" {
      PM_COMMENT_INLINE or PM_COMMENT_EMBDOC.
 */
     pub fn pm_comment_type(comment: *const pm_comment_t) -> pm_comment_type_t;
+    /** Returns the comment that follows the given comment among the comments
+ associated with the parser that found it.
+
+ @param comment the comment whose successor we want to get
+ @returns the next comment, or NULL if the given comment is the last one
+*/
+    pub fn pm_comment_next(comment: *const pm_comment_t) -> *const pm_comment_t;
     /** Returns the line and column of the given offset. If the offset is not in the
  list, the line and column of the closest offset less than the given offset
  are returned.
@@ -11771,6 +11747,16 @@ unsafe extern "C" {
     pub fn pm_magic_comment_value(
         magic_comment: *const pm_magic_comment_t,
     ) -> pm_location_t;
+    /** Returns the magic comment that follows the given magic comment among the
+ magic comments associated with the parser that found it.
+
+ @param magic_comment the magic comment whose successor we want to get
+ @returns the next magic comment, or NULL if the given magic comment is the
+     last one
+*/
+    pub fn pm_magic_comment_next(
+        magic_comment: *const pm_magic_comment_t,
+    ) -> *const pm_magic_comment_t;
     /** Allocate a new options struct. If the options struct cannot be allocated,
  this function aborts the process.
 
@@ -11890,7 +11876,8 @@ unsafe extern "C" {
 */
     pub fn pm_options_scope_init(scope: *mut pm_options_scope_t, locals_count: usize);
     /** Return a mutable pointer to the local at the given index within the given
- scope.
+ scope, for setting the local's name with pm_string_init. The parser copies
+ the name when it is created, so its bytes must remain valid until then.
 
  @param scope The scope struct to get the local from.
  @param index The index of the local to get.
@@ -11943,6 +11930,26 @@ unsafe extern "C" {
  @returns the line that the parser was considered to have started on
 */
     pub fn pm_parser_start_line(parser: *const pm_parser_t) -> i32;
+    /** Add a constant to the parser's constant pool, for naming a node that was not
+ parsed from the source. If the constant is already in the pool, its existing
+ id is returned. Otherwise the parser copies the bytes, so they only need to
+ remain valid for the duration of the call.
+
+ Adding a constant makes the pool larger, so a cache with one entry per
+ constant built beforehand from pm_parser_constants_size and
+ pm_parser_constant_at does not cover it. Build such caches after adding any
+ constants.
+
+ @param parser the parser whose constant pool we want to add to
+ @param start a pointer to the start of the string to add
+ @param length the length of the string to add
+ @returns the id of the constant
+*/
+    pub fn pm_parser_constant_insert(
+        parser: *mut pm_parser_t,
+        start: *const u8,
+        length: usize,
+    ) -> pm_constant_id_t;
     /** Returns the frozen string literal value of the parser, as determined by the
  frozen_string_literal magic comment or the option set on the parser.
 
@@ -11972,42 +11979,34 @@ unsafe extern "C" {
  @returns the number of comments associated with the given parser
 */
     pub fn pm_parser_comments_size(parser: *const pm_parser_t) -> usize;
-    /** Iterates over the comments associated with the given parser and calls the
- given callback for each comment.
+    /** Returns the first comment associated with the given parser. Iterate over the
+ rest with pm_comment_next, as in:
+
+ ```c
+ for (const pm_comment_t *comment = pm_parser_comments_first(parser); comment != NULL; comment = pm_comment_next(comment)) {
+     pm_location_t location = pm_comment_location(comment);
+ }
+ ```
 
  @param parser the parser whose comments we want to iterate over
- @param callback the callback function to call for each comment. This function
-     will be passed a pointer to the comment and the data parameter passed to
-     this function.
- @param data the data to pass to the callback function for each comment. This
-     can be NULL if no data needs to be passed to the callback function.
+ @returns the first comment, or NULL if there are no comments
 */
-    pub fn pm_parser_comments_each(
-        parser: *const pm_parser_t,
-        callback: pm_comment_callback_t,
-        data: *mut ::std::os::raw::c_void,
-    );
+    pub fn pm_parser_comments_first(parser: *const pm_parser_t) -> *const pm_comment_t;
     /** Returns the number of magic comments associated with the given parser.
 
  @param parser the parser whose magic comments we want to get the size of
  @returns the number of magic comments associated with the given parser
 */
     pub fn pm_parser_magic_comments_size(parser: *const pm_parser_t) -> usize;
-    /** Iterates over the magic comments associated with the given parser and calls the
- given callback for each magic comment.
+    /** Returns the first magic comment associated with the given parser. Iterate
+ over the rest with pm_magic_comment_next.
 
  @param parser the parser whose magic comments we want to iterate over
- @param callback the callback function to call for each magic comment. This
-     function will be passed a pointer to the magic comment and the data
-     parameter passed to this function.
- @param data the data to pass to the callback function for each magic comment.
-     This can be NULL if no data needs to be passed to the callback function.
+ @returns the first magic comment, or NULL if there are no magic comments
 */
-    pub fn pm_parser_magic_comments_each(
+    pub fn pm_parser_magic_comments_first(
         parser: *const pm_parser_t,
-        callback: pm_magic_comment_callback_t,
-        data: *mut ::std::os::raw::c_void,
-    );
+    ) -> *const pm_magic_comment_t;
     /** Returns the number of errors associated with the given parser.
 
  @param parser the parser whose errors we want to get the size of
@@ -12020,36 +12019,22 @@ unsafe extern "C" {
  @returns the number of warnings associated with the given parser
 */
     pub fn pm_parser_warnings_size(parser: *const pm_parser_t) -> usize;
-    /** Iterates over the errors associated with the given parser and calls the
- given callback for each error.
+    /** Returns the first error associated with the given parser. Iterate over the
+ rest with pm_diagnostic_next.
 
  @param parser the parser whose errors we want to iterate over
- @param callback the callback function to call for each error. This function
-     will be passed a pointer to the error and the data parameter passed to
-     this function.
- @param data the data to pass to the callback function for each error. This
-     can be NULL if no data needs to be passed to the callback function.
+ @returns the first error, or NULL if there are no errors
 */
-    pub fn pm_parser_errors_each(
-        parser: *const pm_parser_t,
-        callback: pm_diagnostic_callback_t,
-        data: *mut ::std::os::raw::c_void,
-    );
-    /** Iterates over the warnings associated with the given parser and calls the
- given callback for each warning.
+    pub fn pm_parser_errors_first(parser: *const pm_parser_t) -> *const pm_diagnostic_t;
+    /** Returns the first warning associated with the given parser. Iterate over the
+ rest with pm_diagnostic_next.
 
  @param parser the parser whose warnings we want to iterate over
- @param callback the callback function to call for each warning. This function
-     will be passed a pointer to the warning and the data parameter passed to
-     this function.
- @param data the data to pass to the callback function for each warning. This
-     can be NULL if no data needs to be passed to the callback function.
+ @returns the first warning, or NULL if there are no warnings
 */
-    pub fn pm_parser_warnings_each(
+    pub fn pm_parser_warnings_first(
         parser: *const pm_parser_t,
-        callback: pm_diagnostic_callback_t,
-        data: *mut ::std::os::raw::c_void,
-    );
+    ) -> *const pm_diagnostic_t;
     /** Returns the number of constants in the constant pool associated with the
  given parser.
 
@@ -12059,26 +12044,39 @@ unsafe extern "C" {
      given parser
 */
     pub fn pm_parser_constants_size(parser: *const pm_parser_t) -> usize;
-    /** Iterates over the constants in the constant pool associated with the given
- parser and calls the given callback for each constant.
+    /** Returns the constant at the given index in the constant pool associated with
+ the given parser. Together with pm_constant_id_index, this lets a caller
+ build a cache with one entry per constant and then find the entry for any
+ constant id, as in:
 
- @param parser the parser whose constants we want to iterate over
- @param callback the callback function to call for each constant. This function
-     will be passed a pointer to the constant and the data parameter passed to
-     this function.
- @param data the data to pass to the callback function for each constant. This
-     can be NULL if no data needs to be passed to the callback function.
+ ```c
+ size_t size = pm_parser_constants_size(parser);
+ for (size_t index = 0; index < size; index++) {
+     cache[index] = convert(pm_parser_constant_at(parser, index));
+ }
+
+ value = cache[pm_constant_id_index(constant_id)];
+ ```
+
+ For any constant id, pm_parser_constant_at(parser,
+ pm_constant_id_index(constant_id)) is pm_parser_constant(parser,
+ constant_id).
+
+ @param parser the parser whose constant pool we want to look up from
+ @param index the index of the constant, which must be less than
+     pm_parser_constants_size(parser)
+ @returns a pointer to the constant at the given index
 */
-    pub fn pm_parser_constants_each(
+    pub fn pm_parser_constant_at(
         parser: *const pm_parser_t,
-        callback: pm_constant_callback_t,
-        data: *mut ::std::os::raw::c_void,
-    );
+        index: usize,
+    ) -> *const pm_constant_t;
     /** Returns a pointer to the constant at the given id in the constant pool
  associated with the given parser.
 
  @param parser the parser whose constant pool we want to look up from
- @param constant_id the id of the constant to look up (1-based)
+ @param constant_id the id of the constant to look up. Optional constant
+     fields on nodes hold 0 when they are absent, which is not a valid id.
  @returns a pointer to the constant at the given id
 */
     pub fn pm_parser_constant(
@@ -12091,6 +12089,20 @@ unsafe extern "C" {
  @returns The AST representing the source.
 */
     pub fn pm_parse(parser: *mut pm_parser_t) -> *mut pm_node_t;
+    /** Append a node to the end of a node list. If the list is full, its storage is
+ grown by allocating from the given arena, so the arena must live as long as
+ the list does. For a list in a parsed tree, that is the arena that was passed
+ to pm_parser_new.
+
+ @param arena The arena to allocate the list's storage from.
+ @param list The list to append to.
+ @param node The node to append.
+*/
+    pub fn pm_node_list_append(
+        arena: *mut pm_arena_t,
+        list: *mut pm_node_list_t,
+        node: *mut pm_node_t,
+    );
     /** Check that the slice is a valid local variable name.
 
  @param source The source to check.
