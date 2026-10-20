@@ -27,6 +27,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * This enum represents every type of token in the Ruby source.
  */
@@ -10367,5 +10371,9 @@ PRISM_EXPORTED_FUNCTION pm_yield_node_t * pm_yield_node_new(pm_arena_t *arena, u
  * those build systems.
  */
 #define PRISM_SERIALIZE_ONLY_SEMANTICS_FIELDS 0
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
