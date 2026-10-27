@@ -14,9 +14,7 @@ task check_manifest: :templates do
     autom4te.cache
     bin
     build
-    cpp
     doc
-    fuzz
     gemfiles
     javascript
     java
