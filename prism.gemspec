@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |spec|
   spec.name = "prism"
-  spec.version = "2.0.0"
+  spec.version = "2.1.0"
   spec.authors = ["Ruby developers"]
   spec.email = ["ruby-core@ruby-lang.org"]
 
@@ -83,6 +83,7 @@ Gem::Specification.new do |spec|
     "include/prism/internal/magic_comments.h",
     "include/prism/internal/memchr.h",
     "include/prism/internal/node.h",
+    "include/prism/internal/oom.h",
     "include/prism/internal/options.h",
     "include/prism/internal/parser.h",
     "include/prism/internal/regexp.h",
