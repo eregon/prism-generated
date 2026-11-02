@@ -6,9 +6,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ## [Unreleased]
 
+### Added
+
+- `pm_options_stack_budget_set` was added to the C API. It sets the number of bytes of C stack the parser may use before reporting that the source is nested too deeply, instead of overflowing the stack. `SIZE_MAX` means no budget, which is the default. The nesting depth limit alone assumes a stack of roughly 8MB, so embedders that parse on a smaller stack, such as a thread's or a fiber's, should pass a budget.
+
 ### Changed
 
 - `Prism::Translation::Parser` now returns a `nil` AST whenever an error is reported and errors are not fatal, matching the parser gem.
+- `PRISM_BUILD_MINIMAL` now excludes the full set of encodings, as `PRISM_ENCODING_EXCLUDE_FULL` does.
 
 ## [2.1.0] - 2026-10-28
 

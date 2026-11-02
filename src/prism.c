@@ -1847,7 +1847,7 @@ char_is_identifier_start(const pm_parser_t *parser, const uint8_t *b, ptrdiff_t 
             return 0;
         }
     } else if (*b < 0x80) {
-        return (pm_encoding_unicode_table[*b] & PRISM_ENCODING_ALPHABETIC_BIT ? 1 : 0) || (*b == '_');
+        return (pm_encoding_ascii_table[*b] & PRISM_ENCODING_ALPHABETIC_BIT ? 1 : 0) || (*b == '_');
     } else {
         return pm_encoding_utf_8_char_width(b, n);
     }
@@ -1862,7 +1862,7 @@ char_is_identifier_utf8(const uint8_t *b, ptrdiff_t n) {
     if (n <= 0) {
         return 0;
     } else if (*b < 0x80) {
-        return (*b == '_') || (pm_encoding_unicode_table[*b] & PRISM_ENCODING_ALPHANUMERIC_BIT ? 1 : 0);
+        return (*b == '_') || (pm_encoding_ascii_table[*b] & PRISM_ENCODING_ALPHANUMERIC_BIT ? 1 : 0);
     } else {
         return pm_encoding_utf_8_char_width(b, n);
     }
@@ -17849,7 +17849,7 @@ static pm_node_t *
 parse_pattern(pm_parser_t *parser, pm_constant_id_set_t *captures, uint8_t flags, pm_diagnostic_id_t diag_id, uint16_t depth) {
     /* Nested patterns recurse back into parse_pattern without passing through
      * parse_expression, so this cycle needs its own depth check. */
-    if (PRISM_UNLIKELY(depth >= PRISM_DEPTH_MAXIMUM)) {
+    if (PRISM_UNLIKELY(depth >= PRISM_DEPTH_MAXIMUM || pm_parser_stack_exhausted(parser))) {
         pm_parser_err_current(parser, PM_ERR_NESTING_TOO_DEEP);
         return UP(pm_error_recovery_node_create(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current)));
     }
@@ -22818,7 +22818,7 @@ parse_expression_terminator(pm_parser_t *parser, pm_node_t *node) {
  */
 static pm_node_t *
 parse_expression(pm_parser_t *parser, pm_binding_power_t binding_power, uint8_t flags, pm_diagnostic_id_t diag_id, uint16_t depth) {
-    if (PRISM_UNLIKELY(depth >= PRISM_DEPTH_MAXIMUM)) {
+    if (PRISM_UNLIKELY(depth >= PRISM_DEPTH_MAXIMUM || pm_parser_stack_exhausted(parser))) {
         pm_parser_err_current(parser, PM_ERR_NESTING_TOO_DEEP);
         return UP(pm_error_recovery_node_create(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current)));
     }
@@ -23240,6 +23240,8 @@ pm_parser_init(pm_arena_t *arena, pm_parser_t *parser, const uint8_t *source, si
         .pattern_matching_newlines = false,
         .in_keyword_arg = false,
         .current_block_exits = NULL,
+        .stack_base = 0,
+        .stack_budget = SIZE_MAX,
         .semantic_token_seen = false,
         .frozen_string_literal = PM_OPTIONS_FROZEN_STRING_LITERAL_UNSET,
         .warn_mismatched_indentation = true
@@ -23302,6 +23304,9 @@ pm_parser_init(pm_arena_t *arena, pm_parser_t *parser, const uint8_t *source, si
 
         // attach_comments
         parser->attach_comments = options->attach_comments;
+
+        // stack_budget
+        parser->stack_budget = options->stack_budget;
 
         // scopes option
         parser->parsing_eval = options->scopes_count > 0;
@@ -23649,6 +23654,7 @@ pm_parse_continuable(pm_parser_t *parser) {
  */
 pm_node_t *
 pm_parse(pm_parser_t *parser) {
+    parser->stack_base = pm_stack_address();
     pm_node_t *node = parse_program(parser);
     pm_parse_continuable(parser);
     if (parser->attach_comments) pm_comments_attach(parser, node);
