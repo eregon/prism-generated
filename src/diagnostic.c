@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PM_DIAGNOSTIC_ID_MAX 327
+#define PM_DIAGNOSTIC_ID_MAX 328
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -90,6 +90,7 @@ typedef struct {
  * * `PM_ERROR_LEVEL_SYNTAX` - Errors that should raise SyntaxError.
  * * `PM_ERROR_LEVEL_ARGUMENT` - Errors that should raise ArgumentError.
  * * `PM_ERROR_LEVEL_LOAD` - Errors that should raise LoadError.
+ * * `PM_ERROR_LEVEL_STACK` - Errors that should raise SystemStackError.
  *
  * For warnings, they are:
  *
@@ -105,6 +106,9 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
 
     /* Errors that should raise load errors */
     [PM_ERR_SCRIPT_NOT_FOUND]                   = { "no Ruby script found in input", PM_ERROR_LEVEL_LOAD },
+
+    /* Errors that should raise system stack errors */
+    [PM_ERR_STACK_EXHAUSTED]                    = { "stack level too deep", PM_ERROR_LEVEL_STACK },
 
     /* Errors that should raise syntax errors */
     [PM_ERR_ALIAS_ARGUMENT]                     = { "invalid argument being passed to `alias`; expected a bare word, symbol, constant, or global variable", PM_ERROR_LEVEL_SYNTAX },
@@ -704,6 +708,7 @@ pm_diagnostic_id_name(pm_diagnostic_id_t diag_id) {
         case PM_ERR_RETURN_INVALID: return "return_invalid";
         case PM_ERR_SCRIPT_NOT_FOUND: return "script_not_found";
         case PM_ERR_SINGLETON_FOR_LITERALS: return "singleton_for_literals";
+        case PM_ERR_STACK_EXHAUSTED: return "stack_exhausted";
         case PM_ERR_STATEMENT_ALIAS: return "statement_alias";
         case PM_ERR_STATEMENT_POSTEXE_END: return "statement_postexe_end";
         case PM_ERR_STATEMENT_PREEXE_BEGIN: return "statement_preexe_begin";

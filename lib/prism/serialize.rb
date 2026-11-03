@@ -665,6 +665,7 @@ module Prism
         :return_invalid,
         :script_not_found,
         :singleton_for_literals,
+        :stack_exhausted,
         :statement_alias,
         :statement_postexe_end,
         :statement_preexe_begin,
@@ -744,6 +745,8 @@ module Prism
           :argument
         when 2
           :load
+        when 3
+          :stack
         else
           raise "Unknown level: #{level}"
         end

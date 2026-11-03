@@ -252,7 +252,7 @@ export class ParseResult {
   }
 }
 
-const errorLevels = ["syntax", "argument", "load"];
+const errorLevels = ["syntax", "argument", "load", "stack"];
 const errorTypes = [
   "alias_argument",
   "alias_argument_numbered_reference",
@@ -517,6 +517,7 @@ const errorTypes = [
   "return_invalid",
   "script_not_found",
   "singleton_for_literals",
+  "stack_exhausted",
   "statement_alias",
   "statement_postexe_end",
   "statement_preexe_begin",
