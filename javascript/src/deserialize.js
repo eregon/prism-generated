@@ -85,7 +85,7 @@ class SerializationBuffer {
 
     while (true) {
       const byte = this.readByte();
-      result += (byte & 0x7f) << shift;
+      result |= (byte & 0x7f) << shift;
       shift += 7;
 
       if ((byte & 0x80) === 0) {
@@ -93,7 +93,7 @@ class SerializationBuffer {
       }
     }
 
-    return result;
+    return result >>> 0;
   }
 
   readLocation() {
@@ -379,7 +379,6 @@ const errorTypes = [
   "expression_not_writable_numbered",
   "expression_not_writable_self",
   "expression_not_writable_true",
-  "float_parse",
   "for_collection",
   "for_in",
   "for_index",
@@ -2323,6 +2322,7 @@ export function deserialize(source, array) {
   function readInteger() {
     const negative = buffer.readByte() != 0;
     const length = buffer.readVarInt();
+    if (length == 0) return 0;
 
     const firstWord = buffer.readVarInt();
     if (length == 1) {

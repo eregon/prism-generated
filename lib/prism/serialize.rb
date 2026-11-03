@@ -527,7 +527,6 @@ module Prism
         :expression_not_writable_numbered,
         :expression_not_writable_self,
         :expression_not_writable_true,
-        :float_parse,
         :for_collection,
         :for_in,
         :for_index,

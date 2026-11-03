@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PM_DIAGNOSTIC_ID_MAX 328
+#define PM_DIAGNOSTIC_ID_MAX 327
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -235,7 +235,6 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_EXPRESSION_NOT_WRITABLE_NUMBERED]   = { "Can't assign to numbered parameter %.2s", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPRESSION_NOT_WRITABLE_SELF]       = { "Can't change the value of self", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_EXPRESSION_NOT_WRITABLE_TRUE]       = { "Can't assign to true", PM_ERROR_LEVEL_SYNTAX },
-    [PM_ERR_FLOAT_PARSE]                        = { "could not parse the float '%.*s'", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_FOR_COLLECTION]                     = { "expected a collection after the `in` in a `for` statement", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_FOR_INDEX]                          = { "expected an index after `for`", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_FOR_IN]                             = { "expected an `in` after the index in a `for` statement", PM_ERROR_LEVEL_SYNTAX },
@@ -570,7 +569,6 @@ pm_diagnostic_id_name(pm_diagnostic_id_t diag_id) {
         case PM_ERR_EXPRESSION_NOT_WRITABLE_NUMBERED: return "expression_not_writable_numbered";
         case PM_ERR_EXPRESSION_NOT_WRITABLE_SELF: return "expression_not_writable_self";
         case PM_ERR_EXPRESSION_NOT_WRITABLE_TRUE: return "expression_not_writable_true";
-        case PM_ERR_FLOAT_PARSE: return "float_parse";
         case PM_ERR_FOR_COLLECTION: return "for_collection";
         case PM_ERR_FOR_IN: return "for_in";
         case PM_ERR_FOR_INDEX: return "for_index";

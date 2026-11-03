@@ -11,9 +11,9 @@
 #include "prism/internal/comments.h"
 #include "prism/internal/constant_pool.h"
 #include "prism/internal/diagnostic.h"
+#include "prism/internal/double.h"
 #include "prism/internal/encoding.h"
 #include "prism/internal/integer.h"
-#include "prism/internal/isinf.h"
 #include "prism/internal/line_offset_list.h"
 #include "prism/internal/list.h"
 #include "prism/internal/magic_comments.h"
@@ -37,10 +37,7 @@
 #include "prism/version.h"
 
 #include <assert.h>
-#include <errno.h>
 #include <limits.h>
-#include <locale.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -2293,20 +2290,6 @@ static size_t
 pm_statements_node_body_length(pm_statements_node_t *node);
 
 /**
- * Move an integer's values array into the arena. If the integer has heap-
- * allocated values, copy them to the arena and free the original.
- */
-static PRISM_INLINE void
-pm_integer_arena_move(pm_arena_t *arena, pm_integer_t *integer) {
-    if (integer->values != NULL) {
-        size_t byte_size = integer->length * sizeof(uint32_t);
-        uint32_t *old_values = integer->values;
-        integer->values = (uint32_t *) pm_arena_memdup(arena, old_values, byte_size, PRISM_ALIGNOF(uint32_t));
-        xfree(old_values);
-    }
-}
-
-/**
  * Allocate a new ErrorRecoveryNode node with no unexpected child.
  */
 static pm_error_recovery_node_t *
@@ -4121,65 +4104,16 @@ pm_find_pattern_node_create(pm_parser_t *parser, pm_node_list_t *nodes) {
 }
 
 /**
- * Parse the value of a double, add appropriate errors if there is an issue, and
- * return the value that should be saved on the PM_FLOAT_NODE node.
+ * Parse the value of a double, add a warning if it is out of range, and return
+ * the value that should be saved on the PM_FLOAT_NODE node.
  */
 static double
-pm_double_parse(pm_parser_t *parser, const pm_token_t *token) {
-    ptrdiff_t diff = token->end - token->start;
-    if (diff <= 0) return 0.0;
+pm_float_node_value(pm_parser_t *parser, const pm_token_t *token) {
+    bool out_of_range;
+    double value = pm_double_parse(token->start, token->end, &out_of_range);
 
-    // First, get a buffer of the content.
-    size_t length = (size_t) diff;
-    const size_t buffer_size = sizeof(char) * (length + 1);
-    char *buffer = xmalloc(buffer_size);
-    if (buffer == NULL) PRISM_OOM();
-
-    memcpy((void *) buffer, token->start, length);
-
-    // Next, determine if we need to replace the decimal point because of
-    // locale-specific options, and then normalize them if we have to.
-    char decimal_point = *localeconv()->decimal_point;
-    if (decimal_point != '.') {
-        for (size_t index = 0; index < length; index++) {
-            if (buffer[index] == '.') buffer[index] = decimal_point;
-        }
-    }
-
-    /*
-     * Next, handle underscores by removing them from the buffer in a single
-     * pass to avoid quadratic-time copies.
-     */
-    {
-        size_t write = 0;
-        for (size_t read = 0; read < length; read++) {
-            if (buffer[read] != '_') buffer[write++] = buffer[read];
-        }
-        length = write;
-    }
-
-    // Null-terminate the buffer so that strtod cannot read off the end.
-    buffer[length] = '\0';
-
-    // Now, call strtod to parse the value. Note that CRuby has their own
-    // version of strtod which avoids locales. We're okay using the locale-aware
-    // version because we've already validated through the parser that the token
-    // is in a valid format.
-    errno = 0;
-    char *eptr;
-    double value = strtod(buffer, &eptr);
-
-    // This should never happen, because we've already checked that the token
-    // is in a valid format. However it's good to be safe.
-    if ((eptr != buffer + length) || (errno != 0 && errno != ERANGE)) {
-        PM_PARSER_ERR_TOKEN_FORMAT_CONTENT(parser, token, PM_ERR_FLOAT_PARSE);
-        xfree_sized(buffer, buffer_size);
-        return 0.0;
-    }
-
-    // If errno is set, then it should only be ERANGE. At this point we need to
-    // check if it's infinity (it should be).
-    if (errno == ERANGE && PRISM_ISINF(value)) {
+    if (out_of_range) {
+        size_t length = PM_TOKEN_LENGTH(token);
         int warn_width;
         const char *ellipsis;
 
@@ -4192,11 +4126,8 @@ pm_double_parse(pm_parser_t *parser, const pm_token_t *token) {
         }
 
         pm_diagnostic_list_append_format(&parser->metadata_arena, &parser->warning_list, PM_TOKEN_START(parser, token), PM_TOKEN_LENGTH(token), PM_WARN_FLOAT_OUT_OF_RANGE, warn_width, (const char *) token->start, ellipsis);
-        value = (value < 0.0) ? -HUGE_VAL : HUGE_VAL;
     }
 
-    // Finally we can free the buffer and return the value.
-    xfree_sized(buffer, buffer_size);
     return value;
 }
 
@@ -4212,7 +4143,7 @@ pm_float_node_create(pm_parser_t *parser, const pm_token_t *token) {
         ++parser->node_id,
         PM_NODE_FLAG_STATIC_LITERAL,
         PM_LOCATION_INIT_TOKEN(parser, token),
-        pm_double_parse(parser, token)
+        pm_float_node_value(parser, token)
     );
 }
 
@@ -4252,40 +4183,7 @@ pm_float_node_rational_create(pm_parser_t *parser, const pm_token_t *token) {
         ((pm_integer_t) { 0 })
     );
 
-    const uint8_t *start = token->start;
-    const uint8_t *end = token->end - 1; // r
-
-    while (start < end && *start == '0') start++; // 0.1 -> .1
-    while (end > start && end[-1] == '0') end--; // 1.0 -> 1.
-
-    size_t length = (size_t) (end - start);
-    if (length == 1) {
-        node->denominator.value = 1;
-        return node;
-    }
-
-    const uint8_t *point = memchr(start, '.', length);
-    assert(point && "should have a decimal point");
-
-    uint8_t *digits = xmalloc(length);
-    if (digits == NULL) PRISM_OOM();
-
-    memcpy(digits, start, (unsigned long) (point - start));
-    memcpy(digits + (point - start), point + 1, (unsigned long) (end - point - 1));
-    pm_integer_parse(&node->numerator, PM_INTEGER_BASE_DEFAULT, digits, digits + length - 1);
-
-    size_t fract_length = 0;
-    for (const uint8_t *fract = point; fract < end; ++fract) {
-        if (*fract != '_') ++fract_length;
-    }
-    digits[0] = '1';
-    if (fract_length > 1) memset(digits + 1, '0', fract_length - 1);
-    pm_integer_parse(&node->denominator, PM_INTEGER_BASE_DEFAULT, digits, digits + fract_length);
-    xfree_sized(digits, length);
-
-    pm_integers_reduce(&node->numerator, &node->denominator);
-    pm_integer_arena_move(parser->arena, &node->numerator);
-    pm_integer_arena_move(parser->arena, &node->denominator);
+    pm_integer_parse_rational(parser->arena, &node->numerator, &node->denominator, token->start, token->end - 1);
     return node;
 }
 
@@ -4781,10 +4679,9 @@ pm_integer_node_create(pm_parser_t *parser, pm_node_flags_t base, const pm_token
         ((pm_integer_t) { 0 })
     );
 
-    if (parser->integer.lexed) {
+    if (parser->integer.start == token->start) {
         // The value was already computed during lexing.
-        node->value.value = parser->integer.value;
-        parser->integer.lexed = false;
+        node->value = pm_integer_uint64(parser->integer.value);
     } else {
         pm_integer_base_t integer_base = PM_INTEGER_BASE_DECIMAL;
         switch (base) {
@@ -4795,8 +4692,7 @@ pm_integer_node_create(pm_parser_t *parser, pm_node_flags_t base, const pm_token
             default: assert(false && "unreachable"); break;
         }
 
-        pm_integer_parse(&node->value, integer_base, token->start, token->end);
-        pm_integer_arena_move(parser->arena, &node->value);
+        pm_integer_parse(parser->arena, &node->value, integer_base, token->start, token->end);
     }
 
     return node;
@@ -4837,7 +4733,7 @@ pm_integer_node_rational_create(pm_parser_t *parser, pm_node_flags_t base, const
         base | PM_NODE_FLAG_STATIC_LITERAL,
         PM_LOCATION_INIT_TOKEN(parser, token),
         ((pm_integer_t) { 0 }),
-        ((pm_integer_t) { .value = 1 })
+        pm_integer_uint64(1)
     );
 
     pm_integer_base_t integer_base = PM_INTEGER_BASE_DECIMAL;
@@ -4849,8 +4745,7 @@ pm_integer_node_rational_create(pm_parser_t *parser, pm_node_flags_t base, const
         default: assert(false && "unreachable"); break;
     }
 
-    pm_integer_parse(&node->numerator, integer_base, token->start, token->end - 1);
-    pm_integer_arena_move(parser->arena, &node->numerator);
+    pm_integer_parse(parser->arena, &node->numerator, integer_base, token->start, token->end - 1);
 
     return node;
 }
@@ -8294,6 +8189,12 @@ lex_numeric_prefix(pm_parser_t *parser, bool* seen_e) {
                 type = lex_optional_float_suffix(parser, seen_e);
                 break;
             }
+
+            /* Anything else ends the literal, which is just 0. */
+            default:
+                parser->integer.value = 0;
+                parser->integer.start = parser->current.start;
+                break;
         }
     } else {
         // If it didn't start with a 0, then we'll lex as far as we can into a
@@ -8304,18 +8205,18 @@ lex_numeric_prefix(pm_parser_t *parser, bool* seen_e) {
             const uint8_t *end = parser->end;
             uint64_t value = (uint64_t) (cursor[-1] - '0');
 
-            bool has_underscore = false;
+            size_t underscores = 0;
             bool prev_underscore = false;
             const uint8_t *invalid = NULL;
 
             while (cursor < end) {
                 uint8_t c = *cursor;
                 if (c >= '0' && c <= '9') {
-                    if (value <= UINT32_MAX) value = value * 10 + (uint64_t) (c - '0');
+                    value = value * 10 + (uint64_t) (c - '0');
                     prev_underscore = false;
                     cursor++;
                 } else if (c == '_') {
-                    has_underscore = true;
+                    underscores++;
                     if (prev_underscore && invalid == NULL) invalid = cursor;
                     prev_underscore = true;
                     cursor++;
@@ -8324,14 +8225,17 @@ lex_numeric_prefix(pm_parser_t *parser, bool* seen_e) {
                 }
             }
 
-            if (has_underscore) {
+            if (underscores > 0) {
                 if (prev_underscore && invalid == NULL) invalid = cursor - 1;
                 pm_strspn_number_validate(parser, parser->current.end, (size_t) (cursor - parser->current.end), invalid);
             }
 
-            if (value <= UINT32_MAX) {
-                parser->integer.value = (uint32_t) value;
-                parser->integer.lexed = true;
+            /* This literal does not start with 0, so at most 19 digits means
+             * it is below 10**19 and value has not wrapped. */
+            size_t digits = (size_t) (cursor - parser->current.end) + 1 - underscores;
+            if (digits <= 19) {
+                parser->integer.value = value;
+                parser->integer.start = parser->current.start;
             }
 
             parser->current.end = cursor;
@@ -8345,12 +8249,6 @@ lex_numeric_prefix(pm_parser_t *parser, bool* seen_e) {
             uint8_t next = peek(parser);
             if (next == '.' || next == 'e' || next == 'E') {
                 type = lex_optional_float_suffix(parser, seen_e);
-
-                // If it turned out to be a float, the cached integer value is
-                // invalid.
-                if (type != PM_TOKEN_INTEGER) {
-                    parser->integer.lexed = false;
-                }
             }
         }
     }
@@ -8372,7 +8270,6 @@ static pm_token_type_t
 lex_numeric(pm_parser_t *parser) {
     pm_token_type_t type = PM_TOKEN_INTEGER;
     parser->integer.base = PM_INTEGER_BASE_FLAGS_DECIMAL;
-    parser->integer.lexed = false;
 
     if (parser->current.end < parser->end) {
         bool seen_e = false;
@@ -23524,7 +23421,6 @@ pm_parse_err_is_fatal(pm_diagnostic_id_t diag_id) {
         case PM_ERR_ESCAPE_INVALID_UNICODE_SHORT:
         case PM_ERR_EXPRESSION_NOT_WRITABLE:
         case PM_ERR_EXPRESSION_NOT_WRITABLE_SELF:
-        case PM_ERR_FLOAT_PARSE:
         case PM_ERR_GLOBAL_VARIABLE_BARE:
         case PM_ERR_HASH_KEY:
         case PM_ERR_HEREDOC_IDENTIFIER:
