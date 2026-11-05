@@ -15560,6 +15560,25 @@ parse_block(pm_parser_t *parser, uint16_t depth) {
 }
 
 /**
+ * Returns the flags to parse arguments with inside of the delimiters of a call
+ * (`foo(...)`) or an index (`foo[...]`).
+ *
+ * Since Ruby 3.4, a command call with a `do` block is accepted as the only
+ * argument inside the parentheses of a call, as in `foo(bar baz do end)`. Inside
+ * the brackets of an index, as in `foo[bar baz do end]`, it is accepted only by
+ * Ruby 3.4 and 4.0, whose default parser (prism) shipped accepting it. Ruby 3.3
+ * uses parse.y, which rejects both. See https://bugs.ruby-lang.org/issues/21168.
+ */
+static uint8_t
+parse_delimited_arguments_flags(const pm_parser_t *parser, uint8_t flags, bool index) {
+    if (parser->version >= PM_OPTIONS_VERSION_CRUBY_3_4 && (!index || parser->version <= PM_OPTIONS_VERSION_CRUBY_4_0)) {
+        return (uint8_t) (flags | PM_PARSE_ACCEPTS_DO_BLOCK);
+    }
+
+    return (uint8_t) (flags & ~PM_PARSE_ACCEPTS_DO_BLOCK);
+}
+
+/**
  * Parse a list of arguments and their surrounding parentheses if they are
  * present. It returns true if it found any pieces of arguments (parentheses,
  * arguments, or blocks).
@@ -15592,7 +15611,7 @@ parse_arguments_list(pm_parser_t *parser, pm_arguments_t *arguments, bool full_a
         if (accept1(parser, PM_TOKEN_PARENTHESIS_RIGHT)) {
             arguments->closing_loc = TOK2LOC(parser, &parser->previous);
         } else {
-            parse_arguments(parser, arguments, full_arguments, PM_TOKEN_PARENTHESIS_RIGHT, (uint8_t) (flags & ~PM_PARSE_ACCEPTS_DO_BLOCK), (uint16_t) (depth + 1));
+            parse_arguments(parser, arguments, full_arguments, PM_TOKEN_PARENTHESIS_RIGHT, parse_delimited_arguments_flags(parser, flags, false), (uint16_t) (depth + 1));
 
             // `yield` parses its arguments through the restricted `call_args`
             // grammar, which (unlike the `opt_call_args` that method calls and
@@ -22430,7 +22449,7 @@ parse_aref(pm_parser_t *parser, pm_node_t *node, pm_binding_power_t previous_bin
     arguments.opening_loc = TOK2LOC(parser, &parser->previous);
 
     if (!accept1(parser, PM_TOKEN_BRACKET_RIGHT)) {
-        parse_arguments(parser, &arguments, false, PM_TOKEN_BRACKET_RIGHT, (uint8_t) (flags & ~PM_PARSE_ACCEPTS_DO_BLOCK), (uint16_t) (depth + 1));
+        parse_arguments(parser, &arguments, false, PM_TOKEN_BRACKET_RIGHT, parse_delimited_arguments_flags(parser, flags, true), (uint16_t) (depth + 1));
         expect1(parser, PM_TOKEN_BRACKET_RIGHT, PM_ERR_EXPECT_RBRACKET);
     }
 
