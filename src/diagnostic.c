@@ -13,9 +13,9 @@
 
 #include "prism/internal/allocator.h"
 #include "prism/internal/arena.h"
+#include "prism/internal/assert.h"
 #include "prism/internal/list.h"
 
-#include <assert.h>
 #include <inttypes.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -773,24 +773,24 @@ pm_diagnostic_id_name(pm_diagnostic_id_t diag_id) {
         case PM_WARN_VOID_STATEMENT: return "void_statement";
     }
 
-    assert(false && "unreachable");
+    PRISM_ASSERT(false && "unreachable");
     return "";
 }
 
 static PRISM_INLINE const char *
 pm_diagnostic_id_message(pm_diagnostic_id_t diag_id) {
-    assert(diag_id < PM_DIAGNOSTIC_ID_MAX);
+    PRISM_ASSERT(diag_id < PM_DIAGNOSTIC_ID_MAX);
     PRISM_ASSUME(diag_id < PM_DIAGNOSTIC_ID_MAX);
 
     const char *message = diagnostic_messages[diag_id].message;
-    assert(message);
+    PRISM_ASSERT(message);
 
     return message;
 }
 
 static PRISM_INLINE uint8_t
 pm_diagnostic_id_level(pm_diagnostic_id_t diag_id) {
-    assert(diag_id < PM_DIAGNOSTIC_ID_MAX);
+    PRISM_ASSERT(diag_id < PM_DIAGNOSTIC_ID_MAX);
     PRISM_ASSUME(diag_id < PM_DIAGNOSTIC_ID_MAX);
 
     return (uint8_t) diagnostic_messages[diag_id].level;

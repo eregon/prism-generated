@@ -23,12 +23,14 @@ typedef int pm_serialize_unused_t;
 #include "prism/compiler/inline.h"
 
 #include "prism/internal/allocator.h"
+#include "prism/internal/assert.h"
 #include "prism/internal/buffer.h"
 #include "prism/internal/comments.h"
 #include "prism/internal/diagnostic.h"
 #include "prism/internal/encoding.h"
 #include "prism/internal/list.h"
 #include "prism/internal/magic_comments.h"
+#include "prism/internal/oom.h"
 #include "prism/internal/options.h"
 #include "prism/internal/parser.h"
 
@@ -36,21 +38,19 @@ typedef int pm_serialize_unused_t;
 #include "prism/ast.h"
 #include "prism/line_offset_list.h"
 
-#include <assert.h>
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 static PRISM_INLINE uint32_t
 pm_ptrdifft_to_u32(ptrdiff_t value) {
-    assert(value >= 0 && ((unsigned long) value) < UINT32_MAX);
+    PRISM_ASSERT(value >= 0 && ((unsigned long) value) < UINT32_MAX);
     return (uint32_t) value;
 }
 
 static PRISM_INLINE uint32_t
 pm_sizet_to_u32(size_t value) {
-    assert(value < UINT32_MAX);
+    PRISM_ASSERT(value < UINT32_MAX);
     return (uint32_t) value;
 }
 
@@ -143,10 +143,7 @@ pm_serialize_stack_push(pm_serialize_stack_t *stack, pm_serialize_entry_kind_t k
         size_t capacity = stack->capacity == 0 ? 64 : stack->capacity * 2;
         pm_serialize_entry_t *entries = (pm_serialize_entry_t *) xrealloc_sized(stack->entries, capacity * sizeof(pm_serialize_entry_t), stack->capacity * sizeof(pm_serialize_entry_t));
 
-        if (PRISM_UNLIKELY(entries == NULL)) {
-            fprintf(stderr, "prism: out of memory; aborting\n");
-            abort();
-        }
+        if (PRISM_UNLIKELY(entries == NULL)) PRISM_OOM();
 
         stack->entries = entries;
         stack->capacity = capacity;
@@ -2526,7 +2523,7 @@ pm_serialize_metadata(pm_parser_t *parser, pm_buffer_t *buffer) {
     pm_buffer_append_byte(buffer, (uint8_t) parser->continuable);
 }
 
-#line 462 "prism/templates/src/serialize.c.erb"
+#line 459 "prism/templates/src/serialize.c.erb"
 /**
  * Serialize the metadata, nodes, and constant pool.
  */

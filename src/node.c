@@ -10,8 +10,7 @@
 #include "prism/internal/node.h"
 
 #include "prism/internal/arena.h"
-
-#include <stdlib.h>
+#include "prism/internal/oom.h"
 
 /**
  * Attempts to grow the node list to the next size. If there is already
@@ -24,7 +23,7 @@ pm_node_list_grow(pm_arena_t *arena, pm_node_list_t *list, size_t size) {
     size_t requested_size = list->size + size;
 
     // Guard against overflow on the addition.
-    if (requested_size < list->size) abort();
+    if (requested_size < list->size) PRISM_OOM();
 
     // If the requested size is within the existing capacity, return.
     if (requested_size <= list->capacity) return;
@@ -34,7 +33,7 @@ pm_node_list_grow(pm_arena_t *arena, pm_node_list_t *list, size_t size) {
 
     // Guard against overflow on the doubling.
     while (requested_size > next_capacity) {
-        if (next_capacity == 0) abort();
+        if (next_capacity == 0) PRISM_OOM();
         next_capacity *= 2;
     }
 

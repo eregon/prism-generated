@@ -8,7 +8,7 @@
 
 #include "prism/ast.h"
 
-#include <assert.h>
+#include "prism/internal/assert.h"
 
 /**
  * Returns a string representation of the given token type.
@@ -357,13 +357,13 @@ pm_token_type(pm_token_type_t token_type) {
         case PM_TOKEN___END__:
             return "__END__";
         case PM_TOKEN_MAXIMUM:
-            assert(false && "unreachable");
+            PRISM_ASSERT(false && "unreachable");
             return "";
     }
 
     // Provide a default, because some compilers can't determine that the above
     // switch is exhaustive.
-    assert(false && "unreachable");
+    PRISM_ASSERT(false && "unreachable");
     return "";
 }
 
@@ -713,12 +713,12 @@ pm_token_str(pm_token_type_t token_type) {
         case PM_TOKEN___END__:
             return "'__END__'";
         case PM_TOKEN_MAXIMUM:
-            assert(false && "unreachable");
+            PRISM_ASSERT(false && "unreachable");
             return "";
     }
 
     /* Provide a default, because some compilers cannot determine that the above
      * switch is exhaustive. */
-    assert(false && "unreachable");
+    PRISM_ASSERT(false && "unreachable");
     return "";
 }
