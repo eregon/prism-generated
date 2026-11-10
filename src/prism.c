@@ -1866,26 +1866,18 @@ pm_arguments_validate_block(pm_parser_t *parser, pm_arguments_t *arguments, pm_b
 
 /**
  * This function is used extremely frequently to lex all of the identifiers in a
- * source file, so it's important that it be as fast as possible. For this
- * reason we have the encoding_changed boolean to check if we need to go through
- * the function pointer or can just directly use the UTF-8 functions.
+ * source file, so it's important that it be as fast as possible. Every encoding
+ * that prism supports is ASCII-compatible, so a byte below 0x80 is the same
+ * character in all of them and is checked against the Unicode table. Only the
+ * bytes above it go through the parser's encoding, and only when the encoding
+ * has changed; otherwise they use the UTF-8 functions directly.
  */
 static PRISM_INLINE size_t
 char_is_identifier_start(const pm_parser_t *parser, const uint8_t *b, ptrdiff_t n) {
     if (n <= 0) return 0;
 
-    if (parser->encoding_changed) {
-        size_t width;
-
-        if ((width = parser->encoding->alpha_char(b, n)) != 0) {
-            return width;
-        } else if (*b == '_') {
-            return 1;
-        } else if (*b >= 0x80) {
-            return parser->encoding->char_width(b, n);
-        } else {
-            return 0;
-        }
+    if (parser->encoding_changed && *b >= 0x80) {
+        return pm_encoding_char_width(parser->encoding, b, n);
     } else if (*b < 0x80) {
         return (pm_encoding_ascii_table[*b] & PRISM_ENCODING_ALPHABETIC_BIT ? 1 : 0) || (*b == '_');
     } else {
@@ -1895,7 +1887,8 @@ char_is_identifier_start(const pm_parser_t *parser, const uint8_t *b, ptrdiff_t 
 
 /**
  * Similar to char_is_identifier but this function assumes that the encoding
- * has not been changed.
+ * has not been changed, or that the byte is below 0x80 and so is the same
+ * character in every encoding.
  */
 static PRISM_INLINE size_t
 char_is_identifier_utf8(const uint8_t *b, ptrdiff_t n) {
@@ -2095,18 +2088,8 @@ static PRISM_INLINE size_t
 char_is_identifier(const pm_parser_t *parser, const uint8_t *b, ptrdiff_t n) {
     if (n <= 0) {
         return 0;
-    } else if (parser->encoding_changed) {
-        size_t width;
-
-        if ((width = parser->encoding->alnum_char(b, n)) != 0) {
-            return width;
-        } else if (*b == '_') {
-            return 1;
-        } else if (*b >= 0x80) {
-            return parser->encoding->char_width(b, n);
-        } else {
-            return 0;
-        }
+    } else if (parser->encoding_changed && *b >= 0x80) {
+        return pm_encoding_char_width(parser->encoding, b, n);
     } else {
         return char_is_identifier_utf8(b, n);
     }
@@ -6603,7 +6586,7 @@ parse_symbol_encoding_validate_other(pm_parser_t *parser, const pm_token_t *loca
     const pm_encoding_t *encoding = parser->encoding;
 
     for (const uint8_t *cursor = pm_string_source(contents), *end = cursor + pm_string_length(contents); cursor < end;) {
-        size_t width = encoding->char_width(cursor, end - cursor);
+        size_t width = pm_encoding_char_width(encoding, cursor, end - cursor);
 
         if (width == 0) {
             pm_parser_err(parser, PM_TOKEN_START(parser, location), PM_TOKEN_LENGTH(location), PM_ERR_INVALID_SYMBOL);
@@ -7578,7 +7561,7 @@ parser_lex_magic_comment_encoding(pm_parser_t *parser) {
     }
 
     const uint8_t *value_start = cursor;
-    while ((*cursor == '-' || *cursor == '_' || parser->encoding->alnum_char(cursor, 1)) && ++cursor < end);
+    while ((*cursor == '-' || *cursor == '_' || pm_encoding_alnum_char(parser->encoding, cursor, 1)) && ++cursor < end);
 
     if (!parser_lex_magic_comment_encoding_value(parser, value_start, cursor)) {
         // If we were unable to parse the encoding value, then we've got an
@@ -8470,7 +8453,7 @@ lex_global_variable(pm_parser_t *parser) {
                 // If we get here, then we have a $ followed by something that
                 // isn't recognized as a global variable.
                 pm_diagnostic_id_t diag_id = parser->version <= PM_OPTIONS_VERSION_CRUBY_3_3 ? PM_ERR_INVALID_VARIABLE_GLOBAL_3_3 : PM_ERR_INVALID_VARIABLE_GLOBAL;
-                size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
+                size_t width = pm_encoding_char_width(parser->encoding, parser->current.end, parser->end - parser->current.end);
                 PM_PARSER_ERR_FORMAT(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current) + U32(width), diag_id, (int) (PM_TOKEN_LENGTH(&parser->current) + U32(width)), (const char *) parser->current.start);
             }
 
@@ -8626,17 +8609,18 @@ lex_identifier(pm_parser_t *parser, bool previous_command_start) {
     const uint8_t *current_end = parser->current.end;
     bool encoding_changed = parser->encoding_changed;
 
+    /* Fast path: scan ASCII identifier bytes using wide operations. Every
+     * encoding that prism supports is ASCII-compatible, so this holds whether
+     * or not the encoding has been changed. */
+    current_end += scan_identifier_ascii(current_end, end);
+
+    /* Byte-at-a-time fallback for the tail and any multibyte characters. */
+    size_t width;
     if (encoding_changed) {
-        size_t width;
         while ((width = char_is_identifier(parser, current_end, end - current_end)) > 0) {
             current_end += width;
         }
     } else {
-        /* Fast path: scan ASCII identifier bytes using wide operations. */
-        current_end += scan_identifier_ascii(current_end, end);
-
-        /* Byte-at-a-time fallback for the tail and any UTF-8 sequences. */
-        size_t width;
         while ((width = char_is_identifier_utf8(current_end, end - current_end)) > 0) {
             current_end += width;
         }
@@ -8752,7 +8736,7 @@ lex_identifier(pm_parser_t *parser, bool previous_command_start) {
     }
 
     if (encoding_changed) {
-        return parser->encoding->isupper_char(current_start, end - current_start) ? PM_TOKEN_CONSTANT : PM_TOKEN_IDENTIFIER;
+        return pm_encoding_isupper_char(parser->encoding, current_start, end - current_start) ? PM_TOKEN_CONSTANT : PM_TOKEN_IDENTIFIER;
     }
 
     /* Identifiers usually start with an ASCII byte, for which the uppercase
@@ -9096,13 +9080,41 @@ escape_consume_newline(pm_parser_t *parser, uint32_t width) {
 }
 
 /**
+ * Write the byte that a malformed escape stands for, which is a NUL byte with
+ * the meta and control flags of the escapes that wrap it applied.
+ */
+static PRISM_INLINE void
+escape_write_invalid(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
+    escape_write_byte(parser, buffer, flags, escape_byte(0, flags));
+}
+
+/**
+ * Skip the character that makes a meta or control escape malformed, which
+ * belongs to the escape rather than to the content that follows it.
+ */
+static PRISM_INLINE void
+escape_skip_char(pm_parser_t *parser) {
+    if (parser->current.end >= parser->end) return;
+
+    size_t eol_length = match_eol(parser);
+    if (eol_length > 0) {
+        escape_consume_newline(parser, U32(eol_length));
+        parser->current.end += eol_length;
+        return;
+    }
+
+    size_t width = pm_encoding_char_width(parser->encoding, parser->current.end, parser->end - parser->current.end);
+    parser->current.end += (width == 0 ? 1 : width);
+}
+
+/**
  * Write each byte of the given escaped character into the buffer.
  */
 static PRISM_INLINE void
 escape_write_escape_encoded(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
     size_t width;
     if (parser->encoding_changed) {
-        width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
+        width = pm_encoding_char_width(parser->encoding, parser->current.end, parser->end - parser->current.end);
     } else {
         width = pm_encoding_utf_8_char_width(parser->current.end, parser->end - parser->current.end);
     }
@@ -9182,6 +9194,11 @@ escape_consume_modified_byte(pm_parser_t *parser, uint8_t byte, uint8_t flags, u
  * loop back to the top with the accumulated flags rather than recursing, so
  * that arbitrarily long chains of prefixes use constant stack space regardless
  * of whether the compiler eliminates tail calls.
+ *
+ * A malformed control or meta escape ends at the character that makes it
+ * malformed, and stands for the byte that escape_write_invalid writes. The
+ * escapes that wrap it apply their flags to that byte, so \M-\M-a is the byte
+ * 0x80 followed by the characters -a.
  */
 static void
 escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
@@ -9290,6 +9307,12 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
                 escape_write_byte_encoded(parser, buffer, flags, value);
             } else {
                 pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_HEXADECIMAL);
+
+                /* A malformed hex escape in a regular expression stands for
+                 * nothing unless another escape wraps it. */
+                if (!(flags & PM_ESCAPE_FLAG_REGEXP) || (flags & (PM_ESCAPE_FLAG_CONTROL | PM_ESCAPE_FLAG_META))) {
+                    escape_write_invalid(parser, buffer, flags);
+                }
             }
 
             return;
@@ -9419,65 +9442,32 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
 
             return;
         }
-        case 'c': {
-            parser->current.end++;
-            if (flags & PM_ESCAPE_FLAG_CONTROL) {
-                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT);
-            }
-
-            if (parser->current.end == parser->end) {
-                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL);
-                return;
-            }
-
-            uint8_t peeked = peek(parser);
-            switch (peeked) {
-                case '?': {
-                    parser->current.end++;
-                    escape_write_byte(parser, buffer, flags, escape_byte(0x7f, flags));
-                    return;
-                }
-                case '\\':
-                    parser->current.end++;
-
-                    if (match(parser, 'u') || match(parser, 'U')) {
-                        pm_parser_err(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current), PM_ERR_INVALID_ESCAPE_CHARACTER);
-                        return;
-                    }
-
-                    flags |= PM_ESCAPE_FLAG_CONTROL;
-                    goto escape_read_next;
-                case ' ':
-                    parser->current.end++;
-                    escape_read_warn(parser, flags, PM_ESCAPE_FLAG_CONTROL, "\\s");
-                    escape_write_byte(parser, buffer, flags, escape_byte(peeked, flags | PM_ESCAPE_FLAG_CONTROL));
-                    return;
-                default: {
-                    if (!char_is_ascii_printable(peeked)) {
-                        pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL);
-                        return;
-                    }
-
-                    escape_write_byte(parser, buffer, flags, escape_byte(escape_consume_modified_byte(parser, peeked, flags, 0), flags | PM_ESCAPE_FLAG_CONTROL));
-                    return;
-                }
-            }
-        }
         case 'C': {
             parser->current.end++;
-            if (flags & PM_ESCAPE_FLAG_CONTROL) {
-                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT);
-            }
 
             if (peek(parser) != '-') {
-                size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
-                pm_parser_err(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current) + U32(width), PM_ERR_ESCAPE_INVALID_CONTROL);
+                escape_skip_char(parser);
+                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL);
+                escape_write_invalid(parser, buffer, flags);
                 return;
             }
 
+            /* After its dash, a \C- escape is read the same as a \c escape,
+             * starting by skipping the dash in place of the c. */
+            PRISM_FALLTHROUGH
+        }
+        case 'c': {
             parser->current.end++;
+
+            if (flags & PM_ESCAPE_FLAG_CONTROL) {
+                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT);
+                escape_write_invalid(parser, buffer, flags);
+                return;
+            }
+
             if (parser->current.end == parser->end) {
                 pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL);
+                escape_write_invalid(parser, buffer, flags);
                 return;
             }
 
@@ -9493,6 +9483,7 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
 
                     if (match(parser, 'u') || match(parser, 'U')) {
                         pm_parser_err(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current), PM_ERR_INVALID_ESCAPE_CHARACTER);
+                        escape_write_invalid(parser, buffer, flags);
                         return;
                     }
 
@@ -9505,8 +9496,9 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
                     return;
                 default: {
                     if (!char_is_ascii_printable(peeked)) {
-                        size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
-                        pm_parser_err(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current) + U32(width), PM_ERR_ESCAPE_INVALID_CONTROL);
+                        escape_skip_char(parser);
+                        pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_CONTROL);
+                        escape_write_invalid(parser, buffer, flags);
                         return;
                     }
 
@@ -9517,19 +9509,24 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
         }
         case 'M': {
             parser->current.end++;
+
             if (flags & PM_ESCAPE_FLAG_META) {
                 pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_META_REPEAT);
+                escape_write_invalid(parser, buffer, flags);
+                return;
             }
 
             if (peek(parser) != '-') {
-                size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
-                pm_parser_err(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current) + U32(width), PM_ERR_ESCAPE_INVALID_META);
+                escape_skip_char(parser);
+                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_META);
+                escape_write_invalid(parser, buffer, flags);
                 return;
             }
 
             parser->current.end++;
             if (parser->current.end == parser->end) {
                 pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_META);
+                escape_write_invalid(parser, buffer, flags);
                 return;
             }
 
@@ -9540,6 +9537,7 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
 
                     if (match(parser, 'u') || match(parser, 'U')) {
                         pm_parser_err(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current), PM_ERR_INVALID_ESCAPE_CHARACTER);
+                        escape_write_invalid(parser, buffer, flags);
                         return;
                     }
 
@@ -9552,8 +9550,9 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
                     return;
                 default:
                     if (!char_is_ascii_printable(peeked)) {
-                        size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
-                        pm_parser_err(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current) + U32(width), PM_ERR_ESCAPE_INVALID_META);
+                        escape_skip_char(parser);
+                        pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_META);
+                        escape_write_invalid(parser, buffer, flags);
                         return;
                     }
 
@@ -9571,15 +9570,23 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
             PRISM_FALLTHROUGH
         }
         default: {
-            if ((flags & (PM_ESCAPE_FLAG_CONTROL | PM_ESCAPE_FLAG_META)) && !char_is_ascii_printable(peeked)) {
-                size_t width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
-                pm_parser_err(parser, PM_TOKEN_START(parser, &parser->current), PM_TOKEN_LENGTH(&parser->current) + U32(width), PM_ERR_ESCAPE_INVALID_META);
+            /* A meta or control escape may wrap an escape of any ASCII
+             * character, including the control characters that it may not
+             * wrap directly, but not one of a character that is not ASCII. */
+            bool wrapped = (flags & (PM_ESCAPE_FLAG_CONTROL | PM_ESCAPE_FLAG_META)) != 0;
+
+            if (wrapped && parser->current.end < parser->end && peeked >= 0x80) {
+                escape_skip_char(parser);
+                pm_parser_err_current(parser, PM_ERR_ESCAPE_INVALID_META);
+                escape_write_invalid(parser, buffer, flags);
                 return;
             }
+
             if (parser->current.end < parser->end) {
                 escape_write_escape_encoded(parser, buffer, flags);
             } else {
                 pm_parser_err_current(parser, PM_ERR_INVALID_ESCAPE_CHARACTER);
+                if (wrapped) escape_write_invalid(parser, buffer, flags);
             }
             return;
         }
@@ -9653,12 +9660,12 @@ lex_question_mark(pm_parser_t *parser) {
 
         return PM_TOKEN_CHARACTER_LITERAL;
     } else {
-        size_t encoding_width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
+        size_t encoding_width = pm_encoding_char_width(parser->encoding, parser->current.end, parser->end - parser->current.end);
 
         // Ternary operators can have a ? immediately followed by an identifier
         // which starts with an underscore. We check for this case here.
         if (
-            !(parser->encoding->alnum_char(parser->current.end, parser->end - parser->current.end) || peek(parser) == '_') ||
+            !(pm_encoding_alnum_char(parser->encoding, parser->current.end, parser->end - parser->current.end) || peek(parser) == '_') ||
             (
                 (parser->current.end + encoding_width >= parser->end) ||
                 !char_is_identifier(parser, parser->current.end + encoding_width, parser->end - (parser->current.end + encoding_width))
@@ -9696,7 +9703,7 @@ lex_at_variable(pm_parser_t *parser) {
             diag_id = (type == PM_TOKEN_CLASS_VARIABLE) ? PM_ERR_INCOMPLETE_VARIABLE_CLASS_3_3 : PM_ERR_INCOMPLETE_VARIABLE_INSTANCE_3_3;
         }
 
-        size_t width = parser->encoding->char_width(parser->current.end, end - parser->current.end);
+        size_t width = pm_encoding_char_width(parser->encoding, parser->current.end, end - parser->current.end);
         PM_PARSER_ERR_TOKEN_FORMAT(parser, &parser->current, diag_id, (int) ((parser->current.end + width) - parser->current.start), (const char *) parser->current.start);
     } else {
         pm_diagnostic_id_t diag_id = (type == PM_TOKEN_CLASS_VARIABLE) ? PM_ERR_CLASS_VARIABLE_BARE : PM_ERR_INSTANCE_VARIABLE_BARE;
@@ -9891,7 +9898,7 @@ static PRISM_INLINE size_t
 parser_char_width(const pm_parser_t *parser) {
     size_t width;
     if (parser->encoding_changed) {
-        width = parser->encoding->char_width(parser->current.end, parser->end - parser->current.end);
+        width = pm_encoding_char_width(parser->encoding, parser->current.end, parser->end - parser->current.end);
     } else {
         width = pm_encoding_utf_8_char_width(parser->current.end, parser->end - parser->current.end);
     }
@@ -11216,7 +11223,7 @@ parser_lex(pm_parser_t *parser) {
                         (lex_state_p(parser, PM_LEX_STATE_FITEM) && (peek(parser) == 's')) ||
                         lex_state_spcarg_p(parser, space_seen)
                     ) {
-                        if (!parser->encoding->alnum_char(parser->current.end, parser->end - parser->current.end)) {
+                        if (!pm_encoding_alnum_char(parser->encoding, parser->current.end, parser->end - parser->current.end)) {
                             if (*parser->current.end >= 0x80) {
                                 pm_parser_err_current(parser, PM_ERR_INVALID_PERCENT);
                                 goto lex_next_token;
@@ -11230,7 +11237,7 @@ parser_lex(pm_parser_t *parser) {
                         // Delimiters for %-literals cannot be alphanumeric. We
                         // validate that here.
                         uint8_t delimiter = peek_offset(parser, 1);
-                        if (delimiter >= 0x80 || parser->encoding->alnum_char(&delimiter, 1)) {
+                        if (delimiter >= 0x80 || pm_encoding_alnum_char(parser->encoding, &delimiter, 1)) {
                             pm_parser_err_current(parser, PM_ERR_INVALID_PERCENT);
                             goto lex_next_token;
                         }
@@ -13404,7 +13411,7 @@ parse_target(pm_parser_t *parser, pm_node_t *target, bool multiple, bool splat_p
                     return UP(pm_local_variable_target_node_create(parser, &message_loc, name, 0));
                 }
 
-                if (peek_at(parser, parser->start + call->message_loc.start) == '_' || parser->encoding->alnum_char(parser->start + call->message_loc.start, (ptrdiff_t) call->message_loc.length)) {
+                if (peek_at(parser, parser->start + call->message_loc.start) == '_' || pm_encoding_alnum_char(parser->encoding, parser->start + call->message_loc.start, (ptrdiff_t) call->message_loc.length)) {
                     if (multiple && PM_NODE_FLAG_P(call, PM_CALL_NODE_FLAGS_SAFE_NAVIGATION)) {
                         pm_parser_err_node(parser, (const pm_node_t *) call, PM_ERR_UNEXPECTED_SAFE_NAVIGATION);
                     }
@@ -14002,7 +14009,7 @@ parse_assocs(pm_parser_t *parser, pm_static_literals_t *literals, pm_node_t *nod
                 if (token_begins_expression_p(parser->current.type)) {
                     value = parse_value_expression(parser, PM_BINDING_POWER_DEFINED, PM_PARSE_ACCEPTS_DO_BLOCK, PM_ERR_HASH_EXPRESSION_AFTER_LABEL, (uint16_t) (depth + 1));
                 } else {
-                    if (parser->encoding->isupper_char(label.start, (label.end - 1) - label.start)) {
+                    if (pm_encoding_isupper_char(parser->encoding, label.start, (label.end - 1) - label.start)) {
                         pm_token_t constant = { .type = PM_TOKEN_CONSTANT, .start = label.start, .end = label.end - 1 };
                         value = UP(pm_constant_read_node_create(parser, &constant));
                     } else {
@@ -14143,7 +14150,7 @@ pm_constant_path_command_call_p(const pm_parser_t *parser, const pm_call_node_t 
         call->call_operator_loc.length > 0 &&
         parser->start[call->call_operator_loc.start] == ':' &&
         call->message_loc.length > 0 &&
-        parser->encoding->isupper_char(parser->start + call->message_loc.start, (ptrdiff_t) call->message_loc.length)
+        pm_encoding_isupper_char(parser->encoding, parser->start + call->message_loc.start, (ptrdiff_t) call->message_loc.length)
     );
 }
 
@@ -14920,7 +14927,7 @@ parse_parameters(
                 pm_token_t local = name;
                 local.end -= 1;
 
-                if (parser->encoding_changed ? parser->encoding->isupper_char(local.start, local.end - local.start) : pm_encoding_utf_8_isupper_char(local.start, local.end - local.start)) {
+                if (parser->encoding_changed ? pm_encoding_isupper_char(parser->encoding, local.start, local.end - local.start) : pm_encoding_utf_8_isupper_char(local.start, local.end - local.start)) {
                     pm_parser_err(parser, PM_TOKEN_START(parser, &local), PM_TOKEN_LENGTH(&local), PM_ERR_ARGUMENT_FORMAL_CONSTANT);
                 } else if (local.end[-1] == '!' || local.end[-1] == '?') {
                     PM_PARSER_ERR_TOKEN_FORMAT_CONTENT(parser, &local, PM_ERR_INVALID_LOCAL_VARIABLE_WRITE);
@@ -17317,7 +17324,7 @@ pm_slice_is_valid_local(const pm_parser_t *parser, const uint8_t *start, const u
 
     // Next, ensure that it's not an uppercase character.
     if (parser->encoding_changed) {
-        if (parser->encoding->isupper_char(start, length)) return false;
+        if (pm_encoding_isupper_char(parser->encoding, start, length)) return false;
     } else {
         if (pm_encoding_utf_8_isupper_char(start, length)) return false;
     }

@@ -1,6 +1,5 @@
 #include "prism/internal/encoding.h"
 
-#include "prism/compiler/unused.h"
 #include "prism/internal/assert.h"
 #include "prism/internal/strncasecmp.h"
 
@@ -447,7 +446,10 @@ static const uint8_t pm_unicode_leaf[219][8] = {
 
 /**
  * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding US-ASCII character.
+ * piece of information about the corresponding US-ASCII character. It is also
+ * the table of every single-byte encoding whose bytes above 0x7F have none of
+ * these properties, and of every multibyte encoding, whose characters beyond
+ * ASCII take their properties from their code points or forms instead.
  */
 const uint8_t pm_encoding_ascii_table[256] = {
 /*  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F */
@@ -633,103 +635,34 @@ pm_encoding_utf_8_isupper_char(const uint8_t *b, ptrdiff_t n) {
 
 #ifndef PRISM_ENCODING_EXCLUDE_FULL
 
+/**
+ * Decode the code point of a character in the CESU-8 encoding that is the
+ * given number of bytes long.
+ */
 static pm_unicode_codepoint_t
-pm_cesu_8_codepoint(const uint8_t *b, ptrdiff_t n, size_t *width) {
-
-    if ((n > 0) && (b[0] < 0x80)) {
-        *width = 1;
-        return (pm_unicode_codepoint_t) b[0];
+pm_cesu_8_codepoint(const uint8_t *b, size_t width) {
+    switch (width) {
+        case 1:
+            return (pm_unicode_codepoint_t) b[0];
+        case 2:
+            /* 110xxxxx 10xxxxxx */
+            return (pm_unicode_codepoint_t) (((b[0] & 0x1F) << 6) | (b[1] & 0x3F));
+        case 3:
+            /* 1110xxxx 10xxxxxx 10xxxxxx */
+            return (pm_unicode_codepoint_t) (((b[0] & 0xF) << 12) | ((b[1] & 0x3F) << 6) | (b[2] & 0x3F));
+        default:
+            /* 11101101 1010xxxx 10xxxxxx 11101101 1011xxxx 10xxxxxx */
+            return (pm_unicode_codepoint_t) (0x10000 + (((b[1] & 0xF) << 16) | ((b[2] & 0x3F) << 10) | ((b[4] & 0xF) << 6) | (b[5] & 0x3F)));
     }
-
-    if (n > 1 && b[0] >= 0xC2 && b[0] <= 0xDF && b[1] >= 0x80 && b[1] <= 0xBF) {
-        *width = 2;
-
-        // 110xxxxx 10xxxxxx
-        return (pm_unicode_codepoint_t) (((b[0] & 0x1F) << 6) | (b[1] & 0x3F));
-    }
-
-    if (n > 5 && b[0] == 0xED && b[1] >= 0xA0 && b[1] <= 0xAF && b[2] >= 0x80 && b[2] <= 0xBF && b[3] == 0xED && b[4] >= 0xB0 && b[4] <= 0xBF && b[5] >= 0x80 && b[5] <= 0xBF) {
-        *width = 6;
-
-        // 11101101 1010xxxx 10xxxxxx 11101101 1011xxxx 10xxxxxx
-        return (pm_unicode_codepoint_t) (0x10000 + (((b[1] & 0xF) << 16) | ((b[2] & 0x3F) << 10) | ((b[4] & 0xF) << 6) | (b[5] & 0x3F)));
-    }
-
-    if (n > 2 && b[0] == 0xED && b[1] >= 0xA0 && b[1] <= 0xBF) {
-        *width = 3;
-
-        // 11101101 1010xxxx 10xxxxx
-        return (pm_unicode_codepoint_t) (0x10000 + (((b[0] & 0x03) << 16) | ((b[1] & 0x3F) << 10) | (b[2] & 0x3F)));
-    }
-
-    if (n > 2 && ((b[0] == 0xE0 && b[1] >= 0xA0) || (b[0] >= 0xE1 && b[0] <= 0xEF && b[1] >= 0x80)) && b[1] <= 0xBF && b[2] >= 0x80 && b[2] <= 0xBF) {
-        *width = 3;
-
-        // 1110xxxx 10xxxxxx 10xxxxx
-        return (pm_unicode_codepoint_t) (((b[0] & 0xF) << 12) | ((b[1] & 0x3F) << 6) | (b[2] & 0x3F));
-    }
-
-    *width = 0;
-    return 0;
 }
 
-static size_t
-pm_encoding_cesu_8_char_width(const uint8_t *b, ptrdiff_t n) {
-    if (n == 0) {
-        return 0;
-    }
-
-    size_t width;
-    pm_cesu_8_codepoint(b, n, &width);
-    return width;
-}
-
-static size_t
-pm_encoding_cesu_8_alpha_char(const uint8_t *b, ptrdiff_t n) {
-    if (n == 0) {
-        return 0;
-    }
-
-    if (*b < 0x80) {
-        return (pm_encoding_ascii_table[*b] & PRISM_ENCODING_ALPHABETIC_BIT) ? 1 : 0;
-    }
-
-    size_t width;
-    pm_unicode_codepoint_t codepoint = pm_cesu_8_codepoint(b, n, &width);
-
-    return (pm_unicode_codepoint_properties(codepoint) & PRISM_ENCODING_ALPHABETIC_BIT) ? width : 0;
-}
-
-static size_t
-pm_encoding_cesu_8_alnum_char(const uint8_t *b, ptrdiff_t n) {
-    if (n == 0) {
-        return 0;
-    }
-
-    if (*b < 0x80) {
-        return (pm_encoding_ascii_table[*b] & (PRISM_ENCODING_ALPHANUMERIC_BIT)) ? 1 : 0;
-    }
-
-    size_t width;
-    pm_unicode_codepoint_t codepoint = pm_cesu_8_codepoint(b, n, &width);
-
-    return (pm_unicode_codepoint_properties(codepoint) & (PRISM_ENCODING_ALPHANUMERIC_BIT)) ? width : 0;
-}
-
+/**
+ * Return true if the character in the CESU-8 encoding that is the given number
+ * of bytes long has the given property, which is that of its code point.
+ */
 static bool
-pm_encoding_cesu_8_isupper_char(const uint8_t *b, ptrdiff_t n) {
-    if (n == 0) {
-        return 0;
-    }
-
-    if (*b < 0x80) {
-        return (pm_encoding_ascii_table[*b] & PRISM_ENCODING_UPPERCASE_BIT) ? true : false;
-    }
-
-    size_t width;
-    pm_unicode_codepoint_t codepoint = pm_cesu_8_codepoint(b, n, &width);
-
-    return (pm_unicode_codepoint_properties(codepoint) & PRISM_ENCODING_UPPERCASE_BIT) ? true : false;
+pm_cesu_8_property_p(const uint8_t *b, size_t width, uint8_t property) {
+    return (pm_unicode_codepoint_properties(pm_cesu_8_codepoint(b, width)) & property) != 0;
 }
 
 #endif
@@ -739,464 +672,8 @@ pm_encoding_cesu_8_isupper_char(const uint8_t *b, ptrdiff_t n) {
 #ifndef PRISM_ENCODING_EXCLUDE_FULL
 
 /**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding CP850 character.
- */
-static const uint8_t pm_encoding_cp850_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding CP852 character.
- */
-static const uint8_t pm_encoding_cp852_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding CP855 character.
- */
-static const uint8_t pm_encoding_cp855_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding GB1988 character.
- */
-static const uint8_t pm_encoding_gb1988_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM437 character.
- */
-static const uint8_t pm_encoding_ibm437_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM720 character.
- */
-static const uint8_t pm_encoding_ibm720_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM737 character.
- */
-static const uint8_t pm_encoding_ibm737_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM775 character.
- */
-static const uint8_t pm_encoding_ibm775_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM852 character.
- */
-static const uint8_t pm_encoding_ibm852_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM855 character.
- */
-static const uint8_t pm_encoding_ibm855_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM857 character.
- */
-static const uint8_t pm_encoding_ibm857_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM860 character.
- */
-static const uint8_t pm_encoding_ibm860_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM861 character.
- */
-static const uint8_t pm_encoding_ibm861_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM862 character.
- */
-static const uint8_t pm_encoding_ibm862_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM863 character.
- */
-static const uint8_t pm_encoding_ibm863_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM864 character.
- */
-static const uint8_t pm_encoding_ibm864_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM865 character.
- */
-static const uint8_t pm_encoding_ibm865_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM866 character.
- */
-static const uint8_t pm_encoding_ibm866_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding IBM869 character.
- */
-static const uint8_t pm_encoding_ibm869_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding ISO-8859-1 character.
+ * The properties of the bytes in ISO-8859-1. ISO-8859-9 has the same letters and digits
+ * in the same cases, so it shares this table.
  */
 static const uint8_t pm_encoding_iso_8859_1_table[256] = {
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -1315,8 +792,8 @@ static const uint8_t pm_encoding_iso_8859_5_table[256] = {
 };
 
 /**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding ISO-8859-6 character.
+ * The properties of the bytes in ISO-8859-6. Windows-1256 has the same letters and digits
+ * in the same cases, so it shares this table.
  */
 static const uint8_t pm_encoding_iso_8859_6_table[256] = {
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -1363,8 +840,8 @@ static const uint8_t pm_encoding_iso_8859_7_table[256] = {
 };
 
 /**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding ISO-8859-8 character.
+ * The properties of the bytes in ISO-8859-8. Windows-1255 has the same letters and digits
+ * in the same cases, so it shares this table.
  */
 static const uint8_t pm_encoding_iso_8859_8_table[256] = {
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -1384,30 +861,6 @@ static const uint8_t pm_encoding_iso_8859_8_table[256] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Ex
     3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding ISO-8859-9 character.
- */
-static const uint8_t pm_encoding_iso_8859_9_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, // Bx
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // Cx
-    7, 7, 7, 7, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7, 7, 3, // Dx
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Ex
-    3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, // Fx
 };
 
 /**
@@ -1435,8 +888,8 @@ static const uint8_t pm_encoding_iso_8859_10_table[256] = {
 };
 
 /**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding ISO-8859-11 character.
+ * The properties of the bytes in ISO-8859-11. TIS-620 has the same letters and digits
+ * in the same cases, so it shares this table.
  */
 static const uint8_t pm_encoding_iso_8859_11_table[256] = {
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -1459,8 +912,8 @@ static const uint8_t pm_encoding_iso_8859_11_table[256] = {
 };
 
 /**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding ISO-8859-13 character.
+ * The properties of the bytes in ISO-8859-13. Windows-1257 has the same letters and digits
+ * in the same cases, so it shares this table.
  */
 static const uint8_t pm_encoding_iso_8859_13_table[256] = {
 //  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
@@ -1602,271 +1055,7 @@ static const uint8_t pm_encoding_koi8_u_table[256] = {
     7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // Fx
 };
 
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macCentEuro character.
- */
-static const uint8_t pm_encoding_mac_cent_euro_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macCroatian character.
- */
-static const uint8_t pm_encoding_mac_croatian_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
  /**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macCyrillic character.
- */
-static const uint8_t pm_encoding_mac_cyrillic_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macGreek character.
- */
-static const uint8_t pm_encoding_mac_greek_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macIceland character.
- */
-static const uint8_t pm_encoding_mac_iceland_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macRoman character.
- */
-static const uint8_t pm_encoding_mac_roman_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macRomania character.
- */
-static const uint8_t pm_encoding_mac_romania_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macThai character.
- */
-static const uint8_t pm_encoding_mac_thai_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding TIS-620 character.
- */
-static const uint8_t pm_encoding_tis_620_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Ax
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Bx
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Cx
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 3, // Dx
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Ex
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macTurkish character.
- */
-static const uint8_t pm_encoding_mac_turkish_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding macUkraine character.
- */
-static const uint8_t pm_encoding_mac_ukraine_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
  * Each element of the following table contains a bitfield that indicates a
  * piece of information about the corresponding windows-1250 character.
  */
@@ -1986,563 +1175,459 @@ static const uint8_t pm_encoding_windows_1254_table[256] = {
     3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 3, // Fx
 };
 
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding windows-1255 character.
- */
-static const uint8_t pm_encoding_windows_1255_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Ex
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding windows-1256 character.
- */
-static const uint8_t pm_encoding_windows_1256_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Cx
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // Dx
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Ex
-    3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding windows-1257 character.
- */
-static const uint8_t pm_encoding_windows_1257_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 7, 0, 7, 0, 0, 0, 0, 7, // Ax
-    0, 0, 0, 0, 0, 3, 0, 0, 3, 0, 3, 0, 0, 0, 0, 3, // Bx
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // Cx
-    7, 7, 7, 7, 7, 7, 7, 0, 7, 7, 7, 7, 7, 7, 7, 3, // Dx
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // Ex
-    3, 3, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 3, 3, 3, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding windows-1258 character.
- */
-static const uint8_t pm_encoding_windows_1258_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-/**
- * Each element of the following table contains a bitfield that indicates a
- * piece of information about the corresponding windows-874 character.
- */
-static const uint8_t pm_encoding_windows_874_table[256] = {
-//  0  1  2  3  4  5  6  7  8  9  A  B  C  D  E  F
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 1x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 2x
-    2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0, 0, 0, 0, 0, 0, // 3x
-    0, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, // 4x
-    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, // 5x
-    0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, // 6x
-    3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, // 7x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 8x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 9x
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ax
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Bx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Cx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Dx
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Ex
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // Fx
-};
-
-#define PRISM_ENCODING_TABLE(name) \
-    static size_t pm_encoding_ ##name ## _alpha_char(const uint8_t *b, ptrdiff_t n) {           \
-        return ((n > 0) && (pm_encoding_ ##name ## _table[*b] & PRISM_ENCODING_ALPHABETIC_BIT));           \
-    }                                                                                                         \
-    static size_t pm_encoding_ ##name ## _alnum_char(const uint8_t *b, ptrdiff_t n) {           \
-        return ((n > 0) && (pm_encoding_ ##name ## _table[*b] & PRISM_ENCODING_ALPHANUMERIC_BIT)) ? 1 : 0; \
-    }                                                                                                         \
-    static bool pm_encoding_ ##name ## _isupper_char(const uint8_t *b, ptrdiff_t n) {           \
-        return ((n > 0) && (pm_encoding_ ##name ## _table[*b] & PRISM_ENCODING_UPPERCASE_BIT));            \
-    }
-
-PRISM_ENCODING_TABLE(cp850)
-PRISM_ENCODING_TABLE(cp852)
-PRISM_ENCODING_TABLE(cp855)
-PRISM_ENCODING_TABLE(gb1988)
-PRISM_ENCODING_TABLE(ibm437)
-PRISM_ENCODING_TABLE(ibm720)
-PRISM_ENCODING_TABLE(ibm737)
-PRISM_ENCODING_TABLE(ibm775)
-PRISM_ENCODING_TABLE(ibm852)
-PRISM_ENCODING_TABLE(ibm855)
-PRISM_ENCODING_TABLE(ibm857)
-PRISM_ENCODING_TABLE(ibm860)
-PRISM_ENCODING_TABLE(ibm861)
-PRISM_ENCODING_TABLE(ibm862)
-PRISM_ENCODING_TABLE(ibm863)
-PRISM_ENCODING_TABLE(ibm864)
-PRISM_ENCODING_TABLE(ibm865)
-PRISM_ENCODING_TABLE(ibm866)
-PRISM_ENCODING_TABLE(ibm869)
-PRISM_ENCODING_TABLE(iso_8859_1)
-PRISM_ENCODING_TABLE(iso_8859_2)
-PRISM_ENCODING_TABLE(iso_8859_3)
-PRISM_ENCODING_TABLE(iso_8859_4)
-PRISM_ENCODING_TABLE(iso_8859_5)
-PRISM_ENCODING_TABLE(iso_8859_6)
-PRISM_ENCODING_TABLE(iso_8859_7)
-PRISM_ENCODING_TABLE(iso_8859_8)
-PRISM_ENCODING_TABLE(iso_8859_9)
-PRISM_ENCODING_TABLE(iso_8859_10)
-PRISM_ENCODING_TABLE(iso_8859_11)
-PRISM_ENCODING_TABLE(iso_8859_13)
-PRISM_ENCODING_TABLE(iso_8859_14)
-PRISM_ENCODING_TABLE(iso_8859_15)
-PRISM_ENCODING_TABLE(iso_8859_16)
-PRISM_ENCODING_TABLE(koi8_r)
-PRISM_ENCODING_TABLE(koi8_u)
-PRISM_ENCODING_TABLE(mac_cent_euro)
-PRISM_ENCODING_TABLE(mac_croatian)
-PRISM_ENCODING_TABLE(mac_cyrillic)
-PRISM_ENCODING_TABLE(mac_greek)
-PRISM_ENCODING_TABLE(mac_iceland)
-PRISM_ENCODING_TABLE(mac_roman)
-PRISM_ENCODING_TABLE(mac_romania)
-PRISM_ENCODING_TABLE(mac_thai)
-PRISM_ENCODING_TABLE(mac_turkish)
-PRISM_ENCODING_TABLE(mac_ukraine)
-PRISM_ENCODING_TABLE(tis_620)
-PRISM_ENCODING_TABLE(windows_1250)
-PRISM_ENCODING_TABLE(windows_1251)
-PRISM_ENCODING_TABLE(windows_1252)
-PRISM_ENCODING_TABLE(windows_1253)
-PRISM_ENCODING_TABLE(windows_1254)
-PRISM_ENCODING_TABLE(windows_1255)
-PRISM_ENCODING_TABLE(windows_1256)
-PRISM_ENCODING_TABLE(windows_1257)
-PRISM_ENCODING_TABLE(windows_1258)
-PRISM_ENCODING_TABLE(windows_874)
-
-#undef PRISM_ENCODING_TABLE
 #endif
 
-/**
- * Returns the size of the next character in the ASCII encoding. This basically
- * means that if the top bit is not set, the character is 1 byte long.
+/*
+ * Each multibyte encoding other than UTF-8 is ASCII below 0x80, and its other
+ * characters take a list of forms. A form is the number of bytes in its
+ * characters, their PRISM_ENCODING_*_BIT properties, and the inclusive range of
+ * bytes at each position. Bytes that match a form are a character. Forms may
+ * overlap, in which case a character has the properties of every form that it
+ * matches. No character is the start of a longer one, and every form with
+ * properties lies within the forms without them, so that the first form that
+ * answers a question about a character answers it for all of them.
+ *
+ * Each list is a macro that passes its forms to X_1 through X_6 by the number
+ * of bytes in them, where X is the name of a family of macros below that turns
+ * each form into a check. The checks run in the order of the list.
  */
-static size_t
-pm_encoding_ascii_char_width(const uint8_t *b, ptrdiff_t n) {
-    return ((n > 0) && (*b < 0x80)) ? 1 : 0;
-}
 
 /**
- * Return the size of the next character in the ASCII encoding if it is an
- * alphabetical character.
+ * Return true if the given byte is in the given inclusive range. The distance
+ * from the start of the range is compared as a byte so that a range that ends
+ * at 0xFF does not compare a byte against a bound that it can never exceed.
  */
-static size_t
-pm_encoding_ascii_alpha_char(const uint8_t *b, ptrdiff_t n) {
-    return (n > 0) ? (pm_encoding_ascii_table[*b] & PRISM_ENCODING_ALPHABETIC_BIT) : 0;
-}
+#define PM_ENCODING_BYTE_IN(byte_, start_, end_) \
+    ((uint8_t) ((byte_) - (start_)) <= (uint8_t) ((end_) - (start_)))
+
+/* Return the width of the character at b if it takes the given form. */
+#define PM_ENCODING_WIDTH_1(properties_, s0_, e0_) \
+    if (n >= 1 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_)) return 1;
+#define PM_ENCODING_WIDTH_2(properties_, s0_, e0_, s1_, e1_) \
+    if (n >= 2 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_) && PM_ENCODING_BYTE_IN(b[1], s1_, e1_)) return 2;
+#define PM_ENCODING_WIDTH_3(properties_, s0_, e0_, s1_, e1_, s2_, e2_) \
+    if (n >= 3 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_) && PM_ENCODING_BYTE_IN(b[1], s1_, e1_) && PM_ENCODING_BYTE_IN(b[2], s2_, e2_)) return 3;
+#define PM_ENCODING_WIDTH_4(properties_, s0_, e0_, s1_, e1_, s2_, e2_, s3_, e3_) \
+    if (n >= 4 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_) && PM_ENCODING_BYTE_IN(b[1], s1_, e1_) && PM_ENCODING_BYTE_IN(b[2], s2_, e2_) && PM_ENCODING_BYTE_IN(b[3], s3_, e3_)) return 4;
+#define PM_ENCODING_WIDTH_6(properties_, s0_, e0_, s1_, e1_, s2_, e2_, s3_, e3_, s4_, e4_, s5_, e5_) \
+    if (n >= 6 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_) && PM_ENCODING_BYTE_IN(b[1], s1_, e1_) && PM_ENCODING_BYTE_IN(b[2], s2_, e2_) && PM_ENCODING_BYTE_IN(b[3], s3_, e3_) && PM_ENCODING_BYTE_IN(b[4], s4_, e4_) && PM_ENCODING_BYTE_IN(b[5], s5_, e5_)) return 6;
+
+/*
+ * Return the width of the character at b if it takes the given form and the
+ * form has the property being asked about. Forms without properties never
+ * answer, so their checks fold away.
+ */
+#define PM_ENCODING_PROPERTY_1(properties_, s0_, e0_) \
+    if (((properties_) & property) && n >= 1 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_)) return 1;
+#define PM_ENCODING_PROPERTY_2(properties_, s0_, e0_, s1_, e1_) \
+    if (((properties_) & property) && n >= 2 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_) && PM_ENCODING_BYTE_IN(b[1], s1_, e1_)) return 2;
+#define PM_ENCODING_PROPERTY_3(properties_, s0_, e0_, s1_, e1_, s2_, e2_) \
+    if (((properties_) & property) && n >= 3 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_) && PM_ENCODING_BYTE_IN(b[1], s1_, e1_) && PM_ENCODING_BYTE_IN(b[2], s2_, e2_)) return 3;
+#define PM_ENCODING_PROPERTY_4(properties_, s0_, e0_, s1_, e1_, s2_, e2_, s3_, e3_) \
+    if (((properties_) & property) && n >= 4 && PM_ENCODING_BYTE_IN(b[0], s0_, e0_) && PM_ENCODING_BYTE_IN(b[1], s1_, e1_) && PM_ENCODING_BYTE_IN(b[2], s2_, e2_) && PM_ENCODING_BYTE_IN(b[3], s3_, e3_)) return 4;
+
+/*
+ * The body of the function that returns the width of the character at b in an
+ * encoding whose characters beyond ASCII take the given forms, or 0 if the
+ * bytes do not form one.
+ */
+#define PM_ENCODING_FORMS_CHAR_WIDTH(forms_) \
+    if (n <= 0) return 0; \
+    if (b[0] < 0x80) return 1; \
+    forms_(PM_ENCODING_WIDTH) \
+    return 0;
+
+/*
+ * The body of the function that returns the width of the character at b in an
+ * encoding whose characters beyond ASCII take the given forms, if it has the
+ * given property, or 0 otherwise.
+ */
+#define PM_ENCODING_FORMS_PROPERTY_CHAR(forms_) \
+    if (n <= 0) return 0; \
+    if (b[0] < 0x80) return (pm_encoding_ascii_table[b[0]] & property) ? 1 : 0; \
+    forms_(PM_ENCODING_PROPERTY) \
+    return 0;
+
+/* The properties of a form whose characters are all alphabetical. */
+#define PM_ENCODING_ALNUM (PRISM_ENCODING_ALPHABETIC_BIT | PRISM_ENCODING_ALPHANUMERIC_BIT)
 
 /**
- * Certain encodings are equivalent to ASCII below 0x80, so it works for our
- * purposes to have a function here that first checks the bounds and then falls
- * back to checking the ASCII lookup table.
+ * The forms of the characters in the EUC-JP encoding. The full-width Latin,
+ * Greek, and Cyrillic capital letters are uppercase.
  */
-static size_t
-pm_encoding_ascii_alpha_char_7bit(const uint8_t *b, ptrdiff_t n) {
-    return ((n > 0) && (*b < 0x80)) ? pm_encoding_ascii_alpha_char(b, n) : 0;
-}
+#define PM_ENCODING_EUC_JP_FORMS(X) \
+    X##_2(0, 0x8E, 0x8E, 0xA1, 0xFE) \
+    X##_2(0, 0xA1, 0xFE, 0xA1, 0xFE) \
+    X##_3(0, 0x8F, 0x8F, 0xA1, 0xFE, 0xA1, 0xFE) \
+    X##_2(PRISM_ENCODING_UPPERCASE_BIT, 0xA3, 0xA3, 0xC1, 0xDA) \
+    X##_2(PRISM_ENCODING_UPPERCASE_BIT, 0xA6, 0xA6, 0xA1, 0xB8) \
+    X##_2(PRISM_ENCODING_UPPERCASE_BIT, 0xA7, 0xA7, 0xA1, 0xC1)
 
 /**
- * Return the size of the next character in the ASCII encoding if it is an
- * alphanumeric character.
- */
-static size_t
-pm_encoding_ascii_alnum_char(const uint8_t *b, ptrdiff_t n) {
-    return ((n > 0) && (pm_encoding_ascii_table[*b] & PRISM_ENCODING_ALPHANUMERIC_BIT)) ? 1 : 0;
-}
-
-/**
- * Certain encodings are equivalent to ASCII below 0x80, so it works for our
- * purposes to have a function here that first checks the bounds and then falls
- * back to checking the ASCII lookup table.
- */
-static size_t
-pm_encoding_ascii_alnum_char_7bit(const uint8_t *b, ptrdiff_t n) {
-    return ((n > 0) && (*b < 0x80)) ? pm_encoding_ascii_alnum_char(b, n) : 0;
-}
-
-/**
- * Return true if the next character in the ASCII encoding if it is an uppercase
- * character.
- */
-static bool
-pm_encoding_ascii_isupper_char(const uint8_t *b, ptrdiff_t n) {
-    return (n > 0) && (pm_encoding_ascii_table[*b] & PRISM_ENCODING_UPPERCASE_BIT);
-}
-
-/**
- * For a lot of encodings the default is that they are a single byte long no
- * matter what the codepoint, so this function is shared between them.
- */
-static size_t
-pm_encoding_single_char_width(PRISM_UNUSED const uint8_t *b, PRISM_UNUSED ptrdiff_t n) {
-    return 1;
-}
-
-/**
- * Returns the size of the next character in the EUC-JP encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * Return the width of the character at b in EUC-JP, or 0 if there is none.
  */
 static size_t
 pm_encoding_euc_jp_char_width(const uint8_t *b, ptrdiff_t n) {
-    // These are the single byte characters.
-    if ((n > 0) && (*b < 0x80)) {
-        return 1;
-    }
-
-    // These are the double byte characters.
-    if ((n > 1) && ((b[0] == 0x8E) || (b[0] >= 0xA1 && b[0] <= 0xFE)) && (b[1] >= 0xA1 && b[1] <= 0xFE)) {
-        return 2;
-    }
-
-    // These are the triple byte characters.
-    if ((n > 2) && (b[0] == 0x8F) && (b[1] >= 0xA1 && b[1] <= 0xFE) && (b[2] >= 0xA1 && b[2] <= 0xFE)) {
-        return 3;
-    }
-
-    return 0;
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_EUC_JP_FORMS)
 }
 
 /**
- * Returns the size of the next character in the EUC-JP encoding if it is an
- * uppercase character.
+ * Return the width of the character at b in EUC-JP if it has the given
+ * property, or 0 otherwise.
  */
-static bool
-pm_encoding_euc_jp_isupper_char(const uint8_t *b, ptrdiff_t n) {
-    size_t width = pm_encoding_euc_jp_char_width(b, n);
-
-    if (width == 1) {
-        return pm_encoding_ascii_isupper_char(b, n);
-    } else if (width == 2) {
-        return (
-            (b[0] == 0xA3 && b[1] >= 0xC1 && b[1] <= 0xDA) ||
-            (b[0] == 0xA6 && b[1] >= 0xA1 && b[1] <= 0xB8) ||
-            (b[0] == 0xA7 && b[1] >= 0xA1 && b[1] <= 0xC1)
-        );
-    } else {
-        return false;
-    }
+static size_t
+pm_encoding_euc_jp_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_EUC_JP_FORMS)
 }
 
 /**
- * Returns the size of the next character in the Shift_JIS encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * The forms of the characters in the Shift_JIS encoding, where the single
+ * bytes from 0xA1 to 0xDF are half-width katakana. Every character beyond ASCII
+ * is alphanumeric, and the full-width Latin, Greek, and Cyrillic capital
+ * letters are uppercase.
+ */
+#define PM_ENCODING_SHIFT_JIS_FORMS(X) \
+    X##_1(PM_ENCODING_ALNUM, 0xA1, 0xDF) \
+    X##_2(PM_ENCODING_ALNUM, 0x81, 0x9F, 0x40, 0x7E) \
+    X##_2(PM_ENCODING_ALNUM, 0x81, 0x9F, 0x80, 0xFC) \
+    X##_2(PM_ENCODING_ALNUM, 0xE0, 0xFC, 0x40, 0x7E) \
+    X##_2(PM_ENCODING_ALNUM, 0xE0, 0xFC, 0x80, 0xFC) \
+    X##_2(PRISM_ENCODING_UPPERCASE_BIT, 0x82, 0x82, 0x60, 0x79) \
+    X##_2(PRISM_ENCODING_UPPERCASE_BIT, 0x83, 0x83, 0x9F, 0xB6) \
+    X##_2(PRISM_ENCODING_UPPERCASE_BIT, 0x84, 0x84, 0x40, 0x60)
+
+/**
+ * Return the width of the character at b in Shift_JIS, or 0 if there is none.
  */
 static size_t
 pm_encoding_shift_jis_char_width(const uint8_t *b, ptrdiff_t n) {
-    if (n == 0) {
-        return 0;
-    }
-    // These are the single byte characters.
-    if (b[0] < 0x80 || (b[0] >= 0xA1 && b[0] <= 0xDF)) {
-        return 1;
-    }
-
-    // These are the double byte characters.
-    if ((n > 1) && ((b[0] >= 0x81 && b[0] <= 0x9F) || (b[0] >= 0xE0 && b[0] <= 0xFC)) && (b[1] >= 0x40 && b[1] <= 0xFC && b[1] != 0x7F)) {
-        return 2;
-    }
-
-    return 0;
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_SHIFT_JIS_FORMS)
 }
 
 /**
- * Returns the size of the next character in the Shift_JIS encoding if it is an
- * alphanumeric character.
+ * Return the width of the character at b in Shift_JIS if it has the given
+ * property, or 0 otherwise.
  */
 static size_t
-pm_encoding_shift_jis_alnum_char(const uint8_t *b, ptrdiff_t n) {
-    size_t width = pm_encoding_shift_jis_char_width(b, n);
-    return width == 1 ? ((b[0] >= 0x80) || pm_encoding_ascii_alnum_char(b, n)) : width;
-}
-
-/**
- * Returns the size of the next character in the Shift_JIS encoding if it is an
- * alphabetical character.
- */
-static size_t
-pm_encoding_shift_jis_alpha_char(const uint8_t *b, ptrdiff_t n) {
-    size_t width = pm_encoding_shift_jis_char_width(b, n);
-    return width == 1 ? ((b[0] >= 0x80) || pm_encoding_ascii_alpha_char(b, n)) : width;
-}
-
-/**
- * Returns the size of the next character in the Shift_JIS encoding if it is an
- * uppercase character.
- */
-static bool
-pm_encoding_shift_jis_isupper_char(const uint8_t *b, ptrdiff_t n) {
-    size_t width = pm_encoding_shift_jis_char_width(b, n);
-
-    if (width == 1) {
-        return pm_encoding_ascii_isupper_char(b, n);
-    } else if (width == 2) {
-        return (
-            ((b[0] == 0x82) && (b[1] >= 0x60 && b[1] <= 0x79)) ||
-            ((b[0] == 0x83) && (b[1] >= 0x9F && b[1] <= 0xB6)) ||
-            ((b[0] == 0x84) && (b[1] >= 0x40 && b[1] <= 0x60))
-        );
-    } else {
-        return width;
-    }
+pm_encoding_shift_jis_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_SHIFT_JIS_FORMS)
 }
 
 #ifndef PRISM_ENCODING_EXCLUDE_FULL
 
 /**
- * Certain encodings are equivalent to ASCII below 0x80, so it works for our
- * purposes to have a function here that first checks the bounds and then falls
- * back to checking the ASCII lookup table.
+ * The forms of the characters in the Big5 encoding. Ruby reads Big5-HKSCS,
+ * Big5-UAO, CP950, and CP951 as Big5, so they take these forms as well.
  */
-static bool
-pm_encoding_ascii_isupper_char_7bit(const uint8_t *b, ptrdiff_t n) {
-    return (n > 0) && (*b < 0x80) && pm_encoding_ascii_isupper_char(b, n);
-}
+#define PM_ENCODING_BIG5_FORMS(X) \
+    X##_2(0, 0xA1, 0xFE, 0x40, 0x7E) \
+    X##_2(0, 0xA1, 0xFE, 0xA1, 0xFE)
 
 /**
- * Returns the size of the next character in the Big5 encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * Return the width of the character at b in Big5, or 0 if there is none.
  */
 static size_t
 pm_encoding_big5_char_width(const uint8_t *b, ptrdiff_t n) {
-    // These are the single byte characters.
-    if ((n > 0) && (*b < 0x80)) {
-        return 1;
-    }
-
-    // These are the double byte characters.
-    if ((n > 1) && (b[0] >= 0xA1 && b[0] <= 0xFE) && ((b[1] >= 0x40 && b[1] <= 0x7E) || (b[1] >= 0xA1 && b[1] <= 0xFE))) {
-        return 2;
-    }
-
-    return 0;
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_BIG5_FORMS)
 }
 
 /**
- * Returns the size of the next character in the CP949 encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * Return the width of the character at b in Big5 if it has the given
+ * property, or 0 otherwise.
+ */
+static size_t
+pm_encoding_big5_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_BIG5_FORMS)
+}
+
+/**
+ * The forms of the characters in the CESU-8 encoding: those of UTF-8, except
+ * that a character beyond U+FFFF is a pair of surrogates. Its characters have
+ * the properties of their code points instead of properties of their forms.
+ */
+#define PM_ENCODING_CESU_8_FORMS(X) \
+    X##_2(0, 0xC2, 0xDF, 0x80, 0xBF) \
+    X##_3(0, 0xE0, 0xE0, 0xA0, 0xBF, 0x80, 0xBF) \
+    X##_3(0, 0xE1, 0xEC, 0x80, 0xBF, 0x80, 0xBF) \
+    X##_3(0, 0xED, 0xED, 0x80, 0x9F, 0x80, 0xBF) \
+    X##_3(0, 0xEE, 0xEF, 0x80, 0xBF, 0x80, 0xBF) \
+    X##_6(0, 0xED, 0xED, 0xA0, 0xAF, 0x80, 0xBF, 0xED, 0xED, 0xB0, 0xBF, 0x80, 0xBF)
+
+/**
+ * Return the width of the character at b in CESU-8, or 0 if there is none.
+ */
+static size_t
+pm_encoding_cesu_8_char_width(const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_CESU_8_FORMS)
+}
+
+/**
+ * The forms of the characters in the CP949 encoding, where 0x80 is a character
+ * of its own.
+ */
+#define PM_ENCODING_CP949_FORMS(X) \
+    X##_1(0, 0x80, 0x80) \
+    X##_2(0, 0x81, 0xFE, 0x41, 0x5A) \
+    X##_2(0, 0x81, 0xFE, 0x61, 0x7A) \
+    X##_2(0, 0x81, 0xFE, 0x81, 0xFE)
+
+/**
+ * Return the width of the character at b in CP949, or 0 if there is none.
  */
 static size_t
 pm_encoding_cp949_char_width(const uint8_t *b, ptrdiff_t n) {
-    // These are the single byte characters
-    if ((n > 0) && (*b <= 0x80)) {
-        return 1;
-    }
-
-    // These are the double byte characters
-    if ((n > 1) && (b[0] >= 0x81 && b[0] <= 0xFE) && ((b[1] >= 0x41 && b[1] <= 0x5A) || (b[1] >= 0x61 && b[1] <= 0x7A) || (b[1] >= 0x81 && b[1] <= 0xFE))) {
-        return 2;
-    }
-
-    return 0;
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_CP949_FORMS)
 }
 
 /**
- * Returns the size of the next character in the Emacs MULE encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * Return the width of the character at b in CP949 if it has the given
+ * property, or 0 otherwise.
+ */
+static size_t
+pm_encoding_cp949_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_CP949_FORMS)
+}
+
+/**
+ * The forms of the characters in the Emacs-Mule encoding.
+ */
+#define PM_ENCODING_EMACS_MULE_FORMS(X) \
+    X##_2(0, 0x81, 0x8F, 0xA0, 0xFF) \
+    X##_3(0, 0x90, 0x99, 0xA0, 0xFF, 0xA0, 0xFF) \
+    X##_3(0, 0x9A, 0x9B, 0xE0, 0xEF, 0xA0, 0xFF) \
+    X##_4(0, 0x9C, 0x9C, 0xF0, 0xF4, 0xA0, 0xFF, 0xA0, 0xFF) \
+    X##_4(0, 0x9D, 0x9D, 0xF5, 0xFE, 0xA0, 0xFF, 0xA0, 0xFF)
+
+/**
+ * Return the width of the character at b in Emacs-Mule, or 0 if there is none.
  */
 static size_t
 pm_encoding_emacs_mule_char_width(const uint8_t *b, ptrdiff_t n) {
-    // These are the 1 byte characters.
-    if ((n > 0) && (*b < 0x80)) {
-        return 1;
-    }
-
-    // These are the 2 byte characters.
-    if ((n > 1) && (b[0] >= 0x81 && b[0] <= 0x8F) && (b[1] >= 0xA0)) {
-        return 2;
-    }
-
-    // These are the 3 byte characters.
-    if (
-        (n > 2) &&
-        (
-            ((b[0] >= 0x90 && b[0] <= 0x99) && (b[1] >= 0xA0)) ||
-            ((b[0] == 0x9A || b[0] == 0x9B) && (b[1] >= 0xE0 && b[1] <= 0xEF))
-        ) &&
-        (b[2] >= 0xA0)
-    ) {
-        return 3;
-    }
-
-    // These are the 4 byte characters.
-    if (
-        (n > 3) &&
-        (
-            ((b[0] == 0x9C) && (b[1] >= 0xF0) && (b[1] <= 0xF4)) ||
-            ((b[0] == 0x9D) && (b[1] >= 0xF5) && (b[1] <= 0xFE))
-        ) &&
-        (b[2] >= 0xA0) && (b[3] >= 0xA0)
-    ) {
-        return 4;
-    }
-
-    return 0;
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_EMACS_MULE_FORMS)
 }
 
 /**
- * Returns the size of the next character in the EUC-KR encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * Return the width of the character at b in Emacs-Mule if it has the given
+ * property, or 0 otherwise.
+ */
+static size_t
+pm_encoding_emacs_mule_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_EMACS_MULE_FORMS)
+}
+
+/**
+ * The forms of the characters in the EUC-KR encoding.
+ */
+#define PM_ENCODING_EUC_KR_FORMS(X) \
+    X##_2(0, 0xA1, 0xFE, 0xA1, 0xFE)
+
+/**
+ * Return the width of the character at b in EUC-KR, or 0 if there is none.
  */
 static size_t
 pm_encoding_euc_kr_char_width(const uint8_t *b, ptrdiff_t n) {
-    // These are the single byte characters.
-    if ((n > 0) && (*b < 0x80)) {
-        return 1;
-    }
-
-    // These are the double byte characters.
-    if ((n > 1) && (b[0] >= 0xA1 && b[0] <= 0xFE) && (b[1] >= 0xA1 && b[1] <= 0xFE)) {
-        return 2;
-    }
-
-    return 0;
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_EUC_KR_FORMS)
 }
 
 /**
- * Returns the size of the next character in the EUC-TW encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * Return the width of the character at b in EUC-KR if it has the given
+ * property, or 0 otherwise.
+ */
+static size_t
+pm_encoding_euc_kr_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_EUC_KR_FORMS)
+}
+
+/**
+ * The forms of the characters in the EUC-TW encoding.
+ */
+#define PM_ENCODING_EUC_TW_FORMS(X) \
+    X##_2(0, 0xA1, 0xFE, 0xA1, 0xFE) \
+    X##_4(0, 0x8E, 0x8E, 0xA1, 0xB0, 0xA1, 0xFE, 0xA1, 0xFE)
+
+/**
+ * Return the width of the character at b in EUC-TW, or 0 if there is none.
  */
 static size_t
 pm_encoding_euc_tw_char_width(const uint8_t *b, ptrdiff_t n) {
-    // These are the single byte characters.
-    if ((n > 0) && (*b < 0x80)) {
-        return 1;
-    }
-
-    // These are the double byte characters.
-    if ((n > 1) && (b[0] >= 0xA1) && (b[0] <= 0xFE) && (b[1] >= 0xA1) && (b[1] <= 0xFE)) {
-        return 2;
-    }
-
-    // These are the quadruple byte characters.
-    if ((n > 3) && (b[0] == 0x8E) && (b[1] >= 0xA1) && (b[1] <= 0xB0) && (b[2] >= 0xA1) && (b[2] <= 0xFE) && (b[3] >= 0xA1) && (b[3] <= 0xFE)) {
-        return 4;
-    }
-
-    return 0;
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_EUC_TW_FORMS)
 }
 
 /**
- * Returns the size of the next character in the GB18030 encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * Return the width of the character at b in EUC-TW if it has the given
+ * property, or 0 otherwise.
+ */
+static size_t
+pm_encoding_euc_tw_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_EUC_TW_FORMS)
+}
+
+/**
+ * The forms of the characters in the GB18030 encoding.
+ */
+#define PM_ENCODING_GB18030_FORMS(X) \
+    X##_2(0, 0x81, 0xFE, 0x40, 0x7E) \
+    X##_2(0, 0x81, 0xFE, 0x80, 0xFE) \
+    X##_4(0, 0x81, 0xFE, 0x30, 0x39, 0x81, 0xFE, 0x30, 0x39)
+
+/**
+ * Return the width of the character at b in GB18030, or 0 if there is none.
  */
 static size_t
 pm_encoding_gb18030_char_width(const uint8_t *b, ptrdiff_t n) {
-    // These are the 1 byte characters.
-    if ((n > 0) && (*b < 0x80)) {
-        return 1;
-    }
-
-    // These are the 2 byte characters.
-    if ((n > 1) && (b[0] >= 0x81 && b[0] <= 0xFE) && (b[1] >= 0x40 && b[1] <= 0xFE && b[1] != 0x7F)) {
-        return 2;
-    }
-
-    // These are the 4 byte characters.
-    if ((n > 3) && ((b[0] >= 0x81 && b[0] <= 0xFE) && (b[1] >= 0x30 && b[1] <= 0x39) && (b[2] >= 0x81 && b[2] <= 0xFE) && (b[3] >= 0x30 && b[3] <= 0x39))) {
-        return 4;
-    }
-
-    return 0;
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_GB18030_FORMS)
 }
 
 /**
- * Returns the size of the next character in the GBK encoding, or 0 if a
- * character cannot be decoded from the given bytes.
+ * Return the width of the character at b in GB18030 if it has the given
+ * property, or 0 otherwise.
+ */
+static size_t
+pm_encoding_gb18030_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_GB18030_FORMS)
+}
+
+/**
+ * The forms of the characters in the GBK encoding, where 0x80 is a character
+ * of its own.
+ */
+#define PM_ENCODING_GBK_FORMS(X) \
+    X##_1(0, 0x80, 0x80) \
+    X##_2(0, 0xA1, 0xA9, 0xA1, 0xFE) /* GBK/1 */ \
+    X##_2(0, 0xB0, 0xF7, 0xA1, 0xFE) /* GBK/2 */ \
+    X##_2(0, 0x81, 0xA0, 0x40, 0x7E) /* GBK/3 */ \
+    X##_2(0, 0x81, 0xA0, 0x80, 0xFE) /* GBK/3 */ \
+    X##_2(0, 0xAA, 0xFE, 0x40, 0x7E) /* GBK/4 */ \
+    X##_2(0, 0xAA, 0xFE, 0x80, 0xA0) /* GBK/4 */ \
+    X##_2(0, 0xA8, 0xA9, 0x40, 0x7E) /* GBK/5 */ \
+    X##_2(0, 0xA8, 0xA9, 0x80, 0xA0) /* GBK/5 */ \
+    X##_2(0, 0xAA, 0xAF, 0xA1, 0xFE) /* user-defined 1 */ \
+    X##_2(0, 0xF8, 0xFE, 0xA1, 0xFE) /* user-defined 2 */ \
+    X##_2(0, 0xA1, 0xA7, 0x40, 0x7E) /* user-defined 3 */ \
+    X##_2(0, 0xA1, 0xA7, 0x80, 0xA0) /* user-defined 3 */
+
+/**
+ * Return the width of the character at b in GBK, or 0 if there is none.
  */
 static size_t
 pm_encoding_gbk_char_width(const uint8_t *b, ptrdiff_t n) {
-    // These are the single byte characters.
-    if ((n > 0) && (*b <= 0x80)) {
-        return 1;
-    }
+    PM_ENCODING_FORMS_CHAR_WIDTH(PM_ENCODING_GBK_FORMS)
+}
 
-    // These are the double byte characters.
-    if (
-        (n > 1) &&
-        (
-            ((b[0] >= 0xA1 && b[0] <= 0xA9) && (b[1] >= 0xA1 && b[1] <= 0xFE)) || // GBK/1
-            ((b[0] >= 0xB0 && b[0] <= 0xF7) && (b[1] >= 0xA1 && b[1] <= 0xFE)) || // GBK/2
-            ((b[0] >= 0x81 && b[0] <= 0xA0) && (b[1] >= 0x40 && b[1] <= 0xFE) && (b[1] != 0x7F)) || // GBK/3
-            ((b[0] >= 0xAA && b[0] <= 0xFE) && (b[1] >= 0x40 && b[1] <= 0xA0) && (b[1] != 0x7F)) || // GBK/4
-            ((b[0] >= 0xA8 && b[0] <= 0xA9) && (b[1] >= 0x40 && b[1] <= 0xA0) && (b[1] != 0x7F)) || // GBK/5
-            ((b[0] >= 0xAA && b[0] <= 0xAF) && (b[1] >= 0xA1 && b[1] <= 0xFE)) || // user-defined 1
-            ((b[0] >= 0xF8 && b[0] <= 0xFE) && (b[1] >= 0xA1 && b[1] <= 0xFE)) || // user-defined 2
-            ((b[0] >= 0xA1 && b[0] <= 0xA7) && (b[1] >= 0x40 && b[1] <= 0xA0) && (b[1] != 0x7F)) // user-defined 3
-        )
-    ) {
-        return 2;
-    }
-
-    return 0;
+/**
+ * Return the width of the character at b in GBK if it has the given property,
+ * or 0 otherwise.
+ */
+static size_t
+pm_encoding_gbk_property_char(uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    PM_ENCODING_FORMS_PROPERTY_CHAR(PM_ENCODING_GBK_FORMS)
 }
 
 #endif
+
+/**
+ * Return the number of bytes in the next character in the given encoding, or 0
+ * if the bytes do not form one.
+ */
+size_t
+pm_encoding_char_width(const pm_encoding_t *encoding, const uint8_t *b, ptrdiff_t n) {
+    switch (encoding->kind) {
+        case PM_ENCODING_KIND_UTF_8:
+            return pm_encoding_utf_8_char_width(b, n);
+        case PM_ENCODING_KIND_ASCII:
+            return ((n > 0) && (*b < 0x80)) ? 1 : 0;
+        case PM_ENCODING_KIND_SINGLE_BYTE:
+            return 1;
+        case PM_ENCODING_KIND_EUC_JP:
+            return pm_encoding_euc_jp_char_width(b, n);
+        case PM_ENCODING_KIND_SHIFT_JIS:
+            return pm_encoding_shift_jis_char_width(b, n);
+#ifndef PRISM_ENCODING_EXCLUDE_FULL
+        case PM_ENCODING_KIND_BIG5:
+            return pm_encoding_big5_char_width(b, n);
+        case PM_ENCODING_KIND_CESU_8:
+            return pm_encoding_cesu_8_char_width(b, n);
+        case PM_ENCODING_KIND_CP949:
+            return pm_encoding_cp949_char_width(b, n);
+        case PM_ENCODING_KIND_EMACS_MULE:
+            return pm_encoding_emacs_mule_char_width(b, n);
+        case PM_ENCODING_KIND_EUC_KR:
+            return pm_encoding_euc_kr_char_width(b, n);
+        case PM_ENCODING_KIND_EUC_TW:
+            return pm_encoding_euc_tw_char_width(b, n);
+        case PM_ENCODING_KIND_GB18030:
+            return pm_encoding_gb18030_char_width(b, n);
+        case PM_ENCODING_KIND_GBK:
+            return pm_encoding_gbk_char_width(b, n);
+#endif
+        default:
+            PRISM_ASSERT(false && "unreachable");
+            return 0;
+    }
+}
+
+/**
+ * Return the number of bytes in the next character in the given encoding if it
+ * has the given PRISM_ENCODING_*_BIT property, or 0 otherwise.
+ */
+size_t
+pm_encoding_property_char(const pm_encoding_t *encoding, uint8_t property, const uint8_t *b, ptrdiff_t n) {
+    switch (encoding->kind) {
+        case PM_ENCODING_KIND_UTF_8:
+            switch (property) {
+                case PRISM_ENCODING_ALPHABETIC_BIT:
+                    return pm_encoding_utf_8_alpha_char(b, n);
+                case PRISM_ENCODING_ALPHANUMERIC_BIT:
+                    return pm_encoding_utf_8_alnum_char(b, n);
+                default:
+                    return pm_encoding_utf_8_isupper_char(b, n) ? pm_encoding_utf_8_char_width(b, n) : 0;
+            }
+        case PM_ENCODING_KIND_ASCII:
+        case PM_ENCODING_KIND_SINGLE_BYTE:
+            return ((n > 0) && (encoding->table[*b] & property)) ? 1 : 0;
+        case PM_ENCODING_KIND_EUC_JP:
+            return pm_encoding_euc_jp_property_char(property, b, n);
+        case PM_ENCODING_KIND_SHIFT_JIS:
+            return pm_encoding_shift_jis_property_char(property, b, n);
+#ifndef PRISM_ENCODING_EXCLUDE_FULL
+        case PM_ENCODING_KIND_BIG5:
+            return pm_encoding_big5_property_char(property, b, n);
+        case PM_ENCODING_KIND_CESU_8: {
+            size_t width = pm_encoding_cesu_8_char_width(b, n);
+            return (width != 0 && pm_cesu_8_property_p(b, width, property)) ? width : 0;
+        }
+        case PM_ENCODING_KIND_CP949:
+            return pm_encoding_cp949_property_char(property, b, n);
+        case PM_ENCODING_KIND_EMACS_MULE:
+            return pm_encoding_emacs_mule_property_char(property, b, n);
+        case PM_ENCODING_KIND_EUC_KR:
+            return pm_encoding_euc_kr_property_char(property, b, n);
+        case PM_ENCODING_KIND_EUC_TW:
+            return pm_encoding_euc_tw_property_char(property, b, n);
+        case PM_ENCODING_KIND_GB18030:
+            return pm_encoding_gb18030_property_char(property, b, n);
+        case PM_ENCODING_KIND_GBK:
+            return pm_encoding_gbk_property_char(property, b, n);
+#endif
+        default:
+            PRISM_ASSERT(false && "unreachable");
+            return 0;
+    }
+}
+
+#undef PM_ENCODING_ALNUM
+#undef PM_ENCODING_FORMS_PROPERTY_CHAR
+#undef PM_ENCODING_FORMS_CHAR_WIDTH
+#undef PM_ENCODING_PROPERTY_4
+#undef PM_ENCODING_PROPERTY_3
+#undef PM_ENCODING_PROPERTY_2
+#undef PM_ENCODING_PROPERTY_1
+#undef PM_ENCODING_WIDTH_6
+#undef PM_ENCODING_WIDTH_4
+#undef PM_ENCODING_WIDTH_3
+#undef PM_ENCODING_WIDTH_2
+#undef PM_ENCODING_WIDTH_1
+#undef PM_ENCODING_BYTE_IN
 
 /**
  * This is the table of all of the encodings that prism supports.
@@ -2550,725 +1635,455 @@ pm_encoding_gbk_char_width(const uint8_t *b, ptrdiff_t n) {
 const pm_encoding_t pm_encodings[] = {
     [PM_ENCODING_UTF_8] = {
         .name = "UTF-8",
-        .char_width = pm_encoding_utf_8_char_width,
-        .alnum_char = pm_encoding_utf_8_alnum_char,
-        .alpha_char = pm_encoding_utf_8_alpha_char,
-        .isupper_char = pm_encoding_utf_8_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_UTF_8,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_US_ASCII] = {
         .name = "US-ASCII",
-        .char_width = pm_encoding_ascii_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char,
-        .alpha_char = pm_encoding_ascii_alpha_char,
-        .isupper_char = pm_encoding_ascii_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_ASCII,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_ASCII_8BIT] = {
         .name = "ASCII-8BIT",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char,
-        .alpha_char = pm_encoding_ascii_alpha_char,
-        .isupper_char = pm_encoding_ascii_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_EUC_JP] = {
         .name = "EUC-JP",
-        .char_width = pm_encoding_euc_jp_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_euc_jp_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EUC_JP,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_WINDOWS_31J] = {
         .name = "Windows-31J",
-        .char_width = pm_encoding_shift_jis_char_width,
-        .alnum_char = pm_encoding_shift_jis_alnum_char,
-        .alpha_char = pm_encoding_shift_jis_alpha_char,
-        .isupper_char = pm_encoding_shift_jis_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_SHIFT_JIS,
+        .table = pm_encoding_ascii_table
     },
 
 #ifndef PRISM_ENCODING_EXCLUDE_FULL
     [PM_ENCODING_BIG5] = {
         .name = "Big5",
-        .char_width = pm_encoding_big5_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_BIG5,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_BIG5_HKSCS] = {
         .name = "Big5-HKSCS",
-        .char_width = pm_encoding_big5_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_BIG5,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_BIG5_UAO] = {
         .name = "Big5-UAO",
-        .char_width = pm_encoding_big5_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_BIG5,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_CESU_8] = {
         .name = "CESU-8",
-        .char_width = pm_encoding_cesu_8_char_width,
-        .alnum_char = pm_encoding_cesu_8_alnum_char,
-        .alpha_char = pm_encoding_cesu_8_alpha_char,
-        .isupper_char = pm_encoding_cesu_8_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_CESU_8,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_CP51932] = {
         .name = "CP51932",
-        .char_width = pm_encoding_euc_jp_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_euc_jp_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EUC_JP,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_CP850] = {
         .name = "CP850",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_cp850_alnum_char,
-        .alpha_char = pm_encoding_cp850_alpha_char,
-        .isupper_char = pm_encoding_cp850_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_CP852] = {
         .name = "CP852",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_cp852_alnum_char,
-        .alpha_char = pm_encoding_cp852_alpha_char,
-        .isupper_char = pm_encoding_cp852_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_CP855] = {
         .name = "CP855",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_cp855_alnum_char,
-        .alpha_char = pm_encoding_cp855_alpha_char,
-        .isupper_char = pm_encoding_cp855_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_CP949] = {
         .name = "CP949",
-        .char_width = pm_encoding_cp949_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_CP949,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_CP950] = {
         .name = "CP950",
-        .char_width = pm_encoding_big5_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_BIG5,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_CP951] = {
         .name = "CP951",
-        .char_width = pm_encoding_big5_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_BIG5,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_EMACS_MULE] = {
         .name = "Emacs-Mule",
-        .char_width = pm_encoding_emacs_mule_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EMACS_MULE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_EUC_JP_MS] = {
         .name = "eucJP-ms",
-        .char_width = pm_encoding_euc_jp_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_euc_jp_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EUC_JP,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_EUC_JIS_2004] = {
         .name = "EUC-JIS-2004",
-        .char_width = pm_encoding_euc_jp_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_euc_jp_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EUC_JP,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_EUC_KR] = {
         .name = "EUC-KR",
-        .char_width = pm_encoding_euc_kr_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EUC_KR,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_EUC_TW] = {
         .name = "EUC-TW",
-        .char_width = pm_encoding_euc_tw_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EUC_TW,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_GB12345] = {
         .name = "GB12345",
-        .char_width = pm_encoding_euc_kr_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EUC_KR,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_GB18030] = {
         .name = "GB18030",
-        .char_width = pm_encoding_gb18030_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_GB18030,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_GB1988] = {
         .name = "GB1988",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_gb1988_alnum_char,
-        .alpha_char = pm_encoding_gb1988_alpha_char,
-        .isupper_char = pm_encoding_gb1988_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_GB2312] = {
         .name = "GB2312",
-        .char_width = pm_encoding_euc_kr_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EUC_KR,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_GBK] = {
         .name = "GBK",
-        .char_width = pm_encoding_gbk_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_GBK,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM437] = {
         .name = "IBM437",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm437_alnum_char,
-        .alpha_char = pm_encoding_ibm437_alpha_char,
-        .isupper_char = pm_encoding_ibm437_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM720] = {
         .name = "IBM720",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm720_alnum_char,
-        .alpha_char = pm_encoding_ibm720_alpha_char,
-        .isupper_char = pm_encoding_ibm720_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM737] = {
         .name = "IBM737",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm737_alnum_char,
-        .alpha_char = pm_encoding_ibm737_alpha_char,
-        .isupper_char = pm_encoding_ibm737_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM775] = {
         .name = "IBM775",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm775_alnum_char,
-        .alpha_char = pm_encoding_ibm775_alpha_char,
-        .isupper_char = pm_encoding_ibm775_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM852] = {
         .name = "IBM852",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm852_alnum_char,
-        .alpha_char = pm_encoding_ibm852_alpha_char,
-        .isupper_char = pm_encoding_ibm852_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM855] = {
         .name = "IBM855",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm855_alnum_char,
-        .alpha_char = pm_encoding_ibm855_alpha_char,
-        .isupper_char = pm_encoding_ibm855_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM857] = {
         .name = "IBM857",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm857_alnum_char,
-        .alpha_char = pm_encoding_ibm857_alpha_char,
-        .isupper_char = pm_encoding_ibm857_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM860] = {
         .name = "IBM860",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm860_alnum_char,
-        .alpha_char = pm_encoding_ibm860_alpha_char,
-        .isupper_char = pm_encoding_ibm860_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM861] = {
         .name = "IBM861",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm861_alnum_char,
-        .alpha_char = pm_encoding_ibm861_alpha_char,
-        .isupper_char = pm_encoding_ibm861_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM862] = {
         .name = "IBM862",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm862_alnum_char,
-        .alpha_char = pm_encoding_ibm862_alpha_char,
-        .isupper_char = pm_encoding_ibm862_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM863] = {
         .name = "IBM863",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm863_alnum_char,
-        .alpha_char = pm_encoding_ibm863_alpha_char,
-        .isupper_char = pm_encoding_ibm863_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM864] = {
         .name = "IBM864",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm864_alnum_char,
-        .alpha_char = pm_encoding_ibm864_alpha_char,
-        .isupper_char = pm_encoding_ibm864_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM865] = {
         .name = "IBM865",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm865_alnum_char,
-        .alpha_char = pm_encoding_ibm865_alpha_char,
-        .isupper_char = pm_encoding_ibm865_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM866] = {
         .name = "IBM866",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm866_alnum_char,
-        .alpha_char = pm_encoding_ibm866_alpha_char,
-        .isupper_char = pm_encoding_ibm866_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_IBM869] = {
         .name = "IBM869",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_ibm869_alnum_char,
-        .alpha_char = pm_encoding_ibm869_alpha_char,
-        .isupper_char = pm_encoding_ibm869_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_ISO_8859_1] = {
         .name = "ISO-8859-1",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_1_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_1_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_1_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_1_table
     },
     [PM_ENCODING_ISO_8859_2] = {
         .name = "ISO-8859-2",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_2_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_2_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_2_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_2_table
     },
     [PM_ENCODING_ISO_8859_3] = {
         .name = "ISO-8859-3",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_3_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_3_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_3_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_3_table
     },
     [PM_ENCODING_ISO_8859_4] = {
         .name = "ISO-8859-4",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_4_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_4_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_4_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_4_table
     },
     [PM_ENCODING_ISO_8859_5] = {
         .name = "ISO-8859-5",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_5_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_5_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_5_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_5_table
     },
     [PM_ENCODING_ISO_8859_6] = {
         .name = "ISO-8859-6",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_6_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_6_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_6_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_6_table
     },
     [PM_ENCODING_ISO_8859_7] = {
         .name = "ISO-8859-7",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_7_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_7_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_7_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_7_table
     },
     [PM_ENCODING_ISO_8859_8] = {
         .name = "ISO-8859-8",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_8_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_8_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_8_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_8_table
     },
     [PM_ENCODING_ISO_8859_9] = {
         .name = "ISO-8859-9",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_9_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_9_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_9_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_1_table
     },
     [PM_ENCODING_ISO_8859_10] = {
         .name = "ISO-8859-10",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_10_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_10_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_10_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_10_table
     },
     [PM_ENCODING_ISO_8859_11] = {
         .name = "ISO-8859-11",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_11_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_11_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_11_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_11_table
     },
     [PM_ENCODING_ISO_8859_13] = {
         .name = "ISO-8859-13",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_13_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_13_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_13_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_13_table
     },
     [PM_ENCODING_ISO_8859_14] = {
         .name = "ISO-8859-14",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_14_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_14_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_14_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_14_table
     },
     [PM_ENCODING_ISO_8859_15] = {
         .name = "ISO-8859-15",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_15_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_15_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_15_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_15_table
     },
     [PM_ENCODING_ISO_8859_16] = {
         .name = "ISO-8859-16",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_iso_8859_16_alnum_char,
-        .alpha_char = pm_encoding_iso_8859_16_alpha_char,
-        .isupper_char = pm_encoding_iso_8859_16_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_16_table
     },
     [PM_ENCODING_KOI8_R] = {
         .name = "KOI8-R",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_koi8_r_alnum_char,
-        .alpha_char = pm_encoding_koi8_r_alpha_char,
-        .isupper_char = pm_encoding_koi8_r_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_koi8_r_table
     },
     [PM_ENCODING_KOI8_U] = {
         .name = "KOI8-U",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_koi8_u_alnum_char,
-        .alpha_char = pm_encoding_koi8_u_alpha_char,
-        .isupper_char = pm_encoding_koi8_u_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_koi8_u_table
     },
     [PM_ENCODING_MAC_CENT_EURO] = {
         .name = "macCentEuro",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_cent_euro_alnum_char,
-        .alpha_char = pm_encoding_mac_cent_euro_alpha_char,
-        .isupper_char = pm_encoding_mac_cent_euro_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_CROATIAN] = {
         .name = "macCroatian",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_croatian_alnum_char,
-        .alpha_char = pm_encoding_mac_croatian_alpha_char,
-        .isupper_char = pm_encoding_mac_croatian_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_CYRILLIC] = {
         .name = "macCyrillic",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_cyrillic_alnum_char,
-        .alpha_char = pm_encoding_mac_cyrillic_alpha_char,
-        .isupper_char = pm_encoding_mac_cyrillic_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_GREEK] = {
         .name = "macGreek",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_greek_alnum_char,
-        .alpha_char = pm_encoding_mac_greek_alpha_char,
-        .isupper_char = pm_encoding_mac_greek_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_ICELAND] = {
         .name = "macIceland",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_iceland_alnum_char,
-        .alpha_char = pm_encoding_mac_iceland_alpha_char,
-        .isupper_char = pm_encoding_mac_iceland_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_JAPANESE] = {
         .name = "MacJapanese",
-        .char_width = pm_encoding_shift_jis_char_width,
-        .alnum_char = pm_encoding_shift_jis_alnum_char,
-        .alpha_char = pm_encoding_shift_jis_alpha_char,
-        .isupper_char = pm_encoding_shift_jis_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_SHIFT_JIS,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_ROMAN] = {
         .name = "macRoman",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_roman_alnum_char,
-        .alpha_char = pm_encoding_mac_roman_alpha_char,
-        .isupper_char = pm_encoding_mac_roman_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_ROMANIA] = {
         .name = "macRomania",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_romania_alnum_char,
-        .alpha_char = pm_encoding_mac_romania_alpha_char,
-        .isupper_char = pm_encoding_mac_romania_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_THAI] = {
         .name = "macThai",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_thai_alnum_char,
-        .alpha_char = pm_encoding_mac_thai_alpha_char,
-        .isupper_char = pm_encoding_mac_thai_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_TURKISH] = {
         .name = "macTurkish",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_turkish_alnum_char,
-        .alpha_char = pm_encoding_mac_turkish_alpha_char,
-        .isupper_char = pm_encoding_mac_turkish_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_MAC_UKRAINE] = {
         .name = "macUkraine",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_mac_ukraine_alnum_char,
-        .alpha_char = pm_encoding_mac_ukraine_alpha_char,
-        .isupper_char = pm_encoding_mac_ukraine_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_SHIFT_JIS] = {
         .name = "Shift_JIS",
-        .char_width = pm_encoding_shift_jis_char_width,
-        .alnum_char = pm_encoding_shift_jis_alnum_char,
-        .alpha_char = pm_encoding_shift_jis_alpha_char,
-        .isupper_char = pm_encoding_shift_jis_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_SHIFT_JIS,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_SJIS_DOCOMO] = {
         .name = "SJIS-DoCoMo",
-        .char_width = pm_encoding_shift_jis_char_width,
-        .alnum_char = pm_encoding_shift_jis_alnum_char,
-        .alpha_char = pm_encoding_shift_jis_alpha_char,
-        .isupper_char = pm_encoding_shift_jis_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_SHIFT_JIS,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_SJIS_KDDI] = {
         .name = "SJIS-KDDI",
-        .char_width = pm_encoding_shift_jis_char_width,
-        .alnum_char = pm_encoding_shift_jis_alnum_char,
-        .alpha_char = pm_encoding_shift_jis_alpha_char,
-        .isupper_char = pm_encoding_shift_jis_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_SHIFT_JIS,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_SJIS_SOFTBANK] = {
         .name = "SJIS-SoftBank",
-        .char_width = pm_encoding_shift_jis_char_width,
-        .alnum_char = pm_encoding_shift_jis_alnum_char,
-        .alpha_char = pm_encoding_shift_jis_alpha_char,
-        .isupper_char = pm_encoding_shift_jis_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_SHIFT_JIS,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_STATELESS_ISO_2022_JP] = {
         .name = "stateless-ISO-2022-JP",
-        .char_width = pm_encoding_emacs_mule_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EMACS_MULE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_STATELESS_ISO_2022_JP_KDDI] = {
         .name = "stateless-ISO-2022-JP-KDDI",
-        .char_width = pm_encoding_emacs_mule_char_width,
-        .alnum_char = pm_encoding_ascii_alnum_char_7bit,
-        .alpha_char = pm_encoding_ascii_alpha_char_7bit,
-        .isupper_char = pm_encoding_ascii_isupper_char_7bit,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_EMACS_MULE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_TIS_620] = {
         .name = "TIS-620",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_tis_620_alnum_char,
-        .alpha_char = pm_encoding_tis_620_alpha_char,
-        .isupper_char = pm_encoding_tis_620_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_11_table
     },
     [PM_ENCODING_UTF8_MAC] = {
         .name = "UTF8-MAC",
-        .char_width = pm_encoding_utf_8_char_width,
-        .alnum_char = pm_encoding_utf_8_alnum_char,
-        .alpha_char = pm_encoding_utf_8_alpha_char,
-        .isupper_char = pm_encoding_utf_8_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_UTF_8,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_UTF8_DOCOMO] = {
         .name = "UTF8-DoCoMo",
-        .char_width = pm_encoding_utf_8_char_width,
-        .alnum_char = pm_encoding_utf_8_alnum_char,
-        .alpha_char = pm_encoding_utf_8_alpha_char,
-        .isupper_char = pm_encoding_utf_8_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_UTF_8,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_UTF8_KDDI] = {
         .name = "UTF8-KDDI",
-        .char_width = pm_encoding_utf_8_char_width,
-        .alnum_char = pm_encoding_utf_8_alnum_char,
-        .alpha_char = pm_encoding_utf_8_alpha_char,
-        .isupper_char = pm_encoding_utf_8_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_UTF_8,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_UTF8_SOFTBANK] = {
         .name = "UTF8-SoftBank",
-        .char_width = pm_encoding_utf_8_char_width,
-        .alnum_char = pm_encoding_utf_8_alnum_char,
-        .alpha_char = pm_encoding_utf_8_alpha_char,
-        .isupper_char = pm_encoding_utf_8_isupper_char,
-        .multibyte = true
+        .kind = PM_ENCODING_KIND_UTF_8,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_WINDOWS_1250] = {
         .name = "Windows-1250",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1250_alnum_char,
-        .alpha_char = pm_encoding_windows_1250_alpha_char,
-        .isupper_char = pm_encoding_windows_1250_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_windows_1250_table
     },
     [PM_ENCODING_WINDOWS_1251] = {
         .name = "Windows-1251",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1251_alnum_char,
-        .alpha_char = pm_encoding_windows_1251_alpha_char,
-        .isupper_char = pm_encoding_windows_1251_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_windows_1251_table
     },
     [PM_ENCODING_WINDOWS_1252] = {
         .name = "Windows-1252",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1252_alnum_char,
-        .alpha_char = pm_encoding_windows_1252_alpha_char,
-        .isupper_char = pm_encoding_windows_1252_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_windows_1252_table
     },
     [PM_ENCODING_WINDOWS_1253] = {
         .name = "Windows-1253",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1253_alnum_char,
-        .alpha_char = pm_encoding_windows_1253_alpha_char,
-        .isupper_char = pm_encoding_windows_1253_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_windows_1253_table
     },
     [PM_ENCODING_WINDOWS_1254] = {
         .name = "Windows-1254",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1254_alnum_char,
-        .alpha_char = pm_encoding_windows_1254_alpha_char,
-        .isupper_char = pm_encoding_windows_1254_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_windows_1254_table
     },
     [PM_ENCODING_WINDOWS_1255] = {
         .name = "Windows-1255",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1255_alnum_char,
-        .alpha_char = pm_encoding_windows_1255_alpha_char,
-        .isupper_char = pm_encoding_windows_1255_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_8_table
     },
     [PM_ENCODING_WINDOWS_1256] = {
         .name = "Windows-1256",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1256_alnum_char,
-        .alpha_char = pm_encoding_windows_1256_alpha_char,
-        .isupper_char = pm_encoding_windows_1256_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_6_table
     },
     [PM_ENCODING_WINDOWS_1257] = {
         .name = "Windows-1257",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1257_alnum_char,
-        .alpha_char = pm_encoding_windows_1257_alpha_char,
-        .isupper_char = pm_encoding_windows_1257_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_iso_8859_13_table
     },
     [PM_ENCODING_WINDOWS_1258] = {
         .name = "Windows-1258",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_1258_alnum_char,
-        .alpha_char = pm_encoding_windows_1258_alpha_char,
-        .isupper_char = pm_encoding_windows_1258_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     },
     [PM_ENCODING_WINDOWS_874] = {
         .name = "Windows-874",
-        .char_width = pm_encoding_single_char_width,
-        .alnum_char = pm_encoding_windows_874_alnum_char,
-        .alpha_char = pm_encoding_windows_874_alpha_char,
-        .isupper_char = pm_encoding_windows_874_isupper_char,
-        .multibyte = false
+        .kind = PM_ENCODING_KIND_SINGLE_BYTE,
+        .table = pm_encoding_ascii_table
     }
 #endif
 };
