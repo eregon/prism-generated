@@ -47,6 +47,9 @@ typedef enum pm_token_type {
     /** } */
     PM_TOKEN_EMBEXPR_END,
 
+    /** the end of a heredoc */
+    PM_TOKEN_HEREDOC_END,
+
     /** do */
     PM_TOKEN_KEYWORD_DO,
 
@@ -232,9 +235,6 @@ typedef enum pm_token_type {
 
     /** \>\>= */
     PM_TOKEN_GREATER_GREATER_EQUAL,
-
-    /** the end of a heredoc */
-    PM_TOKEN_HEREDOC_END,
 
     /** the start of a heredoc */
     PM_TOKEN_HEREDOC_START,

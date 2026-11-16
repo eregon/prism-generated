@@ -24,6 +24,8 @@ pm_token_type(pm_token_type_t token_type) {
             return "COMMA";
         case PM_TOKEN_EMBEXPR_END:
             return "EMBEXPR_END";
+        case PM_TOKEN_HEREDOC_END:
+            return "HEREDOC_END";
         case PM_TOKEN_KEYWORD_DO:
             return "KEYWORD_DO";
         case PM_TOKEN_KEYWORD_ELSE:
@@ -148,8 +150,6 @@ pm_token_type(pm_token_type_t token_type) {
             return "GREATER_GREATER";
         case PM_TOKEN_GREATER_GREATER_EQUAL:
             return "GREATER_GREATER_EQUAL";
-        case PM_TOKEN_HEREDOC_END:
-            return "HEREDOC_END";
         case PM_TOKEN_HEREDOC_START:
             return "HEREDOC_START";
         case PM_TOKEN_IDENTIFIER:
