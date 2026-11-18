@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PM_DIAGNOSTIC_ID_MAX 327
+#define PM_DIAGNOSTIC_ID_MAX 328
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -91,6 +91,7 @@ typedef struct {
  * * `PM_ERROR_LEVEL_ARGUMENT` - Errors that should raise ArgumentError.
  * * `PM_ERROR_LEVEL_LOAD` - Errors that should raise LoadError.
  * * `PM_ERROR_LEVEL_STACK` - Errors that should raise SystemStackError.
+ * * `PM_ERROR_LEVEL_ENCODING_COMPATIBILITY` - Errors that should raise Encoding::CompatibilityError.
  *
  * For warnings, they are:
  *
@@ -109,6 +110,9 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
 
     /* Errors that should raise system stack errors */
     [PM_ERR_STACK_EXHAUSTED]                    = { "stack level too deep", PM_ERROR_LEVEL_STACK },
+
+    /* Errors that should raise encoding compatibility errors */
+    [PM_ERR_REGEXP_INTERPOLATION_ENCODING]      = { "incompatible character encodings: %s and %s", PM_ERROR_LEVEL_ENCODING_COMPATIBILITY },
 
     /* Errors that should raise syntax errors */
     [PM_ERR_ALIAS_ARGUMENT]                     = { "invalid argument being passed to `alias`; expected a bare word, symbol, constant, or global variable", PM_ERROR_LEVEL_SYNTAX },
@@ -696,6 +700,7 @@ pm_diagnostic_id_name(pm_diagnostic_id_t diag_id) {
         case PM_ERR_REGEXP_INVALID_UNICODE_RANGE: return "regexp_invalid_unicode_range";
         case PM_ERR_REGEXP_NON_ESCAPED_MBC: return "regexp_non_escaped_mbc";
         case PM_ERR_REGEXP_PARSE_ERROR: return "regexp_parse_error";
+        case PM_ERR_REGEXP_INTERPOLATION_ENCODING: return "regexp_interpolation_encoding";
         case PM_ERR_REGEXP_TERM: return "regexp_term";
         case PM_ERR_REGEXP_UNKNOWN_OPTIONS: return "regexp_unknown_options";
         case PM_ERR_REGEXP_UTF8_CHAR_NON_UTF8_REGEXP: return "regexp_utf8_char_non_utf8_regexp";

@@ -252,7 +252,7 @@ export class ParseResult {
   }
 }
 
-const errorLevels = ["syntax", "argument", "load", "stack"];
+const errorLevels = ["syntax", "argument", "load", "stack", "encoding_compatibility"];
 const errorTypes = [
   "alias_argument",
   "alias_argument_numbered_reference",
@@ -506,6 +506,7 @@ const errorTypes = [
   "regexp_invalid_unicode_range",
   "regexp_non_escaped_mbc",
   "regexp_parse_error",
+  "regexp_interpolation_encoding",
   "regexp_term",
   "regexp_unknown_options",
   "regexp_utf8_char_non_utf8_regexp",

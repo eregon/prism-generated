@@ -654,6 +654,7 @@ module Prism
         :regexp_invalid_unicode_range,
         :regexp_non_escaped_mbc,
         :regexp_parse_error,
+        :regexp_interpolation_encoding,
         :regexp_term,
         :regexp_unknown_options,
         :regexp_utf8_char_non_utf8_regexp,
@@ -746,6 +747,8 @@ module Prism
           :load
         when 3
           :stack
+        when 4
+          :encoding_compatibility
         else
           raise "Unknown level: #{level}"
         end
