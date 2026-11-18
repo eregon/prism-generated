@@ -8,6 +8,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 
 ### Added
 
+- The Rust bindings now expose the `attach_comments` parse option, along with a `Node#comments` accessor for reading the comments attached to a node.
 - `pm_options_stack_budget_set` was added to the C API. It sets the number of bytes of C stack the parser may use before reporting a `stack_exhausted` error, instead of overflowing the stack. `SIZE_MAX` means no budget, which is the default. The nesting depth limit alone assumes a stack of roughly 8MB, so embedders that parse on a smaller stack, such as a thread's or a fiber's, should pass a budget.
 - `Prism::StringQuery` methods accept a `version:` keyword, just like the parse methods. It defaults to the nearest version to the running Ruby. This matters for `constant?`, because Ruby 4.0 recognizes more uppercase letters than Ruby 3.4.
 - `StringQuery::version` was added to the Rust bindings. It picks the Ruby version that a query checks against. The default is the latest version.
@@ -24,6 +25,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/) a
 - A `?` followed by two identifier characters is a ternary operator, even when the first one is not ASCII. For example, `a ?☃b : c` used to read `?☃` as a character literal.
 - A multiple assignment can write to an attribute whose name starts with a character that is not ASCII, as in `foo.☃, bar = 1, 2`.
 - A name that starts with `€` (0xA4) in ISO-8859-16, or with `¯` (0xAF) in Windows-1252, is a constant name. In encodings that are not Unicode, a character that is neither uppercase nor lowercase begins a constant if case folding changes it.
+
+- `pm_node_list_t` no longer has a `capacity` field, and its `size` field is now a `uint32_t`.
+- `pm_constant_id_list_t` no longer has a `capacity` field, and its `size` field is now a `uint32_t`.
 
 ### Fixed
 

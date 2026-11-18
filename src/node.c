@@ -13,14 +13,14 @@
 #include "prism/internal/oom.h"
 
 /**
- * Attempts to grow the node list to the next size. If there is already
+ * Attempts to grow the scratch list to the next size. If there is already
  * capacity in the list, this function does nothing. Otherwise it allocates a
  * new array from the arena (abandon-and-copy strategy) and copies the existing
  * data into it.
  */
 static void
-pm_node_list_grow(pm_arena_t *arena, pm_node_list_t *list, size_t size) {
-    size_t requested_size = list->size + size;
+pm_scratch_node_list_grow(pm_arena_t *arena, pm_scratch_node_list_t *list, uint32_t size) {
+    uint32_t requested_size = list->size + size;
 
     // Guard against overflow on the addition.
     if (requested_size < list->size) PRISM_OOM();
@@ -29,7 +29,7 @@ pm_node_list_grow(pm_arena_t *arena, pm_node_list_t *list, size_t size) {
     if (requested_size <= list->capacity) return;
 
     // Otherwise, compute the next capacity by doubling.
-    size_t next_capacity = list->capacity == 0 ? 4 : list->capacity * 2;
+    uint32_t next_capacity = list->capacity == 0 ? 4 : list->capacity * 2;
 
     // Guard against overflow on the doubling.
     while (requested_size > next_capacity) {
@@ -38,7 +38,7 @@ pm_node_list_grow(pm_arena_t *arena, pm_node_list_t *list, size_t size) {
     }
 
     // Allocate a new array from the arena (old array is abandoned).
-    pm_node_t **nodes = (pm_node_t **) pm_arena_alloc(arena, sizeof(pm_node_t *) * next_capacity, PRISM_ALIGNOF(pm_node_t *));
+    pm_node_t **nodes = PM_ARENA_ALLOC_ARRAY(arena, pm_node_t *, next_capacity);
 
     // Copy old data into the new array.
     if (list->size > 0) {
@@ -50,44 +50,146 @@ pm_node_list_grow(pm_arena_t *arena, pm_node_list_t *list, size_t size) {
 }
 
 /**
- * Slow path for pm_node_list_append_inline: grow the list and append the node.
- * Do not call directly - use pm_node_list_append_inline instead.
+ * Slow path for pm_scratch_node_list_append: grow the list and append the
+ * node. Do not call directly - use pm_scratch_node_list_append instead.
  */
 void
-pm_node_list_append_slow(pm_arena_t *arena, pm_node_list_t *list, pm_node_t *node) {
-    pm_node_list_grow(arena, list, 1);
+pm_scratch_node_list_append_slow(pm_arena_t *arena, pm_scratch_node_list_t *list, pm_node_t *node) {
+    pm_scratch_node_list_grow(arena, list, 1);
     list->nodes[list->size++] = node;
 }
 
 /**
- * Append a new node onto the end of the node list.
+ * Append every node of the other scratch list onto the end of the list.
  */
 void
-pm_node_list_append(pm_arena_t *arena, pm_node_list_t *list, pm_node_t *node) {
-    pm_node_list_append_inline(arena, list, node);
+pm_scratch_node_list_concat(pm_arena_t *arena, pm_scratch_node_list_t *list, const pm_scratch_node_list_t *other) {
+    if (other->size > 0) {
+        pm_scratch_node_list_grow(arena, list, other->size);
+        memcpy(list->nodes + list->size, other->nodes, other->size * sizeof(pm_node_t *));
+        list->size += other->size;
+    }
 }
 
 /**
- * Prepend a new node onto the beginning of the node list.
+ * Append a node onto the end of a node list. A node list's array is always
+ * exactly its size, so it grows to exactly one more node, in place when it is
+ * the most recent allocation in the arena and by copying it otherwise.
  */
 void
-pm_node_list_prepend(pm_arena_t *arena, pm_node_list_t *list, pm_node_t *node) {
-    pm_node_list_grow(arena, list, 1);
-    memmove(list->nodes + 1, list->nodes, list->size * sizeof(pm_node_t *));
-    list->nodes[0] = node;
+pm_node_list_append(pm_arena_t *arena, pm_node_list_t *list, pm_node_t *node) {
+    if (list->size == 0) {
+        *list = pm_node_list_single(arena, node);
+        return;
+    }
+
+    list->nodes = PM_ARENA_REALLOC(arena, list->nodes, sizeof(pm_node_t *) * (list->size + 1), sizeof(pm_node_t *) * list->size, pm_node_t *);
+    list->nodes[list->size++] = node;
+}
+
+/**
+ * Carve a new batch of chunks out of the arena and hand out its first one.
+ * Request alignment to the chunk size through pm_arena_alloc_aligned; neither
+ * the chunk type nor the arena's blocks guarantee that alignment on their own.
+ * The chunk-sized stride preserves this alignment for every chunk in the batch.
+ */
+static pm_node_chunk_t *
+pm_node_chunks_carve(pm_node_chunks_t *chunks) {
+    pm_node_chunk_t *batch = (pm_node_chunk_t *) pm_arena_alloc_aligned(chunks->arena, PM_NODE_CHUNK_BATCH * PM_NODE_CHUNK_SIZE, PM_NODE_CHUNK_SIZE);
+
+    chunks->next = batch + 1;
+    chunks->end = batch + PM_NODE_CHUNK_BATCH;
+    return batch;
+}
+
+/**
+ * Get a chunk, preferring the most recently returned one since it is the most
+ * likely to still be in cache, then the current batch, then a new batch.
+ */
+static PRISM_INLINE pm_node_chunk_t *
+pm_node_chunk_acquire(pm_node_chunks_t *chunks) {
+    pm_node_chunk_t *chunk = chunks->free;
+
+    if (chunk != NULL) {
+        chunks->free = chunk->prev;
+        return chunk;
+    }
+
+    if (chunks->next != chunks->end) return chunks->next++;
+    return pm_node_chunks_carve(chunks);
+}
+
+/**
+ * Slow path for pm_node_list_open_append: link a new chunk onto the end of the
+ * list and append the node to it. Do not call directly - use
+ * pm_node_list_open_append instead.
+ */
+void
+pm_node_list_open_append_slow(pm_node_chunks_t *chunks, pm_node_list_t *list, pm_node_t *node) {
+    pm_node_chunk_t *chunk = pm_node_chunk_acquire(chunks);
+    chunk->prev = list->nodes == NULL ? NULL : PM_NODE_CHUNK_OF(list->nodes - 1);
+    chunk->slots[0] = node;
+
+    list->nodes = &chunk->slots[1];
     list->size++;
 }
 
 /**
- * Concatenate the given node list onto the end of the other node list.
+ * Copy an open list into an array of exactly its size allocated from the given
+ * arena. Chunks are linked from the last one backward, so the array is filled
+ * from its end. The whole chain then goes back on the freelist at once.
  */
 void
-pm_node_list_concat(pm_arena_t *arena, pm_node_list_t *list, pm_node_list_t *other) {
-    if (other->size > 0) {
-        pm_node_list_grow(arena, list, other->size);
-        memcpy(list->nodes + list->size, other->nodes, other->size * sizeof(pm_node_t *));
-        list->size += other->size;
+pm_node_list_finalize(pm_node_chunks_t *chunks, pm_arena_t *arena, pm_node_list_t *list) {
+    if (list->size == 0) return;
+
+    pm_node_t **nodes = PM_ARENA_ALLOC_ARRAY(arena, pm_node_t *, list->size);
+    pm_node_chunk_t *last = PM_NODE_CHUNK_OF(list->nodes - 1);
+    pm_node_chunk_t *chunk = last;
+
+    size_t count = (size_t) (list->nodes - chunk->slots);
+    size_t offset = list->size;
+
+    for (;;) {
+        offset -= count;
+        memcpy(nodes + offset, chunk->slots, count * sizeof(pm_node_t *));
+
+        if (chunk->prev == NULL) break;
+        chunk = chunk->prev;
+        count = PM_NODE_CHUNK_SLOTS;
     }
+
+    chunk->prev = chunks->free;
+    chunks->free = last;
+    list->nodes = nodes;
+}
+
+/**
+ * A finalized list holding just the given node. A list with one node is known
+ * to be complete when it is made, so it skips chunks entirely.
+ */
+pm_node_list_t
+pm_node_list_single(pm_arena_t *arena, pm_node_t *node) {
+    pm_node_t **nodes = PM_ARENA_ALLOC_ARRAY(arena, pm_node_t *, 1);
+    nodes[0] = node;
+    return (pm_node_list_t) { .size = 1, .nodes = nodes };
+}
+
+/**
+ * Prepend a node onto the beginning of a finalized list. Every existing node
+ * moves over by one, so the list is copied into a new array.
+ */
+void
+pm_node_list_prepend_finalized(pm_arena_t *arena, pm_node_list_t *list, pm_node_t *node) {
+    pm_node_t **nodes = PM_ARENA_ALLOC_ARRAY(arena, pm_node_t *, list->size + 1);
+    nodes[0] = node;
+
+    if (list->size > 0) {
+        memcpy(nodes + 1, list->nodes, sizeof(pm_node_t *) * list->size);
+    }
+
+    list->nodes = nodes;
+    list->size++;
 }
 
 /**
@@ -1731,7 +1833,7 @@ pm_visit_child_nodes(const pm_node_t *node, pm_visit_callback_t visitor, void *d
  */
 pm_alias_global_variable_node_t *
 pm_alias_global_variable_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *new_name, struct pm_node *old_name, pm_location_t keyword_loc) {
-    pm_alias_global_variable_node_t *node = (pm_alias_global_variable_node_t *) pm_arena_alloc(arena, sizeof(pm_alias_global_variable_node_t), PRISM_ALIGNOF(pm_alias_global_variable_node_t));
+    pm_alias_global_variable_node_t *node = PM_ARENA_ALLOC(arena, pm_alias_global_variable_node_t);
 
     *node = (pm_alias_global_variable_node_t) {
         .base = { .type = PM_ALIAS_GLOBAL_VARIABLE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1748,7 +1850,7 @@ pm_alias_global_variable_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_f
  */
 pm_alias_method_node_t *
 pm_alias_method_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *new_name, struct pm_node *old_name, pm_location_t keyword_loc) {
-    pm_alias_method_node_t *node = (pm_alias_method_node_t *) pm_arena_alloc(arena, sizeof(pm_alias_method_node_t), PRISM_ALIGNOF(pm_alias_method_node_t));
+    pm_alias_method_node_t *node = PM_ARENA_ALLOC(arena, pm_alias_method_node_t);
 
     *node = (pm_alias_method_node_t) {
         .base = { .type = PM_ALIAS_METHOD_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1765,7 +1867,7 @@ pm_alias_method_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fl
  */
 pm_alternation_pattern_node_t *
 pm_alternation_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *left, struct pm_node *right, pm_location_t operator_loc) {
-    pm_alternation_pattern_node_t *node = (pm_alternation_pattern_node_t *) pm_arena_alloc(arena, sizeof(pm_alternation_pattern_node_t), PRISM_ALIGNOF(pm_alternation_pattern_node_t));
+    pm_alternation_pattern_node_t *node = PM_ARENA_ALLOC(arena, pm_alternation_pattern_node_t);
 
     *node = (pm_alternation_pattern_node_t) {
         .base = { .type = PM_ALTERNATION_PATTERN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1782,7 +1884,7 @@ pm_alternation_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_and_node_t *
 pm_and_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *left, struct pm_node *right, pm_location_t operator_loc) {
-    pm_and_node_t *node = (pm_and_node_t *) pm_arena_alloc(arena, sizeof(pm_and_node_t), PRISM_ALIGNOF(pm_and_node_t));
+    pm_and_node_t *node = PM_ARENA_ALLOC(arena, pm_and_node_t);
 
     *node = (pm_and_node_t) {
         .base = { .type = PM_AND_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1799,7 +1901,7 @@ pm_and_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_l
  */
 pm_arguments_node_t *
 pm_arguments_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_node_list_t arguments) {
-    pm_arguments_node_t *node = (pm_arguments_node_t *) pm_arena_alloc(arena, sizeof(pm_arguments_node_t), PRISM_ALIGNOF(pm_arguments_node_t));
+    pm_arguments_node_t *node = PM_ARENA_ALLOC(arena, pm_arguments_node_t);
 
     *node = (pm_arguments_node_t) {
         .base = { .type = PM_ARGUMENTS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1814,7 +1916,7 @@ pm_arguments_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags
  */
 pm_array_node_t *
 pm_array_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_node_list_t elements, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_array_node_t *node = (pm_array_node_t *) pm_arena_alloc(arena, sizeof(pm_array_node_t), PRISM_ALIGNOF(pm_array_node_t));
+    pm_array_node_t *node = PM_ARENA_ALLOC(arena, pm_array_node_t);
 
     *node = (pm_array_node_t) {
         .base = { .type = PM_ARRAY_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1831,7 +1933,7 @@ pm_array_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_array_pattern_node_t *
 pm_array_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *constant, pm_node_list_t requireds, struct pm_node *rest, pm_node_list_t posts, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_array_pattern_node_t *node = (pm_array_pattern_node_t *) pm_arena_alloc(arena, sizeof(pm_array_pattern_node_t), PRISM_ALIGNOF(pm_array_pattern_node_t));
+    pm_array_pattern_node_t *node = PM_ARENA_ALLOC(arena, pm_array_pattern_node_t);
 
     *node = (pm_array_pattern_node_t) {
         .base = { .type = PM_ARRAY_PATTERN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1851,7 +1953,7 @@ pm_array_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t f
  */
 pm_assoc_node_t *
 pm_assoc_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *key, struct pm_node *value, pm_location_t operator_loc) {
-    pm_assoc_node_t *node = (pm_assoc_node_t *) pm_arena_alloc(arena, sizeof(pm_assoc_node_t), PRISM_ALIGNOF(pm_assoc_node_t));
+    pm_assoc_node_t *node = PM_ARENA_ALLOC(arena, pm_assoc_node_t);
 
     *node = (pm_assoc_node_t) {
         .base = { .type = PM_ASSOC_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1868,7 +1970,7 @@ pm_assoc_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_assoc_splat_node_t *
 pm_assoc_splat_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *value, pm_location_t operator_loc) {
-    pm_assoc_splat_node_t *node = (pm_assoc_splat_node_t *) pm_arena_alloc(arena, sizeof(pm_assoc_splat_node_t), PRISM_ALIGNOF(pm_assoc_splat_node_t));
+    pm_assoc_splat_node_t *node = PM_ARENA_ALLOC(arena, pm_assoc_splat_node_t);
 
     *node = (pm_assoc_splat_node_t) {
         .base = { .type = PM_ASSOC_SPLAT_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1884,7 +1986,7 @@ pm_assoc_splat_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fla
  */
 pm_back_reference_read_node_t *
 pm_back_reference_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_back_reference_read_node_t *node = (pm_back_reference_read_node_t *) pm_arena_alloc(arena, sizeof(pm_back_reference_read_node_t), PRISM_ALIGNOF(pm_back_reference_read_node_t));
+    pm_back_reference_read_node_t *node = PM_ARENA_ALLOC(arena, pm_back_reference_read_node_t);
 
     *node = (pm_back_reference_read_node_t) {
         .base = { .type = PM_BACK_REFERENCE_READ_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1899,7 +2001,7 @@ pm_back_reference_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_begin_node_t *
 pm_begin_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t begin_keyword_loc, struct pm_statements_node *statements, struct pm_rescue_node *rescue_clause, struct pm_else_node *else_clause, struct pm_ensure_node *ensure_clause, pm_location_t end_keyword_loc) {
-    pm_begin_node_t *node = (pm_begin_node_t *) pm_arena_alloc(arena, sizeof(pm_begin_node_t), PRISM_ALIGNOF(pm_begin_node_t));
+    pm_begin_node_t *node = PM_ARENA_ALLOC(arena, pm_begin_node_t);
 
     *node = (pm_begin_node_t) {
         .base = { .type = PM_BEGIN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1919,7 +2021,7 @@ pm_begin_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_block_argument_node_t *
 pm_block_argument_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *expression, pm_location_t operator_loc) {
-    pm_block_argument_node_t *node = (pm_block_argument_node_t *) pm_arena_alloc(arena, sizeof(pm_block_argument_node_t), PRISM_ALIGNOF(pm_block_argument_node_t));
+    pm_block_argument_node_t *node = PM_ARENA_ALLOC(arena, pm_block_argument_node_t);
 
     *node = (pm_block_argument_node_t) {
         .base = { .type = PM_BLOCK_ARGUMENT_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1935,7 +2037,7 @@ pm_block_argument_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t 
  */
 pm_block_local_variable_node_t *
 pm_block_local_variable_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_block_local_variable_node_t *node = (pm_block_local_variable_node_t *) pm_arena_alloc(arena, sizeof(pm_block_local_variable_node_t), PRISM_ALIGNOF(pm_block_local_variable_node_t));
+    pm_block_local_variable_node_t *node = PM_ARENA_ALLOC(arena, pm_block_local_variable_node_t);
 
     *node = (pm_block_local_variable_node_t) {
         .base = { .type = PM_BLOCK_LOCAL_VARIABLE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1950,7 +2052,7 @@ pm_block_local_variable_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  */
 pm_block_node_t *
 pm_block_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_list_t locals, struct pm_node *parameters, struct pm_node *body, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_block_node_t *node = (pm_block_node_t *) pm_arena_alloc(arena, sizeof(pm_block_node_t), PRISM_ALIGNOF(pm_block_node_t));
+    pm_block_node_t *node = PM_ARENA_ALLOC(arena, pm_block_node_t);
 
     *node = (pm_block_node_t) {
         .base = { .type = PM_BLOCK_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1969,7 +2071,7 @@ pm_block_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_block_parameter_node_t *
 pm_block_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc) {
-    pm_block_parameter_node_t *node = (pm_block_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_block_parameter_node_t), PRISM_ALIGNOF(pm_block_parameter_node_t));
+    pm_block_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_block_parameter_node_t);
 
     *node = (pm_block_parameter_node_t) {
         .base = { .type = PM_BLOCK_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -1986,7 +2088,7 @@ pm_block_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_block_parameters_node_t *
 pm_block_parameters_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_parameters_node *parameters, pm_node_list_t locals, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_block_parameters_node_t *node = (pm_block_parameters_node_t *) pm_arena_alloc(arena, sizeof(pm_block_parameters_node_t), PRISM_ALIGNOF(pm_block_parameters_node_t));
+    pm_block_parameters_node_t *node = PM_ARENA_ALLOC(arena, pm_block_parameters_node_t);
 
     *node = (pm_block_parameters_node_t) {
         .base = { .type = PM_BLOCK_PARAMETERS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2004,7 +2106,7 @@ pm_block_parameters_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_
  */
 pm_break_node_t *
 pm_break_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_arguments_node *arguments, pm_location_t keyword_loc) {
-    pm_break_node_t *node = (pm_break_node_t *) pm_arena_alloc(arena, sizeof(pm_break_node_t), PRISM_ALIGNOF(pm_break_node_t));
+    pm_break_node_t *node = PM_ARENA_ALLOC(arena, pm_break_node_t);
 
     *node = (pm_break_node_t) {
         .base = { .type = PM_BREAK_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2020,7 +2122,7 @@ pm_break_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_call_and_write_node_t *
 pm_call_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t call_operator_loc, pm_location_t message_loc, pm_constant_id_t read_name, pm_constant_id_t write_name, pm_location_t operator_loc, struct pm_node *value) {
-    pm_call_and_write_node_t *node = (pm_call_and_write_node_t *) pm_arena_alloc(arena, sizeof(pm_call_and_write_node_t), PRISM_ALIGNOF(pm_call_and_write_node_t));
+    pm_call_and_write_node_t *node = PM_ARENA_ALLOC(arena, pm_call_and_write_node_t);
 
     *node = (pm_call_and_write_node_t) {
         .base = { .type = PM_CALL_AND_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2041,7 +2143,7 @@ pm_call_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t 
  */
 pm_call_node_t *
 pm_call_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t call_operator_loc, pm_constant_id_t name, pm_location_t message_loc, pm_location_t opening_loc, struct pm_arguments_node *arguments, pm_location_t closing_loc, pm_location_t equal_loc, struct pm_node *block) {
-    pm_call_node_t *node = (pm_call_node_t *) pm_arena_alloc(arena, sizeof(pm_call_node_t), PRISM_ALIGNOF(pm_call_node_t));
+    pm_call_node_t *node = PM_ARENA_ALLOC(arena, pm_call_node_t);
 
     *node = (pm_call_node_t) {
         .base = { .type = PM_CALL_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2064,7 +2166,7 @@ pm_call_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_call_operator_write_node_t *
 pm_call_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t call_operator_loc, pm_location_t message_loc, pm_constant_id_t read_name, pm_constant_id_t write_name, pm_constant_id_t binary_operator, pm_location_t binary_operator_loc, struct pm_node *value) {
-    pm_call_operator_write_node_t *node = (pm_call_operator_write_node_t *) pm_arena_alloc(arena, sizeof(pm_call_operator_write_node_t), PRISM_ALIGNOF(pm_call_operator_write_node_t));
+    pm_call_operator_write_node_t *node = PM_ARENA_ALLOC(arena, pm_call_operator_write_node_t);
 
     *node = (pm_call_operator_write_node_t) {
         .base = { .type = PM_CALL_OPERATOR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2086,7 +2188,7 @@ pm_call_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_call_or_write_node_t *
 pm_call_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t call_operator_loc, pm_location_t message_loc, pm_constant_id_t read_name, pm_constant_id_t write_name, pm_location_t operator_loc, struct pm_node *value) {
-    pm_call_or_write_node_t *node = (pm_call_or_write_node_t *) pm_arena_alloc(arena, sizeof(pm_call_or_write_node_t), PRISM_ALIGNOF(pm_call_or_write_node_t));
+    pm_call_or_write_node_t *node = PM_ARENA_ALLOC(arena, pm_call_or_write_node_t);
 
     *node = (pm_call_or_write_node_t) {
         .base = { .type = PM_CALL_OR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2107,7 +2209,7 @@ pm_call_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t f
  */
 pm_call_target_node_t *
 pm_call_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t call_operator_loc, pm_constant_id_t name, pm_location_t message_loc) {
-    pm_call_target_node_t *node = (pm_call_target_node_t *) pm_arena_alloc(arena, sizeof(pm_call_target_node_t), PRISM_ALIGNOF(pm_call_target_node_t));
+    pm_call_target_node_t *node = PM_ARENA_ALLOC(arena, pm_call_target_node_t);
 
     *node = (pm_call_target_node_t) {
         .base = { .type = PM_CALL_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2125,7 +2227,7 @@ pm_call_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fla
  */
 pm_capture_pattern_node_t *
 pm_capture_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *value, struct pm_local_variable_target_node *target, pm_location_t operator_loc) {
-    pm_capture_pattern_node_t *node = (pm_capture_pattern_node_t *) pm_arena_alloc(arena, sizeof(pm_capture_pattern_node_t), PRISM_ALIGNOF(pm_capture_pattern_node_t));
+    pm_capture_pattern_node_t *node = PM_ARENA_ALLOC(arena, pm_capture_pattern_node_t);
 
     *node = (pm_capture_pattern_node_t) {
         .base = { .type = PM_CAPTURE_PATTERN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2142,7 +2244,7 @@ pm_capture_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_case_match_node_t *
 pm_case_match_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *predicate, pm_node_list_t conditions, struct pm_else_node *else_clause, pm_location_t case_keyword_loc, pm_location_t end_keyword_loc) {
-    pm_case_match_node_t *node = (pm_case_match_node_t *) pm_arena_alloc(arena, sizeof(pm_case_match_node_t), PRISM_ALIGNOF(pm_case_match_node_t));
+    pm_case_match_node_t *node = PM_ARENA_ALLOC(arena, pm_case_match_node_t);
 
     *node = (pm_case_match_node_t) {
         .base = { .type = PM_CASE_MATCH_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2161,7 +2263,7 @@ pm_case_match_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flag
  */
 pm_case_node_t *
 pm_case_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *predicate, pm_node_list_t conditions, struct pm_else_node *else_clause, pm_location_t case_keyword_loc, pm_location_t end_keyword_loc) {
-    pm_case_node_t *node = (pm_case_node_t *) pm_arena_alloc(arena, sizeof(pm_case_node_t), PRISM_ALIGNOF(pm_case_node_t));
+    pm_case_node_t *node = PM_ARENA_ALLOC(arena, pm_case_node_t);
 
     *node = (pm_case_node_t) {
         .base = { .type = PM_CASE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2180,7 +2282,7 @@ pm_case_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_class_node_t *
 pm_class_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_list_t locals, pm_location_t class_keyword_loc, struct pm_node *constant_path, pm_location_t inheritance_operator_loc, struct pm_node *superclass, struct pm_node *body, pm_location_t end_keyword_loc, pm_constant_id_t name) {
-    pm_class_node_t *node = (pm_class_node_t *) pm_arena_alloc(arena, sizeof(pm_class_node_t), PRISM_ALIGNOF(pm_class_node_t));
+    pm_class_node_t *node = PM_ARENA_ALLOC(arena, pm_class_node_t);
 
     *node = (pm_class_node_t) {
         .base = { .type = PM_CLASS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2202,7 +2304,7 @@ pm_class_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_class_variable_and_write_node_t *
 pm_class_variable_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_class_variable_and_write_node_t *node = (pm_class_variable_and_write_node_t *) pm_arena_alloc(arena, sizeof(pm_class_variable_and_write_node_t), PRISM_ALIGNOF(pm_class_variable_and_write_node_t));
+    pm_class_variable_and_write_node_t *node = PM_ARENA_ALLOC(arena, pm_class_variable_and_write_node_t);
 
     *node = (pm_class_variable_and_write_node_t) {
         .base = { .type = PM_CLASS_VARIABLE_AND_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2220,7 +2322,7 @@ pm_class_variable_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_nod
  */
 pm_class_variable_operator_write_node_t *
 pm_class_variable_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t binary_operator_loc, struct pm_node *value, pm_constant_id_t binary_operator) {
-    pm_class_variable_operator_write_node_t *node = (pm_class_variable_operator_write_node_t *) pm_arena_alloc(arena, sizeof(pm_class_variable_operator_write_node_t), PRISM_ALIGNOF(pm_class_variable_operator_write_node_t));
+    pm_class_variable_operator_write_node_t *node = PM_ARENA_ALLOC(arena, pm_class_variable_operator_write_node_t);
 
     *node = (pm_class_variable_operator_write_node_t) {
         .base = { .type = PM_CLASS_VARIABLE_OPERATOR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2239,7 +2341,7 @@ pm_class_variable_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, p
  */
 pm_class_variable_or_write_node_t *
 pm_class_variable_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_class_variable_or_write_node_t *node = (pm_class_variable_or_write_node_t *) pm_arena_alloc(arena, sizeof(pm_class_variable_or_write_node_t), PRISM_ALIGNOF(pm_class_variable_or_write_node_t));
+    pm_class_variable_or_write_node_t *node = PM_ARENA_ALLOC(arena, pm_class_variable_or_write_node_t);
 
     *node = (pm_class_variable_or_write_node_t) {
         .base = { .type = PM_CLASS_VARIABLE_OR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2257,7 +2359,7 @@ pm_class_variable_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node
  */
 pm_class_variable_read_node_t *
 pm_class_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_class_variable_read_node_t *node = (pm_class_variable_read_node_t *) pm_arena_alloc(arena, sizeof(pm_class_variable_read_node_t), PRISM_ALIGNOF(pm_class_variable_read_node_t));
+    pm_class_variable_read_node_t *node = PM_ARENA_ALLOC(arena, pm_class_variable_read_node_t);
 
     *node = (pm_class_variable_read_node_t) {
         .base = { .type = PM_CLASS_VARIABLE_READ_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2272,7 +2374,7 @@ pm_class_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_class_variable_target_node_t *
 pm_class_variable_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_class_variable_target_node_t *node = (pm_class_variable_target_node_t *) pm_arena_alloc(arena, sizeof(pm_class_variable_target_node_t), PRISM_ALIGNOF(pm_class_variable_target_node_t));
+    pm_class_variable_target_node_t *node = PM_ARENA_ALLOC(arena, pm_class_variable_target_node_t);
 
     *node = (pm_class_variable_target_node_t) {
         .base = { .type = PM_CLASS_VARIABLE_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2287,7 +2389,7 @@ pm_class_variable_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_f
  */
 pm_class_variable_write_node_t *
 pm_class_variable_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, struct pm_node *value, pm_location_t operator_loc) {
-    pm_class_variable_write_node_t *node = (pm_class_variable_write_node_t *) pm_arena_alloc(arena, sizeof(pm_class_variable_write_node_t), PRISM_ALIGNOF(pm_class_variable_write_node_t));
+    pm_class_variable_write_node_t *node = PM_ARENA_ALLOC(arena, pm_class_variable_write_node_t);
 
     *node = (pm_class_variable_write_node_t) {
         .base = { .type = PM_CLASS_VARIABLE_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2305,7 +2407,7 @@ pm_class_variable_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  */
 pm_constant_and_write_node_t *
 pm_constant_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_constant_and_write_node_t *node = (pm_constant_and_write_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_and_write_node_t), PRISM_ALIGNOF(pm_constant_and_write_node_t));
+    pm_constant_and_write_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_and_write_node_t);
 
     *node = (pm_constant_and_write_node_t) {
         .base = { .type = PM_CONSTANT_AND_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2323,7 +2425,7 @@ pm_constant_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flag
  */
 pm_constant_operator_write_node_t *
 pm_constant_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t binary_operator_loc, struct pm_node *value, pm_constant_id_t binary_operator) {
-    pm_constant_operator_write_node_t *node = (pm_constant_operator_write_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_operator_write_node_t), PRISM_ALIGNOF(pm_constant_operator_write_node_t));
+    pm_constant_operator_write_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_operator_write_node_t);
 
     *node = (pm_constant_operator_write_node_t) {
         .base = { .type = PM_CONSTANT_OPERATOR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2342,7 +2444,7 @@ pm_constant_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node
  */
 pm_constant_or_write_node_t *
 pm_constant_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_constant_or_write_node_t *node = (pm_constant_or_write_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_or_write_node_t), PRISM_ALIGNOF(pm_constant_or_write_node_t));
+    pm_constant_or_write_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_or_write_node_t);
 
     *node = (pm_constant_or_write_node_t) {
         .base = { .type = PM_CONSTANT_OR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2360,7 +2462,7 @@ pm_constant_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags
  */
 pm_constant_path_and_write_node_t *
 pm_constant_path_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_constant_path_node *target, pm_location_t operator_loc, struct pm_node *value) {
-    pm_constant_path_and_write_node_t *node = (pm_constant_path_and_write_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_path_and_write_node_t), PRISM_ALIGNOF(pm_constant_path_and_write_node_t));
+    pm_constant_path_and_write_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_path_and_write_node_t);
 
     *node = (pm_constant_path_and_write_node_t) {
         .base = { .type = PM_CONSTANT_PATH_AND_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2377,7 +2479,7 @@ pm_constant_path_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node
  */
 pm_constant_path_node_t *
 pm_constant_path_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *parent, pm_constant_id_t name, pm_location_t delimiter_loc, pm_location_t name_loc) {
-    pm_constant_path_node_t *node = (pm_constant_path_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_path_node_t), PRISM_ALIGNOF(pm_constant_path_node_t));
+    pm_constant_path_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_path_node_t);
 
     *node = (pm_constant_path_node_t) {
         .base = { .type = PM_CONSTANT_PATH_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2395,7 +2497,7 @@ pm_constant_path_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t f
  */
 pm_constant_path_operator_write_node_t *
 pm_constant_path_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_constant_path_node *target, pm_location_t binary_operator_loc, struct pm_node *value, pm_constant_id_t binary_operator) {
-    pm_constant_path_operator_write_node_t *node = (pm_constant_path_operator_write_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_path_operator_write_node_t), PRISM_ALIGNOF(pm_constant_path_operator_write_node_t));
+    pm_constant_path_operator_write_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_path_operator_write_node_t);
 
     *node = (pm_constant_path_operator_write_node_t) {
         .base = { .type = PM_CONSTANT_PATH_OPERATOR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2413,7 +2515,7 @@ pm_constant_path_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm
  */
 pm_constant_path_or_write_node_t *
 pm_constant_path_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_constant_path_node *target, pm_location_t operator_loc, struct pm_node *value) {
-    pm_constant_path_or_write_node_t *node = (pm_constant_path_or_write_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_path_or_write_node_t), PRISM_ALIGNOF(pm_constant_path_or_write_node_t));
+    pm_constant_path_or_write_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_path_or_write_node_t);
 
     *node = (pm_constant_path_or_write_node_t) {
         .base = { .type = PM_CONSTANT_PATH_OR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2430,7 +2532,7 @@ pm_constant_path_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_
  */
 pm_constant_path_target_node_t *
 pm_constant_path_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *parent, pm_constant_id_t name, pm_location_t delimiter_loc, pm_location_t name_loc) {
-    pm_constant_path_target_node_t *node = (pm_constant_path_target_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_path_target_node_t), PRISM_ALIGNOF(pm_constant_path_target_node_t));
+    pm_constant_path_target_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_path_target_node_t);
 
     *node = (pm_constant_path_target_node_t) {
         .base = { .type = PM_CONSTANT_PATH_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2448,7 +2550,7 @@ pm_constant_path_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  */
 pm_constant_path_write_node_t *
 pm_constant_path_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_constant_path_node *target, pm_location_t operator_loc, struct pm_node *value) {
-    pm_constant_path_write_node_t *node = (pm_constant_path_write_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_path_write_node_t), PRISM_ALIGNOF(pm_constant_path_write_node_t));
+    pm_constant_path_write_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_path_write_node_t);
 
     *node = (pm_constant_path_write_node_t) {
         .base = { .type = PM_CONSTANT_PATH_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2465,7 +2567,7 @@ pm_constant_path_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_constant_read_node_t *
 pm_constant_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_constant_read_node_t *node = (pm_constant_read_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_read_node_t), PRISM_ALIGNOF(pm_constant_read_node_t));
+    pm_constant_read_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_read_node_t);
 
     *node = (pm_constant_read_node_t) {
         .base = { .type = PM_CONSTANT_READ_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2480,7 +2582,7 @@ pm_constant_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t f
  */
 pm_constant_target_node_t *
 pm_constant_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_constant_target_node_t *node = (pm_constant_target_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_target_node_t), PRISM_ALIGNOF(pm_constant_target_node_t));
+    pm_constant_target_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_target_node_t);
 
     *node = (pm_constant_target_node_t) {
         .base = { .type = PM_CONSTANT_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2495,7 +2597,7 @@ pm_constant_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_constant_write_node_t *
 pm_constant_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, struct pm_node *value, pm_location_t operator_loc) {
-    pm_constant_write_node_t *node = (pm_constant_write_node_t *) pm_arena_alloc(arena, sizeof(pm_constant_write_node_t), PRISM_ALIGNOF(pm_constant_write_node_t));
+    pm_constant_write_node_t *node = PM_ARENA_ALLOC(arena, pm_constant_write_node_t);
 
     *node = (pm_constant_write_node_t) {
         .base = { .type = PM_CONSTANT_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2513,7 +2615,7 @@ pm_constant_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t 
  */
 pm_def_node_t *
 pm_def_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, struct pm_node *receiver, struct pm_parameters_node *parameters, struct pm_node *body, pm_constant_id_list_t locals, pm_location_t def_keyword_loc, pm_location_t operator_loc, pm_location_t lparen_loc, pm_location_t rparen_loc, pm_location_t equal_loc, pm_location_t end_keyword_loc) {
-    pm_def_node_t *node = (pm_def_node_t *) pm_arena_alloc(arena, sizeof(pm_def_node_t), PRISM_ALIGNOF(pm_def_node_t));
+    pm_def_node_t *node = PM_ARENA_ALLOC(arena, pm_def_node_t);
 
     *node = (pm_def_node_t) {
         .base = { .type = PM_DEF_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2539,7 +2641,7 @@ pm_def_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_l
  */
 pm_defined_node_t *
 pm_defined_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t lparen_loc, struct pm_node *value, pm_location_t rparen_loc, pm_location_t keyword_loc) {
-    pm_defined_node_t *node = (pm_defined_node_t *) pm_arena_alloc(arena, sizeof(pm_defined_node_t), PRISM_ALIGNOF(pm_defined_node_t));
+    pm_defined_node_t *node = PM_ARENA_ALLOC(arena, pm_defined_node_t);
 
     *node = (pm_defined_node_t) {
         .base = { .type = PM_DEFINED_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2557,7 +2659,7 @@ pm_defined_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, 
  */
 pm_else_node_t *
 pm_else_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t else_keyword_loc, struct pm_statements_node *statements, pm_location_t end_keyword_loc) {
-    pm_else_node_t *node = (pm_else_node_t *) pm_arena_alloc(arena, sizeof(pm_else_node_t), PRISM_ALIGNOF(pm_else_node_t));
+    pm_else_node_t *node = PM_ARENA_ALLOC(arena, pm_else_node_t);
 
     *node = (pm_else_node_t) {
         .base = { .type = PM_ELSE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2574,7 +2676,7 @@ pm_else_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_embedded_statements_node_t *
 pm_embedded_statements_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, struct pm_statements_node *statements, pm_location_t closing_loc) {
-    pm_embedded_statements_node_t *node = (pm_embedded_statements_node_t *) pm_arena_alloc(arena, sizeof(pm_embedded_statements_node_t), PRISM_ALIGNOF(pm_embedded_statements_node_t));
+    pm_embedded_statements_node_t *node = PM_ARENA_ALLOC(arena, pm_embedded_statements_node_t);
 
     *node = (pm_embedded_statements_node_t) {
         .base = { .type = PM_EMBEDDED_STATEMENTS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2591,7 +2693,7 @@ pm_embedded_statements_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_embedded_variable_node_t *
 pm_embedded_variable_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t operator_loc, struct pm_node *variable) {
-    pm_embedded_variable_node_t *node = (pm_embedded_variable_node_t *) pm_arena_alloc(arena, sizeof(pm_embedded_variable_node_t), PRISM_ALIGNOF(pm_embedded_variable_node_t));
+    pm_embedded_variable_node_t *node = PM_ARENA_ALLOC(arena, pm_embedded_variable_node_t);
 
     *node = (pm_embedded_variable_node_t) {
         .base = { .type = PM_EMBEDDED_VARIABLE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2607,7 +2709,7 @@ pm_embedded_variable_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags
  */
 pm_ensure_node_t *
 pm_ensure_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t ensure_keyword_loc, struct pm_statements_node *statements, pm_location_t end_keyword_loc) {
-    pm_ensure_node_t *node = (pm_ensure_node_t *) pm_arena_alloc(arena, sizeof(pm_ensure_node_t), PRISM_ALIGNOF(pm_ensure_node_t));
+    pm_ensure_node_t *node = PM_ARENA_ALLOC(arena, pm_ensure_node_t);
 
     *node = (pm_ensure_node_t) {
         .base = { .type = PM_ENSURE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2624,7 +2726,7 @@ pm_ensure_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
  */
 pm_error_recovery_node_t *
 pm_error_recovery_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *unexpected) {
-    pm_error_recovery_node_t *node = (pm_error_recovery_node_t *) pm_arena_alloc(arena, sizeof(pm_error_recovery_node_t), PRISM_ALIGNOF(pm_error_recovery_node_t));
+    pm_error_recovery_node_t *node = PM_ARENA_ALLOC(arena, pm_error_recovery_node_t);
 
     *node = (pm_error_recovery_node_t) {
         .base = { .type = PM_ERROR_RECOVERY_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2639,7 +2741,7 @@ pm_error_recovery_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t 
  */
 pm_false_node_t *
 pm_false_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_false_node_t *node = (pm_false_node_t *) pm_arena_alloc(arena, sizeof(pm_false_node_t), PRISM_ALIGNOF(pm_false_node_t));
+    pm_false_node_t *node = PM_ARENA_ALLOC(arena, pm_false_node_t);
 
     *node = (pm_false_node_t) {
         .base = { .type = PM_FALSE_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -2653,7 +2755,7 @@ pm_false_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_find_pattern_node_t *
 pm_find_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *constant, struct pm_splat_node *left, pm_node_list_t requireds, struct pm_splat_node *right, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_find_pattern_node_t *node = (pm_find_pattern_node_t *) pm_arena_alloc(arena, sizeof(pm_find_pattern_node_t), PRISM_ALIGNOF(pm_find_pattern_node_t));
+    pm_find_pattern_node_t *node = PM_ARENA_ALLOC(arena, pm_find_pattern_node_t);
 
     *node = (pm_find_pattern_node_t) {
         .base = { .type = PM_FIND_PATTERN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2673,7 +2775,7 @@ pm_find_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fl
  */
 pm_flip_flop_node_t *
 pm_flip_flop_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *left, struct pm_node *right, pm_location_t operator_loc) {
-    pm_flip_flop_node_t *node = (pm_flip_flop_node_t *) pm_arena_alloc(arena, sizeof(pm_flip_flop_node_t), PRISM_ALIGNOF(pm_flip_flop_node_t));
+    pm_flip_flop_node_t *node = PM_ARENA_ALLOC(arena, pm_flip_flop_node_t);
 
     *node = (pm_flip_flop_node_t) {
         .base = { .type = PM_FLIP_FLOP_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2690,7 +2792,7 @@ pm_flip_flop_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags
  */
 pm_float_node_t *
 pm_float_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, double value) {
-    pm_float_node_t *node = (pm_float_node_t *) pm_arena_alloc(arena, sizeof(pm_float_node_t), PRISM_ALIGNOF(pm_float_node_t));
+    pm_float_node_t *node = PM_ARENA_ALLOC(arena, pm_float_node_t);
 
     *node = (pm_float_node_t) {
         .base = { .type = PM_FLOAT_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2705,7 +2807,7 @@ pm_float_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_for_node_t *
 pm_for_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *index, struct pm_node *collection, struct pm_statements_node *statements, pm_location_t for_keyword_loc, pm_location_t in_keyword_loc, pm_location_t do_keyword_loc, pm_location_t end_keyword_loc) {
-    pm_for_node_t *node = (pm_for_node_t *) pm_arena_alloc(arena, sizeof(pm_for_node_t), PRISM_ALIGNOF(pm_for_node_t));
+    pm_for_node_t *node = PM_ARENA_ALLOC(arena, pm_for_node_t);
 
     *node = (pm_for_node_t) {
         .base = { .type = PM_FOR_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2726,7 +2828,7 @@ pm_for_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_l
  */
 pm_forwarding_arguments_node_t *
 pm_forwarding_arguments_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_forwarding_arguments_node_t *node = (pm_forwarding_arguments_node_t *) pm_arena_alloc(arena, sizeof(pm_forwarding_arguments_node_t), PRISM_ALIGNOF(pm_forwarding_arguments_node_t));
+    pm_forwarding_arguments_node_t *node = PM_ARENA_ALLOC(arena, pm_forwarding_arguments_node_t);
 
     *node = (pm_forwarding_arguments_node_t) {
         .base = { .type = PM_FORWARDING_ARGUMENTS_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -2740,7 +2842,7 @@ pm_forwarding_arguments_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  */
 pm_forwarding_parameter_node_t *
 pm_forwarding_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_forwarding_parameter_node_t *node = (pm_forwarding_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_forwarding_parameter_node_t), PRISM_ALIGNOF(pm_forwarding_parameter_node_t));
+    pm_forwarding_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_forwarding_parameter_node_t);
 
     *node = (pm_forwarding_parameter_node_t) {
         .base = { .type = PM_FORWARDING_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -2754,7 +2856,7 @@ pm_forwarding_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  */
 pm_forwarding_super_node_t *
 pm_forwarding_super_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t keyword_loc, struct pm_block_node *block) {
-    pm_forwarding_super_node_t *node = (pm_forwarding_super_node_t *) pm_arena_alloc(arena, sizeof(pm_forwarding_super_node_t), PRISM_ALIGNOF(pm_forwarding_super_node_t));
+    pm_forwarding_super_node_t *node = PM_ARENA_ALLOC(arena, pm_forwarding_super_node_t);
 
     *node = (pm_forwarding_super_node_t) {
         .base = { .type = PM_FORWARDING_SUPER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2770,7 +2872,7 @@ pm_forwarding_super_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_
  */
 pm_global_variable_and_write_node_t *
 pm_global_variable_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_global_variable_and_write_node_t *node = (pm_global_variable_and_write_node_t *) pm_arena_alloc(arena, sizeof(pm_global_variable_and_write_node_t), PRISM_ALIGNOF(pm_global_variable_and_write_node_t));
+    pm_global_variable_and_write_node_t *node = PM_ARENA_ALLOC(arena, pm_global_variable_and_write_node_t);
 
     *node = (pm_global_variable_and_write_node_t) {
         .base = { .type = PM_GLOBAL_VARIABLE_AND_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2788,7 +2890,7 @@ pm_global_variable_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_no
  */
 pm_global_variable_operator_write_node_t *
 pm_global_variable_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t binary_operator_loc, struct pm_node *value, pm_constant_id_t binary_operator) {
-    pm_global_variable_operator_write_node_t *node = (pm_global_variable_operator_write_node_t *) pm_arena_alloc(arena, sizeof(pm_global_variable_operator_write_node_t), PRISM_ALIGNOF(pm_global_variable_operator_write_node_t));
+    pm_global_variable_operator_write_node_t *node = PM_ARENA_ALLOC(arena, pm_global_variable_operator_write_node_t);
 
     *node = (pm_global_variable_operator_write_node_t) {
         .base = { .type = PM_GLOBAL_VARIABLE_OPERATOR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2807,7 +2909,7 @@ pm_global_variable_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, 
  */
 pm_global_variable_or_write_node_t *
 pm_global_variable_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_global_variable_or_write_node_t *node = (pm_global_variable_or_write_node_t *) pm_arena_alloc(arena, sizeof(pm_global_variable_or_write_node_t), PRISM_ALIGNOF(pm_global_variable_or_write_node_t));
+    pm_global_variable_or_write_node_t *node = PM_ARENA_ALLOC(arena, pm_global_variable_or_write_node_t);
 
     *node = (pm_global_variable_or_write_node_t) {
         .base = { .type = PM_GLOBAL_VARIABLE_OR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2825,7 +2927,7 @@ pm_global_variable_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_nod
  */
 pm_global_variable_read_node_t *
 pm_global_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_global_variable_read_node_t *node = (pm_global_variable_read_node_t *) pm_arena_alloc(arena, sizeof(pm_global_variable_read_node_t), PRISM_ALIGNOF(pm_global_variable_read_node_t));
+    pm_global_variable_read_node_t *node = PM_ARENA_ALLOC(arena, pm_global_variable_read_node_t);
 
     *node = (pm_global_variable_read_node_t) {
         .base = { .type = PM_GLOBAL_VARIABLE_READ_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2840,7 +2942,7 @@ pm_global_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  */
 pm_global_variable_target_node_t *
 pm_global_variable_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_global_variable_target_node_t *node = (pm_global_variable_target_node_t *) pm_arena_alloc(arena, sizeof(pm_global_variable_target_node_t), PRISM_ALIGNOF(pm_global_variable_target_node_t));
+    pm_global_variable_target_node_t *node = PM_ARENA_ALLOC(arena, pm_global_variable_target_node_t);
 
     *node = (pm_global_variable_target_node_t) {
         .base = { .type = PM_GLOBAL_VARIABLE_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2855,7 +2957,7 @@ pm_global_variable_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_
  */
 pm_global_variable_write_node_t *
 pm_global_variable_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, struct pm_node *value, pm_location_t operator_loc) {
-    pm_global_variable_write_node_t *node = (pm_global_variable_write_node_t *) pm_arena_alloc(arena, sizeof(pm_global_variable_write_node_t), PRISM_ALIGNOF(pm_global_variable_write_node_t));
+    pm_global_variable_write_node_t *node = PM_ARENA_ALLOC(arena, pm_global_variable_write_node_t);
 
     *node = (pm_global_variable_write_node_t) {
         .base = { .type = PM_GLOBAL_VARIABLE_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2873,7 +2975,7 @@ pm_global_variable_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_f
  */
 pm_hash_node_t *
 pm_hash_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_node_list_t elements, pm_location_t closing_loc) {
-    pm_hash_node_t *node = (pm_hash_node_t *) pm_arena_alloc(arena, sizeof(pm_hash_node_t), PRISM_ALIGNOF(pm_hash_node_t));
+    pm_hash_node_t *node = PM_ARENA_ALLOC(arena, pm_hash_node_t);
 
     *node = (pm_hash_node_t) {
         .base = { .type = PM_HASH_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2890,7 +2992,7 @@ pm_hash_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_hash_pattern_node_t *
 pm_hash_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *constant, pm_node_list_t elements, struct pm_node *rest, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_hash_pattern_node_t *node = (pm_hash_pattern_node_t *) pm_arena_alloc(arena, sizeof(pm_hash_pattern_node_t), PRISM_ALIGNOF(pm_hash_pattern_node_t));
+    pm_hash_pattern_node_t *node = PM_ARENA_ALLOC(arena, pm_hash_pattern_node_t);
 
     *node = (pm_hash_pattern_node_t) {
         .base = { .type = PM_HASH_PATTERN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2909,7 +3011,7 @@ pm_hash_pattern_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fl
  */
 pm_if_node_t *
 pm_if_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t if_keyword_loc, struct pm_node *predicate, pm_location_t then_keyword_loc, struct pm_statements_node *statements, struct pm_node *subsequent, pm_location_t end_keyword_loc) {
-    pm_if_node_t *node = (pm_if_node_t *) pm_arena_alloc(arena, sizeof(pm_if_node_t), PRISM_ALIGNOF(pm_if_node_t));
+    pm_if_node_t *node = PM_ARENA_ALLOC(arena, pm_if_node_t);
 
     *node = (pm_if_node_t) {
         .base = { .type = PM_IF_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2929,7 +3031,7 @@ pm_if_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_lo
  */
 pm_imaginary_node_t *
 pm_imaginary_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *numeric) {
-    pm_imaginary_node_t *node = (pm_imaginary_node_t *) pm_arena_alloc(arena, sizeof(pm_imaginary_node_t), PRISM_ALIGNOF(pm_imaginary_node_t));
+    pm_imaginary_node_t *node = PM_ARENA_ALLOC(arena, pm_imaginary_node_t);
 
     *node = (pm_imaginary_node_t) {
         .base = { .type = PM_IMAGINARY_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2944,7 +3046,7 @@ pm_imaginary_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags
  */
 pm_implicit_node_t *
 pm_implicit_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *value) {
-    pm_implicit_node_t *node = (pm_implicit_node_t *) pm_arena_alloc(arena, sizeof(pm_implicit_node_t), PRISM_ALIGNOF(pm_implicit_node_t));
+    pm_implicit_node_t *node = PM_ARENA_ALLOC(arena, pm_implicit_node_t);
 
     *node = (pm_implicit_node_t) {
         .base = { .type = PM_IMPLICIT_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2959,7 +3061,7 @@ pm_implicit_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags,
  */
 pm_implicit_rest_node_t *
 pm_implicit_rest_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_implicit_rest_node_t *node = (pm_implicit_rest_node_t *) pm_arena_alloc(arena, sizeof(pm_implicit_rest_node_t), PRISM_ALIGNOF(pm_implicit_rest_node_t));
+    pm_implicit_rest_node_t *node = PM_ARENA_ALLOC(arena, pm_implicit_rest_node_t);
 
     *node = (pm_implicit_rest_node_t) {
         .base = { .type = PM_IMPLICIT_REST_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -2973,7 +3075,7 @@ pm_implicit_rest_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t f
  */
 pm_in_node_t *
 pm_in_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *pattern, struct pm_statements_node *statements, pm_location_t in_keyword_loc, pm_location_t then_keyword_loc) {
-    pm_in_node_t *node = (pm_in_node_t *) pm_arena_alloc(arena, sizeof(pm_in_node_t), PRISM_ALIGNOF(pm_in_node_t));
+    pm_in_node_t *node = PM_ARENA_ALLOC(arena, pm_in_node_t);
 
     *node = (pm_in_node_t) {
         .base = { .type = PM_IN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -2991,7 +3093,7 @@ pm_in_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_lo
  */
 pm_index_and_write_node_t *
 pm_index_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t call_operator_loc, pm_location_t opening_loc, struct pm_arguments_node *arguments, pm_location_t closing_loc, struct pm_block_argument_node *block, pm_location_t operator_loc, struct pm_node *value) {
-    pm_index_and_write_node_t *node = (pm_index_and_write_node_t *) pm_arena_alloc(arena, sizeof(pm_index_and_write_node_t), PRISM_ALIGNOF(pm_index_and_write_node_t));
+    pm_index_and_write_node_t *node = PM_ARENA_ALLOC(arena, pm_index_and_write_node_t);
 
     *node = (pm_index_and_write_node_t) {
         .base = { .type = PM_INDEX_AND_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3013,7 +3115,7 @@ pm_index_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_index_operator_write_node_t *
 pm_index_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t call_operator_loc, pm_location_t opening_loc, struct pm_arguments_node *arguments, pm_location_t closing_loc, struct pm_block_argument_node *block, pm_constant_id_t binary_operator, pm_location_t binary_operator_loc, struct pm_node *value) {
-    pm_index_operator_write_node_t *node = (pm_index_operator_write_node_t *) pm_arena_alloc(arena, sizeof(pm_index_operator_write_node_t), PRISM_ALIGNOF(pm_index_operator_write_node_t));
+    pm_index_operator_write_node_t *node = PM_ARENA_ALLOC(arena, pm_index_operator_write_node_t);
 
     *node = (pm_index_operator_write_node_t) {
         .base = { .type = PM_INDEX_OPERATOR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3036,7 +3138,7 @@ pm_index_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  */
 pm_index_or_write_node_t *
 pm_index_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t call_operator_loc, pm_location_t opening_loc, struct pm_arguments_node *arguments, pm_location_t closing_loc, struct pm_block_argument_node *block, pm_location_t operator_loc, struct pm_node *value) {
-    pm_index_or_write_node_t *node = (pm_index_or_write_node_t *) pm_arena_alloc(arena, sizeof(pm_index_or_write_node_t), PRISM_ALIGNOF(pm_index_or_write_node_t));
+    pm_index_or_write_node_t *node = PM_ARENA_ALLOC(arena, pm_index_or_write_node_t);
 
     *node = (pm_index_or_write_node_t) {
         .base = { .type = PM_INDEX_OR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3058,7 +3160,7 @@ pm_index_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t 
  */
 pm_index_target_node_t *
 pm_index_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *receiver, pm_location_t opening_loc, struct pm_arguments_node *arguments, pm_location_t closing_loc, struct pm_block_argument_node *block) {
-    pm_index_target_node_t *node = (pm_index_target_node_t *) pm_arena_alloc(arena, sizeof(pm_index_target_node_t), PRISM_ALIGNOF(pm_index_target_node_t));
+    pm_index_target_node_t *node = PM_ARENA_ALLOC(arena, pm_index_target_node_t);
 
     *node = (pm_index_target_node_t) {
         .base = { .type = PM_INDEX_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3077,7 +3179,7 @@ pm_index_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fl
  */
 pm_instance_variable_and_write_node_t *
 pm_instance_variable_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_instance_variable_and_write_node_t *node = (pm_instance_variable_and_write_node_t *) pm_arena_alloc(arena, sizeof(pm_instance_variable_and_write_node_t), PRISM_ALIGNOF(pm_instance_variable_and_write_node_t));
+    pm_instance_variable_and_write_node_t *node = PM_ARENA_ALLOC(arena, pm_instance_variable_and_write_node_t);
 
     *node = (pm_instance_variable_and_write_node_t) {
         .base = { .type = PM_INSTANCE_VARIABLE_AND_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3095,7 +3197,7 @@ pm_instance_variable_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_
  */
 pm_instance_variable_operator_write_node_t *
 pm_instance_variable_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t binary_operator_loc, struct pm_node *value, pm_constant_id_t binary_operator) {
-    pm_instance_variable_operator_write_node_t *node = (pm_instance_variable_operator_write_node_t *) pm_arena_alloc(arena, sizeof(pm_instance_variable_operator_write_node_t), PRISM_ALIGNOF(pm_instance_variable_operator_write_node_t));
+    pm_instance_variable_operator_write_node_t *node = PM_ARENA_ALLOC(arena, pm_instance_variable_operator_write_node_t);
 
     *node = (pm_instance_variable_operator_write_node_t) {
         .base = { .type = PM_INSTANCE_VARIABLE_OPERATOR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3114,7 +3216,7 @@ pm_instance_variable_operator_write_node_new(pm_arena_t *arena, uint32_t node_id
  */
 pm_instance_variable_or_write_node_t *
 pm_instance_variable_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_instance_variable_or_write_node_t *node = (pm_instance_variable_or_write_node_t *) pm_arena_alloc(arena, sizeof(pm_instance_variable_or_write_node_t), PRISM_ALIGNOF(pm_instance_variable_or_write_node_t));
+    pm_instance_variable_or_write_node_t *node = PM_ARENA_ALLOC(arena, pm_instance_variable_or_write_node_t);
 
     *node = (pm_instance_variable_or_write_node_t) {
         .base = { .type = PM_INSTANCE_VARIABLE_OR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3132,7 +3234,7 @@ pm_instance_variable_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_n
  */
 pm_instance_variable_read_node_t *
 pm_instance_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_instance_variable_read_node_t *node = (pm_instance_variable_read_node_t *) pm_arena_alloc(arena, sizeof(pm_instance_variable_read_node_t), PRISM_ALIGNOF(pm_instance_variable_read_node_t));
+    pm_instance_variable_read_node_t *node = PM_ARENA_ALLOC(arena, pm_instance_variable_read_node_t);
 
     *node = (pm_instance_variable_read_node_t) {
         .base = { .type = PM_INSTANCE_VARIABLE_READ_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3147,7 +3249,7 @@ pm_instance_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_
  */
 pm_instance_variable_target_node_t *
 pm_instance_variable_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_instance_variable_target_node_t *node = (pm_instance_variable_target_node_t *) pm_arena_alloc(arena, sizeof(pm_instance_variable_target_node_t), PRISM_ALIGNOF(pm_instance_variable_target_node_t));
+    pm_instance_variable_target_node_t *node = PM_ARENA_ALLOC(arena, pm_instance_variable_target_node_t);
 
     *node = (pm_instance_variable_target_node_t) {
         .base = { .type = PM_INSTANCE_VARIABLE_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3162,7 +3264,7 @@ pm_instance_variable_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_nod
  */
 pm_instance_variable_write_node_t *
 pm_instance_variable_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, struct pm_node *value, pm_location_t operator_loc) {
-    pm_instance_variable_write_node_t *node = (pm_instance_variable_write_node_t *) pm_arena_alloc(arena, sizeof(pm_instance_variable_write_node_t), PRISM_ALIGNOF(pm_instance_variable_write_node_t));
+    pm_instance_variable_write_node_t *node = PM_ARENA_ALLOC(arena, pm_instance_variable_write_node_t);
 
     *node = (pm_instance_variable_write_node_t) {
         .base = { .type = PM_INSTANCE_VARIABLE_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3180,7 +3282,7 @@ pm_instance_variable_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node
  */
 pm_integer_node_t *
 pm_integer_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_integer_t value) {
-    pm_integer_node_t *node = (pm_integer_node_t *) pm_arena_alloc(arena, sizeof(pm_integer_node_t), PRISM_ALIGNOF(pm_integer_node_t));
+    pm_integer_node_t *node = PM_ARENA_ALLOC(arena, pm_integer_node_t);
 
     *node = (pm_integer_node_t) {
         .base = { .type = PM_INTEGER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3195,7 +3297,7 @@ pm_integer_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, 
  */
 pm_interpolated_match_last_line_node_t *
 pm_interpolated_match_last_line_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_node_list_t parts, pm_location_t closing_loc) {
-    pm_interpolated_match_last_line_node_t *node = (pm_interpolated_match_last_line_node_t *) pm_arena_alloc(arena, sizeof(pm_interpolated_match_last_line_node_t), PRISM_ALIGNOF(pm_interpolated_match_last_line_node_t));
+    pm_interpolated_match_last_line_node_t *node = PM_ARENA_ALLOC(arena, pm_interpolated_match_last_line_node_t);
 
     *node = (pm_interpolated_match_last_line_node_t) {
         .base = { .type = PM_INTERPOLATED_MATCH_LAST_LINE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3212,7 +3314,7 @@ pm_interpolated_match_last_line_node_new(pm_arena_t *arena, uint32_t node_id, pm
  */
 pm_interpolated_regular_expression_node_t *
 pm_interpolated_regular_expression_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_node_list_t parts, pm_location_t closing_loc) {
-    pm_interpolated_regular_expression_node_t *node = (pm_interpolated_regular_expression_node_t *) pm_arena_alloc(arena, sizeof(pm_interpolated_regular_expression_node_t), PRISM_ALIGNOF(pm_interpolated_regular_expression_node_t));
+    pm_interpolated_regular_expression_node_t *node = PM_ARENA_ALLOC(arena, pm_interpolated_regular_expression_node_t);
 
     *node = (pm_interpolated_regular_expression_node_t) {
         .base = { .type = PM_INTERPOLATED_REGULAR_EXPRESSION_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3229,7 +3331,7 @@ pm_interpolated_regular_expression_node_new(pm_arena_t *arena, uint32_t node_id,
  */
 pm_interpolated_string_node_t *
 pm_interpolated_string_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_node_list_t parts, pm_location_t closing_loc) {
-    pm_interpolated_string_node_t *node = (pm_interpolated_string_node_t *) pm_arena_alloc(arena, sizeof(pm_interpolated_string_node_t), PRISM_ALIGNOF(pm_interpolated_string_node_t));
+    pm_interpolated_string_node_t *node = PM_ARENA_ALLOC(arena, pm_interpolated_string_node_t);
 
     *node = (pm_interpolated_string_node_t) {
         .base = { .type = PM_INTERPOLATED_STRING_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3246,7 +3348,7 @@ pm_interpolated_string_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_interpolated_symbol_node_t *
 pm_interpolated_symbol_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_node_list_t parts, pm_location_t closing_loc) {
-    pm_interpolated_symbol_node_t *node = (pm_interpolated_symbol_node_t *) pm_arena_alloc(arena, sizeof(pm_interpolated_symbol_node_t), PRISM_ALIGNOF(pm_interpolated_symbol_node_t));
+    pm_interpolated_symbol_node_t *node = PM_ARENA_ALLOC(arena, pm_interpolated_symbol_node_t);
 
     *node = (pm_interpolated_symbol_node_t) {
         .base = { .type = PM_INTERPOLATED_SYMBOL_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3263,7 +3365,7 @@ pm_interpolated_symbol_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_interpolated_x_string_node_t *
 pm_interpolated_x_string_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_node_list_t parts, pm_location_t closing_loc) {
-    pm_interpolated_x_string_node_t *node = (pm_interpolated_x_string_node_t *) pm_arena_alloc(arena, sizeof(pm_interpolated_x_string_node_t), PRISM_ALIGNOF(pm_interpolated_x_string_node_t));
+    pm_interpolated_x_string_node_t *node = PM_ARENA_ALLOC(arena, pm_interpolated_x_string_node_t);
 
     *node = (pm_interpolated_x_string_node_t) {
         .base = { .type = PM_INTERPOLATED_X_STRING_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3280,7 +3382,7 @@ pm_interpolated_x_string_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_f
  */
 pm_it_local_variable_read_node_t *
 pm_it_local_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_it_local_variable_read_node_t *node = (pm_it_local_variable_read_node_t *) pm_arena_alloc(arena, sizeof(pm_it_local_variable_read_node_t), PRISM_ALIGNOF(pm_it_local_variable_read_node_t));
+    pm_it_local_variable_read_node_t *node = PM_ARENA_ALLOC(arena, pm_it_local_variable_read_node_t);
 
     *node = (pm_it_local_variable_read_node_t) {
         .base = { .type = PM_IT_LOCAL_VARIABLE_READ_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -3294,7 +3396,7 @@ pm_it_local_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_
  */
 pm_it_parameters_node_t *
 pm_it_parameters_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_it_parameters_node_t *node = (pm_it_parameters_node_t *) pm_arena_alloc(arena, sizeof(pm_it_parameters_node_t), PRISM_ALIGNOF(pm_it_parameters_node_t));
+    pm_it_parameters_node_t *node = PM_ARENA_ALLOC(arena, pm_it_parameters_node_t);
 
     *node = (pm_it_parameters_node_t) {
         .base = { .type = PM_IT_PARAMETERS_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -3308,7 +3410,7 @@ pm_it_parameters_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t f
  */
 pm_keyword_hash_node_t *
 pm_keyword_hash_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_node_list_t elements) {
-    pm_keyword_hash_node_t *node = (pm_keyword_hash_node_t *) pm_arena_alloc(arena, sizeof(pm_keyword_hash_node_t), PRISM_ALIGNOF(pm_keyword_hash_node_t));
+    pm_keyword_hash_node_t *node = PM_ARENA_ALLOC(arena, pm_keyword_hash_node_t);
 
     *node = (pm_keyword_hash_node_t) {
         .base = { .type = PM_KEYWORD_HASH_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3323,7 +3425,7 @@ pm_keyword_hash_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fl
  */
 pm_keyword_rest_parameter_node_t *
 pm_keyword_rest_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc) {
-    pm_keyword_rest_parameter_node_t *node = (pm_keyword_rest_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_keyword_rest_parameter_node_t), PRISM_ALIGNOF(pm_keyword_rest_parameter_node_t));
+    pm_keyword_rest_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_keyword_rest_parameter_node_t);
 
     *node = (pm_keyword_rest_parameter_node_t) {
         .base = { .type = PM_KEYWORD_REST_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3340,7 +3442,7 @@ pm_keyword_rest_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_
  */
 pm_lambda_node_t *
 pm_lambda_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_list_t locals, pm_location_t operator_loc, pm_location_t opening_loc, pm_location_t closing_loc, struct pm_node *parameters, struct pm_node *body) {
-    pm_lambda_node_t *node = (pm_lambda_node_t *) pm_arena_alloc(arena, sizeof(pm_lambda_node_t), PRISM_ALIGNOF(pm_lambda_node_t));
+    pm_lambda_node_t *node = PM_ARENA_ALLOC(arena, pm_lambda_node_t);
 
     *node = (pm_lambda_node_t) {
         .base = { .type = PM_LAMBDA_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3360,7 +3462,7 @@ pm_lambda_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
  */
 pm_local_variable_and_write_node_t *
 pm_local_variable_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value, pm_constant_id_t name, uint32_t depth) {
-    pm_local_variable_and_write_node_t *node = (pm_local_variable_and_write_node_t *) pm_arena_alloc(arena, sizeof(pm_local_variable_and_write_node_t), PRISM_ALIGNOF(pm_local_variable_and_write_node_t));
+    pm_local_variable_and_write_node_t *node = PM_ARENA_ALLOC(arena, pm_local_variable_and_write_node_t);
 
     *node = (pm_local_variable_and_write_node_t) {
         .base = { .type = PM_LOCAL_VARIABLE_AND_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3379,7 +3481,7 @@ pm_local_variable_and_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_nod
  */
 pm_local_variable_operator_write_node_t *
 pm_local_variable_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t name_loc, pm_location_t binary_operator_loc, struct pm_node *value, pm_constant_id_t name, pm_constant_id_t binary_operator, uint32_t depth) {
-    pm_local_variable_operator_write_node_t *node = (pm_local_variable_operator_write_node_t *) pm_arena_alloc(arena, sizeof(pm_local_variable_operator_write_node_t), PRISM_ALIGNOF(pm_local_variable_operator_write_node_t));
+    pm_local_variable_operator_write_node_t *node = PM_ARENA_ALLOC(arena, pm_local_variable_operator_write_node_t);
 
     *node = (pm_local_variable_operator_write_node_t) {
         .base = { .type = PM_LOCAL_VARIABLE_OPERATOR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3399,7 +3501,7 @@ pm_local_variable_operator_write_node_new(pm_arena_t *arena, uint32_t node_id, p
  */
 pm_local_variable_or_write_node_t *
 pm_local_variable_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value, pm_constant_id_t name, uint32_t depth) {
-    pm_local_variable_or_write_node_t *node = (pm_local_variable_or_write_node_t *) pm_arena_alloc(arena, sizeof(pm_local_variable_or_write_node_t), PRISM_ALIGNOF(pm_local_variable_or_write_node_t));
+    pm_local_variable_or_write_node_t *node = PM_ARENA_ALLOC(arena, pm_local_variable_or_write_node_t);
 
     *node = (pm_local_variable_or_write_node_t) {
         .base = { .type = PM_LOCAL_VARIABLE_OR_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3418,7 +3520,7 @@ pm_local_variable_or_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node
  */
 pm_local_variable_read_node_t *
 pm_local_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, uint32_t depth) {
-    pm_local_variable_read_node_t *node = (pm_local_variable_read_node_t *) pm_arena_alloc(arena, sizeof(pm_local_variable_read_node_t), PRISM_ALIGNOF(pm_local_variable_read_node_t));
+    pm_local_variable_read_node_t *node = PM_ARENA_ALLOC(arena, pm_local_variable_read_node_t);
 
     *node = (pm_local_variable_read_node_t) {
         .base = { .type = PM_LOCAL_VARIABLE_READ_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3434,7 +3536,7 @@ pm_local_variable_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_local_variable_target_node_t *
 pm_local_variable_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, uint32_t depth) {
-    pm_local_variable_target_node_t *node = (pm_local_variable_target_node_t *) pm_arena_alloc(arena, sizeof(pm_local_variable_target_node_t), PRISM_ALIGNOF(pm_local_variable_target_node_t));
+    pm_local_variable_target_node_t *node = PM_ARENA_ALLOC(arena, pm_local_variable_target_node_t);
 
     *node = (pm_local_variable_target_node_t) {
         .base = { .type = PM_LOCAL_VARIABLE_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3450,7 +3552,7 @@ pm_local_variable_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_f
  */
 pm_local_variable_write_node_t *
 pm_local_variable_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, uint32_t depth, pm_location_t name_loc, struct pm_node *value, pm_location_t operator_loc) {
-    pm_local_variable_write_node_t *node = (pm_local_variable_write_node_t *) pm_arena_alloc(arena, sizeof(pm_local_variable_write_node_t), PRISM_ALIGNOF(pm_local_variable_write_node_t));
+    pm_local_variable_write_node_t *node = PM_ARENA_ALLOC(arena, pm_local_variable_write_node_t);
 
     *node = (pm_local_variable_write_node_t) {
         .base = { .type = PM_LOCAL_VARIABLE_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3469,7 +3571,7 @@ pm_local_variable_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fl
  */
 pm_match_last_line_node_t *
 pm_match_last_line_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_location_t content_loc, pm_location_t closing_loc, pm_string_t unescaped) {
-    pm_match_last_line_node_t *node = (pm_match_last_line_node_t *) pm_arena_alloc(arena, sizeof(pm_match_last_line_node_t), PRISM_ALIGNOF(pm_match_last_line_node_t));
+    pm_match_last_line_node_t *node = PM_ARENA_ALLOC(arena, pm_match_last_line_node_t);
 
     *node = (pm_match_last_line_node_t) {
         .base = { .type = PM_MATCH_LAST_LINE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3487,7 +3589,7 @@ pm_match_last_line_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_match_predicate_node_t *
 pm_match_predicate_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *value, struct pm_node *pattern, pm_location_t keyword_loc) {
-    pm_match_predicate_node_t *node = (pm_match_predicate_node_t *) pm_arena_alloc(arena, sizeof(pm_match_predicate_node_t), PRISM_ALIGNOF(pm_match_predicate_node_t));
+    pm_match_predicate_node_t *node = PM_ARENA_ALLOC(arena, pm_match_predicate_node_t);
 
     *node = (pm_match_predicate_node_t) {
         .base = { .type = PM_MATCH_PREDICATE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3504,7 +3606,7 @@ pm_match_predicate_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_match_required_node_t *
 pm_match_required_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *value, struct pm_node *pattern, pm_location_t operator_loc) {
-    pm_match_required_node_t *node = (pm_match_required_node_t *) pm_arena_alloc(arena, sizeof(pm_match_required_node_t), PRISM_ALIGNOF(pm_match_required_node_t));
+    pm_match_required_node_t *node = PM_ARENA_ALLOC(arena, pm_match_required_node_t);
 
     *node = (pm_match_required_node_t) {
         .base = { .type = PM_MATCH_REQUIRED_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3521,7 +3623,7 @@ pm_match_required_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t 
  */
 pm_match_write_node_t *
 pm_match_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_call_node *call, pm_node_list_t targets) {
-    pm_match_write_node_t *node = (pm_match_write_node_t *) pm_arena_alloc(arena, sizeof(pm_match_write_node_t), PRISM_ALIGNOF(pm_match_write_node_t));
+    pm_match_write_node_t *node = PM_ARENA_ALLOC(arena, pm_match_write_node_t);
 
     *node = (pm_match_write_node_t) {
         .base = { .type = PM_MATCH_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3537,7 +3639,7 @@ pm_match_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fla
  */
 pm_module_node_t *
 pm_module_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_list_t locals, pm_location_t module_keyword_loc, struct pm_node *constant_path, struct pm_node *body, pm_location_t end_keyword_loc, pm_constant_id_t name) {
-    pm_module_node_t *node = (pm_module_node_t *) pm_arena_alloc(arena, sizeof(pm_module_node_t), PRISM_ALIGNOF(pm_module_node_t));
+    pm_module_node_t *node = PM_ARENA_ALLOC(arena, pm_module_node_t);
 
     *node = (pm_module_node_t) {
         .base = { .type = PM_MODULE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3557,7 +3659,7 @@ pm_module_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
  */
 pm_multi_target_node_t *
 pm_multi_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_node_list_t lefts, struct pm_node *rest, pm_node_list_t rights, pm_location_t lparen_loc, pm_location_t rparen_loc) {
-    pm_multi_target_node_t *node = (pm_multi_target_node_t *) pm_arena_alloc(arena, sizeof(pm_multi_target_node_t), PRISM_ALIGNOF(pm_multi_target_node_t));
+    pm_multi_target_node_t *node = PM_ARENA_ALLOC(arena, pm_multi_target_node_t);
 
     *node = (pm_multi_target_node_t) {
         .base = { .type = PM_MULTI_TARGET_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3576,7 +3678,7 @@ pm_multi_target_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fl
  */
 pm_multi_write_node_t *
 pm_multi_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_node_list_t lefts, struct pm_node *rest, pm_node_list_t rights, pm_location_t lparen_loc, pm_location_t rparen_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_multi_write_node_t *node = (pm_multi_write_node_t *) pm_arena_alloc(arena, sizeof(pm_multi_write_node_t), PRISM_ALIGNOF(pm_multi_write_node_t));
+    pm_multi_write_node_t *node = PM_ARENA_ALLOC(arena, pm_multi_write_node_t);
 
     *node = (pm_multi_write_node_t) {
         .base = { .type = PM_MULTI_WRITE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3597,7 +3699,7 @@ pm_multi_write_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fla
  */
 pm_next_node_t *
 pm_next_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_arguments_node *arguments, pm_location_t keyword_loc) {
-    pm_next_node_t *node = (pm_next_node_t *) pm_arena_alloc(arena, sizeof(pm_next_node_t), PRISM_ALIGNOF(pm_next_node_t));
+    pm_next_node_t *node = PM_ARENA_ALLOC(arena, pm_next_node_t);
 
     *node = (pm_next_node_t) {
         .base = { .type = PM_NEXT_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3613,7 +3715,7 @@ pm_next_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_nil_node_t *
 pm_nil_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_nil_node_t *node = (pm_nil_node_t *) pm_arena_alloc(arena, sizeof(pm_nil_node_t), PRISM_ALIGNOF(pm_nil_node_t));
+    pm_nil_node_t *node = PM_ARENA_ALLOC(arena, pm_nil_node_t);
 
     *node = (pm_nil_node_t) {
         .base = { .type = PM_NIL_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -3627,7 +3729,7 @@ pm_nil_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_l
  */
 pm_no_block_parameter_node_t *
 pm_no_block_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t operator_loc, pm_location_t keyword_loc) {
-    pm_no_block_parameter_node_t *node = (pm_no_block_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_no_block_parameter_node_t), PRISM_ALIGNOF(pm_no_block_parameter_node_t));
+    pm_no_block_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_no_block_parameter_node_t);
 
     *node = (pm_no_block_parameter_node_t) {
         .base = { .type = PM_NO_BLOCK_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3643,7 +3745,7 @@ pm_no_block_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flag
  */
 pm_no_keywords_parameter_node_t *
 pm_no_keywords_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t operator_loc, pm_location_t keyword_loc) {
-    pm_no_keywords_parameter_node_t *node = (pm_no_keywords_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_no_keywords_parameter_node_t), PRISM_ALIGNOF(pm_no_keywords_parameter_node_t));
+    pm_no_keywords_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_no_keywords_parameter_node_t);
 
     *node = (pm_no_keywords_parameter_node_t) {
         .base = { .type = PM_NO_KEYWORDS_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3659,7 +3761,7 @@ pm_no_keywords_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_f
  */
 pm_numbered_parameters_node_t *
 pm_numbered_parameters_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, uint8_t maximum) {
-    pm_numbered_parameters_node_t *node = (pm_numbered_parameters_node_t *) pm_arena_alloc(arena, sizeof(pm_numbered_parameters_node_t), PRISM_ALIGNOF(pm_numbered_parameters_node_t));
+    pm_numbered_parameters_node_t *node = PM_ARENA_ALLOC(arena, pm_numbered_parameters_node_t);
 
     *node = (pm_numbered_parameters_node_t) {
         .base = { .type = PM_NUMBERED_PARAMETERS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3674,7 +3776,7 @@ pm_numbered_parameters_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_fla
  */
 pm_numbered_reference_read_node_t *
 pm_numbered_reference_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, uint32_t number) {
-    pm_numbered_reference_read_node_t *node = (pm_numbered_reference_read_node_t *) pm_arena_alloc(arena, sizeof(pm_numbered_reference_read_node_t), PRISM_ALIGNOF(pm_numbered_reference_read_node_t));
+    pm_numbered_reference_read_node_t *node = PM_ARENA_ALLOC(arena, pm_numbered_reference_read_node_t);
 
     *node = (pm_numbered_reference_read_node_t) {
         .base = { .type = PM_NUMBERED_REFERENCE_READ_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3689,7 +3791,7 @@ pm_numbered_reference_read_node_new(pm_arena_t *arena, uint32_t node_id, pm_node
  */
 pm_optional_keyword_parameter_node_t *
 pm_optional_keyword_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, struct pm_node *value) {
-    pm_optional_keyword_parameter_node_t *node = (pm_optional_keyword_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_optional_keyword_parameter_node_t), PRISM_ALIGNOF(pm_optional_keyword_parameter_node_t));
+    pm_optional_keyword_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_optional_keyword_parameter_node_t);
 
     *node = (pm_optional_keyword_parameter_node_t) {
         .base = { .type = PM_OPTIONAL_KEYWORD_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3706,7 +3808,7 @@ pm_optional_keyword_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_n
  */
 pm_optional_parameter_node_t *
 pm_optional_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc, struct pm_node *value) {
-    pm_optional_parameter_node_t *node = (pm_optional_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_optional_parameter_node_t), PRISM_ALIGNOF(pm_optional_parameter_node_t));
+    pm_optional_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_optional_parameter_node_t);
 
     *node = (pm_optional_parameter_node_t) {
         .base = { .type = PM_OPTIONAL_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3724,7 +3826,7 @@ pm_optional_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flag
  */
 pm_or_node_t *
 pm_or_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *left, struct pm_node *right, pm_location_t operator_loc) {
-    pm_or_node_t *node = (pm_or_node_t *) pm_arena_alloc(arena, sizeof(pm_or_node_t), PRISM_ALIGNOF(pm_or_node_t));
+    pm_or_node_t *node = PM_ARENA_ALLOC(arena, pm_or_node_t);
 
     *node = (pm_or_node_t) {
         .base = { .type = PM_OR_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3741,7 +3843,7 @@ pm_or_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_lo
  */
 pm_parameters_node_t *
 pm_parameters_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_node_list_t requireds, pm_node_list_t optionals, struct pm_node *rest, pm_node_list_t posts, pm_node_list_t keywords, struct pm_node *keyword_rest, struct pm_node *block) {
-    pm_parameters_node_t *node = (pm_parameters_node_t *) pm_arena_alloc(arena, sizeof(pm_parameters_node_t), PRISM_ALIGNOF(pm_parameters_node_t));
+    pm_parameters_node_t *node = PM_ARENA_ALLOC(arena, pm_parameters_node_t);
 
     *node = (pm_parameters_node_t) {
         .base = { .type = PM_PARAMETERS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3762,7 +3864,7 @@ pm_parameters_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flag
  */
 pm_parentheses_node_t *
 pm_parentheses_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *body, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_parentheses_node_t *node = (pm_parentheses_node_t *) pm_arena_alloc(arena, sizeof(pm_parentheses_node_t), PRISM_ALIGNOF(pm_parentheses_node_t));
+    pm_parentheses_node_t *node = PM_ARENA_ALLOC(arena, pm_parentheses_node_t);
 
     *node = (pm_parentheses_node_t) {
         .base = { .type = PM_PARENTHESES_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3779,7 +3881,7 @@ pm_parentheses_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fla
  */
 pm_pinned_expression_node_t *
 pm_pinned_expression_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *expression, pm_location_t operator_loc, pm_location_t lparen_loc, pm_location_t rparen_loc) {
-    pm_pinned_expression_node_t *node = (pm_pinned_expression_node_t *) pm_arena_alloc(arena, sizeof(pm_pinned_expression_node_t), PRISM_ALIGNOF(pm_pinned_expression_node_t));
+    pm_pinned_expression_node_t *node = PM_ARENA_ALLOC(arena, pm_pinned_expression_node_t);
 
     *node = (pm_pinned_expression_node_t) {
         .base = { .type = PM_PINNED_EXPRESSION_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3797,7 +3899,7 @@ pm_pinned_expression_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags
  */
 pm_pinned_variable_node_t *
 pm_pinned_variable_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *variable, pm_location_t operator_loc) {
-    pm_pinned_variable_node_t *node = (pm_pinned_variable_node_t *) pm_arena_alloc(arena, sizeof(pm_pinned_variable_node_t), PRISM_ALIGNOF(pm_pinned_variable_node_t));
+    pm_pinned_variable_node_t *node = PM_ARENA_ALLOC(arena, pm_pinned_variable_node_t);
 
     *node = (pm_pinned_variable_node_t) {
         .base = { .type = PM_PINNED_VARIABLE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3813,7 +3915,7 @@ pm_pinned_variable_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_post_execution_node_t *
 pm_post_execution_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_statements_node *statements, pm_location_t keyword_loc, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_post_execution_node_t *node = (pm_post_execution_node_t *) pm_arena_alloc(arena, sizeof(pm_post_execution_node_t), PRISM_ALIGNOF(pm_post_execution_node_t));
+    pm_post_execution_node_t *node = PM_ARENA_ALLOC(arena, pm_post_execution_node_t);
 
     *node = (pm_post_execution_node_t) {
         .base = { .type = PM_POST_EXECUTION_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3831,7 +3933,7 @@ pm_post_execution_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t 
  */
 pm_pre_execution_node_t *
 pm_pre_execution_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_statements_node *statements, pm_location_t keyword_loc, pm_location_t opening_loc, pm_location_t closing_loc) {
-    pm_pre_execution_node_t *node = (pm_pre_execution_node_t *) pm_arena_alloc(arena, sizeof(pm_pre_execution_node_t), PRISM_ALIGNOF(pm_pre_execution_node_t));
+    pm_pre_execution_node_t *node = PM_ARENA_ALLOC(arena, pm_pre_execution_node_t);
 
     *node = (pm_pre_execution_node_t) {
         .base = { .type = PM_PRE_EXECUTION_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3849,7 +3951,7 @@ pm_pre_execution_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t f
  */
 pm_program_node_t *
 pm_program_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_list_t locals, struct pm_statements_node *statements) {
-    pm_program_node_t *node = (pm_program_node_t *) pm_arena_alloc(arena, sizeof(pm_program_node_t), PRISM_ALIGNOF(pm_program_node_t));
+    pm_program_node_t *node = PM_ARENA_ALLOC(arena, pm_program_node_t);
 
     *node = (pm_program_node_t) {
         .base = { .type = PM_PROGRAM_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3865,7 +3967,7 @@ pm_program_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, 
  */
 pm_range_node_t *
 pm_range_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *left, struct pm_node *right, pm_location_t operator_loc) {
-    pm_range_node_t *node = (pm_range_node_t *) pm_arena_alloc(arena, sizeof(pm_range_node_t), PRISM_ALIGNOF(pm_range_node_t));
+    pm_range_node_t *node = PM_ARENA_ALLOC(arena, pm_range_node_t);
 
     *node = (pm_range_node_t) {
         .base = { .type = PM_RANGE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3882,7 +3984,7 @@ pm_range_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_rational_node_t *
 pm_rational_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_integer_t numerator, pm_integer_t denominator) {
-    pm_rational_node_t *node = (pm_rational_node_t *) pm_arena_alloc(arena, sizeof(pm_rational_node_t), PRISM_ALIGNOF(pm_rational_node_t));
+    pm_rational_node_t *node = PM_ARENA_ALLOC(arena, pm_rational_node_t);
 
     *node = (pm_rational_node_t) {
         .base = { .type = PM_RATIONAL_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3898,7 +4000,7 @@ pm_rational_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags,
  */
 pm_redo_node_t *
 pm_redo_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_redo_node_t *node = (pm_redo_node_t *) pm_arena_alloc(arena, sizeof(pm_redo_node_t), PRISM_ALIGNOF(pm_redo_node_t));
+    pm_redo_node_t *node = PM_ARENA_ALLOC(arena, pm_redo_node_t);
 
     *node = (pm_redo_node_t) {
         .base = { .type = PM_REDO_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -3912,7 +4014,7 @@ pm_redo_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_regular_expression_node_t *
 pm_regular_expression_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_location_t content_loc, pm_location_t closing_loc, pm_string_t unescaped) {
-    pm_regular_expression_node_t *node = (pm_regular_expression_node_t *) pm_arena_alloc(arena, sizeof(pm_regular_expression_node_t), PRISM_ALIGNOF(pm_regular_expression_node_t));
+    pm_regular_expression_node_t *node = PM_ARENA_ALLOC(arena, pm_regular_expression_node_t);
 
     *node = (pm_regular_expression_node_t) {
         .base = { .type = PM_REGULAR_EXPRESSION_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3930,7 +4032,7 @@ pm_regular_expression_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flag
  */
 pm_required_keyword_parameter_node_t *
 pm_required_keyword_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc) {
-    pm_required_keyword_parameter_node_t *node = (pm_required_keyword_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_required_keyword_parameter_node_t), PRISM_ALIGNOF(pm_required_keyword_parameter_node_t));
+    pm_required_keyword_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_required_keyword_parameter_node_t);
 
     *node = (pm_required_keyword_parameter_node_t) {
         .base = { .type = PM_REQUIRED_KEYWORD_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3946,7 +4048,7 @@ pm_required_keyword_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_n
  */
 pm_required_parameter_node_t *
 pm_required_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name) {
-    pm_required_parameter_node_t *node = (pm_required_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_required_parameter_node_t), PRISM_ALIGNOF(pm_required_parameter_node_t));
+    pm_required_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_required_parameter_node_t);
 
     *node = (pm_required_parameter_node_t) {
         .base = { .type = PM_REQUIRED_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3961,7 +4063,7 @@ pm_required_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flag
  */
 pm_rescue_modifier_node_t *
 pm_rescue_modifier_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *expression, pm_location_t keyword_loc, struct pm_node *rescue_expression) {
-    pm_rescue_modifier_node_t *node = (pm_rescue_modifier_node_t *) pm_arena_alloc(arena, sizeof(pm_rescue_modifier_node_t), PRISM_ALIGNOF(pm_rescue_modifier_node_t));
+    pm_rescue_modifier_node_t *node = PM_ARENA_ALLOC(arena, pm_rescue_modifier_node_t);
 
     *node = (pm_rescue_modifier_node_t) {
         .base = { .type = PM_RESCUE_MODIFIER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3978,7 +4080,7 @@ pm_rescue_modifier_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_rescue_node_t *
 pm_rescue_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t keyword_loc, pm_node_list_t exceptions, pm_location_t operator_loc, struct pm_node *reference, pm_location_t then_keyword_loc, struct pm_statements_node *statements, struct pm_rescue_node *subsequent) {
-    pm_rescue_node_t *node = (pm_rescue_node_t *) pm_arena_alloc(arena, sizeof(pm_rescue_node_t), PRISM_ALIGNOF(pm_rescue_node_t));
+    pm_rescue_node_t *node = PM_ARENA_ALLOC(arena, pm_rescue_node_t);
 
     *node = (pm_rescue_node_t) {
         .base = { .type = PM_RESCUE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -3999,7 +4101,7 @@ pm_rescue_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
  */
 pm_rest_parameter_node_t *
 pm_rest_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_t name, pm_location_t name_loc, pm_location_t operator_loc) {
-    pm_rest_parameter_node_t *node = (pm_rest_parameter_node_t *) pm_arena_alloc(arena, sizeof(pm_rest_parameter_node_t), PRISM_ALIGNOF(pm_rest_parameter_node_t));
+    pm_rest_parameter_node_t *node = PM_ARENA_ALLOC(arena, pm_rest_parameter_node_t);
 
     *node = (pm_rest_parameter_node_t) {
         .base = { .type = PM_REST_PARAMETER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4016,7 +4118,7 @@ pm_rest_parameter_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t 
  */
 pm_retry_node_t *
 pm_retry_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_retry_node_t *node = (pm_retry_node_t *) pm_arena_alloc(arena, sizeof(pm_retry_node_t), PRISM_ALIGNOF(pm_retry_node_t));
+    pm_retry_node_t *node = PM_ARENA_ALLOC(arena, pm_retry_node_t);
 
     *node = (pm_retry_node_t) {
         .base = { .type = PM_RETRY_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -4030,7 +4132,7 @@ pm_retry_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_return_node_t *
 pm_return_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t keyword_loc, struct pm_arguments_node *arguments) {
-    pm_return_node_t *node = (pm_return_node_t *) pm_arena_alloc(arena, sizeof(pm_return_node_t), PRISM_ALIGNOF(pm_return_node_t));
+    pm_return_node_t *node = PM_ARENA_ALLOC(arena, pm_return_node_t);
 
     *node = (pm_return_node_t) {
         .base = { .type = PM_RETURN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4046,7 +4148,7 @@ pm_return_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
  */
 pm_self_node_t *
 pm_self_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_self_node_t *node = (pm_self_node_t *) pm_arena_alloc(arena, sizeof(pm_self_node_t), PRISM_ALIGNOF(pm_self_node_t));
+    pm_self_node_t *node = PM_ARENA_ALLOC(arena, pm_self_node_t);
 
     *node = (pm_self_node_t) {
         .base = { .type = PM_SELF_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -4060,7 +4162,7 @@ pm_self_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_shareable_constant_node_t *
 pm_shareable_constant_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, struct pm_node *write) {
-    pm_shareable_constant_node_t *node = (pm_shareable_constant_node_t *) pm_arena_alloc(arena, sizeof(pm_shareable_constant_node_t), PRISM_ALIGNOF(pm_shareable_constant_node_t));
+    pm_shareable_constant_node_t *node = PM_ARENA_ALLOC(arena, pm_shareable_constant_node_t);
 
     *node = (pm_shareable_constant_node_t) {
         .base = { .type = PM_SHAREABLE_CONSTANT_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4075,7 +4177,7 @@ pm_shareable_constant_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flag
  */
 pm_singleton_class_node_t *
 pm_singleton_class_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_constant_id_list_t locals, pm_location_t class_keyword_loc, pm_location_t operator_loc, struct pm_node *expression, struct pm_node *body, pm_location_t end_keyword_loc) {
-    pm_singleton_class_node_t *node = (pm_singleton_class_node_t *) pm_arena_alloc(arena, sizeof(pm_singleton_class_node_t), PRISM_ALIGNOF(pm_singleton_class_node_t));
+    pm_singleton_class_node_t *node = PM_ARENA_ALLOC(arena, pm_singleton_class_node_t);
 
     *node = (pm_singleton_class_node_t) {
         .base = { .type = PM_SINGLETON_CLASS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4095,7 +4197,7 @@ pm_singleton_class_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_source_encoding_node_t *
 pm_source_encoding_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_source_encoding_node_t *node = (pm_source_encoding_node_t *) pm_arena_alloc(arena, sizeof(pm_source_encoding_node_t), PRISM_ALIGNOF(pm_source_encoding_node_t));
+    pm_source_encoding_node_t *node = PM_ARENA_ALLOC(arena, pm_source_encoding_node_t);
 
     *node = (pm_source_encoding_node_t) {
         .base = { .type = PM_SOURCE_ENCODING_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -4109,7 +4211,7 @@ pm_source_encoding_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t
  */
 pm_source_file_node_t *
 pm_source_file_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_string_t filepath) {
-    pm_source_file_node_t *node = (pm_source_file_node_t *) pm_arena_alloc(arena, sizeof(pm_source_file_node_t), PRISM_ALIGNOF(pm_source_file_node_t));
+    pm_source_file_node_t *node = PM_ARENA_ALLOC(arena, pm_source_file_node_t);
 
     *node = (pm_source_file_node_t) {
         .base = { .type = PM_SOURCE_FILE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4124,7 +4226,7 @@ pm_source_file_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fla
  */
 pm_source_line_node_t *
 pm_source_line_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_source_line_node_t *node = (pm_source_line_node_t *) pm_arena_alloc(arena, sizeof(pm_source_line_node_t), PRISM_ALIGNOF(pm_source_line_node_t));
+    pm_source_line_node_t *node = PM_ARENA_ALLOC(arena, pm_source_line_node_t);
 
     *node = (pm_source_line_node_t) {
         .base = { .type = PM_SOURCE_LINE_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -4138,7 +4240,7 @@ pm_source_line_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t fla
  */
 pm_splat_node_t *
 pm_splat_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t operator_loc, struct pm_node *expression) {
-    pm_splat_node_t *node = (pm_splat_node_t *) pm_arena_alloc(arena, sizeof(pm_splat_node_t), PRISM_ALIGNOF(pm_splat_node_t));
+    pm_splat_node_t *node = PM_ARENA_ALLOC(arena, pm_splat_node_t);
 
     *node = (pm_splat_node_t) {
         .base = { .type = PM_SPLAT_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4154,7 +4256,7 @@ pm_splat_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_statements_node_t *
 pm_statements_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_node_list_t body) {
-    pm_statements_node_t *node = (pm_statements_node_t *) pm_arena_alloc(arena, sizeof(pm_statements_node_t), PRISM_ALIGNOF(pm_statements_node_t));
+    pm_statements_node_t *node = PM_ARENA_ALLOC(arena, pm_statements_node_t);
 
     *node = (pm_statements_node_t) {
         .base = { .type = PM_STATEMENTS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4169,7 +4271,7 @@ pm_statements_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flag
  */
 pm_string_node_t *
 pm_string_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_location_t content_loc, pm_location_t closing_loc, pm_string_t unescaped) {
-    pm_string_node_t *node = (pm_string_node_t *) pm_arena_alloc(arena, sizeof(pm_string_node_t), PRISM_ALIGNOF(pm_string_node_t));
+    pm_string_node_t *node = PM_ARENA_ALLOC(arena, pm_string_node_t);
 
     *node = (pm_string_node_t) {
         .base = { .type = PM_STRING_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4187,7 +4289,7 @@ pm_string_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
  */
 pm_super_node_t *
 pm_super_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t keyword_loc, pm_location_t lparen_loc, struct pm_arguments_node *arguments, pm_location_t rparen_loc, struct pm_node *block) {
-    pm_super_node_t *node = (pm_super_node_t *) pm_arena_alloc(arena, sizeof(pm_super_node_t), PRISM_ALIGNOF(pm_super_node_t));
+    pm_super_node_t *node = PM_ARENA_ALLOC(arena, pm_super_node_t);
 
     *node = (pm_super_node_t) {
         .base = { .type = PM_SUPER_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4206,7 +4308,7 @@ pm_super_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_symbol_node_t *
 pm_symbol_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_location_t content_loc, pm_location_t closing_loc, pm_string_t unescaped) {
-    pm_symbol_node_t *node = (pm_symbol_node_t *) pm_arena_alloc(arena, sizeof(pm_symbol_node_t), PRISM_ALIGNOF(pm_symbol_node_t));
+    pm_symbol_node_t *node = PM_ARENA_ALLOC(arena, pm_symbol_node_t);
 
     *node = (pm_symbol_node_t) {
         .base = { .type = PM_SYMBOL_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4224,7 +4326,7 @@ pm_symbol_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
  */
 pm_true_node_t *
 pm_true_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location) {
-    pm_true_node_t *node = (pm_true_node_t *) pm_arena_alloc(arena, sizeof(pm_true_node_t), PRISM_ALIGNOF(pm_true_node_t));
+    pm_true_node_t *node = PM_ARENA_ALLOC(arena, pm_true_node_t);
 
     *node = (pm_true_node_t) {
         .base = { .type = PM_TRUE_NODE, .flags = flags, .node_id = node_id, .location = location }
@@ -4238,7 +4340,7 @@ pm_true_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_undef_node_t *
 pm_undef_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_node_list_t names, pm_location_t keyword_loc) {
-    pm_undef_node_t *node = (pm_undef_node_t *) pm_arena_alloc(arena, sizeof(pm_undef_node_t), PRISM_ALIGNOF(pm_undef_node_t));
+    pm_undef_node_t *node = PM_ARENA_ALLOC(arena, pm_undef_node_t);
 
     *node = (pm_undef_node_t) {
         .base = { .type = PM_UNDEF_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4254,7 +4356,7 @@ pm_undef_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_unless_node_t *
 pm_unless_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t unless_keyword_loc, struct pm_node *predicate, pm_location_t then_keyword_loc, struct pm_statements_node *statements, struct pm_else_node *else_clause, pm_location_t end_keyword_loc) {
-    pm_unless_node_t *node = (pm_unless_node_t *) pm_arena_alloc(arena, sizeof(pm_unless_node_t), PRISM_ALIGNOF(pm_unless_node_t));
+    pm_unless_node_t *node = PM_ARENA_ALLOC(arena, pm_unless_node_t);
 
     *node = (pm_unless_node_t) {
         .base = { .type = PM_UNLESS_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4274,7 +4376,7 @@ pm_unless_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, p
  */
 pm_until_node_t *
 pm_until_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t until_keyword_loc, pm_location_t do_keyword_loc, pm_location_t end_keyword_loc, struct pm_node *predicate, struct pm_statements_node *statements) {
-    pm_until_node_t *node = (pm_until_node_t *) pm_arena_alloc(arena, sizeof(pm_until_node_t), PRISM_ALIGNOF(pm_until_node_t));
+    pm_until_node_t *node = PM_ARENA_ALLOC(arena, pm_until_node_t);
 
     *node = (pm_until_node_t) {
         .base = { .type = PM_UNTIL_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4293,7 +4395,7 @@ pm_until_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_when_node_t *
 pm_when_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t when_keyword_loc, pm_node_list_t conditions, pm_location_t then_keyword_loc, struct pm_statements_node *statements) {
-    pm_when_node_t *node = (pm_when_node_t *) pm_arena_alloc(arena, sizeof(pm_when_node_t), PRISM_ALIGNOF(pm_when_node_t));
+    pm_when_node_t *node = PM_ARENA_ALLOC(arena, pm_when_node_t);
 
     *node = (pm_when_node_t) {
         .base = { .type = PM_WHEN_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4311,7 +4413,7 @@ pm_when_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_
  */
 pm_while_node_t *
 pm_while_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t while_keyword_loc, pm_location_t do_keyword_loc, pm_location_t end_keyword_loc, struct pm_node *predicate, struct pm_statements_node *statements) {
-    pm_while_node_t *node = (pm_while_node_t *) pm_arena_alloc(arena, sizeof(pm_while_node_t), PRISM_ALIGNOF(pm_while_node_t));
+    pm_while_node_t *node = PM_ARENA_ALLOC(arena, pm_while_node_t);
 
     *node = (pm_while_node_t) {
         .base = { .type = PM_WHILE_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4330,7 +4432,7 @@ pm_while_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm
  */
 pm_x_string_node_t *
 pm_x_string_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t opening_loc, pm_location_t content_loc, pm_location_t closing_loc, pm_string_t unescaped) {
-    pm_x_string_node_t *node = (pm_x_string_node_t *) pm_arena_alloc(arena, sizeof(pm_x_string_node_t), PRISM_ALIGNOF(pm_x_string_node_t));
+    pm_x_string_node_t *node = PM_ARENA_ALLOC(arena, pm_x_string_node_t);
 
     *node = (pm_x_string_node_t) {
         .base = { .type = PM_X_STRING_NODE, .flags = flags, .node_id = node_id, .location = location },
@@ -4348,7 +4450,7 @@ pm_x_string_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags,
  */
 pm_yield_node_t *
 pm_yield_node_new(pm_arena_t *arena, uint32_t node_id, pm_node_flags_t flags, pm_location_t location, pm_location_t keyword_loc, pm_location_t lparen_loc, struct pm_arguments_node *arguments, pm_location_t rparen_loc) {
-    pm_yield_node_t *node = (pm_yield_node_t *) pm_arena_alloc(arena, sizeof(pm_yield_node_t), PRISM_ALIGNOF(pm_yield_node_t));
+    pm_yield_node_t *node = PM_ARENA_ALLOC(arena, pm_yield_node_t);
 
     *node = (pm_yield_node_t) {
         .base = { .type = PM_YIELD_NODE, .flags = flags, .node_id = node_id, .location = location },

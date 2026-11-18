@@ -2,7 +2,7 @@
 
 use std::marker::PhantomData;
 
-use ruby_prism_sys::{pm_comment_location, pm_comment_t, pm_comment_type, pm_comment_type_t, pm_magic_comment_key, pm_magic_comment_t, pm_magic_comment_value, pm_parser_start, pm_parser_t};
+use ruby_prism_sys::{pm_comment_location, pm_comment_t, pm_comment_type, pm_comment_type_t, pm_magic_comment_key, pm_magic_comment_t, pm_magic_comment_value, pm_node_comment, pm_node_t, pm_parser_start, pm_parser_t};
 
 use super::Location;
 
@@ -81,6 +81,45 @@ impl<'pr> Iterator for Comments<'pr> {
         }
     }
 }
+
+/// An iterator over the comments attached to a node.
+///
+/// Comments are only attached when the source is parsed with the
+/// [`attach_comments`](crate::Options::attach_comments) option.
+pub struct NodeComments<'pr> {
+    parser: *const pm_parser_t,
+    node: *const pm_node_t,
+    index: u32,
+    count: u32,
+    marker: PhantomData<&'pr pm_comment_t>,
+}
+
+impl NodeComments<'_> {
+    pub(crate) const fn new(parser: *const pm_parser_t, node: *const pm_node_t, count: u32) -> Self {
+        NodeComments { parser, node, index: 0, count, marker: PhantomData }
+    }
+}
+
+impl<'pr> Iterator for NodeComments<'pr> {
+    type Item = Comment<'pr>;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.index < self.count {
+            let comment = unsafe { pm_node_comment(self.parser, self.node, self.index) };
+            self.index += 1;
+            Some(Comment { raw: comment, parser: self.parser, marker: PhantomData })
+        } else {
+            None
+        }
+    }
+
+    fn size_hint(&self) -> (usize, Option<usize>) {
+        let remaining = (self.count - self.index) as usize;
+        (remaining, Some(remaining))
+    }
+}
+
+impl ExactSizeIterator for NodeComments<'_> {}
 
 /// A magic comment that was found during parsing.
 #[derive(Debug)]

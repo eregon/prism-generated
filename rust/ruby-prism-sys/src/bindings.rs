@@ -2598,12 +2598,11 @@ pub struct pm_arena_t {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct pm_constant_id_list_t {
-    /** The number of constant ids in the list.
+    /** The number of constant ids in the list. Source offsets are 32 bits, so
+ the source is less than 4 GiB, and a list built from it stays far below
+ what this can count.
 */
-    pub size: usize,
-    /** The number of constant ids that have been allocated in the list.
-*/
-    pub capacity: usize,
+    pub size: u32,
     /** The constant ids in the list.
 */
     pub ids: *mut pm_constant_id_t,
@@ -2666,12 +2665,11 @@ pub struct pm_location_t {
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct pm_node_list {
-    /** The number of nodes in the list.
+    /** The number of nodes in the list. Source offsets are 32 bits, so the
+ source is less than 4 GiB, and a list built from it stays far below what
+ this can count.
 */
-    pub size: usize,
-    /** The capacity of the list that has been allocated.
-*/
-    pub capacity: usize,
+    pub size: u32,
     /** The nodes in the list.
 */
     pub nodes: *mut *mut pm_node,
@@ -11902,6 +11900,18 @@ unsafe extern "C" {
         options: *mut pm_options_t,
         partial_script: bool,
     );
+    /** Set the attach_comments option on the given options struct. When this is
+ set, the parser's comment list is sorted by start offset after parsing and
+ every comment is assigned an owning node. Without it, comments are left in
+ the order they were lexed and no nodes own any comments.
+
+ @param options The options struct to set the attach_comments value on.
+ @param attach_comments The attach_comments value to set.
+*/
+    pub fn pm_options_attach_comments_set(
+        options: *mut pm_options_t,
+        attach_comments: bool,
+    );
     /** Allocate and zero out the scopes array on the given options struct.
 
  @param options The options struct to initialize the scopes array on.
@@ -12048,6 +12058,30 @@ unsafe extern "C" {
  @returns the first comment, or NULL if there are no comments
 */
     pub fn pm_parser_comments_first(parser: *const pm_parser_t) -> *const pm_comment_t;
+    /** Returns the number of comments owned by the given node. This is 0 if the
+ node owns no comments or if the attach_comments option was not set.
+
+ @param parser the parser that produced the node
+ @param node the node whose comments we want to count
+ @returns the number of comments owned by the given node
+*/
+    pub fn pm_node_comments_size(
+        parser: *const pm_parser_t,
+        node: *const pm_node_t,
+    ) -> u32;
+    /** Returns the comment at the given index among the comments owned by the given
+ node, which are ordered by start offset.
+
+ @param parser the parser that produced the node
+ @param node the node whose comment we want to get
+ @param index the index of the comment among those owned by the node
+ @returns the comment at the given index, or NULL if the index is out of range
+*/
+    pub fn pm_node_comment(
+        parser: *const pm_parser_t,
+        node: *const pm_node_t,
+        index: u32,
+    ) -> *const pm_comment_t;
     /** Returns the number of magic comments associated with the given parser.
 
  @param parser the parser whose magic comments we want to get the size of
@@ -12145,10 +12179,10 @@ unsafe extern "C" {
  @returns The AST representing the source.
 */
     pub fn pm_parse(parser: *mut pm_parser_t) -> *mut pm_node_t;
-    /** Append a node to the end of a node list. If the list is full, its storage is
- grown by allocating from the given arena, so the arena must live as long as
- the list does. For a list in a parsed tree, that is the arena that was passed
- to pm_parser_new.
+    /** Append a node to the end of a node list. A node list's storage is always
+ exactly its size, so it is regrown to exactly one more node by allocating from
+ the given arena, which must live as long as the list does. For a list in a
+ parsed tree, that is the arena that was passed to pm_parser_new.
 
  @param arena The arena to allocate the list's storage from.
  @param list The list to append to.
