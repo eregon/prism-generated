@@ -1133,52 +1133,45 @@ pm_check_value_expression(pm_parser_t *parser, pm_node_t *node) {
             case PM_BEGIN_NODE: {
                 pm_begin_node_t *cast = (pm_begin_node_t *) node;
 
-                if (cast->ensure_clause != NULL) {
-                    if (cast->rescue_clause != NULL) {
-                        pm_node_t *vn = pm_check_value_expression(parser, UP(cast->rescue_clause));
-                        if (vn != NULL) return vn;
-                    }
-
-                    if (cast->statements != NULL) {
-                        pm_node_t *vn = pm_check_value_expression(parser, UP(cast->statements));
-                        if (vn != NULL) return vn;
-                    }
-
+                if (cast->rescue_clause != NULL) {
+                    /* Check the begin/rescue/else value before the ensure body. */
                     node = UP(cast->ensure_clause);
-                } else if (cast->rescue_clause != NULL) {
-                    // https://bugs.ruby-lang.org/issues/21669
-                    if (cast->else_clause == NULL || parser->version < PM_OPTIONS_VERSION_CRUBY_4_1) {
-                        if (cast->statements == NULL) return NULL;
+                    pm_node_t *rescue_void = NULL;
 
-                        pm_node_t *vn = pm_check_value_expression(parser, UP(cast->statements));
-                        if (vn == NULL) return NULL;
-                        if (void_node == NULL) void_node = vn;
+                    /* https://bugs.ruby-lang.org/issues/21669 */
+                    if (cast->else_clause == NULL || parser->version < PM_OPTIONS_VERSION_CRUBY_4_1) {
+                        rescue_void = pm_check_value_expression(parser, UP(cast->statements));
+                        if (rescue_void == NULL) break;
                     }
 
+                    bool rescue_has_value = false;
                     for (pm_rescue_node_t *rescue_clause = cast->rescue_clause; rescue_clause != NULL; rescue_clause = rescue_clause->subsequent) {
                         pm_node_t *vn = pm_check_value_expression(parser, UP(rescue_clause->statements));
 
                         if (vn == NULL) {
-                            // https://bugs.ruby-lang.org/issues/21669
-                            if (parser->version >= PM_OPTIONS_VERSION_CRUBY_4_1) {
-                                return NULL;
-                            }
-                            void_node = NULL;
+                            rescue_has_value = true;
                             break;
                         }
                     }
 
-                    if (cast->else_clause != NULL) {
-                        node = UP(cast->else_clause);
+                    if (rescue_has_value && parser->version >= PM_OPTIONS_VERSION_CRUBY_4_1) break;
 
-                        // https://bugs.ruby-lang.org/issues/21669
-                        if (parser->version >= PM_OPTIONS_VERSION_CRUBY_4_1) {
-                            pm_node_t *vn = pm_check_value_expression(parser, node);
-                            if (vn != NULL) return vn;
+                    if (cast->else_clause != NULL) {
+                        pm_node_t *vn = pm_check_value_expression(parser, UP(cast->else_clause));
+                        if (vn != NULL) {
+                            if (parser->version < PM_OPTIONS_VERSION_CRUBY_4_1 && !rescue_has_value) {
+                                if (void_node != NULL) return void_node;
+                                if (rescue_void != NULL) return rescue_void;
+                            }
+                            return vn;
                         }
-                    } else {
-                        return void_node;
+                    } else if (!rescue_has_value && rescue_void != NULL) {
+                        return void_node != NULL ? void_node : rescue_void;
                     }
+                } else if (cast->ensure_clause != NULL) {
+                    pm_node_t *vn = pm_check_value_expression(parser, UP(cast->statements));
+                    if (vn != NULL) return vn;
+                    node = UP(cast->ensure_clause);
                 } else {
                     node = UP(cast->statements);
                 }
@@ -3015,9 +3008,9 @@ pm_call_node_call_create(pm_parser_t *parser, pm_node_t *receiver, pm_token_t *o
  * Allocate and initialize a new synthesized CallNode node from a call expression.
  */
 static pm_call_node_t *
-pm_call_node_call_synthesized_create(pm_parser_t *parser, pm_node_t *receiver, const char *message, pm_arguments_node_t *arguments) {
+pm_call_node_call_synthesized_create(pm_parser_t *parser, pm_node_t *receiver, const char *message, pm_arguments_node_t *arguments, pm_location_t location) {
     pm_call_node_t *node = pm_call_node_create(parser, 0);
-    node->base.location = (pm_location_t) { .start = 0, .length = U32(parser->end - parser->start) };
+    node->base.location = location;
 
     node->receiver = receiver;
     node->arguments = arguments;
@@ -3156,8 +3149,8 @@ pm_call_node_variable_call_create(pm_parser_t *parser, pm_token_t *message) {
 }
 
 /**
- * Returns whether or not this call can be used on the left-hand side of an
- * operator assignment.
+ * Returns whether a call can become a local or attribute assignment target.
+ * Index assignment targets are handled separately.
  */
 static PRISM_INLINE bool
 pm_call_node_writable_p(const pm_parser_t *parser, const pm_call_node_t *node) {
@@ -3165,6 +3158,7 @@ pm_call_node_writable_p(const pm_parser_t *parser, const pm_call_node_t *node) {
         (node->message_loc.length > 0) &&
         (parser->start[node->message_loc.start + node->message_loc.length - 1] != '!') &&
         (parser->start[node->message_loc.start + node->message_loc.length - 1] != '?') &&
+        (node->receiver == NULL || node->call_operator_loc.length > 0) &&
         char_is_identifier_start(parser, parser->start + node->message_loc.start, (ptrdiff_t) node->message_loc.length) &&
         (node->opening_loc.length == 0) &&
         (node->arguments == NULL) &&
@@ -4878,6 +4872,7 @@ pm_interpolated_location(const pm_parser_t *parser, const pm_token_t *opening, c
 
     if (opening != NULL) {
         start = PM_TOKEN_START(parser, opening);
+        if (closing == NULL) end = PM_TOKEN_END(parser, opening);
     } else if (parts->size > 0) {
         start = PM_NODE_START(parts->nodes[0]);
     }
@@ -6648,28 +6643,29 @@ pm_symbol_node_synthesized_create(pm_parser_t *parser, const char *content) {
  */
 static bool
 pm_symbol_node_label_p(const pm_parser_t *parser, const pm_node_t *node) {
-    const pm_location_t *location = NULL;
+    const pm_location_t *closing;
+    uint32_t expected_length;
 
     switch (PM_NODE_TYPE(node)) {
         case PM_SYMBOL_NODE: {
             const pm_symbol_node_t *cast = (pm_symbol_node_t *) node;
-            if (cast->closing_loc.length > 0) {
-                location = &cast->closing_loc;
-            }
+            closing = &cast->closing_loc;
+            expected_length = cast->opening_loc.length == 0 ? 1 : 2;
             break;
         }
         case PM_INTERPOLATED_SYMBOL_NODE: {
             const pm_interpolated_symbol_node_t *cast = (pm_interpolated_symbol_node_t *) node;
-            if (cast->closing_loc.length > 0) {
-                location = &cast->closing_loc;
-            }
+            closing = &cast->closing_loc;
+            expected_length = 2;
             break;
         }
         default:
             return false;
     }
 
-    return (location != NULL) && (parser->start[PM_LOCATION_END(location) - 1] == ':');
+    /* An unquoted label ends with a colon alone. A quoted label ends with
+     * its closing quote followed by a colon. */
+    return closing->length == expected_length && parser->start[PM_LOCATION_END(closing) - 1] == ':';
 }
 
 /**
@@ -10372,21 +10368,22 @@ parser_lex(pm_parser_t *parser) {
                                         peek_at(parser, following) == 'a' &&
                                         peek_at(parser, following + 1) == 'n' &&
                                         peek_at(parser, following + 2) == 'd' &&
-                                        peek_at(parser, next_content + 3) != '!' &&
-                                        peek_at(parser, next_content + 3) != '?' &&
+                                        peek_at(parser, following + 3) != '!' &&
+                                        peek_at(parser, following + 3) != '?' &&
                                         !char_is_identifier(parser, following + 3, parser->end - (following + 3))
                                     ) ||
                                     (
                                         peek_at(parser, following) == 'o' &&
                                         peek_at(parser, following + 1) == 'r' &&
-                                        peek_at(parser, next_content + 2) != '!' &&
-                                        peek_at(parser, next_content + 2) != '?' &&
+                                        peek_at(parser, following + 2) != '!' &&
+                                        peek_at(parser, following + 2) != '?' &&
                                         !char_is_identifier(parser, following + 2, parser->end - (following + 2))
                                     )
                                 )
                             ) {
                                 if (!lexed_comment) parser_lex_ignored_newline(parser);
                                 lexed_comment = false;
+                                previous_command_start = false;
                                 goto lex_next_token;
                             }
                         }
@@ -10451,8 +10448,8 @@ parser_lex(pm_parser_t *parser) {
                                 LEX(PM_TOKEN_PIPE_PIPE);
                             }
 
-                            // If we hit an 'and' then we are in a logical chain
-                            // and we need to return the logical operator.
+                            /* Let the identifier lexer distinguish a leading
+                             * logical keyword from a label such as `and:`. */
                             if (
                                 peek_at(parser, next_content) == 'a' &&
                                 peek_at(parser, next_content + 1) == 'n' &&
@@ -10462,16 +10459,11 @@ parser_lex(pm_parser_t *parser) {
                                 !char_is_identifier(parser, next_content + 3, parser->end - (next_content + 3))
                             ) {
                                 if (!lexed_comment) parser_lex_ignored_newline(parser);
-                                lex_state_set(parser, PM_LEX_STATE_BEG);
-                                parser->current.start = next_content;
-                                parser->current.end = next_content + 3;
-                                parser->next_start = NULL;
-                                parser->command_start = true;
-                                LEX(PM_TOKEN_KEYWORD_AND);
+                                lexed_comment = false;
+                                previous_command_start = false;
+                                goto lex_next_token;
                             }
 
-                            // If we hit a 'or' then we are in a logical chain
-                            // and we need to return the logical operator.
                             if (
                                 peek_at(parser, next_content) == 'o' &&
                                 peek_at(parser, next_content + 1) == 'r' &&
@@ -10480,12 +10472,9 @@ parser_lex(pm_parser_t *parser) {
                                 !char_is_identifier(parser, next_content + 2, parser->end - (next_content + 2))
                             ) {
                                 if (!lexed_comment) parser_lex_ignored_newline(parser);
-                                lex_state_set(parser, PM_LEX_STATE_BEG);
-                                parser->current.start = next_content;
-                                parser->current.end = next_content + 2;
-                                parser->next_start = NULL;
-                                parser->command_start = true;
-                                LEX(PM_TOKEN_KEYWORD_OR);
+                                lexed_comment = false;
+                                previous_command_start = false;
+                                goto lex_next_token;
                             }
                         }
                     }
@@ -13473,14 +13462,7 @@ parse_target(pm_parser_t *parser, pm_node_t *target, bool multiple, bool splat_p
             // If we have no arguments to the call node and we need this to be a
             // target then this is either a method call or a local variable
             // write.
-            if (
-                (call->message_loc.length > 0) &&
-                (parser->start[call->message_loc.start + call->message_loc.length - 1] != '!') &&
-                (parser->start[call->message_loc.start + call->message_loc.length - 1] != '?') &&
-                (call->opening_loc.length == 0) &&
-                (call->arguments == NULL) &&
-                (call->block == NULL)
-            ) {
+            if (pm_call_node_writable_p(parser, call)) {
                 if (call->receiver == NULL) {
                     // When we get here, we have a local variable write, because it
                     // was previously marked as a method call but now we have an =.
@@ -13497,18 +13479,12 @@ parse_target(pm_parser_t *parser, pm_node_t *target, bool multiple, bool splat_p
                     return UP(pm_local_variable_target_node_create(parser, &message_loc, name, 0));
                 }
 
-                /* An attribute write, as in `foo.bar, baz = 1, 2`, writes to a
-                 * name rather than an operator. A name starts with an
-                 * identifier character, and any character that is not ASCII is
-                 * one. */
-                if (char_is_identifier_start(parser, parser->start + call->message_loc.start, (ptrdiff_t) call->message_loc.length)) {
-                    if (multiple && PM_NODE_FLAG_P(call, PM_CALL_NODE_FLAGS_SAFE_NAVIGATION)) {
-                        pm_parser_err_node(parser, (const pm_node_t *) call, PM_ERR_UNEXPECTED_SAFE_NAVIGATION);
-                    }
-
-                    parse_write_name(parser, &call->name);
-                    return UP(pm_call_target_node_create(parser, call));
+                if (multiple && PM_NODE_FLAG_P(call, PM_CALL_NODE_FLAGS_SAFE_NAVIGATION)) {
+                    pm_parser_err_node(parser, (const pm_node_t *) call, PM_ERR_UNEXPECTED_SAFE_NAVIGATION);
                 }
+
+                parse_write_name(parser, &call->name);
+                return UP(pm_call_target_node_create(parser, call));
             }
 
             // If there is no call operator and the message is "[]" then this is
@@ -13520,11 +13496,9 @@ parse_target(pm_parser_t *parser, pm_node_t *target, bool multiple, bool splat_p
         }
         PRISM_FALLTHROUGH
         default:
-            // In this case we have a node that we don't know how to convert
-            // into a target. We need to treat it as an error. For now, we'll
-            // mark it as an error and just skip right past it.
+            /* Keep an invalid expression out of fields that require a target. */
             pm_parser_err_node(parser, target, PM_ERR_WRITE_TARGET_UNEXPECTED);
-            return target;
+            return UP(pm_error_recovery_node_create_unexpected(parser, target));
     }
 }
 
@@ -13536,13 +13510,12 @@ static pm_node_t *
 parse_target_validate(pm_parser_t *parser, pm_node_t *target, bool multiple) {
     pm_node_t *result = parse_target(parser, target, multiple, false);
 
-    // Ensure that we have one of an =, an 'in' in for indexes, and a ')' in
-    // parens after the targets.
-    if (
-        !match1(parser, PM_TOKEN_EQUAL) &&
-        !(context_p(parser, PM_CONTEXT_FOR_INDEX) && match1(parser, PM_TOKEN_KEYWORD_IN)) &&
-        !(context_p(parser, PM_CONTEXT_PARENS) && match1(parser, PM_TOKEN_PARENTHESIS_RIGHT))
-    ) {
+    bool parenthesized = context_p(parser, PM_CONTEXT_PARENS);
+    bool newline = parenthesized && accept1(parser, PM_TOKEN_NEWLINE);
+
+    /* Only the closing parenthesis may follow a newline. */
+    bool assignment = !newline && (match1(parser, PM_TOKEN_EQUAL) || (context_p(parser, PM_CONTEXT_FOR_INDEX) && match1(parser, PM_TOKEN_KEYWORD_IN)));
+    if (!assignment && !(parenthesized && match1(parser, PM_TOKEN_PARENTHESIS_RIGHT))) {
         pm_parser_err_node(parser, result, PM_ERR_WRITE_TARGET_UNEXPECTED);
     }
 
@@ -13654,14 +13627,7 @@ parse_write(pm_parser_t *parser, pm_node_t *target, pm_token_t *operator, pm_nod
             // If we have no arguments to the call node and we need this to be a
             // target then this is either a method call or a local variable
             // write.
-            if (
-                (call->message_loc.length > 0) &&
-                (parser->start[call->message_loc.start + call->message_loc.length - 1] != '!') &&
-                (parser->start[call->message_loc.start + call->message_loc.length - 1] != '?') &&
-                (call->opening_loc.length == 0) &&
-                (call->arguments == NULL) &&
-                (call->block == NULL)
-            ) {
+            if (pm_call_node_writable_p(parser, call)) {
                 if (call->receiver == NULL) {
                     // When we get here, we have a local variable write, because it
                     // was previously marked as a method call but now we have an =.
@@ -13683,27 +13649,16 @@ parse_write(pm_parser_t *parser, pm_node_t *target, pm_token_t *operator, pm_nod
                     return target;
                 }
 
-                if (char_is_identifier_start(parser, parser->start + call->message_loc.start, (ptrdiff_t) call->message_loc.length)) {
-                    // When we get here, we have a method call, because it was
-                    // previously marked as a method call but now we have an =. This
-                    // looks like:
-                    //
-                    //     foo.bar = 1
-                    //
-                    // When it was parsed in the prefix position, foo.bar was seen as a
-                    // method call with no arguments. Now we have an =, so we know it's
-                    // a method call with an argument. In this case we will create the
-                    // arguments node, parse the argument, and add it to the list.
-                    pm_arguments_node_t *arguments = pm_arguments_node_single_create(parser, value);
-                    call->arguments = arguments;
-                    PM_NODE_LENGTH_SET_NODE(call, arguments);
-                    call->equal_loc = TOK2LOC(parser, operator);
+                /* Turn an attribute read such as `foo.bar` into `foo.bar = value`. */
+                pm_arguments_node_t *arguments = pm_arguments_node_single_create(parser, value);
+                call->arguments = arguments;
+                PM_NODE_LENGTH_SET_NODE(call, arguments);
+                call->equal_loc = TOK2LOC(parser, operator);
 
-                    parse_write_name(parser, &call->name);
-                    pm_node_flag_set(UP(call), PM_CALL_NODE_FLAGS_ATTRIBUTE_WRITE | pm_implicit_array_write_flags(value, PM_CALL_NODE_FLAGS_IMPLICIT_ARRAY));
+                parse_write_name(parser, &call->name);
+                pm_node_flag_set(UP(call), PM_CALL_NODE_FLAGS_ATTRIBUTE_WRITE | pm_implicit_array_write_flags(value, PM_CALL_NODE_FLAGS_IMPLICIT_ARRAY));
 
-                    return UP(call);
-                }
+                return UP(call);
             }
 
             // If there is no call operator and the message is "[]" then this is
@@ -13840,15 +13795,9 @@ static pm_node_t *
 parse_targets_validate(pm_parser_t *parser, pm_node_t *first_target, pm_binding_power_t binding_power, uint16_t depth) {
     pm_node_t *result = parse_targets(parser, first_target, binding_power, depth);
 
-    // If we're inside parentheses, then we allow a newline before the
-    // closing parenthesis or equals sign. Outside of parentheses, a newline
-    // is not allowed (e.g., `a, b\n= 1, 2` is not valid).
-    if (context_p(parser, PM_CONTEXT_PARENS) || context_p(parser, PM_CONTEXT_MULTI_TARGET)) {
-        accept1(parser, PM_TOKEN_NEWLINE);
-    }
-
-    // Ensure that we have either an = or a ) after the targets.
-    if (!match2(parser, PM_TOKEN_EQUAL, PM_TOKEN_PARENTHESIS_RIGHT)) {
+    /* A newline inside a parenthesized target may precede its closing parenthesis. */
+    bool newline = (context_p(parser, PM_CONTEXT_PARENS) || context_p(parser, PM_CONTEXT_MULTI_TARGET)) && accept1(parser, PM_TOKEN_NEWLINE);
+    if (!match1(parser, PM_TOKEN_PARENTHESIS_RIGHT) && (newline || !match1(parser, PM_TOKEN_EQUAL))) {
         pm_parser_err_node(parser, result, PM_ERR_WRITE_TARGET_UNEXPECTED);
     }
 
@@ -14097,19 +14046,19 @@ parse_assocs(pm_parser_t *parser, pm_static_literals_t *literals, pm_hash_elemen
                 if (token_begins_expression_p(parser->current.type)) {
                     value = parse_value_expression(parser, PM_BINDING_POWER_DEFINED, PM_PARSE_ACCEPTS_DO_BLOCK, PM_ERR_HASH_EXPRESSION_AFTER_LABEL, (uint16_t) (depth + 1));
                 } else {
-                    if (pm_encoding_isupper_char(parser->encoding, label.start, (label.end - 1) - label.start, parser->version)) {
-                        pm_token_t constant = { .type = PM_TOKEN_CONSTANT, .start = label.start, .end = label.end - 1 };
-                        value = UP(pm_constant_read_node_create(parser, &constant));
+                    pm_token_t identifier = { .type = PM_TOKEN_IDENTIFIER, .start = label.start, .end = label.end - 1 };
+                    bool constant = pm_encoding_isupper_char(parser->encoding, identifier.start, identifier.end - identifier.start, parser->version);
+                    bool invalid = identifier.end[-1] == '!' || identifier.end[-1] == '?';
+
+                    if (invalid) {
+                        PM_PARSER_ERR_TOKEN_FORMAT_CONTENT(parser, &identifier, constant ? PM_ERR_INVALID_CONSTANT_READ : PM_ERR_INVALID_LOCAL_VARIABLE_READ);
+                    }
+
+                    if (constant) {
+                        identifier.type = PM_TOKEN_CONSTANT;
+                        value = UP(pm_constant_read_node_create(parser, &identifier));
                     } else {
-                        int depth = -1;
-                        pm_token_t identifier = { .type = PM_TOKEN_IDENTIFIER, .start = label.start, .end = label.end - 1 };
-
-                        if (identifier.end[-1] == '!' || identifier.end[-1] == '?') {
-                            PM_PARSER_ERR_TOKEN_FORMAT_CONTENT(parser, &identifier, PM_ERR_INVALID_LOCAL_VARIABLE_READ);
-                        } else {
-                            depth = pm_parser_local_depth(parser, &identifier);
-                        }
-
+                        int depth = invalid ? -1 : pm_parser_local_depth(parser, &identifier);
                         if (depth == -1) {
                             value = UP(pm_call_node_variable_call_create(parser, &identifier));
                         } else {
@@ -14483,12 +14432,13 @@ parse_arguments(pm_parser_t *parser, pm_arguments_t *arguments, bool accepts_for
                         pm_token_t operator = parser->previous;
                         pm_node_t *right = parse_expression(parser, PM_BINDING_POWER_RANGE, flags & PM_PARSE_ACCEPTS_DO_BLOCK, PM_ERR_EXPECT_EXPRESSION_AFTER_OPERATOR, (uint16_t) (depth + 1));
 
-                        // If we parse a range, we need to validate that we
-                        // didn't accidentally violate the nonassoc rules of the
-                        // ... operator.
+                        /* A binary or endless range chains with the outer
+                         * operator. A beginless range is a valid operand. */
                         if (PM_NODE_TYPE_P(right, PM_RANGE_NODE)) {
                             pm_range_node_t *range = (pm_range_node_t *) right;
-                            pm_parser_err(parser, range->operator_loc.start, range->operator_loc.length, PM_ERR_UNEXPECTED_RANGE_OPERATOR);
+                            if (range->left != NULL) {
+                                pm_parser_err(parser, range->operator_loc.start, range->operator_loc.length, PM_ERR_UNEXPECTED_RANGE_OPERATOR);
+                            }
                         }
 
                         argument = UP(pm_range_node_create(parser, NULL, &operator, right));
@@ -15013,9 +14963,8 @@ parse_parameters(
                 update_parameter_state(parser, &parser->current, &order);
 
                 context_push(parser, PM_CONTEXT_DEFAULT_PARAMS);
-                parser_lex(parser);
 
-                pm_token_t name = parser->previous;
+                pm_token_t name = parser->current;
                 pm_token_t local = name;
                 local.end -= 1;
 
@@ -15026,7 +14975,9 @@ parse_parameters(
                 }
 
                 bool repeated = pm_parser_parameter_name_check(parser, &local);
+                /* Make the parameter visible before lexing its default. */
                 pm_parser_local_add_token(parser, &local, 1);
+                parser_lex(parser);
 
                 switch (parser->current.type) {
                     case PM_TOKEN_COMMA:
@@ -16651,10 +16602,10 @@ parse_symbol(pm_parser_t *parser, pm_lex_state_t next_state, uint16_t depth) {
         if (next_state != PM_LEX_STATE_NONE) lex_state_set(parser, next_state);
         if (match1(parser, PM_TOKEN_EOF)) {
             pm_parser_err_token(parser, &opening, PM_ERR_SYMBOL_TERM_INTERPOLATED);
-        } else {
-            expect1(parser, PM_TOKEN_STRING_END, PM_ERR_SYMBOL_TERM_INTERPOLATED);
+            return UP(pm_interpolated_symbol_node_create(parser, &opening, &parts, NULL));
         }
 
+        expect1(parser, PM_TOKEN_STRING_END, PM_ERR_SYMBOL_TERM_INTERPOLATED);
         return UP(pm_interpolated_symbol_node_create(parser, &opening, &parts, &parser->previous));
     }
 
@@ -16701,13 +16652,15 @@ parse_symbol(pm_parser_t *parser, pm_lex_state_t next_state, uint16_t depth) {
         lex_state_set(parser, next_state);
     }
 
+    const pm_token_t *closing = NULL;
     if (match1(parser, PM_TOKEN_EOF)) {
         pm_parser_err_token(parser, &opening, PM_ERR_SYMBOL_TERM_DYNAMIC);
     } else {
         expect1(parser, PM_TOKEN_STRING_END, PM_ERR_SYMBOL_TERM_DYNAMIC);
+        closing = &parser->previous;
     }
 
-    return UP(pm_symbol_node_create_unescaped(parser, &opening, &content, &parser->previous, &unescaped, parse_symbol_encoding(parser, parser->explicit_encoding, &content, &unescaped, false)));
+    return UP(pm_symbol_node_create_unescaped(parser, &opening, &content, closing, &unescaped, parse_symbol_encoding(parser, parser->explicit_encoding, &content, &unescaped, false)));
 }
 
 /**
@@ -18645,7 +18598,6 @@ parse_class(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
     parser_lex(parser);
 
     pm_token_t class_keyword = parser->previous;
-    pm_do_loop_stack_push(parser, false);
 
     pm_scratch_node_list_t current_block_exits = { 0 };
     pm_scratch_node_list_t *previous_block_exits = push_block_exits(parser, &current_block_exits);
@@ -18654,6 +18606,8 @@ parse_class(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
         pm_token_t operator = parser->previous;
         pm_node_t *expression = parse_value_expression(parser, PM_BINDING_POWER_COMPOSITION, (uint8_t) ((flags & PM_PARSE_ACCEPTS_DO_BLOCK) | PM_PARSE_ACCEPTS_COMMAND_CALL), PM_ERR_EXPECT_EXPRESSION_AFTER_LESS_LESS, (uint16_t) (depth + 1));
 
+        /* The header uses the enclosing loop context. The body starts a new one. */
+        pm_do_loop_stack_push(parser, false);
         pm_parser_scope_push(parser, true);
         if (!match2(parser, PM_TOKEN_NEWLINE, PM_TOKEN_SEMICOLON)) {
             PM_PARSER_ERR_TOKEN_FORMAT(parser, &parser->current, PM_ERR_EXPECT_SINGLETON_CLASS_DELIMITER, pm_token_str(parser->current.type));
@@ -18673,13 +18627,13 @@ parse_class(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
             parser_warn_indentation_mismatch(parser, opening_newline_index, &class_keyword, false, false);
         }
 
+        pm_do_loop_stack_pop(parser);
         expect1_opening(parser, PM_TOKEN_KEYWORD_END, PM_ERR_CLASS_TERM, &class_keyword);
 
         pm_constant_id_list_t locals;
         pm_locals_order(parser, &locals, false);
 
         pm_parser_scope_pop(parser);
-        pm_do_loop_stack_pop(parser);
 
         flush_block_exits(parser, previous_block_exits);
         return UP(pm_singleton_class_node_create(parser, &locals, &class_keyword, &operator, expression, statements, &parser->previous));
@@ -18706,6 +18660,7 @@ parse_class(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
         superclass = NULL;
     }
 
+    pm_do_loop_stack_push(parser, false);
     pm_parser_scope_push(parser, true);
 
     if (inheritance_operator.start != NULL) {
@@ -18728,6 +18683,7 @@ parse_class(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
         parser_warn_indentation_mismatch(parser, opening_newline_index, &class_keyword, false, false);
     }
 
+    pm_do_loop_stack_pop(parser);
     expect1_opening(parser, PM_TOKEN_KEYWORD_END, PM_ERR_CLASS_TERM, &class_keyword);
 
     if (context_def_p(parser)) {
@@ -18738,7 +18694,6 @@ parse_class(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
     pm_locals_order(parser, &locals, false);
 
     pm_parser_scope_pop(parser);
-    pm_do_loop_stack_pop(parser);
 
     if (!PM_NODE_TYPE_P(constant_path, PM_CONSTANT_PATH_NODE) && !(PM_NODE_TYPE_P(constant_path, PM_CONSTANT_READ_NODE))) {
         pm_parser_err_node(parser, constant_path, PM_ERR_CLASS_NAME);
@@ -18787,6 +18742,9 @@ parse_def(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
             parser_lex(parser);
 
             if (match2(parser, PM_TOKEN_DOT, PM_TOKEN_COLON_COLON)) {
+                if (parser->previous.end[-1] == '=') {
+                    pm_parser_err_previous(parser, PM_ERR_DEF_RECEIVER_SETTER);
+                }
                 receiver = parse_variable_call(parser);
 
                 pm_parser_scope_push(parser, true);
@@ -18880,6 +18838,7 @@ parse_def(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
              * expression of this parenthesis should not be processed under this
              * context. Thus, the context is popped here. */
             context_pop(parser);
+            lex_state_set(parser, PM_LEX_STATE_BEG);
             parser_lex(parser);
 
             pm_token_t lparen = parser->previous;
@@ -19021,16 +18980,6 @@ parse_def(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
         pm_accepts_block_stack_push(parser, true);
         pm_node_t *statement = parse_expression(parser, PM_BINDING_POWER_DEFINED + 1, allow_flags | PM_PARSE_IN_ENDLESS_DEF, PM_ERR_DEF_ENDLESS, (uint16_t) (depth + 1));
 
-        /* If an unconsumed PM_TOKEN_KEYWORD_DO follows the body, it is an error
-         * (e.g., `def f = 1 do end`). PM_TOKEN_KEYWORD_DO_BLOCK is
-         * intentionally not caught here — it should bubble up to the outer
-         * context (e.g., `private def f = puts "Hello" do end` where the block
-         * attaches to `private`). */
-        if (accept1(parser, PM_TOKEN_KEYWORD_DO)) {
-            pm_block_node_t *block = parse_block(parser, (uint16_t) (depth + 1));
-            pm_parser_err_node(parser, UP(block), PM_ERR_DEF_ENDLESS_DO_BLOCK);
-        }
-
         /* Any number of rescue modifiers chain onto the body within the method
          * definition itself, associating to the left: `def f = a rescue b
          * rescue c` defines a method whose body is `(a rescue b) rescue c`,
@@ -19046,6 +18995,13 @@ parse_def(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
             context_pop(parser);
 
             statement = UP(pm_rescue_modifier_node_create(parser, statement, &rescue_keyword, value));
+        }
+
+        /* A plain `do` still belongs to the endless method context. A
+         * PM_TOKEN_KEYWORD_DO_BLOCK can attach to an enclosing command. */
+        if (accept1(parser, PM_TOKEN_KEYWORD_DO)) {
+            pm_block_node_t *block = parse_block(parser, (uint16_t) (depth + 1));
+            pm_parser_err_node(parser, UP(block), PM_ERR_DEF_ENDLESS_DO_BLOCK);
         }
 
         pm_accepts_block_stack_pop(parser);
@@ -19080,7 +19036,9 @@ parse_def(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
 
         if (match3(parser, PM_TOKEN_KEYWORD_RESCUE, PM_TOKEN_KEYWORD_ENSURE, PM_TOKEN_KEYWORD_ELSE)) {
             PRISM_ASSERT(statements == NULL || PM_NODE_TYPE_P(statements, PM_STATEMENTS_NODE));
+            context_push(parser, PM_CONTEXT_DEF);
             statements = UP(parse_rescues_implicit_begin(parser, opening_newline_index, &def_keyword, def_keyword.start, (pm_statements_node_t *) statements, PM_RESCUES_DEF, (uint16_t) (depth + 1)));
+            context_pop(parser);
         } else {
             parser_warn_indentation_mismatch(parser, opening_newline_index, &def_keyword, false, false);
         }
@@ -19160,6 +19118,7 @@ parse_module(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
     }
 
     if (!PM_NODE_TYPE_P(constant_path, PM_CONSTANT_READ_NODE) && !PM_NODE_TYPE_P(constant_path, PM_CONSTANT_PATH_NODE) && !PM_NODE_TYPE_P(constant_path, PM_ERROR_RECOVERY_NODE)) {
+        if (name.type == PM_TOKEN_CONSTANT) pm_parser_err_node(parser, constant_path, PM_ERR_MODULE_NAME);
         constant_path = UP(pm_error_recovery_node_create_unexpected(parser, constant_path));
     }
 
@@ -19290,7 +19249,6 @@ parse_parentheses(pm_parser_t *parser, pm_binding_power_t binding_power, uint8_t
             pm_node_t *result;
             if (match1(parser, PM_TOKEN_COMMA) && (binding_power == PM_BINDING_POWER_STATEMENT)) {
                 result = parse_targets(parser, UP(multi_target), PM_BINDING_POWER_INDEX, (uint16_t) (depth + 1));
-                accept1(parser, PM_TOKEN_NEWLINE);
             } else {
                 result = UP(multi_target);
             }
@@ -19312,6 +19270,8 @@ parse_parentheses(pm_parser_t *parser, pm_binding_power_t binding_power, uint8_t
                 /* Multi targets are not allowed when it's not a statement
                  * level. */
                 pm_parser_err_node(parser, result, PM_ERR_WRITE_TARGET_UNEXPECTED);
+            } else if (context_p(parser, PM_CONTEXT_PARENS) && accept1(parser, PM_TOKEN_NEWLINE)) {
+                if (!match1(parser, PM_TOKEN_PARENTHESIS_RIGHT)) pm_parser_err_node(parser, result, PM_ERR_WRITE_TARGET_UNEXPECTED);
             } else if (!match2(parser, PM_TOKEN_EQUAL, PM_TOKEN_PARENTHESIS_RIGHT)) {
                 /* Multi targets must be followed by an equal sign in order to
                  * be valid (or a right parenthesis if they are nested). */
@@ -19539,7 +19499,9 @@ parse_array(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
 
     if (!accept1(parser, PM_TOKEN_BRACKET_RIGHT)) {
         PM_PARSER_ERR_TOKEN_FORMAT(parser, &parser->current, PM_ERR_ARRAY_TERM, pm_token_str(parser->current.type));
-        parser->previous.start = parser->previous.end;
+        const uint8_t *end = match1(parser, PM_TOKEN_EOF) ? parser->current.end : parser->previous.end;
+        parser->previous.start = end;
+        parser->previous.end = end;
         parser->previous.type = 0;
     }
 
@@ -19736,20 +19698,14 @@ parse_defined(pm_parser_t *parser, uint8_t flags, uint16_t depth) {
     context_push(parser, PM_CONTEXT_DEFINED);
     bool newline = accept1(parser, PM_TOKEN_NEWLINE);
 
-    if (accept2(parser, PM_TOKEN_PARENTHESIS_LEFT, PM_TOKEN_PARENTHESIS_LEFT_GROUPING)) {
+    if (!newline && accept2(parser, PM_TOKEN_PARENTHESIS_LEFT, PM_TOKEN_PARENTHESIS_LEFT_GROUPING)) {
         lparen = parser->previous;
+        expression = parse_expression(parser, PM_BINDING_POWER_COMPOSITION, PM_PARSE_ACCEPTS_COMMAND_CALL | PM_PARSE_ACCEPTS_DO_BLOCK, PM_ERR_DEFINED_EXPRESSION, (uint16_t) (depth + 1));
 
-        if (newline && accept1(parser, PM_TOKEN_PARENTHESIS_RIGHT)) {
-            expression = UP(pm_parentheses_node_create(parser, &lparen, NULL, &parser->previous, 0));
-            lparen = (pm_token_t) { 0 };
-        } else {
-            expression = parse_expression(parser, PM_BINDING_POWER_COMPOSITION, PM_PARSE_ACCEPTS_COMMAND_CALL | PM_PARSE_ACCEPTS_DO_BLOCK, PM_ERR_DEFINED_EXPRESSION, (uint16_t) (depth + 1));
-
-            if (!parser->recovering) {
-                accept1(parser, PM_TOKEN_NEWLINE);
-                expect1(parser, PM_TOKEN_PARENTHESIS_RIGHT, PM_ERR_EXPECT_RPAREN);
-                rparen = parser->previous;
-            }
+        if (!parser->recovering) {
+            accept1(parser, PM_TOKEN_NEWLINE);
+            expect1(parser, PM_TOKEN_PARENTHESIS_RIGHT, PM_ERR_EXPECT_RPAREN);
+            rparen = parser->previous;
         }
     } else {
         expression = parse_expression(parser, PM_BINDING_POWER_DEFINED, flags & PM_PARSE_ACCEPTS_DO_BLOCK, PM_ERR_DEFINED_EXPRESSION, (uint16_t) (depth + 1));
@@ -20195,7 +20151,20 @@ parse_identifier(pm_parser_t *parser, pm_binding_power_t binding_power, uint8_t 
     pm_token_t identifier = parser->current;
     parser_lex(parser);
 
-    pm_node_t *node = parse_variable_call(parser);
+    bool followed = (
+        ((flags & PM_PARSE_ACCEPTS_COMMAND_CALL) && token_begins_argument_p(parser->current.type)) ||
+        (pm_accepts_block_stack_p(parser) && match1(parser, PM_TOKEN_KEYWORD_DO)) ||
+        match1(parser, PM_TOKEN_BRACE_LEFT)
+    );
+
+    /* Resolve numbered parameter names used as calls before registering an
+     * implicit parameter or parsing the call's arguments and block. */
+    pm_node_t *node;
+    if (followed && pm_token_is_numbered_parameter(parser, PM_TOKEN_START(parser, &identifier), PM_TOKEN_LENGTH(&identifier))) {
+        node = UP(pm_call_node_variable_call_create(parser, &identifier));
+    } else {
+        node = parse_variable_call(parser);
+    }
 
     if (PM_NODE_TYPE_P(node, PM_CALL_NODE)) {
         // If parse_variable_call returned with a call node, then we
@@ -20222,42 +20191,32 @@ parse_identifier(pm_parser_t *parser, pm_binding_power_t binding_power, uint8_t 
                 PM_NODE_LENGTH_SET_LOCATION(call, end);
             }
         }
-    } else {
-        // Otherwise, we know the identifier is in the local table. This
-        // can still be a method call if it is followed by arguments or
-        // a block, so we need to check for that here.
-        if (
-            ((flags & PM_PARSE_ACCEPTS_COMMAND_CALL) && token_begins_argument_p(parser->current.type)) ||
-            (pm_accepts_block_stack_p(parser) && match1(parser, PM_TOKEN_KEYWORD_DO)) ||
-            match1(parser, PM_TOKEN_BRACE_LEFT)
-        ) {
-            pm_arguments_t arguments = { 0 };
-            parse_arguments_list(parser, &arguments, true, flags, (uint16_t) (depth + 1));
-            pm_call_node_t *fcall = pm_call_node_fcall_create(parser, &identifier, &arguments);
+    } else if (followed) {
+        // Otherwise, we know the identifier is in the local table. This can
+        // still be a method call if it is followed by arguments or a block, so
+        // we need to check for that here.
+        pm_arguments_t arguments = { 0 };
+        parse_arguments_list(parser, &arguments, true, flags, (uint16_t) (depth + 1));
+        pm_call_node_t *fcall = pm_call_node_fcall_create(parser, &identifier, &arguments);
 
-            if (PM_NODE_TYPE_P(node, PM_IT_LOCAL_VARIABLE_READ_NODE)) {
-                // If we're about to convert an 'it' implicit local
-                // variable read into a method call, we need to remove
-                // it from the list of implicit local variables.
-                pm_node_unreference(parser, node);
-            } else {
-                // Otherwise, we're about to convert a regular local
-                // variable read into a method call, in which case we
-                // need to indicate that this was not a read for the
-                // purposes of warnings.
-                PRISM_ASSERT(PM_NODE_TYPE_P(node, PM_LOCAL_VARIABLE_READ_NODE));
+        if (PM_NODE_TYPE_P(node, PM_IT_LOCAL_VARIABLE_READ_NODE)) {
+            // If we're about to convert an 'it' implicit local
+            // variable read into a method call, we need to remove
+            // it from the list of implicit local variables.
+            pm_node_unreference(parser, node);
+        } else {
+            // Otherwise, we're about to convert a regular local
+            // variable read into a method call, in which case we
+            // need to indicate that this was not a read for the
+            // purposes of warnings.
+            PRISM_ASSERT(PM_NODE_TYPE_P(node, PM_LOCAL_VARIABLE_READ_NODE));
 
-                if (pm_token_is_numbered_parameter(parser, PM_TOKEN_START(parser, &identifier), PM_TOKEN_LENGTH(&identifier))) {
-                    pm_node_unreference(parser, node);
-                } else {
-                    pm_local_variable_read_node_t *cast = (pm_local_variable_read_node_t *) node;
-                    PRISM_ASSERT(pm_parser_local_depth_constant_id(parser, cast->name) == (int) cast->depth);
-                    pm_locals_unread(parser, cast->name);
-                }
-            }
-
-            return UP(fcall);
+            pm_local_variable_read_node_t *cast = (pm_local_variable_read_node_t *) node;
+            PRISM_ASSERT(pm_parser_local_depth_constant_id(parser, cast->name) == (int) cast->depth);
+            pm_locals_unread(parser, cast->name);
         }
+
+        return UP(fcall);
     }
 
     return parse_multi_target(parser, node, binding_power, depth);
@@ -20709,9 +20668,9 @@ parse_not(pm_parser_t *parser, pm_binding_power_t binding_power, uint8_t flags, 
         return UP(pm_error_recovery_node_create(parser, PM_TOKEN_END(parser, &parser->previous), 0));
     }
 
-    accept1(parser, PM_TOKEN_NEWLINE);
+    bool newline = accept1(parser, PM_TOKEN_NEWLINE);
 
-    if (accept2(parser, PM_TOKEN_PARENTHESIS_LEFT, PM_TOKEN_PARENTHESIS_LEFT_GROUPING)) {
+    if (!newline && accept2(parser, PM_TOKEN_PARENTHESIS_LEFT, PM_TOKEN_PARENTHESIS_LEFT_GROUPING)) {
         pm_token_t lparen = parser->previous;
 
         if (accept1(parser, PM_TOKEN_PARENTHESIS_RIGHT)) {
@@ -22185,20 +22144,21 @@ parse_operator_equal(pm_parser_t *parser, pm_node_t *node, pm_binding_power_t pr
             return result;
         }
         case PM_CALL_NODE: {
-            parser_lex(parser);
             pm_call_node_t *cast = (pm_call_node_t *) node;
 
-            // If we have a vcall (a method with no arguments and no
-            // receiver that could have been a local variable) then we
-            // will transform it into a local variable write.
+            /* Register a new local before lexing the first RHS token. */
             if (PM_NODE_FLAG_P(cast, PM_CALL_NODE_FLAGS_VARIABLE_CALL)) {
                 pm_refute_numbered_parameter(parser, cast->message_loc.start, cast->message_loc.length);
                 pm_constant_id_t constant_id = pm_parser_local_add_location(parser, &cast->message_loc, 1);
+                parser_lex(parser);
+
                 pm_node_t *value = parse_assignment_value(parser, previous_binding_power, binding_power, flags, PM_ERR_EXPECT_EXPRESSION_AFTER_OPERATOR, (uint16_t) (depth + 1));
                 pm_node_t *result = UP(pm_local_variable_operator_write_node_create(parser, UP(cast), &operator, value, constant_id, 0));
 
                 return result;
             }
+
+            parser_lex(parser);
 
             // If there is no call operator and the message is "[]" then
             // this is an aref expression, and we can transform it into
@@ -22803,6 +22763,8 @@ parse_expression(pm_parser_t *parser, pm_binding_power_t binding_power, uint8_t 
  */
 static pm_statements_node_t *
 wrap_statements(pm_parser_t *parser, pm_statements_node_t *statements) {
+    pm_location_t location = statements == NULL ? (pm_location_t) { 0 } : statements->base.location;
+
     if (PM_PARSER_COMMAND_LINE_OPTION_P(parser)) {
         if (statements == NULL) {
             statements = pm_statements_node_create(parser, &((pm_statements_t) { 0 }));
@@ -22832,7 +22794,7 @@ wrap_statements(pm_parser_t *parser, pm_statements_node_t *statements) {
             );
 
             pm_global_variable_read_node_t *receiver = pm_global_variable_read_node_synthesized_create(parser, pm_parser_constant_id_constant(parser, "$_", 2));
-            pm_call_node_t *call = pm_call_node_call_synthesized_create(parser, UP(receiver), "split", arguments);
+            pm_call_node_t *call = pm_call_node_call_synthesized_create(parser, UP(receiver), "split", arguments, location);
 
             pm_global_variable_write_node_t *write = pm_global_variable_write_node_synthesized_create(
                 parser,
@@ -23541,7 +23503,9 @@ pm_parse_stream(pm_parser_t **parser, pm_arena_t *arena, pm_source_t *source, co
     pm_parser_t *tmp = pm_parser_new(arena, pm_source_source(source), pm_source_length(source), options);
     pm_node_t *node = pm_parse(tmp);
 
-    while (!eof && tmp->error_list.size > 0) {
+    /* The stream reader stops at possible markers. Only the lexer knows if
+     * the marker is real, even when the preceding source has syntax errors. */
+    while (!eof && tmp->data_loc.length == 0) {
         eof = pm_source_stream_read(source);
 
         pm_parser_free(tmp);

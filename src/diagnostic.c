@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#define PM_DIAGNOSTIC_ID_MAX 328
+#define PM_DIAGNOSTIC_ID_MAX 330
 
 /** This struct holds the data for each diagnostic. */
 typedef struct {
@@ -183,6 +183,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_DEF_PARAMS_TERM]                    = { "expected a delimiter to close the parameters", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_PARAMS_TERM_PAREN]              = { "unexpected %s; expected a `)` to close the parameters", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_RECEIVER]                       = { "expected a receiver for the method definition", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_DEF_RECEIVER_SETTER]                = { "setter method name cannot be used as a receiver in a method definition", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_RECEIVER_TERM]                  = { "expected a `.` or `::` after the receiver in a method definition", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEF_TERM]                           = { "expected an `end` to close the `def` statement", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_DEFINED_EXPRESSION]                 = { "expected an expression after `defined?`", PM_ERROR_LEVEL_SYNTAX },
@@ -261,6 +262,7 @@ static const pm_diagnostic_data_t diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
     [PM_ERR_INVALID_COMMA]                      = { "invalid comma", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_ESCAPE_CHARACTER]           = { "Invalid escape character syntax", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_FLOAT_EXPONENT]             = { "invalid exponent", PM_ERROR_LEVEL_SYNTAX },
+    [PM_ERR_INVALID_CONSTANT_READ]              = { "invalid constant name %.*s", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_LOCAL_VARIABLE_READ]        = { "identifier %.*s is not valid to get", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_LOCAL_VARIABLE_WRITE]       = { "identifier %.*s is not valid to set", PM_ERROR_LEVEL_SYNTAX },
     [PM_ERR_INVALID_NUMBER_BINARY]              = { "invalid binary number; numeric literal without digits", PM_ERROR_LEVEL_SYNTAX },
@@ -517,6 +519,7 @@ pm_diagnostic_id_name(pm_diagnostic_id_t diag_id) {
         case PM_ERR_DEF_PARAMS_TERM: return "def_params_term";
         case PM_ERR_DEF_PARAMS_TERM_PAREN: return "def_params_term_paren";
         case PM_ERR_DEF_RECEIVER: return "def_receiver";
+        case PM_ERR_DEF_RECEIVER_SETTER: return "def_receiver_setter";
         case PM_ERR_DEF_RECEIVER_TERM: return "def_receiver_term";
         case PM_ERR_DEF_TERM: return "def_term";
         case PM_ERR_DEFINED_EXPRESSION: return "defined_expression";
@@ -597,6 +600,7 @@ pm_diagnostic_id_name(pm_diagnostic_id_t diag_id) {
         case PM_ERR_INVALID_ENCODING_MAGIC_COMMENT: return "invalid_encoding_magic_comment";
         case PM_ERR_INVALID_ESCAPE_CHARACTER: return "invalid_escape_character";
         case PM_ERR_INVALID_FLOAT_EXPONENT: return "invalid_float_exponent";
+        case PM_ERR_INVALID_CONSTANT_READ: return "invalid_constant_read";
         case PM_ERR_INVALID_LOCAL_VARIABLE_READ: return "invalid_local_variable_read";
         case PM_ERR_INVALID_LOCAL_VARIABLE_WRITE: return "invalid_local_variable_write";
         case PM_ERR_INVALID_MULTIBYTE_CHAR: return "invalid_multibyte_char";
