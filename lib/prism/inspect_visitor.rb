@@ -2209,7 +2209,7 @@ module Prism
     #: (StatementsNode node) -> void
     def visit_statements_node(node) # :nodoc:
       commands << [inspect_node("StatementsNode", node), indent]
-      flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ].compact
+      flags = [("newline" if node.newline?), ("static_literal" if node.static_literal?), ("contains_pre_execution" if node.contains_pre_execution?)].compact
       commands << ["├── flags: #{flags.empty? ? "∅" : flags.join(", ")}\n", indent]
       commands << ["└── body: (length: #{(body = node.body).length})\n", indent]
       if body.any?

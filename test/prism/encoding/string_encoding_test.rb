@@ -4,7 +4,7 @@ require_relative "../test_helper"
 
 module Prism
   class StringEncodingTest < TestCase
-    each_encoding do |encoding, _|
+    each_encoding do |encoding|
       define_method(:"test_#{encoding.name}") do
         assert_encoding(encoding)
       end
@@ -48,6 +48,15 @@ module Prism
     def test_first_lexed_token
       encoding = Prism.lex("# encoding: ascii-8bit").value[0].value.encoding
       assert_equal Encoding::ASCII_8BIT, encoding
+    end
+
+    # The part of a literal after an interpolation is in the source encoding,
+    # whatever encoding the literals inside the interpolation fixed.
+    def test_part_after_interpolation
+      ['"a#{"\\u3042"}b"', ':"a#{"\\u3042"}b"', '/a#{"\\u3042"}b/'].each do |source|
+        node = Prism.parse_statement("# encoding: EUC-JP\n#{source}")
+        refute_predicate node.parts.last, :forced_utf8_encoding?, source
+      end
     end
 
     if !ENV["PRISM_BUILD_MINIMAL"]

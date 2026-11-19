@@ -4253,6 +4253,9 @@ module Prism
       table = Table.new("StatementsNode")
       id = node_id(node)
 
+      # flags
+      table.field("flags", statements_flags_inspect(node))
+
       # body
       if node.body.any?
         table.field("body", port: true)
@@ -4817,6 +4820,16 @@ module Prism
       flags << "literal" if node.literal?
       flags << "experimental_everything" if node.experimental_everything?
       flags << "experimental_copy" if node.experimental_copy?
+      flags.join(", ")
+    end
+
+    # Inspect a node that has statements_flags flags to display the flags as a
+    # comma-separated list.
+    #
+    #: (StatementsNode node) -> String
+    def statements_flags_inspect(node) # :nodoc:
+      flags = [] #: Array[String]
+      flags << "contains_pre_execution" if node.contains_pre_execution?
       flags.join(", ")
     end
 

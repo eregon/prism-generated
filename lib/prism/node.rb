@@ -30954,6 +30954,14 @@ module Prism
 
     # :section:
 
+    # :category: Flags
+    # the statement list directly contains a `BEGIN` block
+    #
+    #: () -> bool
+    def contains_pre_execution?
+      flags.anybits?(StatementsFlags::CONTAINS_PRE_EXECUTION)
+    end
+
     # :call-seq:
     #   body -> Array[Node]
     #
@@ -30971,6 +30979,7 @@ module Prism
     #: (untyped other) -> boolish
     def ===(other) # :nodoc:
       other.is_a?(StatementsNode) &&
+        (flags === other.flags) &&
         (body.length == other.body.length) &&
         body.zip(other.body).all? { |left, right| left === right }
     end
@@ -33898,6 +33907,12 @@ module Prism
 
     # constant writes that should be modified with shareable constant value experimental copy
     EXPERIMENTAL_COPY = 1 << 4
+  end
+
+  # Flags for statement lists.
+  module StatementsFlags
+    # the statement list directly contains a `BEGIN` block
+    CONTAINS_PRE_EXECUTION = 1 << 2
   end
 
   # Flags for string nodes.

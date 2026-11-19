@@ -126,6 +126,13 @@ export const ShareableConstantNodeFlags = {
 };
 
 /**
+ * Flags for statement lists.
+ */
+export const StatementsFlags = {
+  CONTAINS_PRE_EXECUTION: 1 << 2,
+};
+
+/**
  * Flags for string nodes.
  */
 export const StringFlags = {
@@ -16117,6 +16124,15 @@ export class StatementsNode {
     this.location = location;
     this.#flags = flags;
     this.body = body;
+  }
+
+  /**
+   * True if this node has the CONTAINS_PRE_EXECUTION flag.
+   *
+   * @returns {boolean}
+   */
+  isContainsPreExecution() {
+    return (this.#flags & StatementsFlags.CONTAINS_PRE_EXECUTION) !== 0;
   }
 
   /**

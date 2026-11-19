@@ -396,7 +396,7 @@ module Prism
       when :splat_node
         [LocationField.new(:operator_loc), OptionalNodeField.new(:expression)]
       when :statements_node
-        [NodeListField.new(:body)]
+        [FlagsField.new(:flags, [:contains_pre_execution?]), NodeListField.new(:body)]
       when :string_node
         [FlagsField.new(:flags, [:forced_utf8_encoding?, :forced_binary_encoding?, :frozen?, :mutable?]), OptionalLocationField.new(:opening_loc), LocationField.new(:content_loc), OptionalLocationField.new(:closing_loc), StringField.new(:unescaped)]
       when :super_node

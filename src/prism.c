@@ -4846,9 +4846,10 @@ pm_interpolated_part_flags(pm_node_flags_t *flags, pm_node_t *part) {
                 // If the embedded statement is a string, then we can keep the
                 // static literal flag and mark the string as frozen.
                 pm_node_flag_set(embedded, PM_NODE_FLAG_STATIC_LITERAL | PM_STRING_FLAGS_FROZEN);
-            } else if (PM_NODE_TYPE_P(embedded, PM_INTERPOLATED_STRING_NODE) && PM_NODE_FLAG_P(embedded, PM_NODE_FLAG_STATIC_LITERAL)) {
-                // If the embedded statement is an interpolated string and it's
-                // a static literal, then we can keep the static literal flag.
+            } else if (PM_NODE_TYPE_P(embedded, PM_INTERPOLATED_STRING_NODE) && PM_NODE_FLAG_P(embedded, PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE)) {
+                /* An interpolated string whose value is known while parsing
+                 * keeps the static literal flag, frozen or not, since only its
+                 * value is interpolated. */
             } else {
                 // Otherwise we lose the static literal flag.
                 *flags &= (pm_node_flags_t) ~PM_NODE_FLAG_STATIC_LITERAL;
@@ -4936,6 +4937,10 @@ pm_interpolated_regular_expression_node_create(pm_parser_t *parser, const pm_tok
  * `--disable-frozen-string-literal` or `# frozen_string_literal: false`. This
  * is necessary to indicate that the string should be left up to the runtime,
  * which could potentially use a chilled string otherwise.
+ *
+ * PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE indicates that the value of
+ * the string is known while parsing, whether or not it is frozen. It is kept
+ * for as long as every part is a string literal or a string with this flag.
  */
 static pm_interpolated_string_node_t *
 pm_interpolated_string_node_create(pm_parser_t *parser, const pm_token_t *opening, pm_node_list_t *parts, const pm_token_t *closing) {
@@ -4948,7 +4953,7 @@ pm_interpolated_string_node_create(pm_parser_t *parser, const pm_token_t *openin
     pm_node_list_finalize(&parser->node_chunks, parser->arena, parts);
     pm_location_t location = pm_interpolated_location(parser, opening, parts, closing);
 
-    pm_node_flags_t flags = PM_NODE_FLAG_STATIC_LITERAL;
+    pm_node_flags_t flags = PM_NODE_FLAG_STATIC_LITERAL | PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE;
 
     switch (parser->frozen_string_literal) {
         case PM_OPTIONS_FROZEN_STRING_LITERAL_DISABLED:
@@ -4981,6 +4986,10 @@ pm_interpolated_string_node_create(pm_parser_t *parser, const pm_token_t *openin
                     // also clear the mutability flags.
                     CLEAR_FLAGS();
                 }
+
+                if (!PM_NODE_FLAG_P(part, PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE)) {
+                    flags &= (pm_node_flags_t) ~PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE;
+                }
                 break;
             case PM_EMBEDDED_STATEMENTS_NODE: {
                 pm_embedded_statements_node_t *cast = (pm_embedded_statements_node_t *) part;
@@ -5012,12 +5021,17 @@ pm_interpolated_string_node_create(pm_parser_t *parser, const pm_token_t *openin
                     CLEAR_FLAGS();
                 }
 
+                if (embedded == NULL || !(PM_NODE_TYPE_P(embedded, PM_STRING_NODE) || (PM_NODE_TYPE_P(embedded, PM_INTERPOLATED_STRING_NODE) && PM_NODE_FLAG_P(embedded, PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE)))) {
+                    flags &= (pm_node_flags_t) ~PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE;
+                }
+
                 break;
             }
             case PM_EMBEDDED_VARIABLE_NODE:
                 // Embedded variables clear static literal, which means we also
                 // should clear the mutability flags.
                 CLEAR_FLAGS();
+                flags &= (pm_node_flags_t) ~PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE;
                 break;
             case PM_X_STRING_NODE:
             case PM_INTERPOLATED_X_STRING_NODE:
@@ -5026,10 +5040,12 @@ pm_interpolated_string_node_create(pm_parser_t *parser, const pm_token_t *openin
                 // These will only happen in error cases. But we want to handle it
                 // here so that we don't fail the assertion.
                 CLEAR_FLAGS();
+                flags &= (pm_node_flags_t) ~PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE;
                 parts->nodes[idx] = UP(pm_error_recovery_node_create_unexpected(parser, part));
                 break;
             case PM_ERROR_RECOVERY_NODE:
                 CLEAR_FLAGS();
+                flags &= (pm_node_flags_t) ~PM_INTERPOLATED_STRING_NODE_FLAGS_STATIC_VALUE;
                 break;
             default:
                 PRISM_ASSERT(false && "unexpected node type");
@@ -6311,6 +6327,9 @@ typedef struct {
      * earlier statement, so this takes the earliest start and the latest end.
      */
     pm_location_t location;
+
+    /** Flags accumulated as statements are appended. */
+    pm_node_flags_t flags;
 } pm_statements_t;
 
 /**
@@ -6325,6 +6344,7 @@ pm_statements_body_append(pm_parser_t *parser, pm_statements_t *body, pm_node_t 
 
     if (body->nodes.size > 0) pm_statements_unreachable_check(parser, pm_node_list_open_last(&body->nodes), statement);
     pm_node_list_open_append(&parser->node_chunks, &body->nodes, statement);
+    if (PM_NODE_TYPE_P(statement, PM_PRE_EXECUTION_NODE)) body->flags |= PM_STATEMENTS_FLAGS_CONTAINS_PRE_EXECUTION;
     if (newline) pm_node_flag_set(statement, PM_NODE_FLAG_NEWLINE);
 }
 
@@ -6338,7 +6358,7 @@ pm_statements_node_create(pm_parser_t *parser, pm_statements_t *body) {
     return pm_statements_node_new(
         parser->arena,
         ++parser->node_id,
-        0,
+        body->flags,
         body->location,
         body->nodes
     );
@@ -6354,7 +6374,7 @@ pm_statements_node_single_create(pm_parser_t *parser, pm_node_t *statement, bool
     return pm_statements_node_new(
         parser->arena,
         ++parser->node_id,
-        0,
+        PM_NODE_TYPE_P(statement, PM_PRE_EXECUTION_NODE) ? PM_STATEMENTS_FLAGS_CONTAINS_PRE_EXECUTION : 0,
         PM_LOCATION_INIT_NODE(statement),
         pm_node_list_single(parser->arena, statement)
     );
@@ -6377,6 +6397,7 @@ pm_statements_node_body_update(pm_statements_node_t *node, pm_node_t *statement)
     node->base.location = pm_statements_node_body_length(node) == 0
         ? statement->location
         : pm_location_join(node->base.location, statement->location);
+    if (PM_NODE_TYPE_P(statement, PM_PRE_EXECUTION_NODE)) pm_node_flag_set(UP(node), PM_STATEMENTS_FLAGS_CONTAINS_PRE_EXECUTION);
 }
 
 /**
@@ -6475,22 +6496,6 @@ pm_super_node_create(pm_parser_t *parser, const pm_token_t *keyword, pm_argument
 }
 
 /**
- * Read through the contents of a string and check if it consists solely of
- * US-ASCII code points.
- */
-static bool
-pm_ascii_only_p(const pm_string_t *contents) {
-    const size_t length = pm_string_length(contents);
-    const uint8_t *source = pm_string_source(contents);
-
-    for (size_t index = 0; index < length; index++) {
-        if (source[index] & 0x80) return false;
-    }
-
-    return true;
-}
-
-/**
  * Validate that the contents of the given symbol are all valid UTF-8.
  */
 static void
@@ -6549,7 +6554,7 @@ parse_symbol_encoding(pm_parser_t *parser, const pm_encoding_t *explicit_encodin
         } else if (validate) {
             parse_symbol_encoding_validate_other(parser, location, contents);
         }
-    } else if (pm_ascii_only_p(contents)) {
+    } else if (pm_string_ascii_only_p(contents)) {
         // Ruby stipulates that all source files must use an ASCII-compatible
         // encoding. Thus, all symbols appearing in source are eligible for
         // "downgrading" to US-ASCII.
@@ -9212,8 +9217,14 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
             parser->current.end++;
 
             if (parser->current.end == parser->end) {
-                const uint8_t *start = parser->current.end - 2;
-                PM_PARSER_ERR_FORMAT(parser, U32(start - parser->start), U32(parser->current.end - start), PM_ERR_ESCAPE_INVALID_UNICODE_SHORT, 2, start);
+                if (flags & PM_ESCAPE_FLAG_REGEXP) {
+                    /* The regular expression is validated even though it is
+                     * not terminated, which reports this escape. */
+                    pm_buffer_append_bytes(buffer, start, (size_t) (parser->current.end - start));
+                } else {
+                    const uint8_t *start = parser->current.end - 2;
+                    PM_PARSER_ERR_FORMAT(parser, U32(start - parser->start), U32(parser->current.end - start), PM_ERR_ESCAPE_INVALID_UNICODE_SHORT, 2, start);
+                }
             } else if (peek(parser) == '{') {
                 const uint8_t *unicode_codepoints_start = parser->current.end - 2;
                 parser->current.end++;
@@ -9241,8 +9252,13 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
                     size_t hexadecimal_length = pm_strspn_hexadecimal_digit(parser->current.end, parser->end - parser->current.end);
 
                     if (hexadecimal_length > 6) {
-                        // \u{nnnn} character literal allows only 1-6 hexadecimal digits
-                        pm_parser_err(parser, U32(unicode_start - parser->start), U32(hexadecimal_length), PM_ERR_ESCAPE_INVALID_UNICODE_LONG);
+                        /* A code point has at most 6 hexadecimal digits. In a
+                         * regular expression the escape may be in a comment,
+                         * so the code point is checked once its escapes are
+                         * read. */
+                        if (!(flags & PM_ESCAPE_FLAG_REGEXP)) {
+                            pm_parser_err(parser, U32(unicode_start - parser->start), U32(hexadecimal_length), PM_ERR_ESCAPE_INVALID_UNICODE_LONG);
+                        }
                     } else if (hexadecimal_length == 0) {
                         // there are not hexadecimal characters
 
@@ -9279,7 +9295,11 @@ escape_read(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t flags) {
                 }
 
                 if (parser->current.end == parser->end) {
-                    PM_PARSER_ERR_FORMAT(parser, U32(start - parser->start), U32(parser->current.end - start), PM_ERR_ESCAPE_INVALID_UNICODE_LIST, (int) (parser->current.end - start), start);
+                    /* The regular expression is validated even though it is
+                     * not terminated, which reports this escape. */
+                    if (!(flags & PM_ESCAPE_FLAG_REGEXP)) {
+                        PM_PARSER_ERR_FORMAT(parser, U32(start - parser->start), U32(parser->current.end - start), PM_ERR_ESCAPE_INVALID_UNICODE_LIST, (int) (parser->current.end - start), start);
+                    }
                 } else if (peek(parser) == '}') {
                     parser->current.end++;
                 } else {
@@ -9872,6 +9892,113 @@ pm_token_buffer_escape(pm_parser_t *parser, pm_token_buffer_t *token_buffer) {
 }
 
 #undef PM_TOKEN_BUFFER_DEFAULT_SIZE
+
+/**
+ * The token buffer for the content of a regular expression. It also records
+ * each place where the content stops lining up with the source, so that errors
+ * found while validating the content can be reported at their place in the
+ * source.
+ */
+typedef struct {
+    /** The buffer of the content. */
+    pm_token_buffer_t base;
+
+    /** The places recorded so far. */
+    pm_regexp_offsets_t offsets;
+} pm_regexp_token_buffer_t;
+
+/**
+ * Resume copying the content of a regular expression from the source at the
+ * given cursor, after an escape, and record the place if the escape changed
+ * the length of the content.
+ *
+ * Recording places is very rare. Only an escape or a line continuation that
+ * changes the length of the content, such as `\/` or `\ca`, records one, so
+ * most regular expressions record none and the rest record only a few. That is
+ * why each content token gets its own array instead of reusing one, which also
+ * keeps its places valid while later tokens are lexed.
+ */
+static PRISM_INLINE void
+pm_regexp_token_buffer_resume(pm_parser_t *parser, pm_regexp_token_buffer_t *token_buffer, const uint8_t *cursor) {
+    token_buffer->base.cursor = cursor;
+
+    uint32_t content = U32(pm_buffer_length(&token_buffer->base.buffer));
+    uint32_t source = U32(cursor - parser->start);
+    pm_regexp_offsets_record(parser, &token_buffer->offsets, content, source, U32(parser->current.start - parser->start));
+}
+
+/**
+ * Whether the content of a regular expression keeps the escape of the given
+ * character exactly as it is written in the source. The regular expression
+ * engine reads these escapes itself. The others are line endings, the escapes
+ * that are written as bytes or code points, an escaped character that is not
+ * ASCII, and an escaped terminator that the engine does not read as special,
+ * whose backslash is left out.
+ */
+static PRISM_INLINE bool
+pm_regexp_escape_kept_p(const pm_lex_mode_t *lex_mode, uint8_t peeked) {
+    switch (peeked) {
+        case '\r': case '\n': case 'c': case 'C': case 'M': case 'u': case 'x':
+            return false;
+        case '$': case ')': case '*': case '+': case '.': case '>':
+        case '?': case ']': case '^': case '|': case '}':
+            return true;
+        default:
+            return peeked < 0x80 && peeked != lex_mode->as.regexp.terminator;
+    }
+}
+
+/**
+ * Copy a braced Unicode escape up to its closing brace, the regexp terminator,
+ * or a line ending. A closing brace belongs to the escape even when it is also
+ * the regexp terminator. The regexp preprocessor validates the escape after
+ * handling comments.
+ */
+static void
+pm_regexp_lex_braced_unicode(pm_parser_t *parser, pm_buffer_t *buffer, uint8_t terminator) {
+    const uint8_t *start = parser->current.end - 1;
+    const uint8_t *cursor = parser->current.end + 2;
+    const uint8_t breakpoints[PM_STRPBRK_CACHE_SIZE] = { '}', '\\', '\n', '\r', terminator, '\0' };
+
+    while (cursor < parser->end) {
+        cursor = pm_strpbrk(parser, cursor, breakpoints, parser->end - cursor, PM_STRPBRK_REGEXP);
+        if (cursor == NULL) {
+            cursor = parser->end;
+            break;
+        }
+
+        uint8_t byte = *cursor;
+        if (byte != '}' && (byte == terminator || byte == '\n' || (byte == '\r' && peek_at(parser, cursor + 1) == '\n'))) break;
+        cursor++;
+        if (byte == '}') break;
+
+        /* Leave multibyte characters and line endings for the next scan. */
+        if (byte == '\\' && cursor < parser->end && *cursor < 0x80 && *cursor != '\n' && *cursor != '\r') cursor++;
+    }
+
+    parser->current.end = cursor;
+    pm_buffer_append_bytes(buffer, start, (size_t) (cursor - start));
+}
+
+/**
+ * Copy the content of a regular expression into the current string, as
+ * pm_token_buffer_copy does, and give the parser its recorded places.
+ */
+static void
+pm_regexp_token_buffer_copy(pm_parser_t *parser, pm_regexp_token_buffer_t *token_buffer) {
+    pm_token_buffer_copy(parser, &token_buffer->base);
+    parser->current_regexp_offsets = token_buffer->offsets;
+}
+
+/**
+ * Flush the content of a regular expression into the current string, as
+ * pm_token_buffer_flush does, and give the parser its recorded places.
+ */
+static void
+pm_regexp_token_buffer_flush(pm_parser_t *parser, pm_regexp_token_buffer_t *token_buffer) {
+    pm_token_buffer_flush(parser, &token_buffer->base);
+    parser->current_regexp_offsets = token_buffer->offsets;
+}
 
 /**
  * Effectively the same thing as pm_strspn_inline_whitespace, but in the case of
@@ -10488,6 +10615,11 @@ parser_lex(pm_parser_t *parser) {
 
                     if ((parser->lex_modes.current->mode == PM_LEX_EMBEXPR) && (parser->brace_nesting == 0)) {
                         lex_mode_pop(parser);
+
+                        /* The literal resumes after its interpolation, and the
+                         * encoding that literals inside the interpolation
+                         * fixed is not the encoding of its next part. */
+                        parser->explicit_encoding = NULL;
                         LEX(PM_TOKEN_EMBEXPR_END);
                     }
 
@@ -11463,7 +11595,7 @@ parser_lex(pm_parser_t *parser) {
             // Here we'll get a list of the places where strpbrk should break,
             // and then find the first one.
             const uint8_t *breakpoints = lex_mode->as.list.breakpoints;
-            const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+            const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
 
             // If we haven't found an escape yet, then this buffer will be
             // unallocated since we can refer directly to the source string.
@@ -11488,7 +11620,7 @@ parser_lex(pm_parser_t *parser) {
                     // we need to continue on past it.
                     if (lex_mode->as.list.nesting > 0) {
                         parser->current.end = breakpoint + 1;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                         lex_mode->as.list.nesting--;
                         continue;
                     }
@@ -11536,7 +11668,7 @@ parser_lex(pm_parser_t *parser) {
 
                 // If we hit a null byte, skip directly past it.
                 if (*breakpoint == '\0') {
-                    breakpoint = pm_strpbrk(parser, breakpoint + 1, breakpoints, parser->end - (breakpoint + 1), true);
+                    breakpoint = pm_strpbrk(parser, breakpoint + 1, breakpoints, parser->end - (breakpoint + 1), PM_STRPBRK_STRING);
                     continue;
                 }
 
@@ -11611,7 +11743,7 @@ parser_lex(pm_parser_t *parser) {
                     }
 
                     token_buffer.cursor = parser->current.end;
-                    breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                    breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                     continue;
                 }
 
@@ -11624,7 +11756,7 @@ parser_lex(pm_parser_t *parser) {
                         // that looked like an interpolated class or instance variable
                         // like "#@" but wasn't actually. In this case we'll just skip
                         // to the next breakpoint.
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                         continue;
                     }
 
@@ -11640,18 +11772,14 @@ parser_lex(pm_parser_t *parser) {
                 // and find the next breakpoint.
                 PRISM_ASSERT(*breakpoint == lex_mode->as.list.incrementor);
                 parser->current.end = breakpoint + 1;
-                breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                 lex_mode->as.list.nesting++;
                 continue;
             }
 
-            if (parser->current.end > parser->current.start) {
-                pm_token_buffer_flush(parser, &token_buffer);
-                LEX(PM_TOKEN_STRING_CONTENT);
-            }
-
-            // If we were unable to find a breakpoint, then this token hits the
-            // end of the file.
+            /* With no breakpoint left, the rest of the file is content, so this
+             * token runs to the end of the file. That keeps the last element of
+             * a list that is not terminated in one piece. */
             parser->current.end = parser->end;
             pm_token_buffer_flush(parser, &token_buffer);
             LEX(PM_TOKEN_STRING_CONTENT);
@@ -11679,8 +11807,8 @@ parser_lex(pm_parser_t *parser) {
             // regular expression. We'll use strpbrk to find the first of these
             // characters.
             const uint8_t *breakpoints = lex_mode->as.regexp.breakpoints;
-            const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
-            pm_token_buffer_t token_buffer = { 0 };
+            const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
+            pm_regexp_token_buffer_t token_buffer = { 0 };
 
             while (breakpoint != NULL) {
                 uint8_t term = lex_mode->as.regexp.terminator;
@@ -11707,7 +11835,7 @@ parser_lex(pm_parser_t *parser) {
                 if (is_terminator) {
                     if (lex_mode->as.regexp.nesting > 0) {
                         parser->current.end = breakpoint + 1;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
                         lex_mode->as.regexp.nesting--;
                         continue;
                     }
@@ -11717,7 +11845,7 @@ parser_lex(pm_parser_t *parser) {
                     // first.
                     if (breakpoint > parser->current.start) {
                         parser->current.end = breakpoint;
-                        pm_token_buffer_flush(parser, &token_buffer);
+                        pm_regexp_token_buffer_flush(parser, &token_buffer);
                         LEX(PM_TOKEN_STRING_CONTENT);
                     }
 
@@ -11765,7 +11893,7 @@ parser_lex(pm_parser_t *parser) {
                 // and find the next breakpoint.
                 if (*breakpoint && *breakpoint == lex_mode->as.regexp.incrementor) {
                     parser->current.end = breakpoint + 1;
-                    breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
+                    breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
                     lex_mode->as.regexp.nesting++;
                     continue;
                 }
@@ -11774,19 +11902,19 @@ parser_lex(pm_parser_t *parser) {
                     case '\0':
                         // If we hit a null byte, skip directly past it.
                         parser->current.end = breakpoint + 1;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
                         break;
                     case '\r':
                         if (peek_at(parser, breakpoint + 1) != '\n') {
                             parser->current.end = breakpoint + 1;
-                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
                             break;
                         }
 
                         breakpoint++;
                         parser->current.end = breakpoint;
-                        pm_token_buffer_escape(parser, &token_buffer);
-                        token_buffer.cursor = breakpoint;
+                        pm_token_buffer_escape(parser, &token_buffer.base);
+                        pm_regexp_token_buffer_resume(parser, &token_buffer, breakpoint);
 
                         PRISM_FALLTHROUGH
                     case '\n':
@@ -11795,13 +11923,13 @@ parser_lex(pm_parser_t *parser) {
                         if (parser->heredoc_end == NULL) {
                             pm_line_offset_list_append(&parser->metadata_arena, &parser->line_offsets, U32(breakpoint - parser->start + 1));
                             parser->current.end = breakpoint + 1;
-                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
                             break;
                         }
 
                         parser->current.end = breakpoint + 1;
                         parser_flush_heredoc_end(parser);
-                        pm_token_buffer_flush(parser, &token_buffer);
+                        pm_regexp_token_buffer_flush(parser, &token_buffer);
                         LEX(PM_TOKEN_STRING_CONTENT);
                     case '\\': {
                         // If we hit escapes, then we need to treat the next
@@ -11809,24 +11937,37 @@ parser_lex(pm_parser_t *parser) {
                         // next character and find the next breakpoint.
                         parser->current.end = breakpoint + 1;
 
-                        // If we've hit the end of the file, then break out of
-                        // the loop by setting the breakpoint to NULL.
+                        /* A backslash at the end of the file escapes nothing,
+                         * so it is left out of the content, and the regular
+                         * expression is validated without it. */
                         if (parser->current.end == parser->end) {
+                            pm_token_buffer_escape(parser, &token_buffer.base);
+                            pm_regexp_token_buffer_resume(parser, &token_buffer, parser->end);
                             breakpoint = NULL;
                             break;
                         }
 
-                        pm_token_buffer_escape(parser, &token_buffer);
+                        /* An escape that the content keeps as it is in the
+                         * source needs no copy of the content, so the search
+                         * continues past it. */
                         uint8_t peeked = peek(parser);
+
+                        if (pm_regexp_escape_kept_p(lex_mode, peeked)) {
+                            parser->current.end++;
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
+                            break;
+                        }
+
+                        pm_token_buffer_escape(parser, &token_buffer.base);
 
                         switch (peeked) {
                             case '\r':
                                 parser->current.end++;
                                 if (peek(parser) != '\n') {
                                     if (lex_mode->as.regexp.terminator != '\r') {
-                                        pm_token_buffer_push_byte(&token_buffer, '\\');
+                                        pm_token_buffer_push_byte(&token_buffer.base, '\\');
                                     }
-                                    pm_token_buffer_push_byte(&token_buffer, '\r');
+                                    pm_token_buffer_push_byte(&token_buffer.base, '\r');
                                     break;
                                 }
                             PRISM_FALLTHROUGH
@@ -11836,7 +11977,7 @@ parser_lex(pm_parser_t *parser) {
                                     // flush the heredoc and continue parsing after
                                     // heredoc_end.
                                     parser_flush_heredoc_end(parser);
-                                    pm_token_buffer_copy(parser, &token_buffer);
+                                    pm_regexp_token_buffer_copy(parser, &token_buffer);
                                     LEX(PM_TOKEN_STRING_CONTENT);
                                 } else {
                                     // ... else track the newline.
@@ -11850,42 +11991,34 @@ parser_lex(pm_parser_t *parser) {
                             case 'M':
                             case 'u':
                             case 'x':
-                                escape_read(parser, &token_buffer.buffer, PM_ESCAPE_FLAG_REGEXP);
+                                if (peeked == 'u' && peek_offset(parser, 1) == '{') {
+                                    pm_regexp_lex_braced_unicode(parser, &token_buffer.base.buffer, lex_mode->as.regexp.terminator);
+                                } else {
+                                    escape_read(parser, &token_buffer.base.buffer, PM_ESCAPE_FLAG_REGEXP);
+                                }
 
                                 /* The escape consumed a newline with a heredoc body pending. */
                                 if (parser->next_start != NULL) {
-                                    pm_token_buffer_copy(parser, &token_buffer);
+                                    pm_regexp_token_buffer_copy(parser, &token_buffer);
                                     LEX(PM_TOKEN_STRING_CONTENT);
                                 }
 
                                 break;
                             default:
-                                if (lex_mode->as.regexp.terminator == peeked) {
-                                    // Some characters when they are used as the
-                                    // terminator also receive an escape. They are
-                                    // enumerated here.
-                                    switch (peeked) {
-                                        case '$': case ')': case '*': case '+':
-                                        case '.': case '>': case '?': case ']':
-                                        case '^': case '|': case '}':
-                                            pm_token_buffer_push_byte(&token_buffer, '\\');
-                                            break;
-                                        default:
-                                            break;
-                                    }
-
-                                    pm_token_buffer_push_byte(&token_buffer, peeked);
+                                /* The backslash before the terminator is left
+                                 * out. So is one before a character that is not
+                                 * ASCII, which the search below reads as content
+                                 * like any other. */
+                                if (peeked == lex_mode->as.regexp.terminator) {
+                                    pm_token_buffer_push_byte(&token_buffer.base, peeked);
                                     parser->current.end++;
-                                    break;
                                 }
 
-                                if (peeked < 0x80) pm_token_buffer_push_byte(&token_buffer, '\\');
-                                pm_token_buffer_push_escaped(&token_buffer, parser);
                                 break;
                         }
 
-                        token_buffer.cursor = parser->current.end;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
+                        pm_regexp_token_buffer_resume(parser, &token_buffer, parser->current.end);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
                         break;
                     }
                     case '#': {
@@ -11898,12 +12031,12 @@ parser_lex(pm_parser_t *parser) {
                             // something that looked like an interpolated class or
                             // instance variable like "#@" but wasn't actually. In
                             // this case we'll just skip to the next breakpoint.
-                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, false);
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_REGEXP);
                             break;
                         }
 
                         if (type == PM_TOKEN_STRING_CONTENT) {
-                            pm_token_buffer_flush(parser, &token_buffer);
+                            pm_regexp_token_buffer_flush(parser, &token_buffer);
                         }
 
                         LEX(type);
@@ -11914,15 +12047,11 @@ parser_lex(pm_parser_t *parser) {
                 }
             }
 
-            if (parser->current.end > parser->current.start) {
-                pm_token_buffer_flush(parser, &token_buffer);
-                LEX(PM_TOKEN_STRING_CONTENT);
-            }
-
-            // If we were unable to find a breakpoint, then this token hits the
-            // end of the file.
+            /* With no breakpoint left, the rest of the file is content, so this
+             * token runs to the end of the file. That keeps the content of a
+             * regular expression that is not terminated in one piece. */
             parser->current.end = parser->end;
-            pm_token_buffer_flush(parser, &token_buffer);
+            pm_regexp_token_buffer_flush(parser, &token_buffer);
             LEX(PM_TOKEN_STRING_CONTENT);
         }
         case PM_LEX_STRING: {
@@ -11945,7 +12074,7 @@ parser_lex(pm_parser_t *parser) {
             // string. We'll use strpbrk to find the first of these characters.
             pm_lex_mode_t *lex_mode = parser->lex_modes.current;
             const uint8_t *breakpoints = lex_mode->as.string.breakpoints;
-            const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+            const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
 
             // If we haven't found an escape yet, then this buffer will be
             // unallocated since we can refer directly to the source string.
@@ -11957,7 +12086,7 @@ parser_lex(pm_parser_t *parser) {
                 if (lex_mode->as.string.incrementor != '\0' && *breakpoint == lex_mode->as.string.incrementor) {
                     lex_mode->as.string.nesting++;
                     parser->current.end = breakpoint + 1;
-                    breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                    breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                     continue;
                 }
 
@@ -11988,7 +12117,7 @@ parser_lex(pm_parser_t *parser) {
                     // to continue on past it.
                     if (lex_mode->as.string.nesting > 0) {
                         parser->current.end = breakpoint + 1;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                         lex_mode->as.string.nesting--;
                         continue;
                     }
@@ -12040,12 +12169,12 @@ parser_lex(pm_parser_t *parser) {
                     case '\0':
                         // Skip directly past the null character.
                         parser->current.end = breakpoint + 1;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                         break;
                     case '\r':
                         if (peek_at(parser, breakpoint + 1) != '\n') {
                             parser->current.end = breakpoint + 1;
-                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                             break;
                         }
 
@@ -12065,7 +12194,7 @@ parser_lex(pm_parser_t *parser) {
                         if (parser->heredoc_end == NULL) {
                             pm_line_offset_list_append(&parser->metadata_arena, &parser->line_offsets, U32(breakpoint - parser->start + 1));
                             parser->current.end = breakpoint + 1;
-                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                             break;
                         }
 
@@ -12146,7 +12275,7 @@ parser_lex(pm_parser_t *parser) {
                         }
 
                         token_buffer.cursor = parser->current.end;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                         break;
                     }
                     case '#': {
@@ -12157,7 +12286,7 @@ parser_lex(pm_parser_t *parser) {
                             // looked like an interpolated class or instance variable like "#@"
                             // but wasn't actually. In this case we'll just skip to the next
                             // breakpoint.
-                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, true);
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, PM_STRPBRK_STRING);
                             break;
                         }
 
@@ -12172,13 +12301,10 @@ parser_lex(pm_parser_t *parser) {
                 }
             }
 
-            if (parser->current.end > parser->current.start) {
-                pm_token_buffer_flush(parser, &token_buffer);
-                LEX(PM_TOKEN_STRING_CONTENT);
-            }
-
-            // If we've hit the end of the string, then this is an unterminated
-            // string. In that case we'll return a string content token.
+            /* With no breakpoint left, the string is not terminated and the rest
+             * of the file is content, so this token runs to the end of the file.
+             * That keeps the content in one piece. */
+            lex_mode->as.string.joined_at_eof = parser->current.end > parser->current.start && parser->current.end < parser->end;
             parser->current.end = parser->end;
             pm_token_buffer_flush(parser, &token_buffer);
             LEX(PM_TOKEN_STRING_CONTENT);
@@ -12292,12 +12418,12 @@ parser_lex(pm_parser_t *parser) {
 
             pm_heredoc_quote_t quote = heredoc_lex_mode->quote;
             /* Single-quoted heredocs preserve bytes without validating them. */
-            bool validate = quote != PM_HEREDOC_QUOTE_SINGLE;
+            pm_strpbrk_mode_t mode = (quote == PM_HEREDOC_QUOTE_SINGLE) ? PM_STRPBRK_RAW : PM_STRPBRK_STRING;
             if (quote == PM_HEREDOC_QUOTE_SINGLE) {
                 breakpoints[3] = '\0';
             }
 
-            const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, validate);
+            const uint8_t *breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, mode);
             pm_token_buffer_t token_buffer = { 0 };
             bool was_line_continuation = false;
 
@@ -12306,13 +12432,13 @@ parser_lex(pm_parser_t *parser) {
                     case '\0':
                         // Skip directly past the null character.
                         parser->current.end = breakpoint + 1;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, validate);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, mode);
                         break;
                     case '\r':
                         parser->current.end = breakpoint + 1;
 
                         if (peek_at(parser, breakpoint + 1) != '\n') {
-                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, validate);
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, mode);
                             break;
                         }
 
@@ -12403,7 +12529,7 @@ parser_lex(pm_parser_t *parser) {
                         // Otherwise we hit a newline and it wasn't followed by
                         // a terminator, so we can continue parsing.
                         parser->current.end = breakpoint + 1;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, validate);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, mode);
                         break;
                     }
                     case '\\': {
@@ -12510,7 +12636,7 @@ parser_lex(pm_parser_t *parser) {
                         }
 
                         token_buffer.cursor = parser->current.end;
-                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, validate);
+                        breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, mode);
                         break;
                     }
                     case '#': {
@@ -12522,7 +12648,7 @@ parser_lex(pm_parser_t *parser) {
                             // or instance variable like "#@" but wasn't
                             // actually. In this case we'll just skip to the
                             // next breakpoint.
-                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, validate);
+                            breakpoint = pm_strpbrk(parser, parser->current.end, breakpoints, parser->end - parser->current.end, mode);
                             break;
                         }
 
@@ -16951,20 +17077,25 @@ parse_strings(pm_parser_t *parser, pm_node_t *current, bool accepts_label, uint1
             pm_token_t content = parser->current;
             pm_string_t unescaped = parser->current_string;
             const pm_encoding_t *explicit_encoding = parser->explicit_encoding;
+            bool joined_at_eof = lex_mode->as.string.joined_at_eof;
             parser_lex(parser);
 
             if (match2(parser, PM_TOKEN_STRING_END, PM_TOKEN_EOF)) {
                 node = UP(pm_string_node_create_unescaped(parser, &opening, &content, &parser->current, &unescaped));
                 pm_node_flag_set(node, parse_unescaped_encoding(parser, explicit_encoding));
 
-                // Kind of odd behavior, but basically if we have an
-                // unterminated string and it ends in a newline, we back up one
-                // character so that the error message is on the last line of
-                // content in the string.
                 if (!accept1(parser, PM_TOKEN_STRING_END)) {
-                    const uint8_t *location = parser->previous.end;
-                    if (location > parser->start && location[-1] == '\n') location--;
-                    pm_parser_err(parser, U32(location - parser->start), 0, PM_ERR_STRING_LITERAL_EOF);
+                    if (joined_at_eof) {
+                        /* Keep the diagnostic used when the lexer returned
+                         * this content in multiple parts. */
+                        pm_parser_err_token(parser, &opening, PM_ERR_STRING_INTERPOLATED_TERM);
+                    } else {
+                        /* Point at the last line of content when the string
+                         * ends in a newline. */
+                        const uint8_t *location = parser->previous.end;
+                        if (location > parser->start && location[-1] == '\n') location--;
+                        pm_parser_err(parser, U32(location - parser->start), 0, PM_ERR_STRING_LITERAL_EOF);
+                    }
 
                     parser->previous.start = parser->previous.end;
                     parser->previous.type = 0;
@@ -19802,7 +19933,8 @@ parse_regexp(pm_parser_t *parser, uint16_t depth) {
         parser_lex(parser);
 
         pm_regular_expression_node_t *node = pm_regular_expression_node_create(parser, &opening, &content, &parser->previous);
-        pm_node_flag_set(UP(node), pm_regexp_parse(parser, node, NULL, NULL));
+        pm_regexp_offsets_t offsets = { 0 };
+        pm_node_flag_set(UP(node), pm_regexp_parse(parser, node, &offsets));
         return UP(node);
     }
 
@@ -19814,6 +19946,7 @@ parse_regexp(pm_parser_t *parser, uint16_t depth) {
         // following token is the end (in which case we can return a plain
         // regular expression) or if it's not then it has interpolation.
         pm_string_t unescaped = parser->current_string;
+        pm_regexp_offsets_t offsets = parser->current_regexp_offsets;
         pm_token_t content = parser->current;
         parser_lex(parser);
 
@@ -19823,14 +19956,10 @@ parse_regexp(pm_parser_t *parser, uint16_t depth) {
         if (accept1(parser, PM_TOKEN_REGEXP_END)) {
             pm_regular_expression_node_t *node = (pm_regular_expression_node_t *) pm_regular_expression_node_create_unescaped(parser, &opening, &content, &parser->previous, &unescaped);
 
-            // If we're not immediately followed by a =~, then we
-            // parse and validate now. If it is followed by a =~,
-            // then it will get parsed in the =~ handler where
-            // named captures can also be extracted.
-            if (!match1(parser, PM_TOKEN_EQUAL_TILDE)) {
-                pm_node_flag_set(UP(node), pm_regexp_parse(parser, node, NULL, NULL));
-            }
-
+            /* A regular expression is validated as soon as it is parsed, even
+             * when a =~ follows, because the =~ may turn out to apply to an
+             * expression that contains it, as in `!/a/ =~ b`. */
+            pm_node_flag_set(UP(node), pm_regexp_parse(parser, node, &offsets));
             return UP(node);
         }
 
@@ -19857,14 +19986,21 @@ parse_regexp(pm_parser_t *parser, uint16_t depth) {
     }
 
     pm_token_t closing = parser->current;
-    if (match1(parser, PM_TOKEN_EOF)) {
+    bool terminated = !match1(parser, PM_TOKEN_EOF);
+
+    if (terminated) {
+        expect1(parser, PM_TOKEN_REGEXP_END, PM_ERR_REGEXP_TERM);
+    } else {
         pm_parser_err_token(parser, &opening, PM_ERR_REGEXP_TERM);
         closing = (pm_token_t) { .type = 0, .start = parser->previous.end, .end = parser->previous.end };
-    } else {
-        expect1(parser, PM_TOKEN_REGEXP_END, PM_ERR_REGEXP_TERM);
     }
 
-    return UP(pm_interpolated_regular_expression_node_create(parser, &opening, &parts, &closing));
+    /* A regular expression that is not terminated is still validated, as the
+     * content up to the end of the file, so its errors are reported too. */
+    pm_interpolated_regular_expression_node_t *interpolated = pm_interpolated_regular_expression_node_create(parser, &opening, &parts, &closing);
+    pm_regexp_parse_interpolated(parser, interpolated);
+
+    return UP(interpolated);
 }
 
 static pm_node_t *
@@ -21476,265 +21612,46 @@ parse_call_operator_write(pm_parser_t *parser, pm_call_node_t *call_node, const 
     }
 }
 
-static PRISM_INLINE const uint8_t *
-pm_named_capture_escape_hex(pm_buffer_t *unescaped, const uint8_t *cursor, const uint8_t *end) {
-    cursor++;
-
-    if (cursor < end && pm_char_is_hexadecimal_digit(*cursor)) {
-        uint8_t value = escape_hexadecimal_digit(*cursor);
-        cursor++;
-
-        if (cursor < end && pm_char_is_hexadecimal_digit(*cursor)) {
-            value = (uint8_t) ((value << 4) | escape_hexadecimal_digit(*cursor));
-            cursor++;
-        }
-
-        pm_buffer_append_byte(unescaped, value);
-    } else {
-        PM_BUFFER_APPEND_LITERAL(unescaped, "\\x");
-    }
-
-    return cursor;
-}
-
-static PRISM_INLINE const uint8_t *
-pm_named_capture_escape_octal(pm_buffer_t *unescaped, const uint8_t *cursor, const uint8_t *end) {
-    uint8_t value = (uint8_t) (*cursor - '0');
-    cursor++;
-
-    if (cursor < end && pm_char_is_octal_digit(*cursor)) {
-        value = ((uint8_t) (value << 3)) | ((uint8_t) (*cursor - '0'));
-        cursor++;
-
-        if (cursor < end && pm_char_is_octal_digit(*cursor)) {
-            value = ((uint8_t) (value << 3)) | ((uint8_t) (*cursor - '0'));
-            cursor++;
-        }
-    }
-
-    pm_buffer_append_byte(unescaped, value);
-    return cursor;
-}
-
-static PRISM_INLINE const uint8_t *
-pm_named_capture_escape_unicode(pm_parser_t *parser, pm_buffer_t *unescaped, const uint8_t *cursor, const uint8_t *end, const pm_location_t *error_location) {
-    const uint8_t *start = cursor - 1;
-    cursor++;
-
-    if (cursor >= end) {
-        PM_BUFFER_APPEND_LITERAL(unescaped, "\\u");
-        return cursor;
-    }
-
-    if (*cursor != '{') {
-        size_t length = pm_strspn_hexadecimal_digit(cursor, MIN(end - cursor, 4));
-        uint32_t value = escape_unicode(parser, cursor, length, error_location, 0);
-
-        if (!pm_buffer_append_unicode_codepoint(unescaped, value)) {
-            pm_buffer_append_string(unescaped, (const char *) start, (size_t) ((cursor + length) - start));
-        }
-
-        return cursor + length;
-    }
-
-    cursor++;
-    for (;;) {
-        while (cursor < end && *cursor == ' ') cursor++;
-
-        if (cursor >= end) break;
-        if (*cursor == '}') {
-            cursor++;
-            break;
-        }
-
-        size_t length = pm_strspn_hexadecimal_digit(cursor, end - cursor);
-        if (length == 0) {
-            break;
-        }
-        uint32_t value = escape_unicode(parser, cursor, length, error_location, 0);
-
-        (void) pm_buffer_append_unicode_codepoint(unescaped, value);
-        cursor += length;
-    }
-
-    return cursor;
-}
-
-static void
-pm_named_capture_escape(pm_parser_t *parser, pm_buffer_t *unescaped, const uint8_t *source, const size_t length, const uint8_t *cursor, const pm_location_t *error_location) {
-    const uint8_t *end = source + length;
-    pm_buffer_append_string(unescaped, (const char *) source, (size_t) (cursor - source));
-
-    for (;;) {
-        if (++cursor >= end) {
-            pm_buffer_append_byte(unescaped, '\\');
-            return;
-        }
-
-        switch (*cursor) {
-            case 'x':
-                cursor = pm_named_capture_escape_hex(unescaped, cursor, end);
-                break;
-            case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7':
-                cursor = pm_named_capture_escape_octal(unescaped, cursor, end);
-                break;
-            case 'u':
-                cursor = pm_named_capture_escape_unicode(parser, unescaped, cursor, end, error_location);
-                break;
-            default:
-                pm_buffer_append_byte(unescaped, '\\');
-                break;
-        }
-
-        const uint8_t *next_cursor = pm_memchr(cursor, '\\', (size_t) (end - cursor), parser->encoding_changed, parser->encoding);
-        if (next_cursor == NULL) break;
-
-        pm_buffer_append_string(unescaped, (const char *) cursor, (size_t) (next_cursor - cursor));
-        cursor = next_cursor;
-    }
-
-    pm_buffer_append_string(unescaped, (const char *) cursor, (size_t) (end - cursor));
-}
-
-/** State for processing named capture groups found during regexp parsing. */
-typedef struct {
-    /** The call node wrapping the regular expression node (for =~). */
-    pm_call_node_t *call;
-
-    /**
-     * The open list of targets for the match write node, one for each capture
-     * that becomes a local. The node is only created if this is not empty.
-     */
-    pm_node_list_t targets;
-
-    /** The set of capture names found so far. */
-    pm_constant_id_set_t names;
-
-    /**
-     * Whether the content being parsed points into the original source. If it
-     * does, capture names can be located in the source directly. Otherwise
-     * they live in a separate copy and are located at the call's receiver.
-     */
-    bool shared;
-} pm_regexp_name_data_t;
-
 /**
- * This callback is called when the regular expression parser encounters a named
- * capture group.
- */
-static void
-parse_regular_expression_named_capture(pm_parser_t *parser, const pm_string_t *capture, void *data) {
-    pm_regexp_name_data_t *name_data = (pm_regexp_name_data_t *) data;
-    pm_call_node_t *call = name_data->call;
-    pm_constant_id_set_t *names = &name_data->names;
-
-    const uint8_t *source = pm_string_source(capture);
-    size_t length = pm_string_length(capture);
-    pm_buffer_t unescaped = { 0 };
-
-    // First, we need to handle escapes within the name of the capture group.
-    // This is because regular expressions have three different representations
-    // in prism. The first is the plain source code. The second is the
-    // representation that will be sent to the regular expression engine, which
-    // is the value of the "unescaped" field. This is poorly named, because it
-    // actually still contains escapes, just a subset of them that the regular
-    // expression engine knows how to handle. The third representation is fully
-    // unescaped, which is what we need.
-    const uint8_t *cursor = pm_memchr(source, '\\', length, parser->encoding_changed, parser->encoding);
-    if (PRISM_UNLIKELY(cursor != NULL)) {
-        pm_named_capture_escape(parser, &unescaped, source, length, cursor, name_data->shared ? NULL : &call->receiver->location);
-
-        /*
-         * Escapes like \u{} write nothing, so the unescaped name can be empty.
-         * An empty name is never a valid local, and the buffer is unallocated
-         * (NULL) in that case, so there is no slice to check.
-         */
-        if (pm_buffer_length(&unescaped) == 0) return;
-
-        source = (const uint8_t *) pm_buffer_value(&unescaped);
-        length = pm_buffer_length(&unescaped);
-    }
-
-    const uint8_t *start;
-    const uint8_t *end;
-    pm_constant_id_t name;
-
-    // If the name of the capture group isn't a valid identifier, we do
-    // not add it to the local table.
-    if (!pm_slice_is_valid_local(parser, source, source + length)) {
-        pm_buffer_cleanup(&unescaped);
-        return;
-    }
-
-    if (name_data->shared) {
-        // If the unescaped string is a slice of the source, then we can
-        // copy the names directly. The pointers will line up.
-        start = source;
-        end = source + length;
-        name = pm_parser_constant_id_raw(parser, start, end);
-    } else {
-        // Otherwise, the name is a slice of the malloc-ed owned string,
-        // in which case we need to copy it out into a new string.
-        start = parser->start + PM_NODE_START(call->receiver);
-        end = parser->start + PM_NODE_END(call->receiver);
-
-        uint8_t *memory = PM_ARENA_ALLOC_ARRAY(parser->arena, uint8_t, length);
-        memcpy(memory, source, length);
-        name = pm_parser_constant_id_owned(parser, memory, length);
-    }
-
-    /*
-     * Add this name to the set of constants if it is valid, not duplicated,
-     * and not a keyword.
-     */
-    if (name != 0 && pm_constant_id_set_insert(&parser->scratch_arena, names, name)) {
-
-        int depth;
-        if ((depth = pm_parser_local_depth_constant_id(parser, name)) == -1) {
-            // If the local is not already a local but it is a keyword, then we
-            // do not want to add a capture for this.
-            if (pm_local_is_keyword((const char *) source, length)) {
-                pm_buffer_cleanup(&unescaped);
-                return;
-            }
-
-            // If the identifier is not already a local, then we will add it to
-            // the local table.
-            pm_parser_local_add(parser, name, start, end, 0);
-        }
-
-        // Next, create the local variable target and add it to the list of
-        // targets for the match.
-        pm_token_t token = { .type = 0, .start = start, .end = end };
-        pm_location_t token_loc = TOK2LOC(parser, &token);
-        pm_node_t *target = UP(pm_local_variable_target_node_create(parser, &token_loc, name, depth == -1 ? 0 : (uint32_t) depth));
-        pm_node_list_open_append(&parser->node_chunks, &name_data->targets, target);
-    }
-
-    pm_buffer_cleanup(&unescaped);
-}
-
-/**
- * Potentially change a =~ with an interpolated regular expression with named
- * captures into a match write node. This is for the interpolated case where
- * we have concatenated content rather than a regular expression node.
+ * Introduce the named captures of a regexp receiver into the current scope.
  */
 static pm_node_t *
-parse_interpolated_regular_expression_named_captures(pm_parser_t *parser, const pm_string_t *content, pm_call_node_t *call, bool extended_mode) {
-    pm_regexp_name_data_t name_data = {
-        .call = call,
-        .targets = { 0 },
-        .names = { 0 },
-        .shared = false,
-    };
+parse_match_write(pm_parser_t *parser, pm_call_node_t *call, const pm_regexp_match_t *match) {
+    pm_node_list_t targets = { 0 };
+    pm_constant_id_set_t names = { 0 };
 
-    pm_regexp_parse_named_captures(parser, pm_string_source(content), pm_string_length(content), extended_mode, parse_regular_expression_named_capture, &name_data);
+    for (size_t index = 0; index < match->size; index++) {
+        const pm_regexp_capture_t *capture = &match->captures[index];
+        const uint8_t *name = capture->name;
+        size_t length = capture->length;
 
-    if (name_data.targets.size > 0) {
-        return UP(pm_match_write_node_create(parser, call, &name_data.targets));
-    } else {
-        return UP(call);
+        if (!pm_slice_is_valid_local(parser, name, name + length)) continue;
+
+        const uint8_t *start = parser->start + capture->location.start;
+        const uint8_t *end = start + capture->location.length;
+        pm_constant_id_t id;
+
+        if (length == capture->location.length && (name == start || memcmp(name, start, length) == 0)) {
+            id = pm_parser_constant_id_raw(parser, start, end);
+        } else {
+            uint8_t *copy = PM_ARENA_ALLOC_ARRAY(parser->arena, uint8_t, length);
+            memcpy(copy, name, length);
+            id = pm_parser_constant_id_owned(parser, copy, length);
+        }
+
+        if (id == 0 || !pm_constant_id_set_insert(&parser->scratch_arena, &names, id)) continue;
+
+        int depth = pm_parser_local_depth_constant_id(parser, id);
+        if (depth == -1) {
+            if (pm_local_is_keyword((const char *) name, length)) continue;
+            pm_parser_local_add(parser, id, start, end, 0);
+        }
+
+        pm_node_t *target = UP(pm_local_variable_target_node_create(parser, &capture->location, id, depth == -1 ? 0 : (uint32_t) depth));
+        pm_node_list_open_append(&parser->node_chunks, &targets, target);
     }
+
+    return targets.size == 0 ? UP(call) : UP(pm_match_write_node_create(parser, call, &targets));
 }
 
 static pm_if_node_t *
@@ -21845,71 +21762,17 @@ parse_match(pm_parser_t *parser, pm_node_t *node, pm_binding_power_t binding_pow
      *
      * In this case, `foo` should be a method call and not a local yet.
      */
+    /* The right operand can contain another =~ with captures of its own. */
+    const pm_regexp_match_t *match = parser->regexp_match;
+    parser->regexp_match = NULL;
+
     pm_token_t operator = parser->current;
     parser_lex(parser);
 
     pm_node_t *argument = parse_expression(parser, binding_power, flags & PM_PARSE_ACCEPTS_DO_BLOCK, PM_ERR_EXPECT_EXPRESSION_AFTER_OPERATOR, (uint16_t) (depth + 1));
-
-    // By default, we're going to create a call node and then return it.
     pm_call_node_t *call = pm_call_node_binary_create(parser, node, &operator, argument, 0);
-    pm_node_t *result = UP(call);
 
-    /* If the receiver of this =~ is a regular expression node, then we need to
-     * introduce local variables for it based on its named capture groups. */
-    if (PM_NODE_TYPE_P(node, PM_INTERPOLATED_REGULAR_EXPRESSION_NODE)) {
-        /* It's possible to have an interpolated regular expression node that
-         * only contains strings. This is because it can be split up by a
-         * heredoc. In this case we need to concat the unescaped strings
-         * together and then parse them as a regular expression. */
-        pm_node_list_t *parts = &((pm_interpolated_regular_expression_node_t *) node)->parts;
-
-        bool interpolated = false;
-        size_t total_length = 0;
-
-        pm_node_t *part;
-        PM_NODE_LIST_FOREACH(parts, index, part) {
-            if (PM_NODE_TYPE_P(part, PM_STRING_NODE)) {
-                total_length += pm_string_length(&((pm_string_node_t *) part)->unescaped);
-            } else {
-                interpolated = true;
-                break;
-            }
-        }
-
-        if (!interpolated && total_length > 0) {
-            uint8_t *memory = PM_ARENA_ALLOC_ARRAY(&parser->scratch_arena, uint8_t, total_length);
-            uint8_t *cursor = memory;
-            PM_NODE_LIST_FOREACH(parts, index, part) {
-                pm_string_t *unescaped = &((pm_string_node_t *) part)->unescaped;
-                size_t length = pm_string_length(unescaped);
-
-                memcpy(cursor, pm_string_source(unescaped), length);
-                cursor += length;
-            }
-
-            pm_string_t content;
-            pm_string_init(&content, memory, total_length);
-            result = parse_interpolated_regular_expression_named_captures(parser, &content, call, PM_NODE_FLAG_P(node, PM_REGULAR_EXPRESSION_FLAGS_EXTENDED));
-        }
-    } else if (PM_NODE_TYPE_P(node, PM_REGULAR_EXPRESSION_NODE)) {
-        /* If we have a regular expression node, then we can parse the named
-         * captures and validate encoding in one pass. */
-        pm_regular_expression_node_t *regexp = (pm_regular_expression_node_t *) node;
-        pm_regexp_name_data_t name_data = {
-            .call = call,
-            .targets = { 0 },
-            .names = { 0 },
-            .shared = pm_string_source(&regexp->unescaped) == parser->start + regexp->content_loc.start,
-        };
-
-        pm_node_flag_set(UP(regexp), pm_regexp_parse(parser, regexp, parse_regular_expression_named_capture, &name_data));
-
-        if (name_data.targets.size > 0) {
-            result = UP(pm_match_write_node_create(parser, call, &name_data.targets));
-        }
-    }
-
-    return result;
+    return match != NULL && match->receiver == node ? parse_match_write(parser, call, match) : UP(call);
 }
 
 static pm_node_t *

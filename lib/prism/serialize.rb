@@ -47,6 +47,7 @@ module Prism
       checksum =       loader.load_uint64
       offsets =        loader.load_line_offsets(freeze)
 
+      source.replace_encoding(encoding)
       source.replace_start_line(start_line)
       source.replace_checksum(checksum)
       source.replace_offsets(offsets)
@@ -105,6 +106,7 @@ module Prism
       checksum =       loader.load_uint64
       offsets =        loader.load_line_offsets(freeze)
 
+      source.replace_encoding(encoding)
       source.replace_start_line(start_line)
       source.replace_checksum(checksum)
       source.replace_offsets(offsets)
@@ -150,11 +152,12 @@ module Prism
       loader = Loader.new(source, serialized)
 
                     loader.load_header
-                    loader.load_encoding
+      encoding =    loader.load_encoding
       start_line =  loader.load_varsint
       checksum =    loader.load_uint64
       offsets =     loader.load_line_offsets(freeze)
 
+      source.replace_encoding(encoding)
       source.replace_start_line(start_line)
       source.replace_checksum(checksum)
       source.replace_offsets(offsets)
@@ -184,6 +187,7 @@ module Prism
       checksum =       loader.load_uint64
       offsets =        loader.load_line_offsets(freeze)
 
+      source.replace_encoding(encoding)
       source.replace_start_line(start_line)
       source.replace_checksum(checksum)
       source.replace_offsets(offsets)

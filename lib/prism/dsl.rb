@@ -1301,6 +1301,16 @@ module Prism
       end
     end
 
+    # Retrieve the value of one of the StatementsFlags flags.
+    #
+    #: (Symbol name) -> Integer
+    def statements_flag(name)
+      case name
+      when :contains_pre_execution then StatementsFlags::CONTAINS_PRE_EXECUTION
+      else Kernel.raise ArgumentError, "invalid StatementsFlags flag: #{name.inspect}"
+      end
+    end
+
     # Retrieve the value of one of the StringFlags flags.
     #
     #: (Symbol name) -> Integer

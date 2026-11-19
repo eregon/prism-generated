@@ -7451,6 +7451,9 @@ typedef struct pm_splat_node {
  *     ^^^^^^^^^^^^^
  *
  * Type: ::PM_STATEMENTS_NODE
+
+ * Flags (#pm_statements_flags):
+ * * ::PM_STATEMENTS_FLAGS_CONTAINS_PRE_EXECUTION
  *
  * @extends pm_node_t
  */
@@ -8152,6 +8155,16 @@ typedef enum pm_shareable_constant_node_flags {
 
     PM_SHAREABLE_CONSTANT_NODE_FLAGS_LAST,
 } pm_shareable_constant_node_flags_t;
+
+/**
+ * Flags for statement lists.
+ */
+typedef enum pm_statements_flags {
+    /** the statement list directly contains a `BEGIN` block */
+    PM_STATEMENTS_FLAGS_CONTAINS_PRE_EXECUTION = 4,
+
+    PM_STATEMENTS_FLAGS_LAST,
+} pm_statements_flags_t;
 
 /**
  * Flags for string nodes.

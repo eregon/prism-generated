@@ -235,14 +235,19 @@ pm_source_new(const pm_parser_t *parser, rb_encoding *encoding, VALUE comments, 
             rb_ary_push(offsets, ULONG2NUM(line_offsets->offsets[index]));
         }
 
-        rb_obj_freeze(source_string);
         rb_obj_freeze(offsets);
     } else {
         offsets = rb_str_new((const char *) line_offsets->offsets, line_offsets->size * sizeof(uint32_t));
     }
 
+    /* The source string is frozen only once Prism::Source.for has returned,
+     * since it may change the encoding of the string. */
     VALUE source = rb_funcall(rb_cPrismSource, rb_intern("for"), 7, source_string, LONG2NUM(pm_parser_start_line(parser)), offsets, comments, comment_attachments, comment_ranges, ULL2NUM(pm_parser_checksum(parser)));
-    if (freeze) rb_obj_freeze(source);
+
+    if (freeze) {
+        rb_obj_freeze(source_string);
+        rb_obj_freeze(source);
+    }
 
     return source;
 }
@@ -316,35 +321,35 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
             node_stack->visited = true;
 
             switch (PM_NODE_TYPE(node)) {
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ALIAS_GLOBAL_VARIABLE_NODE: {
                     pm_alias_global_variable_node_t *cast = (pm_alias_global_variable_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->new_name);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->old_name);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ALIAS_METHOD_NODE: {
                     pm_alias_method_node_t *cast = (pm_alias_method_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->new_name);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->old_name);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ALTERNATION_PATTERN_NODE: {
                     pm_alternation_pattern_node_t *cast = (pm_alternation_pattern_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->left);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->right);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_AND_NODE: {
                     pm_and_node_t *cast = (pm_and_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->left);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->right);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ARGUMENTS_NODE: {
                     pm_arguments_node_t *cast = (pm_arguments_node_t *) node;
                     for (size_t index = 0; index < cast->arguments.size; index++) {
@@ -352,7 +357,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ARRAY_NODE: {
                     pm_array_node_t *cast = (pm_array_node_t *) node;
                     for (size_t index = 0; index < cast->elements.size; index++) {
@@ -360,7 +365,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ARRAY_PATTERN_NODE: {
                     pm_array_pattern_node_t *cast = (pm_array_pattern_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->constant);
@@ -373,20 +378,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ASSOC_NODE: {
                     pm_assoc_node_t *cast = (pm_assoc_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->key);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ASSOC_SPLAT_NODE: {
                     pm_assoc_splat_node_t *cast = (pm_assoc_splat_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BEGIN_NODE: {
                     pm_begin_node_t *cast = (pm_begin_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
@@ -395,20 +400,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->ensure_clause);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BLOCK_ARGUMENT_NODE: {
                     pm_block_argument_node_t *cast = (pm_block_argument_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->expression);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BLOCK_NODE: {
                     pm_block_node_t *cast = (pm_block_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->parameters);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->body);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BLOCK_PARAMETERS_NODE: {
                     pm_block_parameters_node_t *cast = (pm_block_parameters_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->parameters);
@@ -417,20 +422,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BREAK_NODE: {
                     pm_break_node_t *cast = (pm_break_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->arguments);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_AND_WRITE_NODE: {
                     pm_call_and_write_node_t *cast = (pm_call_and_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_NODE: {
                     pm_call_node_t *cast = (pm_call_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
@@ -438,34 +443,34 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->block);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_OPERATOR_WRITE_NODE: {
                     pm_call_operator_write_node_t *cast = (pm_call_operator_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_OR_WRITE_NODE: {
                     pm_call_or_write_node_t *cast = (pm_call_or_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_TARGET_NODE: {
                     pm_call_target_node_t *cast = (pm_call_target_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CAPTURE_PATTERN_NODE: {
                     pm_capture_pattern_node_t *cast = (pm_capture_pattern_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->target);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CASE_MATCH_NODE: {
                     pm_case_match_node_t *cast = (pm_case_match_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->predicate);
@@ -475,7 +480,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->else_clause);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CASE_NODE: {
                     pm_case_node_t *cast = (pm_case_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->predicate);
@@ -485,7 +490,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->else_clause);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_NODE: {
                     pm_class_node_t *cast = (pm_class_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->constant_path);
@@ -493,95 +498,95 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->body);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_AND_WRITE_NODE: {
                     pm_class_variable_and_write_node_t *cast = (pm_class_variable_and_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_OPERATOR_WRITE_NODE: {
                     pm_class_variable_operator_write_node_t *cast = (pm_class_variable_operator_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_OR_WRITE_NODE: {
                     pm_class_variable_or_write_node_t *cast = (pm_class_variable_or_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_WRITE_NODE: {
                     pm_class_variable_write_node_t *cast = (pm_class_variable_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_AND_WRITE_NODE: {
                     pm_constant_and_write_node_t *cast = (pm_constant_and_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_OPERATOR_WRITE_NODE: {
                     pm_constant_operator_write_node_t *cast = (pm_constant_operator_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_OR_WRITE_NODE: {
                     pm_constant_or_write_node_t *cast = (pm_constant_or_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_AND_WRITE_NODE: {
                     pm_constant_path_and_write_node_t *cast = (pm_constant_path_and_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->target);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_NODE: {
                     pm_constant_path_node_t *cast = (pm_constant_path_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->parent);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_OPERATOR_WRITE_NODE: {
                     pm_constant_path_operator_write_node_t *cast = (pm_constant_path_operator_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->target);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_OR_WRITE_NODE: {
                     pm_constant_path_or_write_node_t *cast = (pm_constant_path_or_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->target);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_TARGET_NODE: {
                     pm_constant_path_target_node_t *cast = (pm_constant_path_target_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->parent);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_WRITE_NODE: {
                     pm_constant_path_write_node_t *cast = (pm_constant_path_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->target);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_WRITE_NODE: {
                     pm_constant_write_node_t *cast = (pm_constant_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_DEF_NODE: {
                     pm_def_node_t *cast = (pm_def_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
@@ -589,43 +594,43 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->body);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_DEFINED_NODE: {
                     pm_defined_node_t *cast = (pm_defined_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ELSE_NODE: {
                     pm_else_node_t *cast = (pm_else_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_EMBEDDED_STATEMENTS_NODE: {
                     pm_embedded_statements_node_t *cast = (pm_embedded_statements_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_EMBEDDED_VARIABLE_NODE: {
                     pm_embedded_variable_node_t *cast = (pm_embedded_variable_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->variable);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ENSURE_NODE: {
                     pm_ensure_node_t *cast = (pm_ensure_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ERROR_RECOVERY_NODE: {
                     pm_error_recovery_node_t *cast = (pm_error_recovery_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->unexpected);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FIND_PATTERN_NODE: {
                     pm_find_pattern_node_t *cast = (pm_find_pattern_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->constant);
@@ -636,14 +641,14 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->right);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FLIP_FLOP_NODE: {
                     pm_flip_flop_node_t *cast = (pm_flip_flop_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->left);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->right);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FOR_NODE: {
                     pm_for_node_t *cast = (pm_for_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->index);
@@ -651,37 +656,37 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FORWARDING_SUPER_NODE: {
                     pm_forwarding_super_node_t *cast = (pm_forwarding_super_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->block);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_AND_WRITE_NODE: {
                     pm_global_variable_and_write_node_t *cast = (pm_global_variable_and_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_OPERATOR_WRITE_NODE: {
                     pm_global_variable_operator_write_node_t *cast = (pm_global_variable_operator_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_OR_WRITE_NODE: {
                     pm_global_variable_or_write_node_t *cast = (pm_global_variable_or_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_WRITE_NODE: {
                     pm_global_variable_write_node_t *cast = (pm_global_variable_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_HASH_NODE: {
                     pm_hash_node_t *cast = (pm_hash_node_t *) node;
                     for (size_t index = 0; index < cast->elements.size; index++) {
@@ -689,7 +694,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_HASH_PATTERN_NODE: {
                     pm_hash_pattern_node_t *cast = (pm_hash_pattern_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->constant);
@@ -699,7 +704,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->rest);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IF_NODE: {
                     pm_if_node_t *cast = (pm_if_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->predicate);
@@ -707,26 +712,26 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->subsequent);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IMAGINARY_NODE: {
                     pm_imaginary_node_t *cast = (pm_imaginary_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->numeric);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IMPLICIT_NODE: {
                     pm_implicit_node_t *cast = (pm_implicit_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IN_NODE: {
                     pm_in_node_t *cast = (pm_in_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->pattern);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INDEX_AND_WRITE_NODE: {
                     pm_index_and_write_node_t *cast = (pm_index_and_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
@@ -735,7 +740,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INDEX_OPERATOR_WRITE_NODE: {
                     pm_index_operator_write_node_t *cast = (pm_index_operator_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
@@ -744,7 +749,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INDEX_OR_WRITE_NODE: {
                     pm_index_or_write_node_t *cast = (pm_index_or_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
@@ -753,7 +758,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INDEX_TARGET_NODE: {
                     pm_index_target_node_t *cast = (pm_index_target_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->receiver);
@@ -761,31 +766,31 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->block);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_AND_WRITE_NODE: {
                     pm_instance_variable_and_write_node_t *cast = (pm_instance_variable_and_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_OPERATOR_WRITE_NODE: {
                     pm_instance_variable_operator_write_node_t *cast = (pm_instance_variable_operator_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_OR_WRITE_NODE: {
                     pm_instance_variable_or_write_node_t *cast = (pm_instance_variable_or_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_WRITE_NODE: {
                     pm_instance_variable_write_node_t *cast = (pm_instance_variable_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_MATCH_LAST_LINE_NODE: {
                     pm_interpolated_match_last_line_node_t *cast = (pm_interpolated_match_last_line_node_t *) node;
                     for (size_t index = 0; index < cast->parts.size; index++) {
@@ -793,7 +798,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_REGULAR_EXPRESSION_NODE: {
                     pm_interpolated_regular_expression_node_t *cast = (pm_interpolated_regular_expression_node_t *) node;
                     for (size_t index = 0; index < cast->parts.size; index++) {
@@ -801,7 +806,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_STRING_NODE: {
                     pm_interpolated_string_node_t *cast = (pm_interpolated_string_node_t *) node;
                     for (size_t index = 0; index < cast->parts.size; index++) {
@@ -809,7 +814,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_SYMBOL_NODE: {
                     pm_interpolated_symbol_node_t *cast = (pm_interpolated_symbol_node_t *) node;
                     for (size_t index = 0; index < cast->parts.size; index++) {
@@ -817,7 +822,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_X_STRING_NODE: {
                     pm_interpolated_x_string_node_t *cast = (pm_interpolated_x_string_node_t *) node;
                     for (size_t index = 0; index < cast->parts.size; index++) {
@@ -825,7 +830,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_KEYWORD_HASH_NODE: {
                     pm_keyword_hash_node_t *cast = (pm_keyword_hash_node_t *) node;
                     for (size_t index = 0; index < cast->elements.size; index++) {
@@ -833,52 +838,52 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LAMBDA_NODE: {
                     pm_lambda_node_t *cast = (pm_lambda_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->parameters);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->body);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_AND_WRITE_NODE: {
                     pm_local_variable_and_write_node_t *cast = (pm_local_variable_and_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_OPERATOR_WRITE_NODE: {
                     pm_local_variable_operator_write_node_t *cast = (pm_local_variable_operator_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_OR_WRITE_NODE: {
                     pm_local_variable_or_write_node_t *cast = (pm_local_variable_or_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_WRITE_NODE: {
                     pm_local_variable_write_node_t *cast = (pm_local_variable_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MATCH_PREDICATE_NODE: {
                     pm_match_predicate_node_t *cast = (pm_match_predicate_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->pattern);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MATCH_REQUIRED_NODE: {
                     pm_match_required_node_t *cast = (pm_match_required_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->pattern);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MATCH_WRITE_NODE: {
                     pm_match_write_node_t *cast = (pm_match_write_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->call);
@@ -887,14 +892,14 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MODULE_NODE: {
                     pm_module_node_t *cast = (pm_module_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->constant_path);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->body);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MULTI_TARGET_NODE: {
                     pm_multi_target_node_t *cast = (pm_multi_target_node_t *) node;
                     for (size_t index = 0; index < cast->lefts.size; index++) {
@@ -906,7 +911,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MULTI_WRITE_NODE: {
                     pm_multi_write_node_t *cast = (pm_multi_write_node_t *) node;
                     for (size_t index = 0; index < cast->lefts.size; index++) {
@@ -919,32 +924,32 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_NEXT_NODE: {
                     pm_next_node_t *cast = (pm_next_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->arguments);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_OPTIONAL_KEYWORD_PARAMETER_NODE: {
                     pm_optional_keyword_parameter_node_t *cast = (pm_optional_keyword_parameter_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_OPTIONAL_PARAMETER_NODE: {
                     pm_optional_parameter_node_t *cast = (pm_optional_parameter_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->value);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_OR_NODE: {
                     pm_or_node_t *cast = (pm_or_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->left);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->right);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PARAMETERS_NODE: {
                     pm_parameters_node_t *cast = (pm_parameters_node_t *) node;
                     for (size_t index = 0; index < cast->requireds.size; index++) {
@@ -964,57 +969,57 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->block);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PARENTHESES_NODE: {
                     pm_parentheses_node_t *cast = (pm_parentheses_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->body);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PINNED_EXPRESSION_NODE: {
                     pm_pinned_expression_node_t *cast = (pm_pinned_expression_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->expression);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PINNED_VARIABLE_NODE: {
                     pm_pinned_variable_node_t *cast = (pm_pinned_variable_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->variable);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_POST_EXECUTION_NODE: {
                     pm_post_execution_node_t *cast = (pm_post_execution_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PRE_EXECUTION_NODE: {
                     pm_pre_execution_node_t *cast = (pm_pre_execution_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PROGRAM_NODE: {
                     pm_program_node_t *cast = (pm_program_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RANGE_NODE: {
                     pm_range_node_t *cast = (pm_range_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->left);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->right);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RESCUE_MODIFIER_NODE: {
                     pm_rescue_modifier_node_t *cast = (pm_rescue_modifier_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->expression);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->rescue_expression);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RESCUE_NODE: {
                     pm_rescue_node_t *cast = (pm_rescue_node_t *) node;
                     for (size_t index = 0; index < cast->exceptions.size; index++) {
@@ -1025,32 +1030,32 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->subsequent);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RETURN_NODE: {
                     pm_return_node_t *cast = (pm_return_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->arguments);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SHAREABLE_CONSTANT_NODE: {
                     pm_shareable_constant_node_t *cast = (pm_shareable_constant_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->write);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SINGLETON_CLASS_NODE: {
                     pm_singleton_class_node_t *cast = (pm_singleton_class_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->expression);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->body);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SPLAT_NODE: {
                     pm_splat_node_t *cast = (pm_splat_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->expression);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_STATEMENTS_NODE: {
                     pm_statements_node_t *cast = (pm_statements_node_t *) node;
                     for (size_t index = 0; index < cast->body.size; index++) {
@@ -1058,14 +1063,14 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SUPER_NODE: {
                     pm_super_node_t *cast = (pm_super_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->arguments);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->block);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_UNDEF_NODE: {
                     pm_undef_node_t *cast = (pm_undef_node_t *) node;
                     for (size_t index = 0; index < cast->names.size; index++) {
@@ -1073,7 +1078,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     }
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_UNLESS_NODE: {
                     pm_unless_node_t *cast = (pm_unless_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->predicate);
@@ -1081,14 +1086,14 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->else_clause);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_UNTIL_NODE: {
                     pm_until_node_t *cast = (pm_until_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->predicate);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_WHEN_NODE: {
                     pm_when_node_t *cast = (pm_when_node_t *) node;
                     for (size_t index = 0; index < cast->conditions.size; index++) {
@@ -1097,14 +1102,14 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_WHILE_NODE: {
                     pm_while_node_t *cast = (pm_while_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->predicate);
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->statements);
                     break;
                 }
-#line 165 "prism/templates/ext/prism/api_node.c.erb"
+#line 170 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_YIELD_NODE: {
                     pm_yield_node_t *cast = (pm_yield_node_t *) node;
                     pm_node_stack_push(node_arena, &node_stack, (pm_node_t *) cast->arguments);
@@ -1113,12 +1118,12 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                 default:
                     break;
             }
-#line 185 "prism/templates/ext/prism/api_node.c.erb"
+#line 190 "prism/templates/ext/prism/api_node.c.erb"
         } else {
             const pm_node_t *node = pm_node_stack_pop(&node_stack);
 
             switch (PM_NODE_TYPE(node)) {
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ALIAS_GLOBAL_VARIABLE_NODE: {
                     pm_alias_global_variable_node_t *cast = (pm_alias_global_variable_node_t *) node;
                     VALUE argv[7];
@@ -1136,15 +1141,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // new_name
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // old_name
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismAliasGlobalVariableNode);
@@ -1153,7 +1158,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ALIAS_METHOD_NODE: {
                     pm_alias_method_node_t *cast = (pm_alias_method_node_t *) node;
                     VALUE argv[7];
@@ -1171,15 +1176,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // new_name
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // old_name
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismAliasMethodNode);
@@ -1188,7 +1193,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ALTERNATION_PATTERN_NODE: {
                     pm_alternation_pattern_node_t *cast = (pm_alternation_pattern_node_t *) node;
                     VALUE argv[7];
@@ -1206,15 +1211,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // left
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // right
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismAlternationPatternNode);
@@ -1223,7 +1228,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_AND_NODE: {
                     pm_and_node_t *cast = (pm_and_node_t *) node;
                     VALUE argv[7];
@@ -1241,15 +1246,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // left
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // right
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismAndNode);
@@ -1258,7 +1263,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ARGUMENTS_NODE: {
                     pm_arguments_node_t *cast = (pm_arguments_node_t *) node;
                     VALUE argv[5];
@@ -1276,7 +1281,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // arguments
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->arguments.size);
                     for (size_t index = 0; index < cast->arguments.size; index++) {
                         rb_ary_push(argv[4], rb_ary_pop(value_stack));
@@ -1289,7 +1294,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ARRAY_NODE: {
                     pm_array_node_t *cast = (pm_array_node_t *) node;
                     VALUE argv[7];
@@ -1307,7 +1312,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // elements
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->elements.size);
                     for (size_t index = 0; index < cast->elements.size; index++) {
                         rb_ary_push(argv[4], rb_ary_pop(value_stack));
@@ -1315,11 +1320,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismArrayNode);
@@ -1328,7 +1333,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ARRAY_PATTERN_NODE: {
                     pm_array_pattern_node_t *cast = (pm_array_pattern_node_t *) node;
                     VALUE argv[10];
@@ -1346,11 +1351,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // constant
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // requireds
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->requireds.size);
                     for (size_t index = 0; index < cast->requireds.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -1358,11 +1363,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // rest
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // posts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_new_capa(cast->posts.size);
                     for (size_t index = 0; index < cast->posts.size; index++) {
                         rb_ary_push(argv[7], rb_ary_pop(value_stack));
@@ -1370,11 +1375,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[7]);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismArrayPatternNode);
@@ -1383,7 +1388,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ASSOC_NODE: {
                     pm_assoc_node_t *cast = (pm_assoc_node_t *) node;
                     VALUE argv[7];
@@ -1401,15 +1406,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // key
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->operator_loc.length == 0 ? Qnil : pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismAssocNode);
@@ -1418,7 +1423,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ASSOC_SPLAT_NODE: {
                     pm_assoc_splat_node_t *cast = (pm_assoc_splat_node_t *) node;
                     VALUE argv[6];
@@ -1436,11 +1441,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismAssocSplatNode);
@@ -1449,7 +1454,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BACK_REFERENCE_READ_NODE: {
                     pm_back_reference_read_node_t *cast = (pm_back_reference_read_node_t *) node;
                     VALUE argv[5];
@@ -1467,7 +1472,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -1477,7 +1482,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BEGIN_NODE: {
                     pm_begin_node_t *cast = (pm_begin_node_t *) node;
                     VALUE argv[10];
@@ -1495,27 +1500,27 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // begin_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = cast->begin_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->begin_keyword_loc.start, cast->begin_keyword_loc.length, source, freeze);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // rescue_clause
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // else_clause
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // ensure_clause
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     // end_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismBeginNode);
@@ -1524,7 +1529,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BLOCK_ARGUMENT_NODE: {
                     pm_block_argument_node_t *cast = (pm_block_argument_node_t *) node;
                     VALUE argv[6];
@@ -1542,11 +1547,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // expression
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismBlockArgumentNode);
@@ -1555,7 +1560,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BLOCK_LOCAL_VARIABLE_NODE: {
                     pm_block_local_variable_node_t *cast = (pm_block_local_variable_node_t *) node;
                     VALUE argv[5];
@@ -1573,7 +1578,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -1583,7 +1588,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BLOCK_NODE: {
                     pm_block_node_t *cast = (pm_block_node_t *) node;
                     VALUE argv[9];
@@ -1601,7 +1606,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // locals
-#line 233 "prism/templates/ext/prism/api_node.c.erb"
+#line 238 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         PRISM_ASSERT(cast->locals.ids[index] != 0);
@@ -1610,19 +1615,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // parameters
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // body
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismBlockNode);
@@ -1631,7 +1636,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BLOCK_PARAMETER_NODE: {
                     pm_block_parameter_node_t *cast = (pm_block_parameter_node_t *) node;
                     VALUE argv[7];
@@ -1652,11 +1657,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->name_loc.length == 0 ? Qnil : pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismBlockParameterNode);
@@ -1665,7 +1670,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BLOCK_PARAMETERS_NODE: {
                     pm_block_parameters_node_t *cast = (pm_block_parameters_node_t *) node;
                     VALUE argv[8];
@@ -1683,11 +1688,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // parameters
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // locals
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -1695,11 +1700,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismBlockParametersNode);
@@ -1708,7 +1713,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_BREAK_NODE: {
                     pm_break_node_t *cast = (pm_break_node_t *) node;
                     VALUE argv[6];
@@ -1726,11 +1731,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismBreakNode);
@@ -1739,7 +1744,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_AND_WRITE_NODE: {
                     pm_call_and_write_node_t *cast = (pm_call_and_write_node_t *) node;
                     VALUE argv[11];
@@ -1757,33 +1762,33 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // call_operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->call_operator_loc.length == 0 ? Qnil : pm_location_new(cast->call_operator_loc.start, cast->call_operator_loc.length, source, freeze);
 
                     // message_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->message_loc.length == 0 ? Qnil : pm_location_new(cast->message_loc.start, cast->message_loc.length, source, freeze);
 
                     // read_name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->read_name != 0);
                     argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->read_name));
 
                     // write_name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->write_name != 0);
                     argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->write_name));
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(11, argv, rb_cPrismCallAndWriteNode);
@@ -1792,7 +1797,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_NODE: {
                     pm_call_node_t *cast = (pm_call_node_t *) node;
                     VALUE argv[13];
@@ -1810,40 +1815,40 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // call_operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->call_operator_loc.length == 0 ? Qnil : pm_location_new(cast->call_operator_loc.start, cast->call_operator_loc.length, source, freeze);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[6] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // message_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->message_loc.length == 0 ? Qnil : pm_location_new(cast->message_loc.start, cast->message_loc.length, source, freeze);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // equal_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[11] = cast->equal_loc.length == 0 ? Qnil : pm_location_new(cast->equal_loc.start, cast->equal_loc.length, source, freeze);
 
                     // block
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[12] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(13, argv, rb_cPrismCallNode);
@@ -1852,7 +1857,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_OPERATOR_WRITE_NODE: {
                     pm_call_operator_write_node_t *cast = (pm_call_operator_write_node_t *) node;
                     VALUE argv[12];
@@ -1870,38 +1875,38 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // call_operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->call_operator_loc.length == 0 ? Qnil : pm_location_new(cast->call_operator_loc.start, cast->call_operator_loc.length, source, freeze);
 
                     // message_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->message_loc.length == 0 ? Qnil : pm_location_new(cast->message_loc.start, cast->message_loc.length, source, freeze);
 
                     // read_name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->read_name != 0);
                     argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->read_name));
 
                     // write_name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->write_name != 0);
                     argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->write_name));
 
                     // binary_operator
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->binary_operator != 0);
                     argv[9] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     // binary_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = pm_location_new(cast->binary_operator_loc.start, cast->binary_operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[11] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(12, argv, rb_cPrismCallOperatorWriteNode);
@@ -1910,7 +1915,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_OR_WRITE_NODE: {
                     pm_call_or_write_node_t *cast = (pm_call_or_write_node_t *) node;
                     VALUE argv[11];
@@ -1928,33 +1933,33 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // call_operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->call_operator_loc.length == 0 ? Qnil : pm_location_new(cast->call_operator_loc.start, cast->call_operator_loc.length, source, freeze);
 
                     // message_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->message_loc.length == 0 ? Qnil : pm_location_new(cast->message_loc.start, cast->message_loc.length, source, freeze);
 
                     // read_name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->read_name != 0);
                     argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->read_name));
 
                     // write_name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->write_name != 0);
                     argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->write_name));
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(11, argv, rb_cPrismCallOrWriteNode);
@@ -1963,7 +1968,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CALL_TARGET_NODE: {
                     pm_call_target_node_t *cast = (pm_call_target_node_t *) node;
                     VALUE argv[8];
@@ -1981,20 +1986,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // call_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->call_operator_loc.start, cast->call_operator_loc.length, source, freeze);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[6] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // message_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->message_loc.start, cast->message_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismCallTargetNode);
@@ -2003,7 +2008,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CAPTURE_PATTERN_NODE: {
                     pm_capture_pattern_node_t *cast = (pm_capture_pattern_node_t *) node;
                     VALUE argv[7];
@@ -2021,15 +2026,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // target
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismCapturePatternNode);
@@ -2038,7 +2043,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CASE_MATCH_NODE: {
                     pm_case_match_node_t *cast = (pm_case_match_node_t *) node;
                     VALUE argv[9];
@@ -2056,11 +2061,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // predicate
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // conditions
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->conditions.size);
                     for (size_t index = 0; index < cast->conditions.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -2068,15 +2073,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // else_clause
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // case_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->case_keyword_loc.start, cast->case_keyword_loc.length, source, freeze);
 
                     // end_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismCaseMatchNode);
@@ -2085,7 +2090,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CASE_NODE: {
                     pm_case_node_t *cast = (pm_case_node_t *) node;
                     VALUE argv[9];
@@ -2103,11 +2108,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // predicate
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // conditions
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->conditions.size);
                     for (size_t index = 0; index < cast->conditions.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -2115,15 +2120,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // else_clause
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // case_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->case_keyword_loc.start, cast->case_keyword_loc.length, source, freeze);
 
                     // end_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismCaseNode);
@@ -2132,7 +2137,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_NODE: {
                     pm_class_node_t *cast = (pm_class_node_t *) node;
                     VALUE argv[12];
@@ -2150,7 +2155,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // locals
-#line 233 "prism/templates/ext/prism/api_node.c.erb"
+#line 238 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         PRISM_ASSERT(cast->locals.ids[index] != 0);
@@ -2159,31 +2164,31 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // class_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->class_keyword_loc.start, cast->class_keyword_loc.length, source, freeze);
 
                     // constant_path
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // inheritance_operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->inheritance_operator_loc.length == 0 ? Qnil : pm_location_new(cast->inheritance_operator_loc.start, cast->inheritance_operator_loc.length, source, freeze);
 
                     // superclass
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     // body
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
                     // end_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[11] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -2193,7 +2198,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_AND_WRITE_NODE: {
                     pm_class_variable_and_write_node_t *cast = (pm_class_variable_and_write_node_t *) node;
                     VALUE argv[8];
@@ -2211,20 +2216,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismClassVariableAndWriteNode);
@@ -2233,7 +2238,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_OPERATOR_WRITE_NODE: {
                     pm_class_variable_operator_write_node_t *cast = (pm_class_variable_operator_write_node_t *) node;
                     VALUE argv[9];
@@ -2251,24 +2256,24 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // binary_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->binary_operator_loc.start, cast->binary_operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // binary_operator
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->binary_operator != 0);
                     argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
@@ -2278,7 +2283,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_OR_WRITE_NODE: {
                     pm_class_variable_or_write_node_t *cast = (pm_class_variable_or_write_node_t *) node;
                     VALUE argv[8];
@@ -2296,20 +2301,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismClassVariableOrWriteNode);
@@ -2318,7 +2323,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_READ_NODE: {
                     pm_class_variable_read_node_t *cast = (pm_class_variable_read_node_t *) node;
                     VALUE argv[5];
@@ -2336,7 +2341,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -2346,7 +2351,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_TARGET_NODE: {
                     pm_class_variable_target_node_t *cast = (pm_class_variable_target_node_t *) node;
                     VALUE argv[5];
@@ -2364,7 +2369,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -2374,7 +2379,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CLASS_VARIABLE_WRITE_NODE: {
                     pm_class_variable_write_node_t *cast = (pm_class_variable_write_node_t *) node;
                     VALUE argv[8];
@@ -2392,20 +2397,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismClassVariableWriteNode);
@@ -2414,7 +2419,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_AND_WRITE_NODE: {
                     pm_constant_and_write_node_t *cast = (pm_constant_and_write_node_t *) node;
                     VALUE argv[8];
@@ -2432,20 +2437,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismConstantAndWriteNode);
@@ -2454,7 +2459,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_OPERATOR_WRITE_NODE: {
                     pm_constant_operator_write_node_t *cast = (pm_constant_operator_write_node_t *) node;
                     VALUE argv[9];
@@ -2472,24 +2477,24 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // binary_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->binary_operator_loc.start, cast->binary_operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // binary_operator
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->binary_operator != 0);
                     argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
@@ -2499,7 +2504,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_OR_WRITE_NODE: {
                     pm_constant_or_write_node_t *cast = (pm_constant_or_write_node_t *) node;
                     VALUE argv[8];
@@ -2517,20 +2522,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismConstantOrWriteNode);
@@ -2539,7 +2544,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_AND_WRITE_NODE: {
                     pm_constant_path_and_write_node_t *cast = (pm_constant_path_and_write_node_t *) node;
                     VALUE argv[7];
@@ -2557,15 +2562,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // target
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismConstantPathAndWriteNode);
@@ -2574,7 +2579,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_NODE: {
                     pm_constant_path_node_t *cast = (pm_constant_path_node_t *) node;
                     VALUE argv[8];
@@ -2592,18 +2597,18 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // parent
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // name
                     argv[5] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // delimiter_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->delimiter_loc.start, cast->delimiter_loc.length, source, freeze);
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismConstantPathNode);
@@ -2612,7 +2617,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_OPERATOR_WRITE_NODE: {
                     pm_constant_path_operator_write_node_t *cast = (pm_constant_path_operator_write_node_t *) node;
                     VALUE argv[8];
@@ -2630,19 +2635,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // target
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // binary_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->binary_operator_loc.start, cast->binary_operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // binary_operator
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->binary_operator != 0);
                     argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
@@ -2652,7 +2657,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_OR_WRITE_NODE: {
                     pm_constant_path_or_write_node_t *cast = (pm_constant_path_or_write_node_t *) node;
                     VALUE argv[7];
@@ -2670,15 +2675,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // target
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismConstantPathOrWriteNode);
@@ -2687,7 +2692,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_TARGET_NODE: {
                     pm_constant_path_target_node_t *cast = (pm_constant_path_target_node_t *) node;
                     VALUE argv[8];
@@ -2705,18 +2710,18 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // parent
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // name
                     argv[5] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // delimiter_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->delimiter_loc.start, cast->delimiter_loc.length, source, freeze);
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismConstantPathTargetNode);
@@ -2725,7 +2730,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_PATH_WRITE_NODE: {
                     pm_constant_path_write_node_t *cast = (pm_constant_path_write_node_t *) node;
                     VALUE argv[7];
@@ -2743,15 +2748,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // target
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismConstantPathWriteNode);
@@ -2760,7 +2765,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_READ_NODE: {
                     pm_constant_read_node_t *cast = (pm_constant_read_node_t *) node;
                     VALUE argv[5];
@@ -2778,7 +2783,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -2788,7 +2793,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_TARGET_NODE: {
                     pm_constant_target_node_t *cast = (pm_constant_target_node_t *) node;
                     VALUE argv[5];
@@ -2806,7 +2811,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -2816,7 +2821,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_CONSTANT_WRITE_NODE: {
                     pm_constant_write_node_t *cast = (pm_constant_write_node_t *) node;
                     VALUE argv[8];
@@ -2834,20 +2839,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismConstantWriteNode);
@@ -2856,7 +2861,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_DEF_NODE: {
                     pm_def_node_t *cast = (pm_def_node_t *) node;
                     VALUE argv[16];
@@ -2874,28 +2879,28 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // parameters
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // body
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     // locals
-#line 233 "prism/templates/ext/prism/api_node.c.erb"
+#line 238 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         PRISM_ASSERT(cast->locals.ids[index] != 0);
@@ -2904,27 +2909,27 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[9]);
 
                     // def_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = pm_location_new(cast->def_keyword_loc.start, cast->def_keyword_loc.length, source, freeze);
 
                     // operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[11] = cast->operator_loc.length == 0 ? Qnil : pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // lparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[12] = cast->lparen_loc.length == 0 ? Qnil : pm_location_new(cast->lparen_loc.start, cast->lparen_loc.length, source, freeze);
 
                     // rparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[13] = cast->rparen_loc.length == 0 ? Qnil : pm_location_new(cast->rparen_loc.start, cast->rparen_loc.length, source, freeze);
 
                     // equal_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[14] = cast->equal_loc.length == 0 ? Qnil : pm_location_new(cast->equal_loc.start, cast->equal_loc.length, source, freeze);
 
                     // end_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[15] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(16, argv, rb_cPrismDefNode);
@@ -2933,7 +2938,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_DEFINED_NODE: {
                     pm_defined_node_t *cast = (pm_defined_node_t *) node;
                     VALUE argv[8];
@@ -2951,19 +2956,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // lparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = cast->lparen_loc.length == 0 ? Qnil : pm_location_new(cast->lparen_loc.start, cast->lparen_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // rparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->rparen_loc.length == 0 ? Qnil : pm_location_new(cast->rparen_loc.start, cast->rparen_loc.length, source, freeze);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismDefinedNode);
@@ -2972,7 +2977,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ELSE_NODE: {
                     pm_else_node_t *cast = (pm_else_node_t *) node;
                     VALUE argv[7];
@@ -2990,15 +2995,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // else_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->else_keyword_loc.start, cast->else_keyword_loc.length, source, freeze);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // end_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismElseNode);
@@ -3007,7 +3012,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_EMBEDDED_STATEMENTS_NODE: {
                     pm_embedded_statements_node_t *cast = (pm_embedded_statements_node_t *) node;
                     VALUE argv[7];
@@ -3025,15 +3030,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismEmbeddedStatementsNode);
@@ -3042,7 +3047,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_EMBEDDED_VARIABLE_NODE: {
                     pm_embedded_variable_node_t *cast = (pm_embedded_variable_node_t *) node;
                     VALUE argv[6];
@@ -3060,11 +3065,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // variable
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismEmbeddedVariableNode);
@@ -3073,7 +3078,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ENSURE_NODE: {
                     pm_ensure_node_t *cast = (pm_ensure_node_t *) node;
                     VALUE argv[7];
@@ -3091,15 +3096,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // ensure_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->ensure_keyword_loc.start, cast->ensure_keyword_loc.length, source, freeze);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // end_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismEnsureNode);
@@ -3108,7 +3113,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_ERROR_RECOVERY_NODE: {
                     VALUE argv[5];
 
@@ -3125,7 +3130,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // unexpected
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismErrorRecoveryNode);
@@ -3134,7 +3139,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FALSE_NODE: {
                     VALUE argv[4];
 
@@ -3156,7 +3161,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FIND_PATTERN_NODE: {
                     pm_find_pattern_node_t *cast = (pm_find_pattern_node_t *) node;
                     VALUE argv[10];
@@ -3174,15 +3179,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // constant
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // left
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // requireds
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_new_capa(cast->requireds.size);
                     for (size_t index = 0; index < cast->requireds.size; index++) {
                         rb_ary_push(argv[6], rb_ary_pop(value_stack));
@@ -3190,15 +3195,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[6]);
 
                     // right
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismFindPatternNode);
@@ -3207,7 +3212,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FLIP_FLOP_NODE: {
                     pm_flip_flop_node_t *cast = (pm_flip_flop_node_t *) node;
                     VALUE argv[7];
@@ -3225,15 +3230,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // left
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // right
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismFlipFlopNode);
@@ -3242,7 +3247,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FLOAT_NODE: {
                     pm_float_node_t *cast = (pm_float_node_t *) node;
                     VALUE argv[5];
@@ -3260,7 +3265,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // value
-#line 256 "prism/templates/ext/prism/api_node.c.erb"
+#line 261 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = DBL2NUM(cast->value);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismFloatNode);
@@ -3269,7 +3274,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FOR_NODE: {
                     pm_for_node_t *cast = (pm_for_node_t *) node;
                     VALUE argv[11];
@@ -3287,31 +3292,31 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // index
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // collection
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // for_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->for_keyword_loc.start, cast->for_keyword_loc.length, source, freeze);
 
                     // in_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->in_keyword_loc.start, cast->in_keyword_loc.length, source, freeze);
 
                     // do_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = cast->do_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->do_keyword_loc.start, cast->do_keyword_loc.length, source, freeze);
 
                     // end_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(11, argv, rb_cPrismForNode);
@@ -3320,7 +3325,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FORWARDING_ARGUMENTS_NODE: {
                     VALUE argv[4];
 
@@ -3342,7 +3347,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FORWARDING_PARAMETER_NODE: {
                     VALUE argv[4];
 
@@ -3364,7 +3369,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_FORWARDING_SUPER_NODE: {
                     pm_forwarding_super_node_t *cast = (pm_forwarding_super_node_t *) node;
                     VALUE argv[6];
@@ -3382,11 +3387,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     // block
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismForwardingSuperNode);
@@ -3395,7 +3400,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_AND_WRITE_NODE: {
                     pm_global_variable_and_write_node_t *cast = (pm_global_variable_and_write_node_t *) node;
                     VALUE argv[8];
@@ -3413,20 +3418,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismGlobalVariableAndWriteNode);
@@ -3435,7 +3440,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_OPERATOR_WRITE_NODE: {
                     pm_global_variable_operator_write_node_t *cast = (pm_global_variable_operator_write_node_t *) node;
                     VALUE argv[9];
@@ -3453,24 +3458,24 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // binary_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->binary_operator_loc.start, cast->binary_operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // binary_operator
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->binary_operator != 0);
                     argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
@@ -3480,7 +3485,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_OR_WRITE_NODE: {
                     pm_global_variable_or_write_node_t *cast = (pm_global_variable_or_write_node_t *) node;
                     VALUE argv[8];
@@ -3498,20 +3503,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismGlobalVariableOrWriteNode);
@@ -3520,7 +3525,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_READ_NODE: {
                     pm_global_variable_read_node_t *cast = (pm_global_variable_read_node_t *) node;
                     VALUE argv[5];
@@ -3538,7 +3543,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -3548,7 +3553,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_TARGET_NODE: {
                     pm_global_variable_target_node_t *cast = (pm_global_variable_target_node_t *) node;
                     VALUE argv[5];
@@ -3566,7 +3571,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -3576,7 +3581,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_GLOBAL_VARIABLE_WRITE_NODE: {
                     pm_global_variable_write_node_t *cast = (pm_global_variable_write_node_t *) node;
                     VALUE argv[8];
@@ -3594,20 +3599,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismGlobalVariableWriteNode);
@@ -3616,7 +3621,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_HASH_NODE: {
                     pm_hash_node_t *cast = (pm_hash_node_t *) node;
                     VALUE argv[7];
@@ -3634,11 +3639,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // elements
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->elements.size);
                     for (size_t index = 0; index < cast->elements.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -3646,7 +3651,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismHashNode);
@@ -3655,7 +3660,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_HASH_PATTERN_NODE: {
                     pm_hash_pattern_node_t *cast = (pm_hash_pattern_node_t *) node;
                     VALUE argv[9];
@@ -3673,11 +3678,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // constant
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // elements
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->elements.size);
                     for (size_t index = 0; index < cast->elements.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -3685,15 +3690,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // rest
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismHashPatternNode);
@@ -3702,7 +3707,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IF_NODE: {
                     pm_if_node_t *cast = (pm_if_node_t *) node;
                     VALUE argv[10];
@@ -3720,27 +3725,27 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // if_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = cast->if_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->if_keyword_loc.start, cast->if_keyword_loc.length, source, freeze);
 
                     // predicate
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // then_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->then_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->then_keyword_loc.start, cast->then_keyword_loc.length, source, freeze);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // subsequent
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     // end_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismIfNode);
@@ -3749,7 +3754,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IMAGINARY_NODE: {
                     VALUE argv[5];
 
@@ -3766,7 +3771,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // numeric
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismImaginaryNode);
@@ -3775,7 +3780,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IMPLICIT_NODE: {
                     VALUE argv[5];
 
@@ -3792,7 +3797,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismImplicitNode);
@@ -3801,7 +3806,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IMPLICIT_REST_NODE: {
                     VALUE argv[4];
 
@@ -3823,7 +3828,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IN_NODE: {
                     pm_in_node_t *cast = (pm_in_node_t *) node;
                     VALUE argv[8];
@@ -3841,19 +3846,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // pattern
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // in_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->in_keyword_loc.start, cast->in_keyword_loc.length, source, freeze);
 
                     // then_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->then_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->then_keyword_loc.start, cast->then_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismInNode);
@@ -3862,7 +3867,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INDEX_AND_WRITE_NODE: {
                     pm_index_and_write_node_t *cast = (pm_index_and_write_node_t *) node;
                     VALUE argv[12];
@@ -3880,35 +3885,35 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // call_operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->call_operator_loc.length == 0 ? Qnil : pm_location_new(cast->call_operator_loc.start, cast->call_operator_loc.length, source, freeze);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // block
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[11] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(12, argv, rb_cPrismIndexAndWriteNode);
@@ -3917,7 +3922,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INDEX_OPERATOR_WRITE_NODE: {
                     pm_index_operator_write_node_t *cast = (pm_index_operator_write_node_t *) node;
                     VALUE argv[13];
@@ -3935,40 +3940,40 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // call_operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->call_operator_loc.length == 0 ? Qnil : pm_location_new(cast->call_operator_loc.start, cast->call_operator_loc.length, source, freeze);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // block
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
                     // binary_operator
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->binary_operator != 0);
                     argv[10] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     // binary_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[11] = pm_location_new(cast->binary_operator_loc.start, cast->binary_operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[12] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(13, argv, rb_cPrismIndexOperatorWriteNode);
@@ -3977,7 +3982,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INDEX_OR_WRITE_NODE: {
                     pm_index_or_write_node_t *cast = (pm_index_or_write_node_t *) node;
                     VALUE argv[12];
@@ -3995,35 +4000,35 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // call_operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->call_operator_loc.length == 0 ? Qnil : pm_location_new(cast->call_operator_loc.start, cast->call_operator_loc.length, source, freeze);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // block
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[11] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(12, argv, rb_cPrismIndexOrWriteNode);
@@ -4032,7 +4037,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INDEX_TARGET_NODE: {
                     pm_index_target_node_t *cast = (pm_index_target_node_t *) node;
                     VALUE argv[9];
@@ -4050,23 +4055,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // receiver
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // block
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismIndexTargetNode);
@@ -4075,7 +4080,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_AND_WRITE_NODE: {
                     pm_instance_variable_and_write_node_t *cast = (pm_instance_variable_and_write_node_t *) node;
                     VALUE argv[8];
@@ -4093,20 +4098,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismInstanceVariableAndWriteNode);
@@ -4115,7 +4120,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_OPERATOR_WRITE_NODE: {
                     pm_instance_variable_operator_write_node_t *cast = (pm_instance_variable_operator_write_node_t *) node;
                     VALUE argv[9];
@@ -4133,24 +4138,24 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // binary_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->binary_operator_loc.start, cast->binary_operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // binary_operator
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->binary_operator != 0);
                     argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
@@ -4160,7 +4165,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_OR_WRITE_NODE: {
                     pm_instance_variable_or_write_node_t *cast = (pm_instance_variable_or_write_node_t *) node;
                     VALUE argv[8];
@@ -4178,20 +4183,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismInstanceVariableOrWriteNode);
@@ -4200,7 +4205,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_READ_NODE: {
                     pm_instance_variable_read_node_t *cast = (pm_instance_variable_read_node_t *) node;
                     VALUE argv[5];
@@ -4218,7 +4223,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -4228,7 +4233,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_TARGET_NODE: {
                     pm_instance_variable_target_node_t *cast = (pm_instance_variable_target_node_t *) node;
                     VALUE argv[5];
@@ -4246,7 +4251,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -4256,7 +4261,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INSTANCE_VARIABLE_WRITE_NODE: {
                     pm_instance_variable_write_node_t *cast = (pm_instance_variable_write_node_t *) node;
                     VALUE argv[8];
@@ -4274,20 +4279,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismInstanceVariableWriteNode);
@@ -4296,7 +4301,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTEGER_NODE: {
                     pm_integer_node_t *cast = (pm_integer_node_t *) node;
                     VALUE argv[5];
@@ -4314,7 +4319,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // value
-#line 253 "prism/templates/ext/prism/api_node.c.erb"
+#line 258 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_integer_new(&cast->value);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismIntegerNode);
@@ -4323,7 +4328,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_MATCH_LAST_LINE_NODE: {
                     pm_interpolated_match_last_line_node_t *cast = (pm_interpolated_match_last_line_node_t *) node;
                     VALUE argv[7];
@@ -4341,11 +4346,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // parts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->parts.size);
                     for (size_t index = 0; index < cast->parts.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -4353,7 +4358,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismInterpolatedMatchLastLineNode);
@@ -4362,7 +4367,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_REGULAR_EXPRESSION_NODE: {
                     pm_interpolated_regular_expression_node_t *cast = (pm_interpolated_regular_expression_node_t *) node;
                     VALUE argv[7];
@@ -4380,11 +4385,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // parts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->parts.size);
                     for (size_t index = 0; index < cast->parts.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -4392,7 +4397,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismInterpolatedRegularExpressionNode);
@@ -4401,7 +4406,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_STRING_NODE: {
                     pm_interpolated_string_node_t *cast = (pm_interpolated_string_node_t *) node;
                     VALUE argv[7];
@@ -4419,11 +4424,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // parts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->parts.size);
                     for (size_t index = 0; index < cast->parts.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -4431,7 +4436,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismInterpolatedStringNode);
@@ -4440,7 +4445,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_SYMBOL_NODE: {
                     pm_interpolated_symbol_node_t *cast = (pm_interpolated_symbol_node_t *) node;
                     VALUE argv[7];
@@ -4458,11 +4463,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // parts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->parts.size);
                     for (size_t index = 0; index < cast->parts.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -4470,7 +4475,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismInterpolatedSymbolNode);
@@ -4479,7 +4484,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_INTERPOLATED_X_STRING_NODE: {
                     pm_interpolated_x_string_node_t *cast = (pm_interpolated_x_string_node_t *) node;
                     VALUE argv[7];
@@ -4497,11 +4502,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // parts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->parts.size);
                     for (size_t index = 0; index < cast->parts.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -4509,7 +4514,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismInterpolatedXStringNode);
@@ -4518,7 +4523,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IT_LOCAL_VARIABLE_READ_NODE: {
                     VALUE argv[4];
 
@@ -4540,7 +4545,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_IT_PARAMETERS_NODE: {
                     VALUE argv[4];
 
@@ -4562,7 +4567,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_KEYWORD_HASH_NODE: {
                     pm_keyword_hash_node_t *cast = (pm_keyword_hash_node_t *) node;
                     VALUE argv[5];
@@ -4580,7 +4585,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // elements
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->elements.size);
                     for (size_t index = 0; index < cast->elements.size; index++) {
                         rb_ary_push(argv[4], rb_ary_pop(value_stack));
@@ -4593,7 +4598,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_KEYWORD_REST_PARAMETER_NODE: {
                     pm_keyword_rest_parameter_node_t *cast = (pm_keyword_rest_parameter_node_t *) node;
                     VALUE argv[7];
@@ -4614,11 +4619,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->name_loc.length == 0 ? Qnil : pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismKeywordRestParameterNode);
@@ -4627,7 +4632,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LAMBDA_NODE: {
                     pm_lambda_node_t *cast = (pm_lambda_node_t *) node;
                     VALUE argv[10];
@@ -4645,7 +4650,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // locals
-#line 233 "prism/templates/ext/prism/api_node.c.erb"
+#line 238 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         PRISM_ASSERT(cast->locals.ids[index] != 0);
@@ -4654,23 +4659,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // parameters
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     // body
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismLambdaNode);
@@ -4679,7 +4684,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_AND_WRITE_NODE: {
                     pm_local_variable_and_write_node_t *cast = (pm_local_variable_and_write_node_t *) node;
                     VALUE argv[9];
@@ -4697,24 +4702,24 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
-#line 250 "prism/templates/ext/prism/api_node.c.erb"
+#line 255 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = ULONG2NUM(cast->depth);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismLocalVariableAndWriteNode);
@@ -4723,7 +4728,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_OPERATOR_WRITE_NODE: {
                     pm_local_variable_operator_write_node_t *cast = (pm_local_variable_operator_write_node_t *) node;
                     VALUE argv[10];
@@ -4741,29 +4746,29 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // binary_operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->binary_operator_loc.start, cast->binary_operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // binary_operator
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->binary_operator != 0);
                     argv[8] = RARRAY_AREF(constants, pm_constant_id_index(cast->binary_operator));
 
                     // depth
-#line 250 "prism/templates/ext/prism/api_node.c.erb"
+#line 255 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = ULONG2NUM(cast->depth);
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismLocalVariableOperatorWriteNode);
@@ -4772,7 +4777,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_OR_WRITE_NODE: {
                     pm_local_variable_or_write_node_t *cast = (pm_local_variable_or_write_node_t *) node;
                     VALUE argv[9];
@@ -4790,24 +4795,24 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[7] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
-#line 250 "prism/templates/ext/prism/api_node.c.erb"
+#line 255 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = ULONG2NUM(cast->depth);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismLocalVariableOrWriteNode);
@@ -4816,7 +4821,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_READ_NODE: {
                     pm_local_variable_read_node_t *cast = (pm_local_variable_read_node_t *) node;
                     VALUE argv[6];
@@ -4834,12 +4839,12 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
-#line 250 "prism/templates/ext/prism/api_node.c.erb"
+#line 255 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = ULONG2NUM(cast->depth);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismLocalVariableReadNode);
@@ -4848,7 +4853,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_TARGET_NODE: {
                     pm_local_variable_target_node_t *cast = (pm_local_variable_target_node_t *) node;
                     VALUE argv[6];
@@ -4866,12 +4871,12 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
-#line 250 "prism/templates/ext/prism/api_node.c.erb"
+#line 255 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = ULONG2NUM(cast->depth);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismLocalVariableTargetNode);
@@ -4880,7 +4885,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_LOCAL_VARIABLE_WRITE_NODE: {
                     pm_local_variable_write_node_t *cast = (pm_local_variable_write_node_t *) node;
                     VALUE argv[9];
@@ -4898,24 +4903,24 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // depth
-#line 250 "prism/templates/ext/prism/api_node.c.erb"
+#line 255 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = ULONG2NUM(cast->depth);
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismLocalVariableWriteNode);
@@ -4924,7 +4929,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MATCH_LAST_LINE_NODE: {
                     pm_match_last_line_node_t *cast = (pm_match_last_line_node_t *) node;
                     VALUE argv[8];
@@ -4942,19 +4947,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // content_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->content_loc.start, cast->content_loc.length, source, freeze);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // unescaped
-#line 224 "prism/templates/ext/prism/api_node.c.erb"
+#line 229 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_string_new(&cast->unescaped, encoding);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismMatchLastLineNode);
@@ -4963,7 +4968,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MATCH_PREDICATE_NODE: {
                     pm_match_predicate_node_t *cast = (pm_match_predicate_node_t *) node;
                     VALUE argv[7];
@@ -4981,15 +4986,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // pattern
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismMatchPredicateNode);
@@ -4998,7 +5003,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MATCH_REQUIRED_NODE: {
                     pm_match_required_node_t *cast = (pm_match_required_node_t *) node;
                     VALUE argv[7];
@@ -5016,15 +5021,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // pattern
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismMatchRequiredNode);
@@ -5033,7 +5038,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MATCH_WRITE_NODE: {
                     pm_match_write_node_t *cast = (pm_match_write_node_t *) node;
                     VALUE argv[6];
@@ -5051,11 +5056,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // call
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // targets
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->targets.size);
                     for (size_t index = 0; index < cast->targets.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -5068,7 +5073,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MODULE_NODE: {
                     pm_module_node_t *cast = (pm_module_node_t *) node;
                     VALUE argv[10];
@@ -5086,7 +5091,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // locals
-#line 233 "prism/templates/ext/prism/api_node.c.erb"
+#line 238 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         PRISM_ASSERT(cast->locals.ids[index] != 0);
@@ -5095,23 +5100,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // module_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->module_keyword_loc.start, cast->module_keyword_loc.length, source, freeze);
 
                     // constant_path
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // body
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // end_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[9] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -5121,7 +5126,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MULTI_TARGET_NODE: {
                     pm_multi_target_node_t *cast = (pm_multi_target_node_t *) node;
                     VALUE argv[9];
@@ -5139,7 +5144,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // lefts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->lefts.size);
                     for (size_t index = 0; index < cast->lefts.size; index++) {
                         rb_ary_push(argv[4], rb_ary_pop(value_stack));
@@ -5147,11 +5152,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // rest
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // rights
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_new_capa(cast->rights.size);
                     for (size_t index = 0; index < cast->rights.size; index++) {
                         rb_ary_push(argv[6], rb_ary_pop(value_stack));
@@ -5159,11 +5164,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[6]);
 
                     // lparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->lparen_loc.length == 0 ? Qnil : pm_location_new(cast->lparen_loc.start, cast->lparen_loc.length, source, freeze);
 
                     // rparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = cast->rparen_loc.length == 0 ? Qnil : pm_location_new(cast->rparen_loc.start, cast->rparen_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismMultiTargetNode);
@@ -5172,7 +5177,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_MULTI_WRITE_NODE: {
                     pm_multi_write_node_t *cast = (pm_multi_write_node_t *) node;
                     VALUE argv[11];
@@ -5190,7 +5195,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // lefts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->lefts.size);
                     for (size_t index = 0; index < cast->lefts.size; index++) {
                         rb_ary_push(argv[4], rb_ary_pop(value_stack));
@@ -5198,11 +5203,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // rest
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // rights
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_new_capa(cast->rights.size);
                     for (size_t index = 0; index < cast->rights.size; index++) {
                         rb_ary_push(argv[6], rb_ary_pop(value_stack));
@@ -5210,19 +5215,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[6]);
 
                     // lparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->lparen_loc.length == 0 ? Qnil : pm_location_new(cast->lparen_loc.start, cast->lparen_loc.length, source, freeze);
 
                     // rparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = cast->rparen_loc.length == 0 ? Qnil : pm_location_new(cast->rparen_loc.start, cast->rparen_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(11, argv, rb_cPrismMultiWriteNode);
@@ -5231,7 +5236,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_NEXT_NODE: {
                     pm_next_node_t *cast = (pm_next_node_t *) node;
                     VALUE argv[6];
@@ -5249,11 +5254,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismNextNode);
@@ -5262,7 +5267,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_NIL_NODE: {
                     VALUE argv[4];
 
@@ -5284,7 +5289,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_NO_BLOCK_PARAMETER_NODE: {
                     pm_no_block_parameter_node_t *cast = (pm_no_block_parameter_node_t *) node;
                     VALUE argv[6];
@@ -5302,11 +5307,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismNoBlockParameterNode);
@@ -5315,7 +5320,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_NO_KEYWORDS_PARAMETER_NODE: {
                     pm_no_keywords_parameter_node_t *cast = (pm_no_keywords_parameter_node_t *) node;
                     VALUE argv[6];
@@ -5333,11 +5338,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismNoKeywordsParameterNode);
@@ -5346,7 +5351,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_NUMBERED_PARAMETERS_NODE: {
                     pm_numbered_parameters_node_t *cast = (pm_numbered_parameters_node_t *) node;
                     VALUE argv[5];
@@ -5364,7 +5369,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // maximum
-#line 247 "prism/templates/ext/prism/api_node.c.erb"
+#line 252 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = UINT2NUM(cast->maximum);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismNumberedParametersNode);
@@ -5373,7 +5378,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_NUMBERED_REFERENCE_READ_NODE: {
                     pm_numbered_reference_read_node_t *cast = (pm_numbered_reference_read_node_t *) node;
                     VALUE argv[5];
@@ -5391,7 +5396,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // number
-#line 250 "prism/templates/ext/prism/api_node.c.erb"
+#line 255 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = ULONG2NUM(cast->number);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismNumberedReferenceReadNode);
@@ -5400,7 +5405,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_OPTIONAL_KEYWORD_PARAMETER_NODE: {
                     pm_optional_keyword_parameter_node_t *cast = (pm_optional_keyword_parameter_node_t *) node;
                     VALUE argv[7];
@@ -5418,16 +5423,16 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismOptionalKeywordParameterNode);
@@ -5436,7 +5441,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_OPTIONAL_PARAMETER_NODE: {
                     pm_optional_parameter_node_t *cast = (pm_optional_parameter_node_t *) node;
                     VALUE argv[8];
@@ -5454,20 +5459,20 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // value
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismOptionalParameterNode);
@@ -5476,7 +5481,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_OR_NODE: {
                     pm_or_node_t *cast = (pm_or_node_t *) node;
                     VALUE argv[7];
@@ -5494,15 +5499,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // left
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // right
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismOrNode);
@@ -5511,7 +5516,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PARAMETERS_NODE: {
                     pm_parameters_node_t *cast = (pm_parameters_node_t *) node;
                     VALUE argv[11];
@@ -5529,7 +5534,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // requireds
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->requireds.size);
                     for (size_t index = 0; index < cast->requireds.size; index++) {
                         rb_ary_push(argv[4], rb_ary_pop(value_stack));
@@ -5537,7 +5542,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // optionals
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->optionals.size);
                     for (size_t index = 0; index < cast->optionals.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -5545,11 +5550,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // rest
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // posts
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_new_capa(cast->posts.size);
                     for (size_t index = 0; index < cast->posts.size; index++) {
                         rb_ary_push(argv[7], rb_ary_pop(value_stack));
@@ -5557,7 +5562,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[7]);
 
                     // keywords
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_new_capa(cast->keywords.size);
                     for (size_t index = 0; index < cast->keywords.size; index++) {
                         rb_ary_push(argv[8], rb_ary_pop(value_stack));
@@ -5565,11 +5570,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[8]);
 
                     // keyword_rest
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
                     // block
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(11, argv, rb_cPrismParametersNode);
@@ -5578,7 +5583,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PARENTHESES_NODE: {
                     pm_parentheses_node_t *cast = (pm_parentheses_node_t *) node;
                     VALUE argv[7];
@@ -5596,15 +5601,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // body
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismParenthesesNode);
@@ -5613,7 +5618,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PINNED_EXPRESSION_NODE: {
                     pm_pinned_expression_node_t *cast = (pm_pinned_expression_node_t *) node;
                     VALUE argv[8];
@@ -5631,19 +5636,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // expression
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // lparen_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->lparen_loc.start, cast->lparen_loc.length, source, freeze);
 
                     // rparen_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->rparen_loc.start, cast->rparen_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismPinnedExpressionNode);
@@ -5652,7 +5657,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PINNED_VARIABLE_NODE: {
                     pm_pinned_variable_node_t *cast = (pm_pinned_variable_node_t *) node;
                     VALUE argv[6];
@@ -5670,11 +5675,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // variable
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismPinnedVariableNode);
@@ -5683,7 +5688,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_POST_EXECUTION_NODE: {
                     pm_post_execution_node_t *cast = (pm_post_execution_node_t *) node;
                     VALUE argv[8];
@@ -5701,19 +5706,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismPostExecutionNode);
@@ -5722,7 +5727,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PRE_EXECUTION_NODE: {
                     pm_pre_execution_node_t *cast = (pm_pre_execution_node_t *) node;
                     VALUE argv[8];
@@ -5740,19 +5745,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismPreExecutionNode);
@@ -5761,7 +5766,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_PROGRAM_NODE: {
                     pm_program_node_t *cast = (pm_program_node_t *) node;
                     VALUE argv[6];
@@ -5779,7 +5784,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // locals
-#line 233 "prism/templates/ext/prism/api_node.c.erb"
+#line 238 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         PRISM_ASSERT(cast->locals.ids[index] != 0);
@@ -5788,7 +5793,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismProgramNode);
@@ -5797,7 +5802,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RANGE_NODE: {
                     pm_range_node_t *cast = (pm_range_node_t *) node;
                     VALUE argv[7];
@@ -5815,15 +5820,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // left
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // right
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismRangeNode);
@@ -5832,7 +5837,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RATIONAL_NODE: {
                     pm_rational_node_t *cast = (pm_rational_node_t *) node;
                     VALUE argv[6];
@@ -5850,11 +5855,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // numerator
-#line 253 "prism/templates/ext/prism/api_node.c.erb"
+#line 258 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_integer_new(&cast->numerator);
 
                     // denominator
-#line 253 "prism/templates/ext/prism/api_node.c.erb"
+#line 258 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_integer_new(&cast->denominator);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismRationalNode);
@@ -5863,7 +5868,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_REDO_NODE: {
                     VALUE argv[4];
 
@@ -5885,7 +5890,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_REGULAR_EXPRESSION_NODE: {
                     pm_regular_expression_node_t *cast = (pm_regular_expression_node_t *) node;
                     VALUE argv[8];
@@ -5903,19 +5908,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // content_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->content_loc.start, cast->content_loc.length, source, freeze);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // unescaped
-#line 224 "prism/templates/ext/prism/api_node.c.erb"
+#line 229 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_string_new(&cast->unescaped, encoding);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismRegularExpressionNode);
@@ -5924,7 +5929,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_REQUIRED_KEYWORD_PARAMETER_NODE: {
                     pm_required_keyword_parameter_node_t *cast = (pm_required_keyword_parameter_node_t *) node;
                     VALUE argv[6];
@@ -5942,12 +5947,12 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismRequiredKeywordParameterNode);
@@ -5956,7 +5961,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_REQUIRED_PARAMETER_NODE: {
                     pm_required_parameter_node_t *cast = (pm_required_parameter_node_t *) node;
                     VALUE argv[5];
@@ -5974,7 +5979,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // name
-#line 227 "prism/templates/ext/prism/api_node.c.erb"
+#line 232 "prism/templates/ext/prism/api_node.c.erb"
                     PRISM_ASSERT(cast->name != 0);
                     argv[4] = RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
@@ -5984,7 +5989,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RESCUE_MODIFIER_NODE: {
                     pm_rescue_modifier_node_t *cast = (pm_rescue_modifier_node_t *) node;
                     VALUE argv[7];
@@ -6002,15 +6007,15 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // expression
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     // rescue_expression
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismRescueModifierNode);
@@ -6019,7 +6024,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RESCUE_NODE: {
                     pm_rescue_node_t *cast = (pm_rescue_node_t *) node;
                     VALUE argv[11];
@@ -6037,11 +6042,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     // exceptions
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->exceptions.size);
                     for (size_t index = 0; index < cast->exceptions.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -6049,23 +6054,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // operator_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->operator_loc.length == 0 ? Qnil : pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // reference
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // then_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = cast->then_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->then_keyword_loc.start, cast->then_keyword_loc.length, source, freeze);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = rb_ary_pop(value_stack);
 
                     // subsequent
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[10] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(11, argv, rb_cPrismRescueNode);
@@ -6074,7 +6079,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_REST_PARAMETER_NODE: {
                     pm_rest_parameter_node_t *cast = (pm_rest_parameter_node_t *) node;
                     VALUE argv[7];
@@ -6095,11 +6100,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[4] = cast->name == 0 ? Qnil : RARRAY_AREF(constants, pm_constant_id_index(cast->name));
 
                     // name_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->name_loc.length == 0 ? Qnil : pm_location_new(cast->name_loc.start, cast->name_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(7, argv, rb_cPrismRestParameterNode);
@@ -6108,7 +6113,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RETRY_NODE: {
                     VALUE argv[4];
 
@@ -6130,7 +6135,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_RETURN_NODE: {
                     pm_return_node_t *cast = (pm_return_node_t *) node;
                     VALUE argv[6];
@@ -6148,11 +6153,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismReturnNode);
@@ -6161,7 +6166,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SELF_NODE: {
                     VALUE argv[4];
 
@@ -6183,7 +6188,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SHAREABLE_CONSTANT_NODE: {
                     VALUE argv[5];
 
@@ -6200,7 +6205,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // write
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismShareableConstantNode);
@@ -6209,7 +6214,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SINGLETON_CLASS_NODE: {
                     pm_singleton_class_node_t *cast = (pm_singleton_class_node_t *) node;
                     VALUE argv[10];
@@ -6227,7 +6232,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // locals
-#line 233 "prism/templates/ext/prism/api_node.c.erb"
+#line 238 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->locals.size);
                     for (size_t index = 0; index < cast->locals.size; index++) {
                         PRISM_ASSERT(cast->locals.ids[index] != 0);
@@ -6236,23 +6241,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // class_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->class_keyword_loc.start, cast->class_keyword_loc.length, source, freeze);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // expression
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // body
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     // end_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismSingletonClassNode);
@@ -6261,7 +6266,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SOURCE_ENCODING_NODE: {
                     VALUE argv[4];
 
@@ -6283,7 +6288,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SOURCE_FILE_NODE: {
                     pm_source_file_node_t *cast = (pm_source_file_node_t *) node;
                     VALUE argv[5];
@@ -6301,7 +6306,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // filepath
-#line 224 "prism/templates/ext/prism/api_node.c.erb"
+#line 229 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_string_new(&cast->filepath, encoding);
 
                     VALUE value = rb_class_new_instance(5, argv, rb_cPrismSourceFileNode);
@@ -6310,7 +6315,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SOURCE_LINE_NODE: {
                     VALUE argv[4];
 
@@ -6332,7 +6337,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SPLAT_NODE: {
                     pm_splat_node_t *cast = (pm_splat_node_t *) node;
                     VALUE argv[6];
@@ -6350,11 +6355,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // operator_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->operator_loc.start, cast->operator_loc.length, source, freeze);
 
                     // expression
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismSplatNode);
@@ -6363,7 +6368,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_STATEMENTS_NODE: {
                     pm_statements_node_t *cast = (pm_statements_node_t *) node;
                     VALUE argv[5];
@@ -6381,7 +6386,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // body
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->body.size);
                     for (size_t index = 0; index < cast->body.size; index++) {
                         rb_ary_push(argv[4], rb_ary_pop(value_stack));
@@ -6394,7 +6399,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_STRING_NODE: {
                     pm_string_node_t *cast = (pm_string_node_t *) node;
                     VALUE argv[8];
@@ -6412,19 +6417,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // content_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->content_loc.start, cast->content_loc.length, source, freeze);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // unescaped
-#line 224 "prism/templates/ext/prism/api_node.c.erb"
+#line 229 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_string_new(&cast->unescaped, encoding);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismStringNode);
@@ -6433,7 +6438,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SUPER_NODE: {
                     pm_super_node_t *cast = (pm_super_node_t *) node;
                     VALUE argv[9];
@@ -6451,23 +6456,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     // lparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->lparen_loc.length == 0 ? Qnil : pm_location_new(cast->lparen_loc.start, cast->lparen_loc.length, source, freeze);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // rparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->rparen_loc.length == 0 ? Qnil : pm_location_new(cast->rparen_loc.start, cast->rparen_loc.length, source, freeze);
 
                     // block
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismSuperNode);
@@ -6476,7 +6481,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_SYMBOL_NODE: {
                     pm_symbol_node_t *cast = (pm_symbol_node_t *) node;
                     VALUE argv[8];
@@ -6494,19 +6499,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = cast->opening_loc.length == 0 ? Qnil : pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // content_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->content_loc.start, cast->content_loc.length, source, freeze);
 
                     // closing_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->closing_loc.length == 0 ? Qnil : pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // unescaped
-#line 224 "prism/templates/ext/prism/api_node.c.erb"
+#line 229 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_string_new(&cast->unescaped, encoding);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismSymbolNode);
@@ -6515,7 +6520,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_TRUE_NODE: {
                     VALUE argv[4];
 
@@ -6537,7 +6542,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_UNDEF_NODE: {
                     pm_undef_node_t *cast = (pm_undef_node_t *) node;
                     VALUE argv[6];
@@ -6555,7 +6560,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // names
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = rb_ary_new_capa(cast->names.size);
                     for (size_t index = 0; index < cast->names.size; index++) {
                         rb_ary_push(argv[4], rb_ary_pop(value_stack));
@@ -6563,7 +6568,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[4]);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(6, argv, rb_cPrismUndefNode);
@@ -6572,7 +6577,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_UNLESS_NODE: {
                     pm_unless_node_t *cast = (pm_unless_node_t *) node;
                     VALUE argv[10];
@@ -6590,27 +6595,27 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // unless_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->unless_keyword_loc.start, cast->unless_keyword_loc.length, source, freeze);
 
                     // predicate
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_pop(value_stack);
 
                     // then_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->then_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->then_keyword_loc.start, cast->then_keyword_loc.length, source, freeze);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // else_clause
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     // end_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[9] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(10, argv, rb_cPrismUnlessNode);
@@ -6619,7 +6624,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_UNTIL_NODE: {
                     pm_until_node_t *cast = (pm_until_node_t *) node;
                     VALUE argv[9];
@@ -6637,23 +6642,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // until_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->until_keyword_loc.start, cast->until_keyword_loc.length, source, freeze);
 
                     // do_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->do_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->do_keyword_loc.start, cast->do_keyword_loc.length, source, freeze);
 
                     // end_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     // predicate
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismUntilNode);
@@ -6662,7 +6667,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_WHEN_NODE: {
                     pm_when_node_t *cast = (pm_when_node_t *) node;
                     VALUE argv[8];
@@ -6680,11 +6685,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // when_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->when_keyword_loc.start, cast->when_keyword_loc.length, source, freeze);
 
                     // conditions
-#line 217 "prism/templates/ext/prism/api_node.c.erb"
+#line 222 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = rb_ary_new_capa(cast->conditions.size);
                     for (size_t index = 0; index < cast->conditions.size; index++) {
                         rb_ary_push(argv[5], rb_ary_pop(value_stack));
@@ -6692,11 +6697,11 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     if (freeze) rb_obj_freeze(argv[5]);
 
                     // then_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->then_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->then_keyword_loc.start, cast->then_keyword_loc.length, source, freeze);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismWhenNode);
@@ -6705,7 +6710,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_WHILE_NODE: {
                     pm_while_node_t *cast = (pm_while_node_t *) node;
                     VALUE argv[9];
@@ -6723,23 +6728,23 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // while_keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->while_keyword_loc.start, cast->while_keyword_loc.length, source, freeze);
 
                     // do_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->do_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->do_keyword_loc.start, cast->do_keyword_loc.length, source, freeze);
 
                     // end_keyword_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = cast->end_keyword_loc.length == 0 ? Qnil : pm_location_new(cast->end_keyword_loc.start, cast->end_keyword_loc.length, source, freeze);
 
                     // predicate
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = rb_ary_pop(value_stack);
 
                     // statements
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[8] = rb_ary_pop(value_stack);
 
                     VALUE value = rb_class_new_instance(9, argv, rb_cPrismWhileNode);
@@ -6748,7 +6753,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_X_STRING_NODE: {
                     pm_x_string_node_t *cast = (pm_x_string_node_t *) node;
                     VALUE argv[8];
@@ -6766,19 +6771,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // opening_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->opening_loc.start, cast->opening_loc.length, source, freeze);
 
                     // content_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = pm_location_new(cast->content_loc.start, cast->content_loc.length, source, freeze);
 
                     // closing_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = pm_location_new(cast->closing_loc.start, cast->closing_loc.length, source, freeze);
 
                     // unescaped
-#line 224 "prism/templates/ext/prism/api_node.c.erb"
+#line 229 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = pm_string_new(&cast->unescaped, encoding);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismXStringNode);
@@ -6787,7 +6792,7 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     rb_ary_push(value_stack, value);
                     break;
                 }
-#line 191 "prism/templates/ext/prism/api_node.c.erb"
+#line 196 "prism/templates/ext/prism/api_node.c.erb"
                 case PM_YIELD_NODE: {
                     pm_yield_node_t *cast = (pm_yield_node_t *) node;
                     VALUE argv[8];
@@ -6805,19 +6810,19 @@ pm_ast_new(const pm_parser_t *parser, const pm_node_t *node, rb_encoding *encodi
                     argv[3] = ULONG2NUM(node->flags);
 
                     // keyword_loc
-#line 241 "prism/templates/ext/prism/api_node.c.erb"
+#line 246 "prism/templates/ext/prism/api_node.c.erb"
                     argv[4] = pm_location_new(cast->keyword_loc.start, cast->keyword_loc.length, source, freeze);
 
                     // lparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[5] = cast->lparen_loc.length == 0 ? Qnil : pm_location_new(cast->lparen_loc.start, cast->lparen_loc.length, source, freeze);
 
                     // arguments
-#line 214 "prism/templates/ext/prism/api_node.c.erb"
+#line 219 "prism/templates/ext/prism/api_node.c.erb"
                     argv[6] = rb_ary_pop(value_stack);
 
                     // rparen_loc
-#line 244 "prism/templates/ext/prism/api_node.c.erb"
+#line 249 "prism/templates/ext/prism/api_node.c.erb"
                     argv[7] = cast->rparen_loc.length == 0 ? Qnil : pm_location_new(cast->rparen_loc.start, cast->rparen_loc.length, source, freeze);
 
                     VALUE value = rb_class_new_instance(8, argv, rb_cPrismYieldNode);

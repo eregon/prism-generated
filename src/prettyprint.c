@@ -8179,6 +8179,20 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             prettyprint_location(output_buffer, parser, &node->location);
             PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
+            // StatementsFlags
+            {
+                pm_buffer_concat(output_buffer, prefix_buffer);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- StatementsFlags:");
+                bool found = false;
+                if (cast->base.flags & PM_STATEMENTS_FLAGS_CONTAINS_PRE_EXECUTION) {
+                    if (found) pm_buffer_append_byte(output_buffer, ',');
+                    PM_BUFFER_APPEND_LITERAL(output_buffer, " contains_pre_execution");
+                    found = true;
+                }
+                if (!found) PM_BUFFER_APPEND_LITERAL(output_buffer, " nil");
+                pm_buffer_append_byte(output_buffer, '\n');
+            }
+
             // body
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
