@@ -9,10 +9,14 @@
 #ifndef PRISM_INTERNAL_DIAGNOSTIC_H
 #define PRISM_INTERNAL_DIAGNOSTIC_H
 
+#include "prism/compiler/inline.h"
 #include "prism/internal/list.h"
 
 #include "prism/arena.h"
 #include "prism/diagnostic.h"
+#include "prism/stringy.h"
+
+#include <string.h>
 
 /*
  * The diagnostic IDs of all of the diagnostics, used to communicate the types
@@ -383,10 +387,31 @@ struct pm_diagnostic_t {
  */
 void pm_diagnostic_list_append(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id);
 
-/*
- * Append a diagnostic to the given list of diagnostics that is using a format
- * string for its message.
- */
-void pm_diagnostic_list_append_format(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, ...);
+/* A diagnostic displays a slice up to its first NUL or its given length. */
+static PRISM_INLINE pm_string_t
+pm_diagnostic_slice(const void *source, size_t length) {
+    const uint8_t *bytes = (const uint8_t *) source;
+    const uint8_t *nul = length ? (const uint8_t *) memchr(bytes, '\0', length) : NULL;
+    pm_string_t slice = { bytes, nul ? (size_t) (nul - bytes) : length };
+    return slice;
+}
+
+/* A diagnostic argument from a NUL-terminated string. */
+static PRISM_INLINE pm_string_t
+pm_diagnostic_string(const char *source) {
+    pm_string_t slice = { (const uint8_t *) source, strlen(source) };
+    return slice;
+}
+
+/* Append a diagnostic with the arguments required by its message. */
+void pm_diagnostic_list_append_byte(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, uint8_t arg0);
+void pm_diagnostic_list_append_byte_slice(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, uint8_t arg0, pm_string_t arg1);
+void pm_diagnostic_list_append_line_line(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, int32_t arg0, int32_t arg1);
+void pm_diagnostic_list_append_slice(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0);
+void pm_diagnostic_list_append_slice_byte(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, uint8_t arg1);
+void pm_diagnostic_list_append_slice_line(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, int32_t arg1);
+void pm_diagnostic_list_append_slice_slice(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, pm_string_t arg1);
+void pm_diagnostic_list_append_slice_slice_line(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, pm_string_t arg1, int32_t arg2);
+void pm_diagnostic_list_append_slice_slice_slice(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, pm_string_t arg1, pm_string_t arg2);
 
 #endif

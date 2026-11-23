@@ -15,10 +15,9 @@ typedef int pm_json_unused_t;
 
 #include "prism/internal/buffer.h"
 #include "prism/internal/constant_pool.h"
+#include "prism/internal/double.h"
 #include "prism/internal/integer.h"
 #include "prism/internal/parser.h"
-
-#include <inttypes.h>
 
 static void
 pm_dump_json_constant(pm_buffer_t *buffer, const pm_parser_t *parser, pm_constant_id_t constant_id) {
@@ -30,7 +29,11 @@ pm_dump_json_constant(pm_buffer_t *buffer, const pm_parser_t *parser, pm_constan
 
 static void
 pm_dump_json_location(pm_buffer_t *buffer, const pm_location_t *location) {
-    pm_buffer_append_format(buffer, "{\"start\":%" PRIu32 ",\"length\":%" PRIu32 "}", location->start, location->length);
+    PM_BUFFER_APPEND_LITERAL(buffer, "{\"start\":");
+    pm_buffer_append_decimal(buffer, location->start);
+    PM_BUFFER_APPEND_LITERAL(buffer, ",\"length\":");
+    pm_buffer_append_decimal(buffer, location->length);
+    pm_buffer_append_byte(buffer, '}');
 }
 
 /**
@@ -2125,7 +2128,10 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the value field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"value\":");
-            pm_buffer_append_format(buffer, "%f", cast->value);
+            bool value_finite = pm_double_finite_p(cast->value);
+            if (!value_finite) pm_buffer_append_byte(buffer, '"');
+            pm_double_string(buffer, cast->value);
+            if (!value_finite) pm_buffer_append_byte(buffer, '"');
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3623,7 +3629,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the depth field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"depth\":");
-            pm_buffer_append_format(buffer, "%" PRIu32, cast->depth);
+            pm_buffer_append_decimal(buffer, cast->depth);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3662,7 +3668,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the depth field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"depth\":");
-            pm_buffer_append_format(buffer, "%" PRIu32, cast->depth);
+            pm_buffer_append_decimal(buffer, cast->depth);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3696,7 +3702,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the depth field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"depth\":");
-            pm_buffer_append_format(buffer, "%" PRIu32, cast->depth);
+            pm_buffer_append_decimal(buffer, cast->depth);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3715,7 +3721,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the depth field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"depth\":");
-            pm_buffer_append_format(buffer, "%" PRIu32, cast->depth);
+            pm_buffer_append_decimal(buffer, cast->depth);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3734,7 +3740,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the depth field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"depth\":");
-            pm_buffer_append_format(buffer, "%" PRIu32, cast->depth);
+            pm_buffer_append_decimal(buffer, cast->depth);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -3753,7 +3759,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the depth field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"depth\":");
-            pm_buffer_append_format(buffer, "%" PRIu32, cast->depth);
+            pm_buffer_append_decimal(buffer, cast->depth);
 
             // Dump the name_loc field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
@@ -4200,7 +4206,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the maximum field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"maximum\":");
-            pm_buffer_append_format(buffer, "%" PRIu8, cast->maximum);
+            pm_buffer_append_decimal(buffer, cast->maximum);
 
             pm_buffer_append_byte(buffer, '}');
             break;
@@ -4214,7 +4220,7 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
             // Dump the number field
             PM_BUFFER_APPEND_LITERAL(buffer, ",");
             PM_BUFFER_APPEND_LITERAL(buffer, "\"number\":");
-            pm_buffer_append_format(buffer, "%" PRIu32, cast->number);
+            pm_buffer_append_decimal(buffer, cast->number);
 
             pm_buffer_append_byte(buffer, '}');
             break;

@@ -22,23 +22,34 @@ typedef int pm_prettyprint_unused_t;
 #include "prism/compiler/inline.h"
 #include "prism/internal/buffer.h"
 #include "prism/internal/constant_pool.h"
+#include "prism/internal/double.h"
 #include "prism/internal/integer.h"
 #include "prism/internal/parser.h"
 #include "prism/line_offset_list.h"
 
-#include <inttypes.h>
+static PRISM_INLINE void
+prettyprint_line_column(pm_buffer_t *output_buffer, pm_line_column_t position) {
+    pm_buffer_append_byte(output_buffer, '(');
+    pm_buffer_append_line_number(output_buffer, position.line, 0);
+    pm_buffer_append_byte(output_buffer, ',');
+    pm_buffer_append_decimal(output_buffer, position.column);
+    pm_buffer_append_byte(output_buffer, ')');
+}
 
 static PRISM_INLINE void
 prettyprint_location(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm_location_t *location) {
     pm_line_column_t start = pm_line_offset_list_line_column(&parser->line_offsets, location->start, parser->start_line);
     pm_line_column_t end = pm_line_offset_list_line_column(&parser->line_offsets, location->start + location->length, parser->start_line);
-    pm_buffer_append_format(output_buffer, "(%" PRIi32 ",%" PRIu32 ")-(%" PRIi32 ",%" PRIu32 ")", start.line, start.column, end.line, end.column);
+    prettyprint_line_column(output_buffer, start);
+    pm_buffer_append_byte(output_buffer, '-');
+    prettyprint_line_column(output_buffer, end);
 }
 
 static PRISM_INLINE void
 prettyprint_constant(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm_constant_id_t constant_id) {
-    pm_constant_t *constant = pm_constant_pool_id_to_constant(&parser->constant_pool, constant_id);
-    pm_buffer_append_format(output_buffer, ":%.*s", (int) constant->length, constant->start);
+    const pm_constant_t *constant = pm_constant_pool_id_to_constant(&parser->constant_pool, constant_id);
+    pm_buffer_append_byte(output_buffer, ':');
+    pm_buffer_append_bytes(output_buffer, constant->start, constant->length);
 }
 
 static void
@@ -275,7 +286,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- arguments:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->arguments.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->arguments.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->arguments.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -315,7 +328,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- elements:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->elements.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->elements.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->elements.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -390,7 +405,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- requireds:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->requireds.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->requireds.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->requireds.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -425,7 +442,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- posts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->posts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->posts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->posts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -921,7 +940,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- locals:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->locals.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->locals.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->locals.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -1735,7 +1756,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- conditions:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->conditions.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->conditions.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->conditions.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -1819,7 +1842,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- conditions:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->conditions.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->conditions.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->conditions.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -3332,7 +3357,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- requireds:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->requireds.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->requireds.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->requireds.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -3471,7 +3498,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- value:");
-                pm_buffer_append_format(output_buffer, " %f\n", cast->value);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_double_string(output_buffer, cast->value);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             break;
@@ -3911,7 +3940,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- elements:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->elements.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->elements.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->elements.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -3966,7 +3997,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- elements:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->elements.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->elements.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->elements.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -5217,7 +5250,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- parts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->parts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->parts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->parts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -5331,7 +5366,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- parts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->parts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->parts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->parts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -5404,7 +5441,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- parts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->parts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->parts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->parts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -5462,7 +5501,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- parts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->parts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->parts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->parts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -5516,7 +5557,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- parts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->parts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->parts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->parts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -5582,7 +5625,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- elements:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->elements.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->elements.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->elements.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -5807,7 +5852,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- depth:");
-                pm_buffer_append_format(output_buffer, " %" PRIu32 "\n", cast->depth);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_buffer_append_decimal(output_buffer, cast->depth);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             break;
@@ -5877,7 +5924,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- depth:");
-                pm_buffer_append_format(output_buffer, " %" PRIu32 "\n", cast->depth);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_buffer_append_decimal(output_buffer, cast->depth);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             break;
@@ -5938,7 +5987,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- depth:");
-                pm_buffer_append_format(output_buffer, " %" PRIu32 "\n", cast->depth);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_buffer_append_decimal(output_buffer, cast->depth);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             break;
@@ -5962,7 +6013,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- depth:");
-                pm_buffer_append_format(output_buffer, " %" PRIu32 "\n", cast->depth);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_buffer_append_decimal(output_buffer, cast->depth);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             break;
@@ -5986,7 +6039,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- depth:");
-                pm_buffer_append_format(output_buffer, " %" PRIu32 "\n", cast->depth);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_buffer_append_decimal(output_buffer, cast->depth);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             break;
@@ -6010,7 +6065,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- depth:");
-                pm_buffer_append_format(output_buffer, " %" PRIu32 "\n", cast->depth);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_buffer_append_decimal(output_buffer, cast->depth);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             // name_loc
@@ -6284,7 +6341,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- targets:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->targets.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->targets.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->targets.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -6393,7 +6452,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- lefts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->lefts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->lefts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->lefts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -6428,7 +6489,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- rights:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->rights.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->rights.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->rights.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -6486,7 +6549,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- lefts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->lefts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->lefts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->lefts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -6521,7 +6586,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- rights:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->rights.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->rights.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->rights.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -6712,7 +6779,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- maximum:");
-                pm_buffer_append_format(output_buffer, " %" PRIu8 "\n", cast->maximum);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_buffer_append_decimal(output_buffer, cast->maximum);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             break;
@@ -6727,7 +6796,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- number:");
-                pm_buffer_append_format(output_buffer, " %" PRIu32 "\n", cast->number);
+                pm_buffer_append_byte(output_buffer, ' ');
+                pm_buffer_append_decimal(output_buffer, cast->number);
+                pm_buffer_append_byte(output_buffer, '\n');
             }
 
             break;
@@ -6912,7 +6983,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- requireds:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->requireds.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->requireds.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->requireds.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -6930,7 +7003,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- optionals:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->optionals.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->optionals.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->optionals.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -6965,7 +7040,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- posts:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->posts.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->posts.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->posts.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -6983,7 +7060,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- keywords:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->keywords.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->keywords.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->keywords.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -7732,7 +7811,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- exceptions:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->exceptions.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->exceptions.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->exceptions.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -8197,7 +8278,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- body:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->body.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->body.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->body.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -8491,7 +8574,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- names:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->names.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->names.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->names.size;
                 for (uint32_t index = 0; index < last_index; index++) {
@@ -8736,7 +8821,9 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
             {
                 pm_buffer_concat(output_buffer, prefix_buffer);
                 PM_BUFFER_APPEND_LITERAL(output_buffer, "+-- conditions:");
-                pm_buffer_append_format(output_buffer, " (length: %lu)\n", (unsigned long) (cast->conditions.size));
+                PM_BUFFER_APPEND_LITERAL(output_buffer, " (length: ");
+                pm_buffer_append_decimal(output_buffer, cast->conditions.size);
+                PM_BUFFER_APPEND_LITERAL(output_buffer, ")\n");
 
                 size_t last_index = cast->conditions.size;
                 for (uint32_t index = 0; index < last_index; index++) {
