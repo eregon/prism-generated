@@ -11,6 +11,7 @@
 
 #include "prism/compiler/inline.h"
 #include "prism/internal/list.h"
+#include "prism/internal/memchr.h"
 
 #include "prism/arena.h"
 #include "prism/diagnostic.h"
@@ -371,15 +372,12 @@ struct pm_diagnostic_t {
     /* The ID of the diagnostic. */
     pm_diagnostic_id_t diag_id;
 
-    /* The message associated with the diagnostic. */
-    const char *message;
-
-    /*
-     * The level of the diagnostic, see `pm_error_level_t` and
-     * `pm_warning_level_t` for possible values.
-     */
-    uint8_t level;
+    /* The NUL-terminated message and its length excluding the terminator. */
+    pm_string_t message;
 };
+
+/* The error or warning level associated with this diagnostic ID. */
+uint8_t pm_diagnostic_level(const pm_diagnostic_t *diagnostic);
 
 /*
  * Append a diagnostic to the given list of diagnostics that is using shared
@@ -391,15 +389,8 @@ void pm_diagnostic_list_append(pm_arena_t *arena, pm_list_t *list, uint32_t star
 static PRISM_INLINE pm_string_t
 pm_diagnostic_slice(const void *source, size_t length) {
     const uint8_t *bytes = (const uint8_t *) source;
-    const uint8_t *nul = length ? (const uint8_t *) memchr(bytes, '\0', length) : NULL;
+    const uint8_t *nul = length ? pm_memchr(bytes, '\0', length) : NULL;
     pm_string_t slice = { bytes, nul ? (size_t) (nul - bytes) : length };
-    return slice;
-}
-
-/* A diagnostic argument from a NUL-terminated string. */
-static PRISM_INLINE pm_string_t
-pm_diagnostic_string(const char *source) {
-    pm_string_t slice = { (const uint8_t *) source, strlen(source) };
     return slice;
 }
 

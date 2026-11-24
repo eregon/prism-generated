@@ -42,971 +42,1683 @@ typedef enum {
 } pm_diagnostic_byte_format_t;
 
 typedef struct {
+    /* The literal pieces concatenated into one NUL-terminated string. */
+    const char *message;
     uint8_t level;
-    uint8_t format_idx; /* Index into diagnostic_formats */
-} pm_diagnostic_metadata_t;
-
-/* Keep message pointers separate so their alignment does not pad every entry. */
-static const char *const diagnostic_messages[PM_DIAGNOSTIC_ID_MAX] = {
-    [PM_ERR_ALIAS_ARGUMENT] = "invalid argument being passed to `alias`; expected a bare word, symbol, constant, or global variable",
-    [PM_ERR_ALIAS_ARGUMENT_NUMBERED_REFERENCE] = "invalid argument being passed to `alias`; can't make alias for the number variables",
-    [PM_ERR_AMPAMPEQ_MULTI_ASSIGN] = "unexpected `&&=` in a multiple assignment",
-    [PM_ERR_ARGUMENT_AFTER_BLOCK] = "unexpected argument after a block argument",
-    [PM_ERR_ARGUMENT_AFTER_FORWARDING_ELLIPSES] = "unexpected argument after `...`",
-    [PM_ERR_ARGUMENT_BARE_HASH] = "unexpected bare hash argument",
-    [PM_ERR_ARGUMENT_BLOCK_MULTI] = "both block arg and actual block given; only one block is allowed",
-    [PM_ERR_ARGUMENT_CONFLICT_AMPERSAND] = "unexpected `&`; anonymous block parameter is also used within block",
-    [PM_ERR_ARGUMENT_CONFLICT_STAR] = "unexpected `*`; anonymous rest parameter is also used within block",
-    [PM_ERR_ARGUMENT_CONFLICT_STAR_STAR] = "unexpected `**`; anonymous keyword rest parameter is also used within block",
-    [PM_ERR_ARGUMENT_FORMAL_CLASS] = "invalid formal argument; formal argument cannot be a class variable",
-    [PM_ERR_ARGUMENT_FORMAL_CONSTANT] = "invalid formal argument; formal argument cannot be a constant",
-    [PM_ERR_ARGUMENT_FORMAL_GLOBAL] = "invalid formal argument; formal argument cannot be a global variable",
-    [PM_ERR_ARGUMENT_FORMAL_IVAR] = "invalid formal argument; formal argument cannot be an instance variable",
-    [PM_ERR_ARGUMENT_FORWARDING_UNBOUND] = "unexpected `...` in an non-parenthesized call",
-    [PM_ERR_ARGUMENT_NO_FORWARDING_AMPERSAND] = "unexpected `&`; no anonymous block parameter",
-    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES] = "unexpected ... when the parent method is not forwarding",
-    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES_LAMBDA] = "unexpected ... in lambda argument",
-    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES_BLOCK] = "unexpected ... in block argument",
-    [PM_ERR_ARGUMENT_NO_FORWARDING_STAR] = "unexpected `*`; no anonymous rest parameter",
-    [PM_ERR_ARGUMENT_NO_FORWARDING_STAR_STAR] = "unexpected `**`; no anonymous keyword rest parameter",
-    [PM_ERR_ARGUMENT_SPLAT_AFTER_ASSOC_SPLAT] = "unexpected `*` splat argument after a `**` keyword splat argument",
-    [PM_ERR_ARGUMENT_SPLAT_AFTER_SPLAT] = "unexpected `*` splat argument after a `*` splat argument",
-    [PM_ERR_ARGUMENT_TERM_PAREN] = "unexpected ; expected a `)` to close the arguments",
-    [PM_ERR_ARGUMENT_UNEXPECTED_BLOCK] = "unexpected '{' after a method call without parenthesis",
-    [PM_ERR_ARRAY_ELEMENT] = "expected an element for the array",
-    [PM_ERR_ARRAY_EXPRESSION] = "expected an expression for the array element",
-    [PM_ERR_ARRAY_EXPRESSION_AFTER_STAR] = "expected an expression after `*` in the array",
-    [PM_ERR_ARRAY_SEPARATOR] = "unexpected ; expected a `,` separator for the array elements",
-    [PM_ERR_ARRAY_TERM] = "unexpected ; expected a `]` to close the array",
-    [PM_ERR_BEGIN_LONELY_ELSE] = "unexpected `else` in `begin` block; else without rescue is useless",
-    [PM_ERR_BEGIN_TERM] = "expected an `end` to close the `begin` statement",
-    [PM_ERR_BEGIN_UPCASE_BRACE] = "expected a `{` after `BEGIN`",
-    [PM_ERR_BEGIN_UPCASE_TERM] = "expected a `}` to close the `BEGIN` statement",
-    [PM_ERR_BEGIN_UPCASE_TOPLEVEL] = "BEGIN is permitted only at toplevel",
-    [PM_ERR_BLOCK_PARAM_LOCAL_VARIABLE] = "expected a local variable name in the block parameters",
-    [PM_ERR_BLOCK_PARAM_PIPE_TERM] = "expected the block parameters to end with `|`",
-    [PM_ERR_BLOCK_TERM_BRACE] = "expected a block beginning with `{` to end with `}`",
-    [PM_ERR_BLOCK_TERM_END] = "expected a block beginning with `do` to end with `end`",
-    [PM_ERR_CANNOT_PARSE_EXPRESSION] = "cannot parse the expression",
-    [PM_ERR_CANNOT_PARSE_STRING_PART] = "cannot parse the string part",
-    [PM_ERR_CASE_EXPRESSION_AFTER_CASE] = "expected an expression after `case`",
-    [PM_ERR_CASE_EXPRESSION_AFTER_WHEN] = "expected an expression after `when`",
-    [PM_ERR_CASE_MATCH_MISSING_PREDICATE] = "expected a predicate for a case matching statement",
-    [PM_ERR_CASE_MISSING_CONDITIONS] = "expected a `when` or `in` clause after `case`",
-    [PM_ERR_CASE_TERM] = "expected an `end` to close the `case` statement",
-    [PM_ERR_CLASS_IN_METHOD] = "unexpected class definition in method body",
-    [PM_ERR_CLASS_NAME] = "unexpected constant path after `class`; class/module name must be CONSTANT",
-    [PM_ERR_CLASS_SUPERCLASS] = "expected a superclass after `<`",
-    [PM_ERR_CLASS_TERM] = "expected an `end` to close the `class` statement",
-    [PM_ERR_CLASS_UNEXPECTED_END] = "unexpected `end`, expecting ';' or '\\n'",
-    [PM_ERR_CLASS_VARIABLE_BARE] = "'@@' without identifiers is not allowed as a class variable name",
-    [PM_ERR_CONDITIONAL_ELSIF_PREDICATE] = "expected a predicate expression for the `elsif` statement",
-    [PM_ERR_CONDITIONAL_IF_PREDICATE] = "expected a predicate expression for the `if` statement",
-    [PM_ERR_CONDITIONAL_PREDICATE_TERM] = "expected `then` or `;` or '\\n'",
-    [PM_ERR_CONDITIONAL_TERM] = "expected an `end` to close the conditional clause",
-    [PM_ERR_CONDITIONAL_TERM_ELSE] = "expected an `end` to close the `else` clause",
-    [PM_ERR_CONDITIONAL_UNLESS_PREDICATE] = "expected a predicate expression for the `unless` statement",
-    [PM_ERR_CONDITIONAL_UNTIL_PREDICATE] = "expected a predicate expression for the `until` statement",
-    [PM_ERR_CONDITIONAL_WHILE_PREDICATE] = "expected a predicate expression for the `while` statement",
-    [PM_ERR_CONSTANT_PATH_COLON_COLON_CONSTANT] = "expected a constant after the `::` operator",
-    [PM_ERR_DEF_ENDLESS] = "could not parse the endless method body",
-    [PM_ERR_DEF_ENDLESS_PARAMETERS] = "could not parse the endless method parameters",
-    [PM_ERR_DEF_ENDLESS_SETTER] = "invalid method name; a setter method cannot be defined in an endless method definition",
-    [PM_ERR_DEF_ENDLESS_DO_BLOCK] = "unexpected `do` for block in an endless method definition",
-    [PM_ERR_DEF_NAME] = "unexpected ; expected a method name",
-    [PM_ERR_DEF_PARAMS_TERM] = "expected a delimiter to close the parameters",
-    [PM_ERR_DEF_PARAMS_TERM_PAREN] = "unexpected ; expected a `)` to close the parameters",
-    [PM_ERR_DEF_RECEIVER] = "expected a receiver for the method definition",
-    [PM_ERR_DEF_RECEIVER_SETTER] = "setter method name cannot be used as a receiver in a method definition",
-    [PM_ERR_DEF_RECEIVER_TERM] = "expected a `.` or `::` after the receiver in a method definition",
-    [PM_ERR_DEF_TERM] = "expected an `end` to close the `def` statement",
-    [PM_ERR_DEFINED_EXPRESSION] = "expected an expression after `defined\?`",
-    [PM_ERR_EMBDOC_TERM] = "embedded document meets end of file",
-    [PM_ERR_EMBEXPR_END] = "expected a `}` to close the embedded expression",
-    [PM_ERR_EMBVAR_INVALID] = "invalid embedded variable",
-    [PM_ERR_END_UPCASE_BRACE] = "expected a `{` after `END`",
-    [PM_ERR_END_UPCASE_TERM] = "expected a `}` to close the `END` statement",
-    [PM_ERR_ESCAPE_INVALID_CONTROL] = "Invalid escape character syntax",
-    [PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT] = "invalid control escape sequence; control cannot be repeated",
-    [PM_ERR_ESCAPE_INVALID_HEXADECIMAL] = "invalid hex escape sequence",
-    [PM_ERR_ESCAPE_INVALID_META] = "Invalid escape character syntax",
-    [PM_ERR_ESCAPE_INVALID_META_REPEAT] = "invalid meta escape sequence; meta cannot be repeated",
-    [PM_ERR_ESCAPE_INVALID_UNICODE] = "invalid Unicode escape sequence",
-    [PM_ERR_ESCAPE_INVALID_UNICODE_CM_FLAGS] = "invalid Unicode escape sequence; Unicode cannot be combined with control or meta flags",
-    [PM_ERR_ESCAPE_INVALID_UNICODE_LIST] = "invalid Unicode list: ",
-    [PM_ERR_ESCAPE_INVALID_UNICODE_LITERAL] = "invalid Unicode escape sequence; Multiple codepoints at single character literal are disallowed",
-    [PM_ERR_ESCAPE_INVALID_UNICODE_LONG] = "invalid Unicode escape sequence; maximum length is 6 digits",
-    [PM_ERR_ESCAPE_INVALID_UNICODE_SHORT] = "too short escape sequence: ",
-    [PM_ERR_ESCAPE_INVALID_UNICODE_TERM] = "unterminated Unicode escape",
-    [PM_ERR_EXPECT_ARGUMENT] = "unexpected ; expected an argument",
-    [PM_ERR_EXPECT_EOL_AFTER_STATEMENT] = "unexpected , expecting end-of-input",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_AMPAMPEQ] = "expected an expression after `&&=`",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_COMMA] = "expected an expression after `,`",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_EQUAL] = "expected an expression after `=`",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_LESS_LESS] = "expected an expression after `<<`",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_LPAREN] = "expected an expression after `(`",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_OPERATOR] = "unexpected ; expected an expression after the operator",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_PIPEPIPEEQ] = "expected an expression after `||=`",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT] = "expected an expression after `*` splat in an argument",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT_HASH] = "expected an expression after `**` in a hash",
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_STAR] = "expected an expression after `*`",
-    [PM_ERR_EXPECT_FOR_DELIMITER] = "unexpected ; expected a 'do', newline, or ';' after the 'for' loop collection",
-    [PM_ERR_EXPECT_IDENT_REQ_PARAMETER] = "expected an identifier for the required parameter",
-    [PM_ERR_EXPECT_IN_DELIMITER] = "expected a delimiter after the patterns of an `in` clause",
-    [PM_ERR_EXPECT_LPAREN_AFTER_NOT_LPAREN] = "expected a `(` immediately after `not`",
-    [PM_ERR_EXPECT_LPAREN_AFTER_NOT_OTHER] = "expected a `(` after `not`",
-    [PM_ERR_EXPECT_LPAREN_REQ_PARAMETER] = "expected a `(` to start a required parameter",
-    [PM_ERR_EXPECT_MESSAGE] = "unexpected ; expecting a message to send to the receiver",
-    [PM_ERR_EXPECT_RBRACKET] = "expected a matching `]`",
-    [PM_ERR_EXPECT_RPAREN] = "expected a matching `)`",
-    [PM_ERR_EXPECT_RPAREN_AFTER_MULTI] = "expected a `)` after multiple assignment",
-    [PM_ERR_EXPECT_RPAREN_REQ_PARAMETER] = "expected a `)` to end a required parameter",
-    [PM_ERR_EXPECT_SINGLETON_CLASS_DELIMITER] = "unexpected ; expected a newline or a ';' after the singleton class",
-    [PM_ERR_EXPECT_STRING_CONTENT] = "expected string content after opening string delimiter",
-    [PM_ERR_EXPECT_WHEN_DELIMITER] = "expected a delimiter after the predicates of a `when` clause",
-    [PM_ERR_EXPRESSION_BARE_HASH] = "unexpected bare hash in expression",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE] = "unexpected '='; target cannot be written",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_ENCODING] = "Can't assign to __ENCODING__",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_FALSE] = "Can't assign to false",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_FILE] = "Can't assign to __FILE__",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_LINE] = "Can't assign to __LINE__",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_NIL] = "Can't assign to nil",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_NUMBERED] = "Can't assign to numbered parameter ",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_SELF] = "Can't change the value of self",
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_TRUE] = "Can't assign to true",
-    [PM_ERR_FOR_COLLECTION] = "expected a collection after the `in` in a `for` statement",
-    [PM_ERR_FOR_IN] = "expected an `in` after the index in a `for` statement",
-    [PM_ERR_FOR_INDEX] = "expected an index after `for`",
-    [PM_ERR_FOR_TERM] = "expected an `end` to close the `for` loop",
-    [PM_ERR_GLOBAL_VARIABLE_BARE] = "'$' without identifiers is not allowed as a global variable name",
-    [PM_ERR_HASH_EXPRESSION_AFTER_LABEL] = "expected an expression after the label in a hash",
-    [PM_ERR_HASH_KEY] = "unexpected , expecting '}' or a key in the hash literal",
-    [PM_ERR_HASH_ROCKET] = "expected a `=>` between the hash key and value",
-    [PM_ERR_HASH_TERM] = "expected a `}` to close the hash literal",
-    [PM_ERR_HASH_VALUE] = "unexpected ; expected a value in the hash literal",
-    [PM_ERR_HEREDOC_IDENTIFIER] = "unterminated here document identifier",
-    [PM_ERR_HEREDOC_TERM] = "unterminated heredoc; can't find string \"\" anywhere before EOF",
-    [PM_ERR_INCOMPLETE_QUESTION_MARK] = "incomplete expression at `\?`",
-    [PM_ERR_INCOMPLETE_VARIABLE_CLASS] = "'' is not allowed as a class variable name",
-    [PM_ERR_INCOMPLETE_VARIABLE_CLASS_3_3] = "`' is not allowed as a class variable name",
-    [PM_ERR_INCOMPLETE_VARIABLE_INSTANCE] = "'' is not allowed as an instance variable name",
-    [PM_ERR_INCOMPLETE_VARIABLE_INSTANCE_3_3] = "`' is not allowed as an instance variable name",
-    [PM_ERR_INSTANCE_VARIABLE_BARE] = "'@' without identifiers is not allowed as an instance variable name",
-    [PM_ERR_INVALID_BLOCK_EXIT] = "Invalid ",
-    [PM_ERR_INVALID_CHARACTER] = "Invalid char '\\x' in expression",
-    [PM_ERR_INVALID_COMMA] = "invalid comma",
-    [PM_ERR_INVALID_ENCODING_MAGIC_COMMENT] = "unknown or invalid encoding in the magic comment",
-    [PM_ERR_INVALID_ESCAPE_CHARACTER] = "Invalid escape character syntax",
-    [PM_ERR_INVALID_FLOAT_EXPONENT] = "invalid exponent",
-    [PM_ERR_INVALID_CONSTANT_READ] = "invalid constant name ",
-    [PM_ERR_INVALID_LOCAL_VARIABLE_READ] = "identifier  is not valid to get",
-    [PM_ERR_INVALID_LOCAL_VARIABLE_WRITE] = "identifier  is not valid to set",
-    [PM_ERR_INVALID_MULTIBYTE_CHAR] = "invalid multibyte char ()",
-    [PM_ERR_INVALID_MULTIBYTE_CHARACTER] = "invalid multibyte character 0x",
-    [PM_ERR_INVALID_MULTIBYTE_ESCAPE] = "invalid multibyte escape: //",
-    [PM_ERR_INVALID_NUMBER_BINARY] = "invalid binary number; numeric literal without digits",
-    [PM_ERR_INVALID_NUMBER_DECIMAL] = "invalid decimal number; numeric literal without digits",
-    [PM_ERR_INVALID_NUMBER_FRACTION] = "unexpected fraction part after numeric literal",
-    [PM_ERR_INVALID_NUMBER_HEXADECIMAL] = "invalid hexadecimal number; numeric literal without digits",
-    [PM_ERR_INVALID_NUMBER_OCTAL] = "invalid octal number; numeric literal without digits",
-    [PM_ERR_INVALID_NUMBER_UNDERSCORE_INNER] = "invalid underscore placement in number",
-    [PM_ERR_INVALID_NUMBER_UNDERSCORE_TRAILING] = "trailing '_' in number",
-    [PM_ERR_INVALID_PERCENT] = "unknown type of %string",
-    [PM_ERR_INVALID_PERCENT_EOF] = "unterminated quoted string meets end of file",
-    [PM_ERR_INVALID_PRINTABLE_CHARACTER] = "invalid character ``",
-    [PM_ERR_INVALID_RETRY_AFTER_ELSE] = "Invalid retry after else",
-    [PM_ERR_INVALID_RETRY_AFTER_ENSURE] = "Invalid retry after ensure",
-    [PM_ERR_INVALID_RETRY_WITHOUT_RESCUE] = "Invalid retry without rescue",
-    [PM_ERR_INVALID_SYMBOL] = "invalid symbol",
-    [PM_ERR_INVALID_VARIABLE_GLOBAL] = "'' is not allowed as a global variable name",
-    [PM_ERR_INVALID_VARIABLE_GLOBAL_3_3] = "`' is not allowed as a global variable name",
-    [PM_ERR_INVALID_YIELD] = "Invalid yield",
-    [PM_ERR_IT_NOT_ALLOWED_NUMBERED] = "'it' is not allowed when a numbered parameter is already used",
-    [PM_ERR_IT_NOT_ALLOWED_ORDINARY] = "'it' is not allowed when an ordinary parameter is defined",
-    [PM_ERR_LAMBDA_OPEN] = "expected a `do` keyword or a `{` to open the lambda block",
-    [PM_ERR_LAMBDA_TERM_BRACE] = "expected a lambda block beginning with `{` to end with `}`",
-    [PM_ERR_LAMBDA_TERM_END] = "expected a lambda block beginning with `do` to end with `end`",
-    [PM_ERR_LIST_I_LOWER_ELEMENT] = "expected a symbol in a `%i` list",
-    [PM_ERR_LIST_I_LOWER_TERM] = "unterminated list; expected a closing delimiter for the `%i`",
-    [PM_ERR_LIST_I_UPPER_ELEMENT] = "expected a symbol in a `%I` list",
-    [PM_ERR_LIST_I_UPPER_TERM] = "unterminated list; expected a closing delimiter for the `%I`",
-    [PM_ERR_LIST_W_LOWER_ELEMENT] = "expected a string in a `%w` list",
-    [PM_ERR_LIST_W_LOWER_TERM] = "unterminated list; expected a closing delimiter for the `%w`",
-    [PM_ERR_LIST_W_UPPER_ELEMENT] = "expected a string in a `%W` list",
-    [PM_ERR_LIST_W_UPPER_TERM] = "unterminated list; expected a closing delimiter for the `%W`",
-    [PM_ERR_MALLOC_FAILED] = "failed to allocate memory",
-    [PM_ERR_MIXED_ENCODING] = "UTF-8 mixed within  source",
-    [PM_ERR_MODULE_IN_METHOD] = "unexpected module definition in method body",
-    [PM_ERR_MODULE_NAME] = "unexpected constant path after `module`; class/module name must be CONSTANT",
-    [PM_ERR_MODULE_TERM] = "expected an `end` to close the `module` statement",
-    [PM_ERR_MULTI_ASSIGN_MULTI_SPLATS] = "multiple splats in multiple assignment",
-    [PM_ERR_MULTI_ASSIGN_UNEXPECTED_REST] = "unexpected '' resulting in multiple splats in multiple assignment",
-    [PM_ERR_NESTING_TOO_DEEP] = "nesting too deep",
-    [PM_ERR_NO_LOCAL_VARIABLE] = ": no such local variable",
-    [PM_ERR_NON_ASSOCIATIVE_OPERATOR] = "unexpected ;  is a non-associative operator",
-    [PM_ERR_NOT_EXPRESSION] = "expected an expression after `not`",
-    [PM_ERR_NUMBER_LITERAL_UNDERSCORE] = "number literal ending with a `_`",
-    [PM_ERR_NUMBERED_PARAMETER_INNER_BLOCK] = "numbered parameter is already used in inner block",
-    [PM_ERR_NUMBERED_PARAMETER_IT] = "numbered parameters are not allowed when 'it' is already used",
-    [PM_ERR_NUMBERED_PARAMETER_ORDINARY] = "numbered parameters are not allowed when an ordinary parameter is defined",
-    [PM_ERR_NUMBERED_PARAMETER_OUTER_BLOCK] = "numbered parameter is already used in outer block",
-    [PM_ERR_OPERATOR_MULTI_ASSIGN] = "unexpected operator for a multiple assignment",
-    [PM_ERR_OPERATOR_WRITE_ARGUMENTS] = "unexpected operator after a call with arguments",
-    [PM_ERR_OPERATOR_WRITE_BLOCK] = "unexpected operator after a call with a block",
-    [PM_ERR_PARAMETER_ASSOC_SPLAT_MULTI] = "unexpected multiple `**` splat parameters",
-    [PM_ERR_PARAMETER_BLOCK_MULTI] = "multiple block parameters; only one block is allowed",
-    [PM_ERR_PARAMETER_CIRCULAR] = "circular argument reference - ",
-    [PM_ERR_PARAMETER_FORWARDING_AFTER_REST] = "... after rest argument",
-    [PM_ERR_PARAMETER_METHOD_NAME] = "unexpected name for a parameter",
-    [PM_ERR_PARAMETER_NAME_DUPLICATED] = "duplicated argument name",
-    [PM_ERR_PARAMETER_NO_DEFAULT] = "expected a default value for the parameter",
-    [PM_ERR_PARAMETER_NO_DEFAULT_KW] = "expected a default value for the keyword parameter",
-    [PM_ERR_PARAMETER_NUMBERED_RESERVED] = " is reserved for numbered parameters",
-    [PM_ERR_PARAMETER_ORDER] = "unexpected parameter order",
-    [PM_ERR_PARAMETER_SPLAT_MULTI] = "unexpected multiple `*` splat parameters",
-    [PM_ERR_PARAMETER_STAR] = "unexpected parameter `*`",
-    [PM_ERR_PARAMETER_UNEXPECTED_FWD] = "unexpected `...` in parameters",
-    [PM_ERR_PARAMETER_UNEXPECTED_NO_KW] = "unexpected **nil; no keywords marker disallowed after keywords",
-    [PM_ERR_PARAMETER_WILD_LOOSE_COMMA] = "unexpected `,` in parameters",
-    [PM_ERR_PATTERN_ARRAY_MULTIPLE_RESTS] = "unexpected multiple '*' rest patterns in an array pattern",
-    [PM_ERR_PATTERN_CAPTURE_DUPLICATE] = "duplicated variable name",
-    [PM_ERR_PATTERN_CAPTURE_IN_ALTERNATIVE] = "variable capture in alternative pattern",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_BRACKET] = "expected a pattern expression after the `[` operator",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_COMMA] = "expected a pattern expression after `,`",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_HROCKET] = "expected a pattern expression after `=>`",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_IN] = "expected a pattern expression after the `in` keyword",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_KEY] = "expected a pattern expression after the key",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_PAREN] = "expected a pattern expression after the `(` operator",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_PIN] = "expected a pattern expression after the `^` pin operator",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_PIPE] = "expected a pattern expression after the `|` operator",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_RANGE] = "expected a pattern expression after the range operator",
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_REST] = "unexpected pattern expression after the `**` expression",
-    [PM_ERR_PATTERN_FIND_MISSING_INNER] = "find patterns need at least one required inner pattern",
-    [PM_ERR_PATTERN_HASH_IMPLICIT] = "unexpected implicit hash in pattern; use '{' to delineate",
-    [PM_ERR_PATTERN_HASH_KEY] = "unexpected ; expected a key in the hash pattern",
-    [PM_ERR_PATTERN_HASH_KEY_DUPLICATE] = "duplicated key name",
-    [PM_ERR_PATTERN_HASH_KEY_INTERPOLATED] = "symbol literal with interpolation is not allowed",
-    [PM_ERR_PATTERN_HASH_KEY_LABEL] = "expected a label as the key in the hash pattern",
-    [PM_ERR_PATTERN_HASH_KEY_LOCALS] = "key must be valid as local variables",
-    [PM_ERR_PATTERN_IDENT_AFTER_HROCKET] = "expected an identifier after the `=>` operator",
-    [PM_ERR_PATTERN_LABEL_AFTER_COMMA] = "expected a label after the `,` in the hash pattern",
-    [PM_ERR_PATTERN_REST] = "unexpected rest pattern",
-    [PM_ERR_PATTERN_TERM_BRACE] = "expected a `}` to close the pattern expression",
-    [PM_ERR_PATTERN_TERM_BRACKET] = "expected a `]` to close the pattern expression",
-    [PM_ERR_PATTERN_TERM_PAREN] = "expected a `)` to close the pattern expression",
-    [PM_ERR_PIPEPIPEEQ_MULTI_ASSIGN] = "unexpected `||=` in a multiple assignment",
-    [PM_ERR_REGEXP_ENCODING_OPTION_MISMATCH] = "regexp encoding option '' differs from source encoding ''",
-    [PM_ERR_REGEXP_ESCAPED_NON_ASCII_IN_UTF8] = "escaped non ASCII character in UTF-8 regexp: //",
-    [PM_ERR_REGEXP_INCOMPAT_CHAR_ENCODING] = "incompatible character encoding: //",
-    [PM_ERR_REGEXP_INVALID_CHAR_PROPERTY] = "invalid character property name {}: //",
-    [PM_ERR_REGEXP_INVALID_UNICODE_RANGE] = "invalid Unicode range: //",
-    [PM_ERR_REGEXP_NON_ESCAPED_MBC] = "/.../n has a non escaped non ASCII character in non ASCII-8BIT script: //",
-    [PM_ERR_REGEXP_PARSE_ERROR] = "",
-    [PM_ERR_REGEXP_INTERPOLATION_ENCODING] = "incompatible character encodings:  and ",
-    [PM_ERR_REGEXP_TERM] = "unterminated regexp meets end of file; expected a closing delimiter",
-    [PM_ERR_REGEXP_UNKNOWN_OPTIONS] = "unknown regexp  - ",
-    [PM_ERR_REGEXP_UTF8_CHAR_NON_UTF8_REGEXP] = "UTF-8 character in non UTF-8 regexp: //",
-    [PM_ERR_RESCUE_EXPRESSION] = "expected a rescued expression",
-    [PM_ERR_RESCUE_MODIFIER_VALUE] = "expected a value after the `rescue` modifier",
-    [PM_ERR_RESCUE_TERM] = "expected a closing delimiter for the `rescue` clause",
-    [PM_ERR_RESCUE_VARIABLE] = "expected an exception variable after `=>` in a rescue statement",
-    [PM_ERR_RETURN_INVALID] = "Invalid return in class/module body",
-    [PM_ERR_SCRIPT_NOT_FOUND] = "no Ruby script found in input",
-    [PM_ERR_SINGLETON_FOR_LITERALS] = "cannot define singleton method for literals",
-    [PM_ERR_STACK_EXHAUSTED] = "stack level too deep",
-    [PM_ERR_STATEMENT_ALIAS] = "unexpected an `alias` at a non-statement position",
-    [PM_ERR_STATEMENT_POSTEXE_END] = "unexpected an `END` at a non-statement position",
-    [PM_ERR_STATEMENT_PREEXE_BEGIN] = "unexpected a `BEGIN` at a non-statement position",
-    [PM_ERR_STATEMENT_UNDEF] = "unexpected an `undef` at a non-statement position",
-    [PM_ERR_STRING_CONCATENATION] = "expected a string for concatenation",
-    [PM_ERR_STRING_INTERPOLATED_TERM] = "unterminated string; expected a closing delimiter for the interpolated string",
-    [PM_ERR_STRING_LITERAL_EOF] = "unterminated string meets end of file",
-    [PM_ERR_STRING_LITERAL_TERM] = "unexpected , expected a string literal terminator",
-    [PM_ERR_SYMBOL_INVALID] = "invalid symbol",
-    [PM_ERR_SYMBOL_TERM_DYNAMIC] = "unterminated quoted string; expected a closing delimiter for the dynamic symbol",
-    [PM_ERR_SYMBOL_TERM_INTERPOLATED] = "unterminated symbol; expected a closing delimiter for the interpolated symbol",
-    [PM_ERR_TERNARY_COLON] = "expected a `:` after the true expression of a ternary operator",
-    [PM_ERR_TERNARY_EXPRESSION_FALSE] = "expected an expression after `:` in the ternary operator",
-    [PM_ERR_TERNARY_EXPRESSION_TRUE] = "expected an expression after `\?` in the ternary operator",
-    [PM_ERR_UNARY_DISALLOWED] = "unexpected ; unary calls are not allowed in this context",
-    [PM_ERR_UNARY_RECEIVER] = "unexpected , expected a receiver for unary ``",
-    [PM_ERR_UNDEF_ARGUMENT] = "invalid argument being passed to `undef`; expected a bare word, constant, or symbol argument",
-    [PM_ERR_UNEXPECTED_BLOCK_ARGUMENT] = "block argument should not be given",
-    [PM_ERR_UNEXPECTED_INDEX_BLOCK] = "unexpected block arg given in index assignment; blocks are not allowed in index assignment expressions",
-    [PM_ERR_UNEXPECTED_INDEX_KEYWORDS] = "unexpected keyword arg given in index assignment; keywords are not allowed in index assignment expressions",
-    [PM_ERR_UNEXPECTED_LABEL] = "unexpected label",
-    [PM_ERR_UNEXPECTED_MULTI_WRITE] = "unexpected multiple assignment; multiple assignment is not allowed in this context",
-    [PM_ERR_UNEXPECTED_PARAMETER_DEFAULT_VALUE] = "unexpected ; expected a default value for a parameter",
-    [PM_ERR_UNEXPECTED_RANGE_OPERATOR] = "unexpected range operator; .. and ... are non-associative and cannot be chained",
-    [PM_ERR_UNEXPECTED_SAFE_NAVIGATION] = "&. inside multiple assignment destination",
-    [PM_ERR_UNEXPECTED_TOKEN_CLOSE_CONTEXT] = "unexpected , assuming it is closing the parent ",
-    [PM_ERR_UNEXPECTED_TOKEN_IGNORE] = "unexpected , ignoring it",
-    [PM_ERR_UNTIL_TERM] = "expected an `end` to close the `until` statement",
-    [PM_ERR_VOID_EXPRESSION] = "unexpected void value expression",
-    [PM_ERR_WHILE_TERM] = "expected an `end` to close the `while` statement",
-    [PM_ERR_WRITE_TARGET_IN_METHOD] = "dynamic constant assignment",
-    [PM_ERR_WRITE_TARGET_READONLY] = "Can't set variable ",
-    [PM_ERR_WRITE_TARGET_UNEXPECTED] = "unexpected write target",
-    [PM_ERR_XSTRING_TERM] = "expected a closing delimiter for the `%x` or backtick string",
-    [PM_WARN_AMBIGUOUS_BINARY_OPERATOR] = "'' after local variable or literal is interpreted as binary operator even though it seems like ",
-    [PM_WARN_AMBIGUOUS_FIRST_ARGUMENT_MINUS] = "ambiguous first argument; put parentheses or a space even after `-` operator",
-    [PM_WARN_AMBIGUOUS_FIRST_ARGUMENT_PLUS] = "ambiguous first argument; put parentheses or a space even after `+` operator",
-    [PM_WARN_AMBIGUOUS_PREFIX_AMPERSAND] = "ambiguous `&` has been interpreted as an argument prefix",
-    [PM_WARN_AMBIGUOUS_PREFIX_STAR] = "ambiguous `*` has been interpreted as an argument prefix",
-    [PM_WARN_AMBIGUOUS_PREFIX_STAR_STAR] = "ambiguous `**` has been interpreted as an argument prefix",
-    [PM_WARN_AMBIGUOUS_SLASH] = "ambiguous `/`; wrap regexp in parentheses or add a space after `/` operator",
-    [PM_WARN_COMPARISON_AFTER_COMPARISON] = "comparison '' after comparison",
-    [PM_WARN_DOT_DOT_DOT_EOL] = "... at EOL, should be parenthesized\?",
-    [PM_WARN_EQUAL_IN_CONDITIONAL] = "found '= literal' in conditional, should be ==",
-    [PM_WARN_EQUAL_IN_CONDITIONAL_3_3] = "found `= literal' in conditional, should be ==",
-    [PM_WARN_END_IN_METHOD] = "END in method; use at_exit",
-    [PM_WARN_DUPLICATED_HASH_KEY] = "key  is duplicated and overwritten on line ",
-    [PM_WARN_DUPLICATED_WHEN_CLAUSE] = "'when' clause on line  duplicates 'when' clause on line  and is ignored",
-    [PM_WARN_FLOAT_OUT_OF_RANGE] = "Float  out of range",
-    [PM_WARN_IGNORED_FROZEN_STRING_LITERAL] = "'frozen_string_literal' is ignored after any tokens",
-    [PM_WARN_INDENTATION_MISMATCH] = "mismatched indentations at '' with '' at ",
-    [PM_WARN_INTEGER_IN_FLIP_FLOP] = "integer literal in flip-flop",
-    [PM_WARN_INVALID_CHARACTER] = "invalid character syntax; use ",
-    [PM_WARN_INVALID_MAGIC_COMMENT_VALUE] = "invalid value for : ",
-    [PM_WARN_INVALID_NUMBERED_REFERENCE] = "'' is too big for a number variable, always nil",
-    [PM_WARN_KEYWORD_EOL] = "`` at the end of line without an expression",
-    [PM_WARN_LITERAL_IN_CONDITION_DEFAULT] = "literal in ",
-    [PM_WARN_LITERAL_IN_CONDITION_VERBOSE] = "literal in ",
-    [PM_WARN_SHAREABLE_CONSTANT_VALUE_LINE] = "'shareable_constant_value' is ignored unless in comment-only line",
-    [PM_WARN_SHEBANG_CARRIAGE_RETURN] = "shebang line ending with \\r may cause problems",
-    [PM_WARN_UNEXPECTED_CARRIAGE_RETURN] = "encountered \\r in middle of line, treated as a mere space",
-    [PM_WARN_UNREACHABLE_STATEMENT] = "statement not reached",
-    [PM_WARN_UNUSED_LOCAL_VARIABLE] = "assigned but unused variable - ",
-    [PM_WARN_VOID_STATEMENT] = "possibly useless use of  in void context",
-};
-
-static const pm_diagnostic_metadata_t diagnostic_metadata[PM_DIAGNOSTIC_ID_MAX] = {
-    [PM_ERR_ALIAS_ARGUMENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ALIAS_ARGUMENT_NUMBERED_REFERENCE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_AMPAMPEQ_MULTI_ASSIGN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_AFTER_BLOCK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_AFTER_FORWARDING_ELLIPSES] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_BARE_HASH] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_BLOCK_MULTI] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_CONFLICT_AMPERSAND] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_CONFLICT_STAR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_CONFLICT_STAR_STAR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_FORMAL_CLASS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_FORMAL_CONSTANT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_FORMAL_GLOBAL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_FORMAL_IVAR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_FORWARDING_UNBOUND] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_NO_FORWARDING_AMPERSAND] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES_LAMBDA] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES_BLOCK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_NO_FORWARDING_STAR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_NO_FORWARDING_STAR_STAR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_SPLAT_AFTER_ASSOC_SPLAT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_SPLAT_AFTER_SPLAT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARGUMENT_TERM_PAREN] = { PM_ERROR_LEVEL_SYNTAX, 1 },
-    [PM_ERR_ARGUMENT_UNEXPECTED_BLOCK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARRAY_ELEMENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARRAY_EXPRESSION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARRAY_EXPRESSION_AFTER_STAR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ARRAY_SEPARATOR] = { PM_ERROR_LEVEL_SYNTAX, 2 },
-    [PM_ERR_ARRAY_TERM] = { PM_ERROR_LEVEL_SYNTAX, 3 },
-    [PM_ERR_BEGIN_LONELY_ELSE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_BEGIN_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_BEGIN_UPCASE_BRACE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_BEGIN_UPCASE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_BEGIN_UPCASE_TOPLEVEL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_BLOCK_PARAM_LOCAL_VARIABLE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_BLOCK_PARAM_PIPE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_BLOCK_TERM_BRACE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_BLOCK_TERM_END] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CANNOT_PARSE_EXPRESSION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CANNOT_PARSE_STRING_PART] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CASE_EXPRESSION_AFTER_CASE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CASE_EXPRESSION_AFTER_WHEN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CASE_MATCH_MISSING_PREDICATE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CASE_MISSING_CONDITIONS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CASE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CLASS_IN_METHOD] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CLASS_NAME] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CLASS_SUPERCLASS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CLASS_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CLASS_UNEXPECTED_END] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CLASS_VARIABLE_BARE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONDITIONAL_ELSIF_PREDICATE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONDITIONAL_IF_PREDICATE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONDITIONAL_PREDICATE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONDITIONAL_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONDITIONAL_TERM_ELSE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONDITIONAL_UNLESS_PREDICATE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONDITIONAL_UNTIL_PREDICATE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONDITIONAL_WHILE_PREDICATE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_CONSTANT_PATH_COLON_COLON_CONSTANT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_ENDLESS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_ENDLESS_PARAMETERS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_ENDLESS_SETTER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_ENDLESS_DO_BLOCK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_NAME] = { PM_ERROR_LEVEL_SYNTAX, 4 },
-    [PM_ERR_DEF_PARAMS_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_PARAMS_TERM_PAREN] = { PM_ERROR_LEVEL_SYNTAX, 5 },
-    [PM_ERR_DEF_RECEIVER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_RECEIVER_SETTER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_RECEIVER_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEF_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_DEFINED_EXPRESSION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EMBDOC_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EMBEXPR_END] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EMBVAR_INVALID] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_END_UPCASE_BRACE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_END_UPCASE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_CONTROL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_HEXADECIMAL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_META] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_META_REPEAT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_UNICODE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_UNICODE_CM_FLAGS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_UNICODE_LIST] = { PM_ERROR_LEVEL_SYNTAX, 6 },
-    [PM_ERR_ESCAPE_INVALID_UNICODE_LITERAL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_UNICODE_LONG] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_ESCAPE_INVALID_UNICODE_SHORT] = { PM_ERROR_LEVEL_SYNTAX, 7 },
-    [PM_ERR_ESCAPE_INVALID_UNICODE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_ARGUMENT] = { PM_ERROR_LEVEL_SYNTAX, 8 },
-    [PM_ERR_EXPECT_EOL_AFTER_STATEMENT] = { PM_ERROR_LEVEL_SYNTAX, 9 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_AMPAMPEQ] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_COMMA] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_EQUAL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_LESS_LESS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_LPAREN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_OPERATOR] = { PM_ERROR_LEVEL_SYNTAX, 10 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_PIPEPIPEEQ] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT_HASH] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_EXPRESSION_AFTER_STAR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_FOR_DELIMITER] = { PM_ERROR_LEVEL_SYNTAX, 11 },
-    [PM_ERR_EXPECT_IDENT_REQ_PARAMETER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_IN_DELIMITER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_LPAREN_AFTER_NOT_LPAREN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_LPAREN_AFTER_NOT_OTHER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_LPAREN_REQ_PARAMETER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_MESSAGE] = { PM_ERROR_LEVEL_SYNTAX, 12 },
-    [PM_ERR_EXPECT_RBRACKET] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_RPAREN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_RPAREN_AFTER_MULTI] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_RPAREN_REQ_PARAMETER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_SINGLETON_CLASS_DELIMITER] = { PM_ERROR_LEVEL_SYNTAX, 13 },
-    [PM_ERR_EXPECT_STRING_CONTENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPECT_WHEN_DELIMITER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_BARE_HASH] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_ENCODING] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_FALSE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_FILE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_LINE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_NIL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_NUMBERED] = { PM_ERROR_LEVEL_SYNTAX, 14 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_SELF] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_EXPRESSION_NOT_WRITABLE_TRUE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_FOR_COLLECTION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_FOR_IN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_FOR_INDEX] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_FOR_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_GLOBAL_VARIABLE_BARE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_HASH_EXPRESSION_AFTER_LABEL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_HASH_KEY] = { PM_ERROR_LEVEL_SYNTAX, 15 },
-    [PM_ERR_HASH_ROCKET] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_HASH_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_HASH_VALUE] = { PM_ERROR_LEVEL_SYNTAX, 16 },
-    [PM_ERR_HEREDOC_IDENTIFIER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_HEREDOC_TERM] = { PM_ERROR_LEVEL_SYNTAX, 17 },
-    [PM_ERR_INCOMPLETE_QUESTION_MARK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INCOMPLETE_VARIABLE_CLASS] = { PM_ERROR_LEVEL_SYNTAX, 18 },
-    [PM_ERR_INCOMPLETE_VARIABLE_CLASS_3_3] = { PM_ERROR_LEVEL_SYNTAX, 19 },
-    [PM_ERR_INCOMPLETE_VARIABLE_INSTANCE] = { PM_ERROR_LEVEL_SYNTAX, 20 },
-    [PM_ERR_INCOMPLETE_VARIABLE_INSTANCE_3_3] = { PM_ERROR_LEVEL_SYNTAX, 21 },
-    [PM_ERR_INSTANCE_VARIABLE_BARE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_BLOCK_EXIT] = { PM_ERROR_LEVEL_SYNTAX, 22 },
-    [PM_ERR_INVALID_CHARACTER] = { PM_ERROR_LEVEL_SYNTAX, 23 },
-    [PM_ERR_INVALID_COMMA] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_ENCODING_MAGIC_COMMENT] = { PM_ERROR_LEVEL_ARGUMENT, 0 },
-    [PM_ERR_INVALID_ESCAPE_CHARACTER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_FLOAT_EXPONENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_CONSTANT_READ] = { PM_ERROR_LEVEL_SYNTAX, 24 },
-    [PM_ERR_INVALID_LOCAL_VARIABLE_READ] = { PM_ERROR_LEVEL_SYNTAX, 25 },
-    [PM_ERR_INVALID_LOCAL_VARIABLE_WRITE] = { PM_ERROR_LEVEL_SYNTAX, 26 },
-    [PM_ERR_INVALID_MULTIBYTE_CHAR] = { PM_ERROR_LEVEL_SYNTAX, 27 },
-    [PM_ERR_INVALID_MULTIBYTE_CHARACTER] = { PM_ERROR_LEVEL_SYNTAX, 28 },
-    [PM_ERR_INVALID_MULTIBYTE_ESCAPE] = { PM_ERROR_LEVEL_SYNTAX, 29 },
-    [PM_ERR_INVALID_NUMBER_BINARY] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_NUMBER_DECIMAL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_NUMBER_FRACTION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_NUMBER_HEXADECIMAL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_NUMBER_OCTAL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_NUMBER_UNDERSCORE_INNER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_NUMBER_UNDERSCORE_TRAILING] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_PERCENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_PERCENT_EOF] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_PRINTABLE_CHARACTER] = { PM_ERROR_LEVEL_SYNTAX, 30 },
-    [PM_ERR_INVALID_RETRY_AFTER_ELSE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_RETRY_AFTER_ENSURE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_RETRY_WITHOUT_RESCUE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_SYMBOL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_INVALID_VARIABLE_GLOBAL] = { PM_ERROR_LEVEL_SYNTAX, 31 },
-    [PM_ERR_INVALID_VARIABLE_GLOBAL_3_3] = { PM_ERROR_LEVEL_SYNTAX, 32 },
-    [PM_ERR_INVALID_YIELD] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_IT_NOT_ALLOWED_NUMBERED] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_IT_NOT_ALLOWED_ORDINARY] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LAMBDA_OPEN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LAMBDA_TERM_BRACE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LAMBDA_TERM_END] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LIST_I_LOWER_ELEMENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LIST_I_LOWER_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LIST_I_UPPER_ELEMENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LIST_I_UPPER_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LIST_W_LOWER_ELEMENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LIST_W_LOWER_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LIST_W_UPPER_ELEMENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_LIST_W_UPPER_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_MALLOC_FAILED] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_MIXED_ENCODING] = { PM_ERROR_LEVEL_SYNTAX, 33 },
-    [PM_ERR_MODULE_IN_METHOD] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_MODULE_NAME] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_MODULE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_MULTI_ASSIGN_MULTI_SPLATS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_MULTI_ASSIGN_UNEXPECTED_REST] = { PM_ERROR_LEVEL_SYNTAX, 34 },
-    [PM_ERR_NESTING_TOO_DEEP] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_NO_LOCAL_VARIABLE] = { PM_ERROR_LEVEL_SYNTAX, 35 },
-    [PM_ERR_NON_ASSOCIATIVE_OPERATOR] = { PM_ERROR_LEVEL_SYNTAX, 36 },
-    [PM_ERR_NOT_EXPRESSION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_NUMBER_LITERAL_UNDERSCORE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_NUMBERED_PARAMETER_INNER_BLOCK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_NUMBERED_PARAMETER_IT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_NUMBERED_PARAMETER_ORDINARY] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_NUMBERED_PARAMETER_OUTER_BLOCK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_OPERATOR_MULTI_ASSIGN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_OPERATOR_WRITE_ARGUMENTS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_OPERATOR_WRITE_BLOCK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_ASSOC_SPLAT_MULTI] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_BLOCK_MULTI] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_CIRCULAR] = { PM_ERROR_LEVEL_SYNTAX, 37 },
-    [PM_ERR_PARAMETER_FORWARDING_AFTER_REST] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_METHOD_NAME] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_NAME_DUPLICATED] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_NO_DEFAULT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_NO_DEFAULT_KW] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_NUMBERED_RESERVED] = { PM_ERROR_LEVEL_SYNTAX, 38 },
-    [PM_ERR_PARAMETER_ORDER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_SPLAT_MULTI] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_STAR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_UNEXPECTED_FWD] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_UNEXPECTED_NO_KW] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PARAMETER_WILD_LOOSE_COMMA] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_ARRAY_MULTIPLE_RESTS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_CAPTURE_DUPLICATE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_CAPTURE_IN_ALTERNATIVE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_BRACKET] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_COMMA] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_HROCKET] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_IN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_KEY] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_PAREN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_PIN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_PIPE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_RANGE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_EXPRESSION_AFTER_REST] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_FIND_MISSING_INNER] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_HASH_IMPLICIT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_HASH_KEY] = { PM_ERROR_LEVEL_SYNTAX, 39 },
-    [PM_ERR_PATTERN_HASH_KEY_DUPLICATE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_HASH_KEY_INTERPOLATED] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_HASH_KEY_LABEL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_HASH_KEY_LOCALS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_IDENT_AFTER_HROCKET] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_LABEL_AFTER_COMMA] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_REST] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_TERM_BRACE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_TERM_BRACKET] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PATTERN_TERM_PAREN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_PIPEPIPEEQ_MULTI_ASSIGN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_REGEXP_ENCODING_OPTION_MISMATCH] = { PM_ERROR_LEVEL_SYNTAX, 40 },
-    [PM_ERR_REGEXP_ESCAPED_NON_ASCII_IN_UTF8] = { PM_ERROR_LEVEL_SYNTAX, 41 },
-    [PM_ERR_REGEXP_INCOMPAT_CHAR_ENCODING] = { PM_ERROR_LEVEL_SYNTAX, 42 },
-    [PM_ERR_REGEXP_INVALID_CHAR_PROPERTY] = { PM_ERROR_LEVEL_SYNTAX, 43 },
-    [PM_ERR_REGEXP_INVALID_UNICODE_RANGE] = { PM_ERROR_LEVEL_SYNTAX, 44 },
-    [PM_ERR_REGEXP_NON_ESCAPED_MBC] = { PM_ERROR_LEVEL_SYNTAX, 45 },
-    [PM_ERR_REGEXP_PARSE_ERROR] = { PM_ERROR_LEVEL_SYNTAX, 46 },
-    [PM_ERR_REGEXP_INTERPOLATION_ENCODING] = { PM_ERROR_LEVEL_ENCODING_COMPATIBILITY, 47 },
-    [PM_ERR_REGEXP_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_REGEXP_UNKNOWN_OPTIONS] = { PM_ERROR_LEVEL_SYNTAX, 48 },
-    [PM_ERR_REGEXP_UTF8_CHAR_NON_UTF8_REGEXP] = { PM_ERROR_LEVEL_SYNTAX, 49 },
-    [PM_ERR_RESCUE_EXPRESSION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_RESCUE_MODIFIER_VALUE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_RESCUE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_RESCUE_VARIABLE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_RETURN_INVALID] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_SCRIPT_NOT_FOUND] = { PM_ERROR_LEVEL_LOAD, 0 },
-    [PM_ERR_SINGLETON_FOR_LITERALS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_STACK_EXHAUSTED] = { PM_ERROR_LEVEL_STACK, 0 },
-    [PM_ERR_STATEMENT_ALIAS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_STATEMENT_POSTEXE_END] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_STATEMENT_PREEXE_BEGIN] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_STATEMENT_UNDEF] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_STRING_CONCATENATION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_STRING_INTERPOLATED_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_STRING_LITERAL_EOF] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_STRING_LITERAL_TERM] = { PM_ERROR_LEVEL_SYNTAX, 50 },
-    [PM_ERR_SYMBOL_INVALID] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_SYMBOL_TERM_DYNAMIC] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_SYMBOL_TERM_INTERPOLATED] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_TERNARY_COLON] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_TERNARY_EXPRESSION_FALSE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_TERNARY_EXPRESSION_TRUE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNARY_DISALLOWED] = { PM_ERROR_LEVEL_SYNTAX, 51 },
-    [PM_ERR_UNARY_RECEIVER] = { PM_ERROR_LEVEL_SYNTAX, 52 },
-    [PM_ERR_UNDEF_ARGUMENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNEXPECTED_BLOCK_ARGUMENT] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNEXPECTED_INDEX_BLOCK] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNEXPECTED_INDEX_KEYWORDS] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNEXPECTED_LABEL] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNEXPECTED_MULTI_WRITE] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNEXPECTED_PARAMETER_DEFAULT_VALUE] = { PM_ERROR_LEVEL_SYNTAX, 53 },
-    [PM_ERR_UNEXPECTED_RANGE_OPERATOR] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNEXPECTED_SAFE_NAVIGATION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_UNEXPECTED_TOKEN_CLOSE_CONTEXT] = { PM_ERROR_LEVEL_SYNTAX, 54 },
-    [PM_ERR_UNEXPECTED_TOKEN_IGNORE] = { PM_ERROR_LEVEL_SYNTAX, 55 },
-    [PM_ERR_UNTIL_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_VOID_EXPRESSION] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_WHILE_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_WRITE_TARGET_IN_METHOD] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_WRITE_TARGET_READONLY] = { PM_ERROR_LEVEL_SYNTAX, 56 },
-    [PM_ERR_WRITE_TARGET_UNEXPECTED] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_ERR_XSTRING_TERM] = { PM_ERROR_LEVEL_SYNTAX, 0 },
-    [PM_WARN_AMBIGUOUS_BINARY_OPERATOR] = { PM_WARNING_LEVEL_VERBOSE, 57 },
-    [PM_WARN_AMBIGUOUS_FIRST_ARGUMENT_MINUS] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_AMBIGUOUS_FIRST_ARGUMENT_PLUS] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_AMBIGUOUS_PREFIX_AMPERSAND] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_AMBIGUOUS_PREFIX_STAR] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_AMBIGUOUS_PREFIX_STAR_STAR] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_AMBIGUOUS_SLASH] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_COMPARISON_AFTER_COMPARISON] = { PM_WARNING_LEVEL_VERBOSE, 58 },
-    [PM_WARN_DOT_DOT_DOT_EOL] = { PM_WARNING_LEVEL_DEFAULT, 0 },
-    [PM_WARN_EQUAL_IN_CONDITIONAL] = { PM_WARNING_LEVEL_DEFAULT, 0 },
-    [PM_WARN_EQUAL_IN_CONDITIONAL_3_3] = { PM_WARNING_LEVEL_DEFAULT, 0 },
-    [PM_WARN_END_IN_METHOD] = { PM_WARNING_LEVEL_DEFAULT, 0 },
-    [PM_WARN_DUPLICATED_HASH_KEY] = { PM_WARNING_LEVEL_DEFAULT, 59 },
-    [PM_WARN_DUPLICATED_WHEN_CLAUSE] = { PM_WARNING_LEVEL_VERBOSE, 60 },
-    [PM_WARN_FLOAT_OUT_OF_RANGE] = { PM_WARNING_LEVEL_VERBOSE, 61 },
-    [PM_WARN_IGNORED_FROZEN_STRING_LITERAL] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_INDENTATION_MISMATCH] = { PM_WARNING_LEVEL_VERBOSE, 62 },
-    [PM_WARN_INTEGER_IN_FLIP_FLOP] = { PM_WARNING_LEVEL_DEFAULT, 0 },
-    [PM_WARN_INVALID_CHARACTER] = { PM_WARNING_LEVEL_DEFAULT, 63 },
-    [PM_WARN_INVALID_MAGIC_COMMENT_VALUE] = { PM_WARNING_LEVEL_VERBOSE, 64 },
-    [PM_WARN_INVALID_NUMBERED_REFERENCE] = { PM_WARNING_LEVEL_DEFAULT, 65 },
-    [PM_WARN_KEYWORD_EOL] = { PM_WARNING_LEVEL_VERBOSE, 66 },
-    [PM_WARN_LITERAL_IN_CONDITION_DEFAULT] = { PM_WARNING_LEVEL_DEFAULT, 67 },
-    [PM_WARN_LITERAL_IN_CONDITION_VERBOSE] = { PM_WARNING_LEVEL_VERBOSE, 68 },
-    [PM_WARN_SHAREABLE_CONSTANT_VALUE_LINE] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_SHEBANG_CARRIAGE_RETURN] = { PM_WARNING_LEVEL_DEFAULT, 0 },
-    [PM_WARN_UNEXPECTED_CARRIAGE_RETURN] = { PM_WARNING_LEVEL_DEFAULT, 0 },
-    [PM_WARN_UNREACHABLE_STATEMENT] = { PM_WARNING_LEVEL_VERBOSE, 0 },
-    [PM_WARN_UNUSED_LOCAL_VARIABLE] = { PM_WARNING_LEVEL_VERBOSE, 69 },
-    [PM_WARN_VOID_STATEMENT] = { PM_WARNING_LEVEL_VERBOSE, 70 },
-};
-
-typedef struct {
     uint8_t signature;
-    uint8_t literal_ends[4]; /* End offset of each literal piece in a formatted message. */
+    uint8_t literal_ends[4]; /* End offset of each literal piece. */
     uint8_t byte_formats[1];
-} pm_diagnostic_format_t;
+} pm_diagnostic_definition_t;
 
-static const pm_diagnostic_format_t diagnostic_formats[] = {
-    {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE
+/* Each end is the size of the concatenated literals through that section, excluding the NUL. */
+#define PM_DIAGNOSTIC_MESSAGE_1(part1_) \
+    .message = part1_, \
+    .literal_ends = { sizeof(part1_) - 1 }
+#define PM_DIAGNOSTIC_MESSAGE_2(part1_, part2_) \
+    .message = part1_ part2_, \
+    .literal_ends = { sizeof(part1_) - 1, sizeof(part1_ part2_) - 1 }
+#define PM_DIAGNOSTIC_MESSAGE_3(part1_, part2_, part3_) \
+    .message = part1_ part2_ part3_, \
+    .literal_ends = { sizeof(part1_) - 1, sizeof(part1_ part2_) - 1, sizeof(part1_ part2_ part3_) - 1 }
+#define PM_DIAGNOSTIC_MESSAGE_4(part1_, part2_, part3_, part4_) \
+    .message = part1_ part2_ part3_ part4_, \
+    .literal_ends = { sizeof(part1_) - 1, sizeof(part1_ part2_) - 1, sizeof(part1_ part2_ part3_) - 1, sizeof(part1_ part2_ part3_ part4_) - 1 }
+
+static const pm_diagnostic_definition_t diagnostic_definitions[PM_DIAGNOSTIC_ID_MAX] = {
+    [PM_ERR_ALIAS_ARGUMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid argument being passed to `alias`; expected a bare word, symbol, constant, or global variable"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [1] = {
+    [PM_ERR_ALIAS_ARGUMENT_NUMBERED_REFERENCE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid argument being passed to `alias`; can't make alias for the number variables"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_AMPAMPEQ_MULTI_ASSIGN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `&&=` in a multiple assignment"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_AFTER_BLOCK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected argument after a block argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_AFTER_FORWARDING_ELLIPSES] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected argument after `...`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_BARE_HASH] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected bare hash argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_BLOCK_MULTI] = {
+        PM_DIAGNOSTIC_MESSAGE_1("both block arg and actual block given; only one block is allowed"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_CONFLICT_AMPERSAND] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `&`; anonymous block parameter is also used within block"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_CONFLICT_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `*`; anonymous rest parameter is also used within block"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_CONFLICT_STAR_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `**`; anonymous keyword rest parameter is also used within block"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_FORMAL_CLASS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid formal argument; formal argument cannot be a class variable"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_FORMAL_CONSTANT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid formal argument; formal argument cannot be a constant"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_FORMAL_GLOBAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid formal argument; formal argument cannot be a global variable"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_FORMAL_IVAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid formal argument; formal argument cannot be an instance variable"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_FORWARDING_UNBOUND] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `...` in an non-parenthesized call"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_NO_FORWARDING_AMPERSAND] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `&`; no anonymous block parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected ... when the parent method is not forwarding"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES_LAMBDA] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected ... in lambda argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_NO_FORWARDING_ELLIPSES_BLOCK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected ... in block argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_NO_FORWARDING_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `*`; no anonymous rest parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_NO_FORWARDING_STAR_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `**`; no anonymous keyword rest parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_SPLAT_AFTER_ASSOC_SPLAT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `*` splat argument after a `**` keyword splat argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_SPLAT_AFTER_SPLAT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `*` splat argument after a `*` splat argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARGUMENT_TERM_PAREN] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a `)` to close the arguments"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 50 },
     },
-    [2] = {
+    [PM_ERR_ARGUMENT_UNEXPECTED_BLOCK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected '{' after a method call without parenthesis"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARRAY_ELEMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an element for the array"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARRAY_EXPRESSION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression for the array element"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARRAY_EXPRESSION_AFTER_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `*` in the array"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ARRAY_SEPARATOR] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a `,` separator for the array elements"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 60 },
     },
-    [3] = {
+    [PM_ERR_ARRAY_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a `]` to close the array"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 46 },
     },
-    [4] = {
+    [PM_ERR_BEGIN_LONELY_ELSE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `else` in `begin` block; else without rescue is useless"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_BEGIN_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `begin` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_BEGIN_UPCASE_BRACE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `{` after `BEGIN`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_BEGIN_UPCASE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `}` to close the `BEGIN` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_BEGIN_UPCASE_TOPLEVEL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("BEGIN is permitted only at toplevel"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_BLOCK_PARAM_LOCAL_VARIABLE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a local variable name in the block parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_BLOCK_PARAM_PIPE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected the block parameters to end with `|`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_BLOCK_TERM_BRACE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a block beginning with `{` to end with `}`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_BLOCK_TERM_END] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a block beginning with `do` to end with `end`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CANNOT_PARSE_EXPRESSION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("cannot parse the expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CANNOT_PARSE_STRING_PART] = {
+        PM_DIAGNOSTIC_MESSAGE_1("cannot parse the string part"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CASE_EXPRESSION_AFTER_CASE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `case`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CASE_EXPRESSION_AFTER_WHEN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `when`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CASE_MATCH_MISSING_PREDICATE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a predicate for a case matching statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CASE_MISSING_CONDITIONS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `when` or `in` clause after `case`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CASE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `case` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CLASS_IN_METHOD] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected class definition in method body"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CLASS_NAME] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected constant path after `class`; class/module name must be CONSTANT"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CLASS_SUPERCLASS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a superclass after `<`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CLASS_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `class` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CLASS_UNEXPECTED_END] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `end`, expecting ';' or '\\n'"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CLASS_VARIABLE_BARE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("'@@' without identifiers is not allowed as a class variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONDITIONAL_ELSIF_PREDICATE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a predicate expression for the `elsif` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONDITIONAL_IF_PREDICATE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a predicate expression for the `if` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONDITIONAL_PREDICATE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected `then` or `;` or '\\n'"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONDITIONAL_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the conditional clause"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONDITIONAL_TERM_ELSE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `else` clause"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONDITIONAL_UNLESS_PREDICATE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a predicate expression for the `unless` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONDITIONAL_UNTIL_PREDICATE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a predicate expression for the `until` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONDITIONAL_WHILE_PREDICATE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a predicate expression for the `while` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_CONSTANT_PATH_COLON_COLON_CONSTANT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a constant after the `::` operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_ENDLESS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("could not parse the endless method body"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_ENDLESS_PARAMETERS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("could not parse the endless method parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_ENDLESS_SETTER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid method name; a setter method cannot be defined in an endless method definition"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_ENDLESS_DO_BLOCK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `do` for block in an endless method definition"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_NAME] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a method name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 35 },
     },
-    [5] = {
+    [PM_ERR_DEF_PARAMS_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a delimiter to close the parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_PARAMS_TERM_PAREN] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a `)` to close the parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 51 },
     },
-    [6] = {
+    [PM_ERR_DEF_RECEIVER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a receiver for the method definition"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_RECEIVER_SETTER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("setter method name cannot be used as a receiver in a method definition"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_RECEIVER_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `.` or `::` after the receiver in a method definition"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEF_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `def` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_DEFINED_EXPRESSION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `defined\?`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EMBDOC_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("embedded document meets end of file"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EMBEXPR_END] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `}` to close the embedded expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EMBVAR_INVALID] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid embedded variable"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_END_UPCASE_BRACE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `{` after `END`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_END_UPCASE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `}` to close the `END` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_CONTROL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Invalid escape character syntax"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_CONTROL_REPEAT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid control escape sequence; control cannot be repeated"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_HEXADECIMAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid hex escape sequence"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_META] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Invalid escape character syntax"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_META_REPEAT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid meta escape sequence; meta cannot be repeated"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_UNICODE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid Unicode escape sequence"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_UNICODE_CM_FLAGS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid Unicode escape sequence; Unicode cannot be combined with control or meta flags"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_UNICODE_LIST] = {
+        PM_DIAGNOSTIC_MESSAGE_2("invalid Unicode list: ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 22, 22 },
     },
-    [7] = {
+    [PM_ERR_ESCAPE_INVALID_UNICODE_LITERAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid Unicode escape sequence; Multiple codepoints at single character literal are disallowed"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_UNICODE_LONG] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid Unicode escape sequence; maximum length is 6 digits"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_ESCAPE_INVALID_UNICODE_SHORT] = {
+        PM_DIAGNOSTIC_MESSAGE_2("too short escape sequence: ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 27, 27 },
     },
-    [8] = {
+    [PM_ERR_ESCAPE_INVALID_UNICODE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated Unicode escape"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_ARGUMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected an argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 33 },
     },
-    [9] = {
+    [PM_ERR_EXPECT_EOL_AFTER_STATEMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", ", expecting end-of-input"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 35 },
     },
-    [10] = {
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_AMPAMPEQ] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `&&=`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_COMMA] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `,`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_EQUAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `=`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_LESS_LESS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `<<`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_LPAREN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `(`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_OPERATOR] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected an expression after the operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 54 },
     },
-    [11] = {
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_PIPEPIPEEQ] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `||=`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `*` splat in an argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_SPLAT_HASH] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `**` in a hash"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_EXPRESSION_AFTER_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `*`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_FOR_DELIMITER] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a 'do', newline, or ';' after the 'for' loop collection"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 77 },
     },
-    [12] = {
+    [PM_ERR_EXPECT_IDENT_REQ_PARAMETER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an identifier for the required parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_IN_DELIMITER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a delimiter after the patterns of an `in` clause"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_LPAREN_AFTER_NOT_LPAREN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `(` immediately after `not`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_LPAREN_AFTER_NOT_OTHER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `(` after `not`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_LPAREN_REQ_PARAMETER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `(` to start a required parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_MESSAGE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expecting a message to send to the receiver"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 56 },
     },
-    [13] = {
+    [PM_ERR_EXPECT_RBRACKET] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a matching `]`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_RPAREN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a matching `)`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_RPAREN_AFTER_MULTI] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `)` after multiple assignment"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_RPAREN_REQ_PARAMETER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `)` to end a required parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_SINGLETON_CLASS_DELIMITER] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a newline or a ';' after the singleton class"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 66 },
     },
-    [14] = {
+    [PM_ERR_EXPECT_STRING_CONTENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected string content after opening string delimiter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPECT_WHEN_DELIMITER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a delimiter after the predicates of a `when` clause"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_BARE_HASH] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected bare hash in expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_NOT_WRITABLE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected '='; target cannot be written"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_NOT_WRITABLE_ENCODING] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Can't assign to __ENCODING__"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_NOT_WRITABLE_FALSE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Can't assign to false"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_NOT_WRITABLE_FILE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Can't assign to __FILE__"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_NOT_WRITABLE_LINE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Can't assign to __LINE__"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_NOT_WRITABLE_NIL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Can't assign to nil"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_NOT_WRITABLE_NUMBERED] = {
+        PM_DIAGNOSTIC_MESSAGE_2("Can't assign to numbered parameter ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 35, 35 },
     },
-    [15] = {
+    [PM_ERR_EXPRESSION_NOT_WRITABLE_SELF] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Can't change the value of self"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_EXPRESSION_NOT_WRITABLE_TRUE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Can't assign to true"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_FOR_COLLECTION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a collection after the `in` in a `for` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_FOR_IN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `in` after the index in a `for` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_FOR_INDEX] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an index after `for`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_FOR_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `for` loop"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_GLOBAL_VARIABLE_BARE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("'$' without identifiers is not allowed as a global variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_HASH_EXPRESSION_AFTER_LABEL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after the label in a hash"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_HASH_KEY] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", ", expecting '}' or a key in the hash literal"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 55 },
     },
-    [16] = {
+    [PM_ERR_HASH_ROCKET] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `=>` between the hash key and value"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_HASH_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `}` to close the hash literal"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_HASH_VALUE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a value in the hash literal"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 49 },
     },
-    [17] = {
+    [PM_ERR_HEREDOC_IDENTIFIER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated here document identifier"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_HEREDOC_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unterminated heredoc; can't find string \"", "\" anywhere before EOF"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 41, 62 },
     },
-    [18] = {
+    [PM_ERR_INCOMPLETE_QUESTION_MARK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("incomplete expression at `\?`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INCOMPLETE_VARIABLE_CLASS] = {
+        PM_DIAGNOSTIC_MESSAGE_2("'", "' is not allowed as a class variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 1, 42 },
     },
-    [19] = {
+    [PM_ERR_INCOMPLETE_VARIABLE_CLASS_3_3] = {
+        PM_DIAGNOSTIC_MESSAGE_2("`", "' is not allowed as a class variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 1, 42 },
     },
-    [20] = {
+    [PM_ERR_INCOMPLETE_VARIABLE_INSTANCE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("'", "' is not allowed as an instance variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 1, 46 },
     },
-    [21] = {
+    [PM_ERR_INCOMPLETE_VARIABLE_INSTANCE_3_3] = {
+        PM_DIAGNOSTIC_MESSAGE_2("`", "' is not allowed as an instance variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 1, 46 },
     },
-    [22] = {
+    [PM_ERR_INSTANCE_VARIABLE_BARE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("'@' without identifiers is not allowed as an instance variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_BLOCK_EXIT] = {
+        PM_DIAGNOSTIC_MESSAGE_2("Invalid ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 8, 8 },
     },
-    [23] = {
+    [PM_ERR_INVALID_CHARACTER] = {
+        PM_DIAGNOSTIC_MESSAGE_2("Invalid char '\\x", "' in expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_BYTE,
-        .literal_ends = { 16, 31 },
         .byte_formats = { PM_DIAGNOSTIC_HEX2 },
     },
-    [24] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 22, 22 },
+    [PM_ERR_INVALID_COMMA] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid comma"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [25] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 31 },
+    [PM_ERR_INVALID_ENCODING_MAGIC_COMMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unknown or invalid encoding in the magic comment"),
+        .level = PM_ERROR_LEVEL_ARGUMENT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [26] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 31 },
+    [PM_ERR_INVALID_ESCAPE_CHARACTER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Invalid escape character syntax"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [27] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 24, 25 },
+    [PM_ERR_INVALID_FLOAT_EXPONENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid exponent"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [28] = {
+    [PM_ERR_INVALID_CONSTANT_READ] = {
+        PM_DIAGNOSTIC_MESSAGE_2("invalid constant name ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_INVALID_LOCAL_VARIABLE_READ] = {
+        PM_DIAGNOSTIC_MESSAGE_2("identifier ", " is not valid to get"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_INVALID_LOCAL_VARIABLE_WRITE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("identifier ", " is not valid to set"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_INVALID_MULTIBYTE_CHAR] = {
+        PM_DIAGNOSTIC_MESSAGE_2("invalid multibyte char (", ")"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_INVALID_MULTIBYTE_CHARACTER] = {
+        PM_DIAGNOSTIC_MESSAGE_2("invalid multibyte character 0x", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_BYTE,
-        .literal_ends = { 30, 30 },
         .byte_formats = { PM_DIAGNOSTIC_HEX },
     },
-    [29] = {
+    [PM_ERR_INVALID_MULTIBYTE_ESCAPE] = {
+        PM_DIAGNOSTIC_MESSAGE_3("invalid multibyte escape: /", "/", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 27, 28, 28 },
     },
-    [30] = {
+    [PM_ERR_INVALID_NUMBER_BINARY] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid binary number; numeric literal without digits"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_NUMBER_DECIMAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid decimal number; numeric literal without digits"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_NUMBER_FRACTION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected fraction part after numeric literal"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_NUMBER_HEXADECIMAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid hexadecimal number; numeric literal without digits"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_NUMBER_OCTAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid octal number; numeric literal without digits"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_NUMBER_UNDERSCORE_INNER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid underscore placement in number"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_NUMBER_UNDERSCORE_TRAILING] = {
+        PM_DIAGNOSTIC_MESSAGE_1("trailing '_' in number"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_PERCENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unknown type of %string"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_PERCENT_EOF] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated quoted string meets end of file"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_INVALID_PRINTABLE_CHARACTER] = {
+        PM_DIAGNOSTIC_MESSAGE_2("invalid character `", "`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_BYTE,
-        .literal_ends = { 19, 20 },
         .byte_formats = { PM_DIAGNOSTIC_BYTE },
     },
-    [31] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 1, 43 },
+    [PM_ERR_INVALID_RETRY_AFTER_ELSE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Invalid retry after else"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [32] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 1, 43 },
+    [PM_ERR_INVALID_RETRY_AFTER_ENSURE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Invalid retry after ensure"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [33] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 19, 26 },
+    [PM_ERR_INVALID_RETRY_WITHOUT_RESCUE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Invalid retry without rescue"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [34] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 12, 65 },
+    [PM_ERR_INVALID_SYMBOL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid symbol"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [35] = {
+    [PM_ERR_INVALID_VARIABLE_GLOBAL] = {
+        PM_DIAGNOSTIC_MESSAGE_2("'", "' is not allowed as a global variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 0, 24 },
     },
-    [36] = {
+    [PM_ERR_INVALID_VARIABLE_GLOBAL_3_3] = {
+        PM_DIAGNOSTIC_MESSAGE_2("`", "' is not allowed as a global variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_INVALID_YIELD] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Invalid yield"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_IT_NOT_ALLOWED_NUMBERED] = {
+        PM_DIAGNOSTIC_MESSAGE_1("'it' is not allowed when a numbered parameter is already used"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_IT_NOT_ALLOWED_ORDINARY] = {
+        PM_DIAGNOSTIC_MESSAGE_1("'it' is not allowed when an ordinary parameter is defined"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LAMBDA_OPEN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `do` keyword or a `{` to open the lambda block"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LAMBDA_TERM_BRACE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a lambda block beginning with `{` to end with `}`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LAMBDA_TERM_END] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a lambda block beginning with `do` to end with `end`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LIST_I_LOWER_ELEMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a symbol in a `%i` list"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LIST_I_LOWER_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated list; expected a closing delimiter for the `%i`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LIST_I_UPPER_ELEMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a symbol in a `%I` list"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LIST_I_UPPER_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated list; expected a closing delimiter for the `%I`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LIST_W_LOWER_ELEMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a string in a `%w` list"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LIST_W_LOWER_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated list; expected a closing delimiter for the `%w`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LIST_W_UPPER_ELEMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a string in a `%W` list"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_LIST_W_UPPER_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated list; expected a closing delimiter for the `%W`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_MALLOC_FAILED] = {
+        PM_DIAGNOSTIC_MESSAGE_1("failed to allocate memory"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_MIXED_ENCODING] = {
+        PM_DIAGNOSTIC_MESSAGE_2("UTF-8 mixed within ", " source"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_MODULE_IN_METHOD] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected module definition in method body"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_MODULE_NAME] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected constant path after `module`; class/module name must be CONSTANT"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_MODULE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `module` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_MULTI_ASSIGN_MULTI_SPLATS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("multiple splats in multiple assignment"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_MULTI_ASSIGN_UNEXPECTED_REST] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected '", "' resulting in multiple splats in multiple assignment"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_NESTING_TOO_DEEP] = {
+        PM_DIAGNOSTIC_MESSAGE_1("nesting too deep"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_NO_LOCAL_VARIABLE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("", ": no such local variable"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_NON_ASSOCIATIVE_OPERATOR] = {
+        PM_DIAGNOSTIC_MESSAGE_3("unexpected ", "; ", " is a non-associative operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 11, 13, 43 },
     },
-    [37] = {
+    [PM_ERR_NOT_EXPRESSION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `not`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_NUMBER_LITERAL_UNDERSCORE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("number literal ending with a `_`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_NUMBERED_PARAMETER_INNER_BLOCK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("numbered parameter is already used in inner block"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_NUMBERED_PARAMETER_IT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("numbered parameters are not allowed when 'it' is already used"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_NUMBERED_PARAMETER_ORDINARY] = {
+        PM_DIAGNOSTIC_MESSAGE_1("numbered parameters are not allowed when an ordinary parameter is defined"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_NUMBERED_PARAMETER_OUTER_BLOCK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("numbered parameter is already used in outer block"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_OPERATOR_MULTI_ASSIGN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected operator for a multiple assignment"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_OPERATOR_WRITE_ARGUMENTS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected operator after a call with arguments"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_OPERATOR_WRITE_BLOCK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected operator after a call with a block"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_ASSOC_SPLAT_MULTI] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected multiple `**` splat parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_BLOCK_MULTI] = {
+        PM_DIAGNOSTIC_MESSAGE_1("multiple block parameters; only one block is allowed"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_CIRCULAR] = {
+        PM_DIAGNOSTIC_MESSAGE_2("circular argument reference - ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 30, 30 },
     },
-    [38] = {
+    [PM_ERR_PARAMETER_FORWARDING_AFTER_REST] = {
+        PM_DIAGNOSTIC_MESSAGE_1("... after rest argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_METHOD_NAME] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected name for a parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_NAME_DUPLICATED] = {
+        PM_DIAGNOSTIC_MESSAGE_1("duplicated argument name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_NO_DEFAULT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a default value for the parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_NO_DEFAULT_KW] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a default value for the keyword parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_NUMBERED_RESERVED] = {
+        PM_DIAGNOSTIC_MESSAGE_2("", " is reserved for numbered parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 0, 36 },
     },
-    [39] = {
+    [PM_ERR_PARAMETER_ORDER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected parameter order"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_SPLAT_MULTI] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected multiple `*` splat parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected parameter `*`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_UNEXPECTED_FWD] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `...` in parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_UNEXPECTED_NO_KW] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected **nil; no keywords marker disallowed after keywords"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PARAMETER_WILD_LOOSE_COMMA] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `,` in parameters"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_ARRAY_MULTIPLE_RESTS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected multiple '*' rest patterns in an array pattern"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_CAPTURE_DUPLICATE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("duplicated variable name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_CAPTURE_IN_ALTERNATIVE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("variable capture in alternative pattern"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_BRACKET] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after the `[` operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_COMMA] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after `,`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_HROCKET] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after `=>`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_IN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after the `in` keyword"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_KEY] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after the key"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_PAREN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after the `(` operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_PIN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after the `^` pin operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_PIPE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after the `|` operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_RANGE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a pattern expression after the range operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_EXPRESSION_AFTER_REST] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected pattern expression after the `**` expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_FIND_MISSING_INNER] = {
+        PM_DIAGNOSTIC_MESSAGE_1("find patterns need at least one required inner pattern"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_HASH_IMPLICIT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected implicit hash in pattern; use '{' to delineate"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_HASH_KEY] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a key in the hash pattern"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 47 },
     },
-    [40] = {
+    [PM_ERR_PATTERN_HASH_KEY_DUPLICATE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("duplicated key name"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_HASH_KEY_INTERPOLATED] = {
+        PM_DIAGNOSTIC_MESSAGE_1("symbol literal with interpolation is not allowed"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_HASH_KEY_LABEL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a label as the key in the hash pattern"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_HASH_KEY_LOCALS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("key must be valid as local variables"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_IDENT_AFTER_HROCKET] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an identifier after the `=>` operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_LABEL_AFTER_COMMA] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a label after the `,` in the hash pattern"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_REST] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected rest pattern"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_TERM_BRACE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `}` to close the pattern expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_TERM_BRACKET] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `]` to close the pattern expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PATTERN_TERM_PAREN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `)` to close the pattern expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_PIPEPIPEEQ_MULTI_ASSIGN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected `||=` in a multiple assignment"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_REGEXP_ENCODING_OPTION_MISMATCH] = {
+        PM_DIAGNOSTIC_MESSAGE_3("regexp encoding option '", "' differs from source encoding '", "'"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_BYTE_SLICE,
-        .literal_ends = { 24, 56, 57 },
         .byte_formats = { PM_DIAGNOSTIC_BYTE },
     },
-    [41] = {
+    [PM_ERR_REGEXP_ESCAPED_NON_ASCII_IN_UTF8] = {
+        PM_DIAGNOSTIC_MESSAGE_3("escaped non ASCII character in UTF-8 regexp: /", "/", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 46, 47, 47 },
     },
-    [42] = {
+    [PM_ERR_REGEXP_INCOMPAT_CHAR_ENCODING] = {
+        PM_DIAGNOSTIC_MESSAGE_3("incompatible character encoding: /", "/", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 34, 35, 35 },
     },
-    [43] = {
+    [PM_ERR_REGEXP_INVALID_CHAR_PROPERTY] = {
+        PM_DIAGNOSTIC_MESSAGE_4("invalid character property name {", "}: /", "/", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE_SLICE,
-        .literal_ends = { 33, 37, 38, 38 },
     },
-    [44] = {
+    [PM_ERR_REGEXP_INVALID_UNICODE_RANGE] = {
+        PM_DIAGNOSTIC_MESSAGE_3("invalid Unicode range: /", "/", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 24, 25, 25 },
     },
-    [45] = {
+    [PM_ERR_REGEXP_NON_ESCAPED_MBC] = {
+        PM_DIAGNOSTIC_MESSAGE_3("/.../n has a non escaped non ASCII character in non ASCII-8BIT script: /", "/", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 72, 73, 73 },
     },
-    [46] = {
+    [PM_ERR_REGEXP_PARSE_ERROR] = {
+        PM_DIAGNOSTIC_MESSAGE_2("", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 0, 0 },
     },
-    [47] = {
+    [PM_ERR_REGEXP_INTERPOLATION_ENCODING] = {
+        PM_DIAGNOSTIC_MESSAGE_3("incompatible character encodings: ", " and ", ""),
+        .level = PM_ERROR_LEVEL_ENCODING_COMPATIBILITY,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 34, 39, 39 },
     },
-    [48] = {
+    [PM_ERR_REGEXP_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated regexp meets end of file; expected a closing delimiter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_REGEXP_UNKNOWN_OPTIONS] = {
+        PM_DIAGNOSTIC_MESSAGE_3("unknown regexp ", " - ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 15, 18, 18 },
     },
-    [49] = {
+    [PM_ERR_REGEXP_UTF8_CHAR_NON_UTF8_REGEXP] = {
+        PM_DIAGNOSTIC_MESSAGE_3("UTF-8 character in non UTF-8 regexp: /", "/", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 38, 39, 39 },
     },
-    [50] = {
+    [PM_ERR_RESCUE_EXPRESSION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a rescued expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_RESCUE_MODIFIER_VALUE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a value after the `rescue` modifier"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_RESCUE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a closing delimiter for the `rescue` clause"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_RESCUE_VARIABLE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an exception variable after `=>` in a rescue statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_RETURN_INVALID] = {
+        PM_DIAGNOSTIC_MESSAGE_1("Invalid return in class/module body"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_SCRIPT_NOT_FOUND] = {
+        PM_DIAGNOSTIC_MESSAGE_1("no Ruby script found in input"),
+        .level = PM_ERROR_LEVEL_LOAD,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_SINGLETON_FOR_LITERALS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("cannot define singleton method for literals"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STACK_EXHAUSTED] = {
+        PM_DIAGNOSTIC_MESSAGE_1("stack level too deep"),
+        .level = PM_ERROR_LEVEL_STACK,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STATEMENT_ALIAS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected an `alias` at a non-statement position"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STATEMENT_POSTEXE_END] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected an `END` at a non-statement position"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STATEMENT_PREEXE_BEGIN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected a `BEGIN` at a non-statement position"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STATEMENT_UNDEF] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected an `undef` at a non-statement position"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STRING_CONCATENATION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a string for concatenation"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STRING_INTERPOLATED_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated string; expected a closing delimiter for the interpolated string"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STRING_LITERAL_EOF] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated string meets end of file"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_STRING_LITERAL_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", ", expected a string literal terminator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 49 },
     },
-    [51] = {
+    [PM_ERR_SYMBOL_INVALID] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid symbol"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_SYMBOL_TERM_DYNAMIC] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated quoted string; expected a closing delimiter for the dynamic symbol"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_SYMBOL_TERM_INTERPOLATED] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unterminated symbol; expected a closing delimiter for the interpolated symbol"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_TERNARY_COLON] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a `:` after the true expression of a ternary operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_TERNARY_EXPRESSION_FALSE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `:` in the ternary operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_TERNARY_EXPRESSION_TRUE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an expression after `\?` in the ternary operator"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_UNARY_DISALLOWED] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; unary calls are not allowed in this context"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 56 },
     },
-    [52] = {
+    [PM_ERR_UNARY_RECEIVER] = {
+        PM_DIAGNOSTIC_MESSAGE_3("unexpected ", ", expected a receiver for unary `", "`"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_BYTE,
-        .literal_ends = { 11, 44, 45 },
         .byte_formats = { PM_DIAGNOSTIC_BYTE },
     },
-    [53] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 53 },
+    [PM_ERR_UNDEF_ARGUMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("invalid argument being passed to `undef`; expected a bare word, constant, or symbol argument"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [54] = {
+    [PM_ERR_UNEXPECTED_BLOCK_ARGUMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("block argument should not be given"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_UNEXPECTED_INDEX_BLOCK] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected block arg given in index assignment; blocks are not allowed in index assignment expressions"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_UNEXPECTED_INDEX_KEYWORDS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected keyword arg given in index assignment; keywords are not allowed in index assignment expressions"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_UNEXPECTED_LABEL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected label"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_UNEXPECTED_MULTI_WRITE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected multiple assignment; multiple assignment is not allowed in this context"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_UNEXPECTED_PARAMETER_DEFAULT_VALUE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", "; expected a default value for a parameter"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_ERR_UNEXPECTED_RANGE_OPERATOR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected range operator; .. and ... are non-associative and cannot be chained"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_UNEXPECTED_SAFE_NAVIGATION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("&. inside multiple assignment destination"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_UNEXPECTED_TOKEN_CLOSE_CONTEXT] = {
+        PM_DIAGNOSTIC_MESSAGE_3("unexpected ", ", assuming it is closing the parent ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 11, 47, 47 },
     },
-    [55] = {
+    [PM_ERR_UNEXPECTED_TOKEN_IGNORE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("unexpected ", ", ignoring it"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 11, 24 },
     },
-    [56] = {
+    [PM_ERR_UNTIL_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `until` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_VOID_EXPRESSION] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected void value expression"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_WHILE_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected an `end` to close the `while` statement"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_WRITE_TARGET_IN_METHOD] = {
+        PM_DIAGNOSTIC_MESSAGE_1("dynamic constant assignment"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_WRITE_TARGET_READONLY] = {
+        PM_DIAGNOSTIC_MESSAGE_2("Can't set variable ", ""),
+        .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 19, 19 },
     },
-    [57] = {
+    [PM_ERR_WRITE_TARGET_UNEXPECTED] = {
+        PM_DIAGNOSTIC_MESSAGE_1("unexpected write target"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_ERR_XSTRING_TERM] = {
+        PM_DIAGNOSTIC_MESSAGE_1("expected a closing delimiter for the `%x` or backtick string"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_AMBIGUOUS_BINARY_OPERATOR] = {
+        PM_DIAGNOSTIC_MESSAGE_3("'", "' after local variable or literal is interpreted as binary operator even though it seems like ", ""),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 1, 95, 95 },
     },
-    [58] = {
+    [PM_WARN_AMBIGUOUS_FIRST_ARGUMENT_MINUS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("ambiguous first argument; put parentheses or a space even after `-` operator"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_AMBIGUOUS_FIRST_ARGUMENT_PLUS] = {
+        PM_DIAGNOSTIC_MESSAGE_1("ambiguous first argument; put parentheses or a space even after `+` operator"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_AMBIGUOUS_PREFIX_AMPERSAND] = {
+        PM_DIAGNOSTIC_MESSAGE_1("ambiguous `&` has been interpreted as an argument prefix"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_AMBIGUOUS_PREFIX_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("ambiguous `*` has been interpreted as an argument prefix"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_AMBIGUOUS_PREFIX_STAR_STAR] = {
+        PM_DIAGNOSTIC_MESSAGE_1("ambiguous `**` has been interpreted as an argument prefix"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_AMBIGUOUS_SLASH] = {
+        PM_DIAGNOSTIC_MESSAGE_1("ambiguous `/`; wrap regexp in parentheses or add a space after `/` operator"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_COMPARISON_AFTER_COMPARISON] = {
+        PM_DIAGNOSTIC_MESSAGE_2("comparison '", "' after comparison"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 12, 30 },
     },
-    [59] = {
+    [PM_WARN_DOT_DOT_DOT_EOL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("... at EOL, should be parenthesized\?"),
+        .level = PM_WARNING_LEVEL_DEFAULT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_EQUAL_IN_CONDITIONAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("found '= literal' in conditional, should be =="),
+        .level = PM_WARNING_LEVEL_DEFAULT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_EQUAL_IN_CONDITIONAL_3_3] = {
+        PM_DIAGNOSTIC_MESSAGE_1("found `= literal' in conditional, should be =="),
+        .level = PM_WARNING_LEVEL_DEFAULT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_END_IN_METHOD] = {
+        PM_DIAGNOSTIC_MESSAGE_1("END in method; use at_exit"),
+        .level = PM_WARNING_LEVEL_DEFAULT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_DUPLICATED_HASH_KEY] = {
+        PM_DIAGNOSTIC_MESSAGE_3("key ", " is duplicated and overwritten on line ", ""),
+        .level = PM_WARNING_LEVEL_DEFAULT,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_LINE,
-        .literal_ends = { 4, 43, 43 },
     },
-    [60] = {
+    [PM_WARN_DUPLICATED_WHEN_CLAUSE] = {
+        PM_DIAGNOSTIC_MESSAGE_3("'when' clause on line ", " duplicates 'when' clause on line ", " and is ignored"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_LINE_LINE,
-        .literal_ends = { 22, 56, 71 },
     },
-    [61] = {
+    [PM_WARN_FLOAT_OUT_OF_RANGE] = {
+        PM_DIAGNOSTIC_MESSAGE_3("Float ", "", " out of range"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 6, 6, 19 },
     },
-    [62] = {
+    [PM_WARN_IGNORED_FROZEN_STRING_LITERAL] = {
+        PM_DIAGNOSTIC_MESSAGE_1("'frozen_string_literal' is ignored after any tokens"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_INDENTATION_MISMATCH] = {
+        PM_DIAGNOSTIC_MESSAGE_4("mismatched indentations at '", "' with '", "' at ", ""),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE_LINE,
-        .literal_ends = { 28, 36, 41, 41 },
     },
-    [63] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE_SLICE,
-        .literal_ends = { 30, 30, 30, 30 },
+    [PM_WARN_INTEGER_IN_FLIP_FLOP] = {
+        PM_DIAGNOSTIC_MESSAGE_1("integer literal in flip-flop"),
+        .level = PM_WARNING_LEVEL_DEFAULT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [64] = {
+    [PM_WARN_INVALID_CHARACTER] = {
+        PM_DIAGNOSTIC_MESSAGE_2("invalid character syntax; use ", ""),
+        .level = PM_WARNING_LEVEL_DEFAULT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
+    },
+    [PM_WARN_INVALID_MAGIC_COMMENT_VALUE] = {
+        PM_DIAGNOSTIC_MESSAGE_3("invalid value for ", ": ", ""),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 18, 20, 20 },
     },
-    [65] = {
+    [PM_WARN_INVALID_NUMBERED_REFERENCE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("'", "' is too big for a number variable, always nil"),
+        .level = PM_WARNING_LEVEL_DEFAULT,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 1, 47 },
     },
-    [66] = {
+    [PM_WARN_KEYWORD_EOL] = {
+        PM_DIAGNOSTIC_MESSAGE_2("`", "` at the end of line without an expression"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 1, 43 },
     },
-    [67] = {
+    [PM_WARN_LITERAL_IN_CONDITION_DEFAULT] = {
+        PM_DIAGNOSTIC_MESSAGE_3("", "literal in ", ""),
+        .level = PM_WARNING_LEVEL_DEFAULT,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 0, 11, 11 },
     },
-    [68] = {
+    [PM_WARN_LITERAL_IN_CONDITION_VERBOSE] = {
+        PM_DIAGNOSTIC_MESSAGE_3("", "literal in ", ""),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
-        .literal_ends = { 0, 11, 11 },
     },
-    [69] = {
-        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 31, 31 },
+    [PM_WARN_SHAREABLE_CONSTANT_VALUE_LINE] = {
+        PM_DIAGNOSTIC_MESSAGE_1("'shareable_constant_value' is ignored unless in comment-only line"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
-    [70] = {
+    [PM_WARN_SHEBANG_CARRIAGE_RETURN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("shebang line ending with \\r may cause problems"),
+        .level = PM_WARNING_LEVEL_DEFAULT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_UNEXPECTED_CARRIAGE_RETURN] = {
+        PM_DIAGNOSTIC_MESSAGE_1("encountered \\r in middle of line, treated as a mere space"),
+        .level = PM_WARNING_LEVEL_DEFAULT,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_UNREACHABLE_STATEMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_1("statement not reached"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
+    },
+    [PM_WARN_UNUSED_LOCAL_VARIABLE] = {
+        PM_DIAGNOSTIC_MESSAGE_2("assigned but unused variable - ", ""),
+        .level = PM_WARNING_LEVEL_VERBOSE,
         .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
-        .literal_ends = { 24, 40 },
+    },
+    [PM_WARN_VOID_STATEMENT] = {
+        PM_DIAGNOSTIC_MESSAGE_2("possibly useless use of ", " in void context"),
+        .level = PM_WARNING_LEVEL_VERBOSE,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE,
     },
 };
 
@@ -1352,14 +2064,14 @@ pm_diagnostic_id_name(pm_diagnostic_id_t diag_id) {
     return "";
 }
 
-static PRISM_INLINE const pm_diagnostic_format_t *
-pm_diagnostic_format(pm_diagnostic_id_t diag_id, PRISM_UNUSED pm_diagnostic_signature_t signature) {
+static PRISM_INLINE const pm_diagnostic_definition_t *
+pm_diagnostic_definition(pm_diagnostic_id_t diag_id, PRISM_UNUSED pm_diagnostic_signature_t signature) {
     PRISM_ASSERT(diag_id < PM_DIAGNOSTIC_ID_MAX);
     PRISM_ASSUME(diag_id < PM_DIAGNOSTIC_ID_MAX);
 
-    const pm_diagnostic_format_t *format = &diagnostic_formats[diagnostic_metadata[diag_id].format_idx];
-    PRISM_ASSERT(format->signature == signature);
-    return format;
+    const pm_diagnostic_definition_t *definition = &diagnostic_definitions[diag_id];
+    PRISM_ASSERT(definition->signature == signature);
+    return definition;
 }
 
 /**
@@ -1383,7 +2095,12 @@ pm_diagnostic_location(const pm_diagnostic_t *diagnostic) {
  */
 const char *
 pm_diagnostic_message(const pm_diagnostic_t *diagnostic) {
-    return diagnostic->message;
+    return (const char *) diagnostic->message.source;
+}
+
+uint8_t
+pm_diagnostic_level(const pm_diagnostic_t *diagnostic) {
+    return diagnostic_definitions[diagnostic->diag_id].level;
 }
 
 /**
@@ -1391,7 +2108,7 @@ pm_diagnostic_message(const pm_diagnostic_t *diagnostic) {
  */
 pm_error_level_t
 pm_diagnostic_error_level(const pm_diagnostic_t *diagnostic) {
-    return (pm_error_level_t) diagnostic->level;
+    return (pm_error_level_t) pm_diagnostic_level(diagnostic);
 }
 
 /**
@@ -1399,7 +2116,7 @@ pm_diagnostic_error_level(const pm_diagnostic_t *diagnostic) {
  */
 pm_warning_level_t
 pm_diagnostic_warning_level(const pm_diagnostic_t *diagnostic) {
-    return (pm_warning_level_t) diagnostic->level;
+    return (pm_warning_level_t) pm_diagnostic_level(diagnostic);
 }
 
 /**
@@ -1412,14 +2129,13 @@ pm_diagnostic_next(const pm_diagnostic_t *diagnostic) {
 
 /* Store a diagnostic whose message is static or already in the arena. */
 static void
-pm_diagnostic_list_append_message(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, const char *message) {
+pm_diagnostic_list_append_message(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t message) {
     pm_diagnostic_t *diagnostic = PM_ARENA_ZALLOC(arena, pm_diagnostic_t);
 
     *diagnostic = (pm_diagnostic_t) {
         .location = { .start = start, .length = length },
         .diag_id = diag_id,
-        .message = message,
-        .level = diagnostic_metadata[diag_id].level
+        .message = message
     };
 
     pm_list_append(list, (pm_list_node_t *) diagnostic);
@@ -1428,8 +2144,9 @@ pm_diagnostic_list_append_message(pm_arena_t *arena, pm_list_t *list, uint32_t s
 /* A diagnostic without substitutions can refer directly to its static text. */
 void
 pm_diagnostic_list_append(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id) {
-    PRISM_ASSERT(diag_id < PM_DIAGNOSTIC_ID_MAX && diagnostic_metadata[diag_id].format_idx == 0);
-    pm_diagnostic_list_append_message(arena, list, start, length, diag_id, diagnostic_messages[diag_id]);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_NONE);
+    pm_string_t message = { (const uint8_t *) definition->message, definition->literal_ends[0] };
+    pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 /* Render a byte either as a character or as uppercase hexadecimal digits. */
@@ -1453,20 +2170,21 @@ pm_diagnostic_render_line(int32_t line, char digits[11]) {
 }
 
 /* Interleave the literal pieces with the arguments in one arena allocation. */
-static char *
-pm_diagnostic_render_message(pm_arena_t *arena, const char *literals, const pm_diagnostic_format_t *format, const pm_string_t *args, size_t count) {
-    size_t size = (size_t) format->literal_ends[count] + 1;
+static pm_string_t
+pm_diagnostic_render_message(pm_arena_t *arena, const pm_diagnostic_definition_t *definition, const pm_string_t *args, size_t count) {
+    const char *literals = definition->message;
+    size_t size = (size_t) definition->literal_ends[count] + 1;
     for (size_t index = 0; index < count; index++) {
         if (args[index].length > SIZE_MAX - size) pm_arena_alloc_overflow();
         size += args[index].length;
     }
 
-    char *message = PM_ARENA_ALLOC_ARRAY(arena, char, size);
-    char *cursor = message;
+    uint8_t *message = PM_ARENA_ALLOC_ARRAY(arena, uint8_t, size);
+    uint8_t *cursor = message;
     size_t offset = 0;
 
     for (size_t index = 0; index < count; index++) {
-        size_t end = format->literal_ends[index];
+        size_t end = definition->literal_ends[index];
         memcpy(cursor, literals + offset, end - offset);
 
         cursor += end - offset;
@@ -1479,40 +2197,40 @@ pm_diagnostic_render_message(pm_arena_t *arena, const char *literals, const pm_d
     }
 
     /* The final literal includes the terminating NUL. */
-    memcpy(cursor, literals + offset, (size_t) format->literal_ends[count] - offset + 1);
-    return message;
+    memcpy(cursor, literals + offset, (size_t) definition->literal_ends[count] - offset + 1);
+    return (pm_string_t) { .source = message, .length = size - 1 };
 }
 
 void
 pm_diagnostic_list_append_byte(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, uint8_t arg0) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_BYTE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_BYTE);
 
     char digits0[2];
     const pm_string_t args[] = {
-        pm_diagnostic_render_byte(format->byte_formats[0], &arg0, digits0),
+        pm_diagnostic_render_byte(definition->byte_formats[0], &arg0, digits0),
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 1);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 1);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 void
 pm_diagnostic_list_append_byte_slice(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, uint8_t arg0, pm_string_t arg1) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_BYTE_SLICE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_BYTE_SLICE);
 
     char digits0[2];
     const pm_string_t args[] = {
-        pm_diagnostic_render_byte(format->byte_formats[0], &arg0, digits0),
+        pm_diagnostic_render_byte(definition->byte_formats[0], &arg0, digits0),
         arg1,
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 2);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 2);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 void
 pm_diagnostic_list_append_line_line(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, int32_t arg0, int32_t arg1) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_LINE_LINE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_LINE_LINE);
 
     char digits0[11];
     char digits1[11];
@@ -1521,39 +2239,39 @@ pm_diagnostic_list_append_line_line(pm_arena_t *arena, pm_list_t *list, uint32_t
         pm_diagnostic_render_line(arg1, digits1),
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 2);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 2);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 void
 pm_diagnostic_list_append_slice(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE);
 
     const pm_string_t args[] = {
         arg0,
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 1);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 1);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 void
 pm_diagnostic_list_append_slice_byte(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, uint8_t arg1) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_BYTE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_BYTE);
 
     char digits1[2];
     const pm_string_t args[] = {
         arg0,
-        pm_diagnostic_render_byte(format->byte_formats[0], &arg1, digits1),
+        pm_diagnostic_render_byte(definition->byte_formats[0], &arg1, digits1),
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 2);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 2);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 void
 pm_diagnostic_list_append_slice_line(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, int32_t arg1) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_LINE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_LINE);
 
     char digits1[11];
     const pm_string_t args[] = {
@@ -1561,26 +2279,26 @@ pm_diagnostic_list_append_slice_line(pm_arena_t *arena, pm_list_t *list, uint32_
         pm_diagnostic_render_line(arg1, digits1),
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 2);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 2);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 void
 pm_diagnostic_list_append_slice_slice(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, pm_string_t arg1) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE);
 
     const pm_string_t args[] = {
         arg0,
         arg1,
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 2);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 2);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 void
 pm_diagnostic_list_append_slice_slice_line(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, pm_string_t arg1, int32_t arg2) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE_LINE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE_LINE);
 
     char digits2[11];
     const pm_string_t args[] = {
@@ -1589,13 +2307,13 @@ pm_diagnostic_list_append_slice_slice_line(pm_arena_t *arena, pm_list_t *list, u
         pm_diagnostic_render_line(arg2, digits2),
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 3);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 3);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }
 
 void
 pm_diagnostic_list_append_slice_slice_slice(pm_arena_t *arena, pm_list_t *list, uint32_t start, uint32_t length, pm_diagnostic_id_t diag_id, pm_string_t arg0, pm_string_t arg1, pm_string_t arg2) {
-    const pm_diagnostic_format_t *format = pm_diagnostic_format(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE_SLICE);
+    const pm_diagnostic_definition_t *definition = pm_diagnostic_definition(diag_id, PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE_SLICE);
 
     const pm_string_t args[] = {
         arg0,
@@ -1603,6 +2321,6 @@ pm_diagnostic_list_append_slice_slice_slice(pm_arena_t *arena, pm_list_t *list, 
         arg2,
     };
 
-    char *message = pm_diagnostic_render_message(arena, diagnostic_messages[diag_id], format, args, 3);
+    pm_string_t message = pm_diagnostic_render_message(arena, definition, args, 3);
     pm_diagnostic_list_append_message(arena, list, start, length, diag_id, message);
 }

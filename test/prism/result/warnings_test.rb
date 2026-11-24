@@ -46,6 +46,10 @@ module Prism
         assert_warning("puts 1 #{operator}0", warning)
         assert_warning("puts :a #{operator}0", warning)
         assert_warning("m = 1; puts m #{operator}0", warning)
+
+        diagnostic = Prism.parse("puts :é\t#{operator}0").warnings.fetch(0)
+        assert_equal operator.to_s, diagnostic.location.slice
+        assert_equal "'#{operator}' after local variable or literal is interpreted as binary operator even though it seems like #{warning}", diagnostic.message
       end
     end
 
@@ -189,6 +193,10 @@ module Prism
       assert_warning("_ = 1e-400", "out of range")
       assert_warning("_ = 2.4703282292062327e-324", "out of range")
 
+      literal = "1.23456789012345e999"
+      assert_warning("_ = #{literal}", "Float #{literal} out of range")
+      assert_warning("_ = #{literal}9", "Float #{literal}... out of range", compare: false)
+
       refute_warning("_ = 1e-310")
       refute_warning("_ = 2.4703282292062328e-324")
       refute_warning("_ = 0e99999")
@@ -259,6 +267,13 @@ module Prism
       assert_warning("1 if 2..foo", "integer")
     end
 
+    def test_literal_predicate_warnings
+      assert_warning('if "s"; end', "string literal in condition")
+      assert_warning("if /r/; end", "regex literal in condition")
+      assert_warning("if :s..1.5; end", "symbol literal in flip-flop", "literal in flip-flop")
+      refute_warning("if !:s; end")
+    end
+
     def test_literal_in_conditionals
       sources = [
         "if (a = 2); a; end",
@@ -318,6 +333,11 @@ module Prism
       assert_warning("# Frozen-String-Literal: maybe\n", "invalid value for frozen_string_literal: maybe")
       assert_warning("# Warn-Indent: maybe\n", "invalid value for warn_indent: maybe")
       assert_warning("# Shareable-Constant-Value: maybe\n", "invalid value for shareable_constant_value: maybe")
+    end
+
+    def test_magic_comment_invalid_values_with_embedded_nul
+      source = "# -*- Warn-Indent: \"bad\0value\"; Frozen-String-Literal: other -*-"
+      assert_equal ["invalid value for warn_indent: bad", "invalid value for frozen_string_literal: other"], Prism.parse(source).warnings.map(&:message)
     end
 
     def test_string_in_predicate

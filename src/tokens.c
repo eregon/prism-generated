@@ -6,7 +6,7 @@
 /* template                                                                   */
 /*----------------------------------------------------------------------------*/
 
-#include "prism/ast.h"
+#include "prism/internal/tokens.h"
 
 #include "prism/internal/assert.h"
 
@@ -367,358 +367,363 @@ pm_token_type(pm_token_type_t token_type) {
     return "";
 }
 
-/**
- * Returns the human name of the given token type.
- */
-const char *
-pm_token_str(pm_token_type_t token_type) {
-    switch (token_type) {
-        case PM_TOKEN_EOF:
-            return "end-of-input";
-        case PM_TOKEN_AMPERSAND:
-            return "'&'";
-        case PM_TOKEN_AMPERSAND_AMPERSAND:
-            return "'&&'";
-        case PM_TOKEN_AMPERSAND_AMPERSAND_EQUAL:
-            return "'&&='";
-        case PM_TOKEN_AMPERSAND_DOT:
-            return "'&.'";
-        case PM_TOKEN_AMPERSAND_EQUAL:
-            return "'&='";
-        case PM_TOKEN_BACKTICK:
-            return "'`'";
-        case PM_TOKEN_BACK_REFERENCE:
-            return "back reference";
-        case PM_TOKEN_BANG:
-            return "'!'";
-        case PM_TOKEN_BANG_EQUAL:
-            return "'!='";
-        case PM_TOKEN_BANG_TILDE:
-            return "'!~'";
-        case PM_TOKEN_BRACE_LEFT:
-            return "'{'";
-        case PM_TOKEN_BRACE_LEFT_ARGUMENT:
-            return "'{'";
-        case PM_TOKEN_BRACE_LEFT_HASH:
-            return "'{'";
-        case PM_TOKEN_BRACE_RIGHT:
-            return "'}'";
-        case PM_TOKEN_BRACKET_LEFT:
-            return "'['";
-        case PM_TOKEN_BRACKET_LEFT_ARRAY:
-            return "'['";
-        case PM_TOKEN_BRACKET_LEFT_RIGHT:
-            return "'[]'";
-        case PM_TOKEN_BRACKET_LEFT_RIGHT_EQUAL:
-            return "'[]='";
-        case PM_TOKEN_BRACKET_RIGHT:
-            return "']'";
-        case PM_TOKEN_CARET:
-            return "'^'";
-        case PM_TOKEN_CARET_EQUAL:
-            return "'^='";
-        case PM_TOKEN_CHARACTER_LITERAL:
-            return "character literal";
-        case PM_TOKEN_CLASS_VARIABLE:
-            return "class variable";
-        case PM_TOKEN_COLON:
-            return "':'";
-        case PM_TOKEN_COLON_COLON:
-            return "'::'";
-        case PM_TOKEN_COMMA:
-            return "','";
-        case PM_TOKEN_COMMENT:
-            return "comment";
-        case PM_TOKEN_CONSTANT:
-            return "constant";
-        case PM_TOKEN_DOT:
-            return "'.'";
-        case PM_TOKEN_DOT_DOT:
-            return "..";
-        case PM_TOKEN_DOT_DOT_DOT:
-            return "...";
-        case PM_TOKEN_EMBDOC_BEGIN:
-            return "'=begin'";
-        case PM_TOKEN_EMBDOC_END:
-            return "'=end'";
-        case PM_TOKEN_EMBDOC_LINE:
-            return "embedded documentation line";
-        case PM_TOKEN_EMBEXPR_BEGIN:
-            return "'#{'";
-        case PM_TOKEN_EMBEXPR_END:
-            return "'}'";
-        case PM_TOKEN_EMBVAR:
-            return "'#'";
-        case PM_TOKEN_EQUAL:
-            return "'='";
-        case PM_TOKEN_EQUAL_EQUAL:
-            return "'=='";
-        case PM_TOKEN_EQUAL_EQUAL_EQUAL:
-            return "'==='";
-        case PM_TOKEN_EQUAL_GREATER:
-            return "'=>'";
-        case PM_TOKEN_EQUAL_TILDE:
-            return "'=~'";
-        case PM_TOKEN_FLOAT:
-            return "float";
-        case PM_TOKEN_FLOAT_IMAGINARY:
-            return "imaginary";
-        case PM_TOKEN_FLOAT_RATIONAL:
-            return "rational";
-        case PM_TOKEN_FLOAT_RATIONAL_IMAGINARY:
-            return "imaginary";
-        case PM_TOKEN_GLOBAL_VARIABLE:
-            return "global variable";
-        case PM_TOKEN_GREATER:
-            return "'>'";
-        case PM_TOKEN_GREATER_EQUAL:
-            return "'>='";
-        case PM_TOKEN_GREATER_GREATER:
-            return ">>";
-        case PM_TOKEN_GREATER_GREATER_EQUAL:
-            return ">>=";
-        case PM_TOKEN_HEREDOC_END:
-            return "heredoc ending";
-        case PM_TOKEN_HEREDOC_START:
-            return "heredoc beginning";
-        case PM_TOKEN_IDENTIFIER:
-            return "local variable or method";
-        case PM_TOKEN_IGNORED_NEWLINE:
-            return "ignored newline";
-        case PM_TOKEN_INSTANCE_VARIABLE:
-            return "instance variable";
-        case PM_TOKEN_INTEGER:
-            return "integer";
-        case PM_TOKEN_INTEGER_IMAGINARY:
-            return "imaginary";
-        case PM_TOKEN_INTEGER_RATIONAL:
-            return "rational";
-        case PM_TOKEN_INTEGER_RATIONAL_IMAGINARY:
-            return "imaginary";
-        case PM_TOKEN_KEYWORD_ALIAS:
-            return "'alias'";
-        case PM_TOKEN_KEYWORD_AND:
-            return "'and'";
-        case PM_TOKEN_KEYWORD_BEGIN:
-            return "'begin'";
-        case PM_TOKEN_KEYWORD_BEGIN_UPCASE:
-            return "'BEGIN'";
-        case PM_TOKEN_KEYWORD_BREAK:
-            return "'break'";
-        case PM_TOKEN_KEYWORD_CASE:
-            return "'case'";
-        case PM_TOKEN_KEYWORD_CLASS:
-            return "'class'";
-        case PM_TOKEN_KEYWORD_DEF:
-            return "'def'";
-        case PM_TOKEN_KEYWORD_DEFINED:
-            return "'defined?'";
-        case PM_TOKEN_KEYWORD_DO:
-            return "'do'";
-        case PM_TOKEN_KEYWORD_DO_BLOCK:
-            return "'do'";
-        case PM_TOKEN_KEYWORD_DO_LAMBDA:
-            return "'do'";
-        case PM_TOKEN_KEYWORD_DO_LOOP:
-            return "'do'";
-        case PM_TOKEN_KEYWORD_ELSE:
-            return "'else'";
-        case PM_TOKEN_KEYWORD_ELSIF:
-            return "'elsif'";
-        case PM_TOKEN_KEYWORD_END:
-            return "'end'";
-        case PM_TOKEN_KEYWORD_END_UPCASE:
-            return "'END'";
-        case PM_TOKEN_KEYWORD_ENSURE:
-            return "'ensure'";
-        case PM_TOKEN_KEYWORD_FALSE:
-            return "'false'";
-        case PM_TOKEN_KEYWORD_FOR:
-            return "'for'";
-        case PM_TOKEN_KEYWORD_IF:
-            return "'if'";
-        case PM_TOKEN_KEYWORD_IF_MODIFIER:
-            return "'if'";
-        case PM_TOKEN_KEYWORD_IN:
-            return "'in'";
-        case PM_TOKEN_KEYWORD_MODULE:
-            return "'module'";
-        case PM_TOKEN_KEYWORD_NEXT:
-            return "'next'";
-        case PM_TOKEN_KEYWORD_NIL:
-            return "'nil'";
-        case PM_TOKEN_KEYWORD_NOT:
-            return "'not'";
-        case PM_TOKEN_KEYWORD_OR:
-            return "'or'";
-        case PM_TOKEN_KEYWORD_REDO:
-            return "'redo'";
-        case PM_TOKEN_KEYWORD_RESCUE:
-            return "'rescue'";
-        case PM_TOKEN_KEYWORD_RESCUE_MODIFIER:
-            return "'rescue' modifier";
-        case PM_TOKEN_KEYWORD_RETRY:
-            return "'retry'";
-        case PM_TOKEN_KEYWORD_RETURN:
-            return "'return'";
-        case PM_TOKEN_KEYWORD_SELF:
-            return "'self'";
-        case PM_TOKEN_KEYWORD_SUPER:
-            return "'super'";
-        case PM_TOKEN_KEYWORD_THEN:
-            return "'then'";
-        case PM_TOKEN_KEYWORD_TRUE:
-            return "'true'";
-        case PM_TOKEN_KEYWORD_UNDEF:
-            return "'undef'";
-        case PM_TOKEN_KEYWORD_UNLESS:
-            return "'unless'";
-        case PM_TOKEN_KEYWORD_UNLESS_MODIFIER:
-            return "'unless'";
-        case PM_TOKEN_KEYWORD_UNTIL:
-            return "'until'";
-        case PM_TOKEN_KEYWORD_UNTIL_MODIFIER:
-            return "'until'";
-        case PM_TOKEN_KEYWORD_WHEN:
-            return "'when'";
-        case PM_TOKEN_KEYWORD_WHILE:
-            return "'while'";
-        case PM_TOKEN_KEYWORD_WHILE_MODIFIER:
-            return "'while'";
-        case PM_TOKEN_KEYWORD_YIELD:
-            return "'yield'";
-        case PM_TOKEN_KEYWORD___ENCODING__:
-            return "'__ENCODING__'";
-        case PM_TOKEN_KEYWORD___FILE__:
-            return "'__FILE__'";
-        case PM_TOKEN_KEYWORD___LINE__:
-            return "'__LINE__'";
-        case PM_TOKEN_LABEL:
-            return "label";
-        case PM_TOKEN_LABEL_END:
-            return "label terminator";
-        case PM_TOKEN_LAMBDA_BEGIN:
-            return "'{'";
-        case PM_TOKEN_LESS:
-            return "'<'";
-        case PM_TOKEN_LESS_EQUAL:
-            return "'<='";
-        case PM_TOKEN_LESS_EQUAL_GREATER:
-            return "'<=>'";
-        case PM_TOKEN_LESS_LESS:
-            return "<<";
-        case PM_TOKEN_LESS_LESS_EQUAL:
-            return "<<=";
-        case PM_TOKEN_METHOD_NAME:
-            return "method name";
-        case PM_TOKEN_MINUS:
-            return "'-'";
-        case PM_TOKEN_MINUS_EQUAL:
-            return "'-='";
-        case PM_TOKEN_MINUS_GREATER:
-            return "'->'";
-        case PM_TOKEN_NEWLINE:
-            return "newline";
-        case PM_TOKEN_NEWLINE_TERMINATOR:
-            return "newline";
-        case PM_TOKEN_NUMBERED_REFERENCE:
-            return "numbered reference";
-        case PM_TOKEN_PARENTHESIS_LEFT:
-            return "'('";
-        case PM_TOKEN_PARENTHESIS_LEFT_GROUPING:
-            return "'('";
-        case PM_TOKEN_PARENTHESIS_LEFT_PARENTHESES:
-            return "'('";
-        case PM_TOKEN_PARENTHESIS_RIGHT:
-            return "')'";
-        case PM_TOKEN_PERCENT:
-            return "'%'";
-        case PM_TOKEN_PERCENT_EQUAL:
-            return "'%='";
-        case PM_TOKEN_PERCENT_LOWER_I:
-            return "'%i'";
-        case PM_TOKEN_PERCENT_LOWER_W:
-            return "'%w'";
-        case PM_TOKEN_PERCENT_LOWER_X:
-            return "'%x'";
-        case PM_TOKEN_PERCENT_UPPER_I:
-            return "'%I'";
-        case PM_TOKEN_PERCENT_UPPER_W:
-            return "'%W'";
-        case PM_TOKEN_PIPE:
-            return "'|'";
-        case PM_TOKEN_PIPE_EQUAL:
-            return "'|='";
-        case PM_TOKEN_PIPE_PIPE:
-            return "'||'";
-        case PM_TOKEN_PIPE_PIPE_EQUAL:
-            return "'||='";
-        case PM_TOKEN_PLUS:
-            return "'+'";
-        case PM_TOKEN_PLUS_EQUAL:
-            return "'+='";
-        case PM_TOKEN_QUESTION_MARK:
-            return "'?'";
-        case PM_TOKEN_REGEXP_BEGIN:
-            return "regular expression beginning";
-        case PM_TOKEN_REGEXP_END:
-            return "regular expression ending";
-        case PM_TOKEN_SEMICOLON:
-            return "';'";
-        case PM_TOKEN_SLASH:
-            return "'/'";
-        case PM_TOKEN_SLASH_EQUAL:
-            return "'/='";
-        case PM_TOKEN_STAR:
-            return "'*'";
-        case PM_TOKEN_STAR_EQUAL:
-            return "'*='";
-        case PM_TOKEN_STAR_STAR:
-            return "'**'";
-        case PM_TOKEN_STAR_STAR_EQUAL:
-            return "'**='";
-        case PM_TOKEN_STRING_BEGIN:
-            return "string literal";
-        case PM_TOKEN_STRING_CONTENT:
-            return "string content";
-        case PM_TOKEN_STRING_END:
-            return "string ending";
-        case PM_TOKEN_SYMBOL_BEGIN:
-            return "symbol literal";
-        case PM_TOKEN_TILDE:
-            return "'~'";
-        case PM_TOKEN_UAMPERSAND:
-            return "'&'";
-        case PM_TOKEN_UCOLON_COLON:
-            return "'::'";
-        case PM_TOKEN_UDOT_DOT:
-            return "'..'";
-        case PM_TOKEN_UDOT_DOT_DOT:
-            return "'...'";
-        case PM_TOKEN_UMINUS:
-            return "'-'";
-        case PM_TOKEN_UMINUS_NUM:
-            return "'-'";
-        case PM_TOKEN_UPLUS:
-            return "'+'";
-        case PM_TOKEN_USTAR:
-            return "*";
-        case PM_TOKEN_USTAR_STAR:
-            return "**";
-        case PM_TOKEN_WORDS_SEP:
-        case PM_TOKEN_WORDS_SEP_IMPLICIT:
-            return "string separator";
-        case PM_TOKEN_XSTRING_BEGIN:
-            return "backtick string literal";
-        case PM_TOKEN___END__:
-            return "'__END__'";
-        case PM_TOKEN_MAXIMUM:
-            PRISM_ASSERT(false && "unreachable");
-            return "";
+/* Store the diagnostic names back to back in token order. */
+static const uint8_t token_names[] =
+    "end-of-input"
+    "'}'"
+    "','"
+    "'}'"
+    "heredoc ending"
+    "'do'"
+    "'else'"
+    "'elsif'"
+    "'end'"
+    "'ensure'"
+    "'in'"
+    "'rescue'"
+    "'then'"
+    "'when'"
+    "newline"
+    "newline"
+    "')'"
+    "'|'"
+    "';'"
+    "'&'"
+    "'&&'"
+    "'&&='"
+    "'&.'"
+    "'&='"
+    "'`'"
+    "back reference"
+    "'!'"
+    "'!='"
+    "'!~'"
+    "'{'"
+    "'{'"
+    "'{'"
+    "'['"
+    "'['"
+    "'[]'"
+    "'[]='"
+    "']'"
+    "'^'"
+    "'^='"
+    "character literal"
+    "class variable"
+    "':'"
+    "'::'"
+    "comment"
+    "constant"
+    "'.'"
+    ".."
+    "..."
+    "'=begin'"
+    "'=end'"
+    "embedded documentation line"
+    "'#{'"
+    "'#'"
+    "'='"
+    "'=='"
+    "'==='"
+    "'=>'"
+    "'=~'"
+    "float"
+    "imaginary"
+    "rational"
+    "imaginary"
+    "global variable"
+    "'>'"
+    "'>='"
+    ">>"
+    ">>="
+    "heredoc beginning"
+    "local variable or method"
+    "ignored newline"
+    "instance variable"
+    "integer"
+    "imaginary"
+    "rational"
+    "imaginary"
+    "'alias'"
+    "'and'"
+    "'begin'"
+    "'BEGIN'"
+    "'break'"
+    "'case'"
+    "'class'"
+    "'def'"
+    "'defined\?'"
+    "'do'"
+    "'do'"
+    "'do'"
+    "'END'"
+    "'false'"
+    "'for'"
+    "'if'"
+    "'if'"
+    "'module'"
+    "'next'"
+    "'nil'"
+    "'not'"
+    "'or'"
+    "'redo'"
+    "'rescue' modifier"
+    "'retry'"
+    "'return'"
+    "'self'"
+    "'super'"
+    "'true'"
+    "'undef'"
+    "'unless'"
+    "'unless'"
+    "'until'"
+    "'until'"
+    "'while'"
+    "'while'"
+    "'yield'"
+    "'__ENCODING__'"
+    "'__FILE__'"
+    "'__LINE__'"
+    "label"
+    "label terminator"
+    "'{'"
+    "'<'"
+    "'<='"
+    "'<=>'"
+    "<<"
+    "<<="
+    "method name"
+    "'-'"
+    "'-='"
+    "'->'"
+    "numbered reference"
+    "'('"
+    "'('"
+    "'('"
+    "'%'"
+    "'%='"
+    "'%i'"
+    "'%w'"
+    "'%x'"
+    "'%I'"
+    "'%W'"
+    "'|='"
+    "'||'"
+    "'||='"
+    "'+'"
+    "'+='"
+    "'\?'"
+    "regular expression beginning"
+    "regular expression ending"
+    "'/'"
+    "'/='"
+    "'*'"
+    "'*='"
+    "'**'"
+    "'**='"
+    "string literal"
+    "string content"
+    "string ending"
+    "symbol literal"
+    "'~'"
+    "'&'"
+    "'::'"
+    "'..'"
+    "'...'"
+    "'-'"
+    "'-'"
+    "'+'"
+    "*"
+    "**"
+    "string separator"
+    "string separator"
+    "backtick string literal"
+    "'__END__'"
+;
+
+/* Each name ends at the next offset. PM_TOKEN_MAXIMUM marks the end of the last name. */
+static const uint16_t token_name_offsets[PM_TOKEN_MAXIMUM + 1] = {
+    [PM_TOKEN_EOF] = 0,
+    [PM_TOKEN_BRACE_RIGHT] = 12,
+    [PM_TOKEN_COMMA] = 15,
+    [PM_TOKEN_EMBEXPR_END] = 18,
+    [PM_TOKEN_HEREDOC_END] = 21,
+    [PM_TOKEN_KEYWORD_DO] = 35,
+    [PM_TOKEN_KEYWORD_ELSE] = 39,
+    [PM_TOKEN_KEYWORD_ELSIF] = 45,
+    [PM_TOKEN_KEYWORD_END] = 52,
+    [PM_TOKEN_KEYWORD_ENSURE] = 57,
+    [PM_TOKEN_KEYWORD_IN] = 65,
+    [PM_TOKEN_KEYWORD_RESCUE] = 69,
+    [PM_TOKEN_KEYWORD_THEN] = 77,
+    [PM_TOKEN_KEYWORD_WHEN] = 83,
+    [PM_TOKEN_NEWLINE] = 89,
+    [PM_TOKEN_NEWLINE_TERMINATOR] = 96,
+    [PM_TOKEN_PARENTHESIS_RIGHT] = 103,
+    [PM_TOKEN_PIPE] = 106,
+    [PM_TOKEN_SEMICOLON] = 109,
+    [PM_TOKEN_AMPERSAND] = 112,
+    [PM_TOKEN_AMPERSAND_AMPERSAND] = 115,
+    [PM_TOKEN_AMPERSAND_AMPERSAND_EQUAL] = 119,
+    [PM_TOKEN_AMPERSAND_DOT] = 124,
+    [PM_TOKEN_AMPERSAND_EQUAL] = 128,
+    [PM_TOKEN_BACKTICK] = 132,
+    [PM_TOKEN_BACK_REFERENCE] = 135,
+    [PM_TOKEN_BANG] = 149,
+    [PM_TOKEN_BANG_EQUAL] = 152,
+    [PM_TOKEN_BANG_TILDE] = 156,
+    [PM_TOKEN_BRACE_LEFT] = 160,
+    [PM_TOKEN_BRACE_LEFT_ARGUMENT] = 163,
+    [PM_TOKEN_BRACE_LEFT_HASH] = 166,
+    [PM_TOKEN_BRACKET_LEFT] = 169,
+    [PM_TOKEN_BRACKET_LEFT_ARRAY] = 172,
+    [PM_TOKEN_BRACKET_LEFT_RIGHT] = 175,
+    [PM_TOKEN_BRACKET_LEFT_RIGHT_EQUAL] = 179,
+    [PM_TOKEN_BRACKET_RIGHT] = 184,
+    [PM_TOKEN_CARET] = 187,
+    [PM_TOKEN_CARET_EQUAL] = 190,
+    [PM_TOKEN_CHARACTER_LITERAL] = 194,
+    [PM_TOKEN_CLASS_VARIABLE] = 211,
+    [PM_TOKEN_COLON] = 225,
+    [PM_TOKEN_COLON_COLON] = 228,
+    [PM_TOKEN_COMMENT] = 232,
+    [PM_TOKEN_CONSTANT] = 239,
+    [PM_TOKEN_DOT] = 247,
+    [PM_TOKEN_DOT_DOT] = 250,
+    [PM_TOKEN_DOT_DOT_DOT] = 252,
+    [PM_TOKEN_EMBDOC_BEGIN] = 255,
+    [PM_TOKEN_EMBDOC_END] = 263,
+    [PM_TOKEN_EMBDOC_LINE] = 269,
+    [PM_TOKEN_EMBEXPR_BEGIN] = 296,
+    [PM_TOKEN_EMBVAR] = 300,
+    [PM_TOKEN_EQUAL] = 303,
+    [PM_TOKEN_EQUAL_EQUAL] = 306,
+    [PM_TOKEN_EQUAL_EQUAL_EQUAL] = 310,
+    [PM_TOKEN_EQUAL_GREATER] = 315,
+    [PM_TOKEN_EQUAL_TILDE] = 319,
+    [PM_TOKEN_FLOAT] = 323,
+    [PM_TOKEN_FLOAT_IMAGINARY] = 328,
+    [PM_TOKEN_FLOAT_RATIONAL] = 337,
+    [PM_TOKEN_FLOAT_RATIONAL_IMAGINARY] = 345,
+    [PM_TOKEN_GLOBAL_VARIABLE] = 354,
+    [PM_TOKEN_GREATER] = 369,
+    [PM_TOKEN_GREATER_EQUAL] = 372,
+    [PM_TOKEN_GREATER_GREATER] = 376,
+    [PM_TOKEN_GREATER_GREATER_EQUAL] = 378,
+    [PM_TOKEN_HEREDOC_START] = 381,
+    [PM_TOKEN_IDENTIFIER] = 398,
+    [PM_TOKEN_IGNORED_NEWLINE] = 422,
+    [PM_TOKEN_INSTANCE_VARIABLE] = 437,
+    [PM_TOKEN_INTEGER] = 454,
+    [PM_TOKEN_INTEGER_IMAGINARY] = 461,
+    [PM_TOKEN_INTEGER_RATIONAL] = 470,
+    [PM_TOKEN_INTEGER_RATIONAL_IMAGINARY] = 478,
+    [PM_TOKEN_KEYWORD_ALIAS] = 487,
+    [PM_TOKEN_KEYWORD_AND] = 494,
+    [PM_TOKEN_KEYWORD_BEGIN] = 499,
+    [PM_TOKEN_KEYWORD_BEGIN_UPCASE] = 506,
+    [PM_TOKEN_KEYWORD_BREAK] = 513,
+    [PM_TOKEN_KEYWORD_CASE] = 520,
+    [PM_TOKEN_KEYWORD_CLASS] = 526,
+    [PM_TOKEN_KEYWORD_DEF] = 533,
+    [PM_TOKEN_KEYWORD_DEFINED] = 538,
+    [PM_TOKEN_KEYWORD_DO_BLOCK] = 548,
+    [PM_TOKEN_KEYWORD_DO_LAMBDA] = 552,
+    [PM_TOKEN_KEYWORD_DO_LOOP] = 556,
+    [PM_TOKEN_KEYWORD_END_UPCASE] = 560,
+    [PM_TOKEN_KEYWORD_FALSE] = 565,
+    [PM_TOKEN_KEYWORD_FOR] = 572,
+    [PM_TOKEN_KEYWORD_IF] = 577,
+    [PM_TOKEN_KEYWORD_IF_MODIFIER] = 581,
+    [PM_TOKEN_KEYWORD_MODULE] = 585,
+    [PM_TOKEN_KEYWORD_NEXT] = 593,
+    [PM_TOKEN_KEYWORD_NIL] = 599,
+    [PM_TOKEN_KEYWORD_NOT] = 604,
+    [PM_TOKEN_KEYWORD_OR] = 609,
+    [PM_TOKEN_KEYWORD_REDO] = 613,
+    [PM_TOKEN_KEYWORD_RESCUE_MODIFIER] = 619,
+    [PM_TOKEN_KEYWORD_RETRY] = 636,
+    [PM_TOKEN_KEYWORD_RETURN] = 643,
+    [PM_TOKEN_KEYWORD_SELF] = 651,
+    [PM_TOKEN_KEYWORD_SUPER] = 657,
+    [PM_TOKEN_KEYWORD_TRUE] = 664,
+    [PM_TOKEN_KEYWORD_UNDEF] = 670,
+    [PM_TOKEN_KEYWORD_UNLESS] = 677,
+    [PM_TOKEN_KEYWORD_UNLESS_MODIFIER] = 685,
+    [PM_TOKEN_KEYWORD_UNTIL] = 693,
+    [PM_TOKEN_KEYWORD_UNTIL_MODIFIER] = 700,
+    [PM_TOKEN_KEYWORD_WHILE] = 707,
+    [PM_TOKEN_KEYWORD_WHILE_MODIFIER] = 714,
+    [PM_TOKEN_KEYWORD_YIELD] = 721,
+    [PM_TOKEN_KEYWORD___ENCODING__] = 728,
+    [PM_TOKEN_KEYWORD___FILE__] = 742,
+    [PM_TOKEN_KEYWORD___LINE__] = 752,
+    [PM_TOKEN_LABEL] = 762,
+    [PM_TOKEN_LABEL_END] = 767,
+    [PM_TOKEN_LAMBDA_BEGIN] = 783,
+    [PM_TOKEN_LESS] = 786,
+    [PM_TOKEN_LESS_EQUAL] = 789,
+    [PM_TOKEN_LESS_EQUAL_GREATER] = 793,
+    [PM_TOKEN_LESS_LESS] = 798,
+    [PM_TOKEN_LESS_LESS_EQUAL] = 800,
+    [PM_TOKEN_METHOD_NAME] = 803,
+    [PM_TOKEN_MINUS] = 814,
+    [PM_TOKEN_MINUS_EQUAL] = 817,
+    [PM_TOKEN_MINUS_GREATER] = 821,
+    [PM_TOKEN_NUMBERED_REFERENCE] = 825,
+    [PM_TOKEN_PARENTHESIS_LEFT] = 843,
+    [PM_TOKEN_PARENTHESIS_LEFT_GROUPING] = 846,
+    [PM_TOKEN_PARENTHESIS_LEFT_PARENTHESES] = 849,
+    [PM_TOKEN_PERCENT] = 852,
+    [PM_TOKEN_PERCENT_EQUAL] = 855,
+    [PM_TOKEN_PERCENT_LOWER_I] = 859,
+    [PM_TOKEN_PERCENT_LOWER_W] = 863,
+    [PM_TOKEN_PERCENT_LOWER_X] = 867,
+    [PM_TOKEN_PERCENT_UPPER_I] = 871,
+    [PM_TOKEN_PERCENT_UPPER_W] = 875,
+    [PM_TOKEN_PIPE_EQUAL] = 879,
+    [PM_TOKEN_PIPE_PIPE] = 883,
+    [PM_TOKEN_PIPE_PIPE_EQUAL] = 887,
+    [PM_TOKEN_PLUS] = 892,
+    [PM_TOKEN_PLUS_EQUAL] = 895,
+    [PM_TOKEN_QUESTION_MARK] = 899,
+    [PM_TOKEN_REGEXP_BEGIN] = 902,
+    [PM_TOKEN_REGEXP_END] = 930,
+    [PM_TOKEN_SLASH] = 955,
+    [PM_TOKEN_SLASH_EQUAL] = 958,
+    [PM_TOKEN_STAR] = 962,
+    [PM_TOKEN_STAR_EQUAL] = 965,
+    [PM_TOKEN_STAR_STAR] = 969,
+    [PM_TOKEN_STAR_STAR_EQUAL] = 973,
+    [PM_TOKEN_STRING_BEGIN] = 978,
+    [PM_TOKEN_STRING_CONTENT] = 992,
+    [PM_TOKEN_STRING_END] = 1006,
+    [PM_TOKEN_SYMBOL_BEGIN] = 1019,
+    [PM_TOKEN_TILDE] = 1033,
+    [PM_TOKEN_UAMPERSAND] = 1036,
+    [PM_TOKEN_UCOLON_COLON] = 1039,
+    [PM_TOKEN_UDOT_DOT] = 1043,
+    [PM_TOKEN_UDOT_DOT_DOT] = 1047,
+    [PM_TOKEN_UMINUS] = 1052,
+    [PM_TOKEN_UMINUS_NUM] = 1055,
+    [PM_TOKEN_UPLUS] = 1058,
+    [PM_TOKEN_USTAR] = 1061,
+    [PM_TOKEN_USTAR_STAR] = 1062,
+    [PM_TOKEN_WORDS_SEP] = 1064,
+    [PM_TOKEN_WORDS_SEP_IMPLICIT] = 1080,
+    [PM_TOKEN_XSTRING_BEGIN] = 1096,
+    [PM_TOKEN___END__] = 1119,
+    [PM_TOKEN_MAXIMUM] = 1128
+};
+
+/* Return the name used for the token type in diagnostics. */
+pm_string_t
+pm_token_string(pm_token_type_t token_type) {
+    if (token_type < PM_TOKEN_EOF || token_type >= PM_TOKEN_MAXIMUM) {
+        PRISM_ASSERT(false && "unreachable");
+        return (pm_string_t) { (const uint8_t *) "", 0 };
     }
 
-    /* Provide a default, because some compilers cannot determine that the above
-     * switch is exhaustive. */
-    PRISM_ASSERT(false && "unreachable");
-    return "";
+    size_t start = token_name_offsets[token_type];
+    return (pm_string_t) { token_names + start, token_name_offsets[token_type + 1] - start };
 }

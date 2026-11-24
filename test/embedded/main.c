@@ -1,5 +1,8 @@
 #include "prism.h"
 
+#include "prism/internal/memchr.h"
+#include "prism/internal/memequal.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,15 +31,15 @@ main(void) {
     pm_buffer_t *buffer = pm_buffer_new();
     pm_prettyprint(buffer, parser, node);
 
-    const char *haystack = pm_buffer_value(buffer);
-    const char *haystack_end = haystack + pm_buffer_length(buffer);
+    const uint8_t *haystack = (const uint8_t *) pm_buffer_value(buffer);
+    const uint8_t *haystack_end = haystack + pm_buffer_length(buffer);
     const char *needle = "36893488147419103231";
     size_t needle_length = strlen(needle);
 
     bool found = false;
 
-    for (const char *cursor = haystack; !found && (cursor = memchr(cursor, needle[0], (size_t) (haystack_end - cursor))) != NULL; cursor++) {
-        found = (size_t) (haystack_end - cursor) >= needle_length && memcmp(cursor, needle, needle_length) == 0;
+    for (const uint8_t *cursor = haystack; !found && (cursor = pm_memchr(cursor, (uint8_t) needle[0], (size_t) (haystack_end - cursor))) != NULL; cursor++) {
+        found = (size_t) (haystack_end - cursor) >= needle_length && pm_memequal(cursor, needle, needle_length);
     }
 
     if (!found) {

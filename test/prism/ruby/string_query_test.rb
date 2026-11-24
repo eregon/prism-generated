@@ -93,6 +93,12 @@ module Prism
       end
     end
 
+    def test_keyword_variants_with_matching_first_middle_and_last_bytes
+      %w[cose reburn __ENCODINX__].each do |name|
+        refute StringQuery.keyword?(name), "unexpected keyword #{name.inspect}"
+      end
+    end
+
     def test_invalid_encoding
       assert_raise ArgumentError do
         StringQuery.new("A".encode("UTF-16LE")).local?
@@ -101,6 +107,12 @@ module Prism
       assert_raise ArgumentError do
         StringQuery.new("end".encode("UTF-16LE")).keyword?
       end
+    end
+
+    def test_invalid_version
+      assert_raise(ArgumentError) { StringQuery.local?("foo", version: "") }
+      error = assert_raise(ArgumentError) { StringQuery.keyword?("end", version: "3.4\0suffix") }
+      assert_equal "string contains null byte", error.message
     end
 
     # Ruby 3.3 and 3.4 use Unicode 15.0.0, and Ruby 4.0 and 4.1 use Unicode

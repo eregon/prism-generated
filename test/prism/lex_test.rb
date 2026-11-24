@@ -127,6 +127,27 @@ module Prism
       )
     end
 
+    def test_lex_identifier_underscore_caret
+      assert_equal(
+        %i[IDENTIFIER CARET IDENTIFIER EOF],
+        token_types("foo____^bar")
+      )
+
+      assert_equal(
+        %i[IDENTIFIER CARET IDENTIFIER EOF],
+        token_types("a_1234_^b")
+      )
+    end
+
+    def test_missing_operand_after_identifier_ending_in_underscore
+      # Move the caret through two 8-byte SWAR words. The second array element
+      # leaves a full word to scan even when the identifier is short.
+      16.times do |length|
+        source = "[#{"a" * length}_^, another_value]"
+        assert_equal [:expect_expression_after_operator], Prism.lex(source).errors.map(&:type), source
+      end
+    end
+
     def token_types(code)
       Prism.lex(code).value.map(&:type)
     end

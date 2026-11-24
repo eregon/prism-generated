@@ -168,6 +168,7 @@ module Prism
         error = Prism.parse(source, encoding: encoding).errors.find { |diagnostic| diagnostic.type == :mixed_encoding }
 
         assert_not_nil error
+        assert_equal "UTF-8 mixed within #{encoding} source", error.message
         assert_equal 10, error.location.start_offset
         assert_equal bytes.bytesize, error.location.length
         assert_equal bytes.b, error.location.slice.b
@@ -271,6 +272,48 @@ module Prism
 
       assert_equal [:escape_invalid_unicode, :escape_invalid_unicode_term, :string_interpolated_term], result.errors.map(&:type)
       assert_equal [4, 4, 0], result.errors.map { |error| error.location.start_offset }
+    end
+
+    def test_missing_unary_receiver_reports_following_token
+      { "+" => "end-of-input", "+ )" => "')'" }.each do |source, name|
+        error = Prism.parse(source).errors.first
+        assert_equal :unary_receiver, error.type
+        assert_equal "unexpected #{name}, expected a receiver for unary `+`", error.message
+        assert_equal "+", error.location.slice
+      end
+    end
+
+    def test_recovery_names_the_enclosing_clause
+      {
+        "begin; rescue; 1 + end" => "'rescue' clause",
+        "def f; ensure; 1 + end" => "'ensure' clause",
+        "if x; else; 1 + end" => "'else' clause"
+      }.each do |source, name|
+        error = Prism.parse(source).errors.find { |diagnostic| diagnostic.type == :unexpected_token_close_context }
+        assert_not_nil error, source
+        assert_equal "unexpected 'end', assuming it is closing the parent #{name}", error.message
+        assert_equal "end", error.location.slice
+      end
+    end
+
+    def test_unexpected_backslash
+      {
+        "\\ " => "escaped space",
+        "\\\f" => "escaped form feed",
+        "\\\t" => "escaped horizontal tab",
+        "\\\v" => "escaped vertical tab",
+        "\\\r" => "escaped carriage return",
+        "\\" => "backslash"
+      }.each do |escape, description|
+        result = Prism.parse("#{escape}1")
+        assert_equal [:unexpected_token_ignore], result.errors.map(&:type)
+        assert_equal "unexpected #{description}, ignoring it", result.errors.first.message
+        assert_equal escape, result.errors.first.location.slice
+        assert_equal 1, result.value.statements.body.first.value
+      end
+
+      assert_empty Prism.parse("\\\n1").errors
+      assert_empty Prism.parse("\\\r\n1").errors
     end
 
     def test_regexp_encoding_option_mismatch_error

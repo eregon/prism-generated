@@ -191,8 +191,8 @@ build_options_scopes(pm_options_t *options, VALUE scopes) {
 
             // Add the local to the scope.
             pm_string_t *scope_local = pm_options_scope_local_mut(options_scope, local_index);
-            const char *name = rb_id2name(SYM2ID(local));
-            pm_string_init(scope_local, (const uint8_t *) name, strlen(name));
+            VALUE name = rb_id2str(SYM2ID(local));
+            pm_string_init(scope_local, (const uint8_t *) RSTRING_PTR(name), RSTRING_LEN(name));
         }
 
         // Now set the forwarding options.
@@ -235,13 +235,17 @@ build_options_i(VALUE key, VALUE value, VALUE argument) {
     ID key_id = SYM2ID(key);
 
     if (key_id == rb_id_option_filepath) {
-        if (!NIL_P(value)) pm_options_filepath_set(options, check_string(value));
+        if (!NIL_P(value)) {
+            const char *filepath = check_string(value);
+            pm_options_filepath_set(options, filepath, RSTRING_LEN(value));
+        }
     } else if (key_id == rb_id_option_encoding) {
         if (!NIL_P(value)) {
             if (value == Qfalse) {
                 pm_options_encoding_locked_set(options, true);
             } else {
-                pm_options_encoding_set(options, rb_enc_name(rb_to_encoding(value)));
+                const char *name = rb_enc_name(rb_to_encoding(value));
+                pm_options_encoding_set(options, name, strlen(name));
             }
         }
     } else if (key_id == rb_id_option_line) {
@@ -266,18 +270,19 @@ build_options_i(VALUE key, VALUE value, VALUE argument) {
         if (!NIL_P(value)) build_options_scopes(options, value);
     } else if (key_id == rb_id_option_command_line) {
         if (!NIL_P(value)) {
-            const char *string = check_string(value);
+            const char *flags = check_string(value);
+            long length = RSTRING_LEN(value);
             uint8_t command_line = 0;
 
-            for (size_t index = 0; index < strlen(string); index++) {
-                switch (string[index]) {
+            for (long index = 0; index < length; index++) {
+                switch (flags[index]) {
                     case 'a': command_line |= PM_OPTIONS_COMMAND_LINE_A; break;
                     case 'e': command_line |= PM_OPTIONS_COMMAND_LINE_E; break;
                     case 'l': command_line |= PM_OPTIONS_COMMAND_LINE_L; break;
                     case 'n': command_line |= PM_OPTIONS_COMMAND_LINE_N; break;
                     case 'p': command_line |= PM_OPTIONS_COMMAND_LINE_P; break;
                     case 'x': command_line |= PM_OPTIONS_COMMAND_LINE_X; break;
-                    default: rb_raise(rb_eArgError, "invalid command line flag: '%c'", string[index]); break;
+                    default: rb_raise(rb_eArgError, "invalid command line flag: '%c'", flags[index]); break;
                 }
             }
 
@@ -384,7 +389,7 @@ extract_options(pm_options_t *options, VALUE filepath, VALUE keywords) {
             rb_raise(rb_eTypeError, "wrong argument type %"PRIsVALUE" (expected String)", rb_obj_class(filepath));
         }
 
-        pm_options_filepath_set(options, RSTRING_PTR(filepath));
+        pm_options_filepath_set(options, RSTRING_PTR(filepath), RSTRING_LEN(filepath));
     }
 }
 
@@ -1616,56 +1621,85 @@ parse_file_failure_p(int argc, VALUE *argv, VALUE self) {
  * the lowest version that prism supports, and NULL is the latest.
  */
 static const char *
-string_query_nearest_version(void) {
-    if (pm_options_version_supported_p(ruby_version, 3)) return ruby_version;
-    return ruby_version_before_lowest_p() ? "3.3" : NULL;
+string_query_nearest_version(size_t *length) {
+    if (pm_options_version_supported_p(ruby_version, 3)) {
+        *length = 3;
+        return ruby_version;
+    } else if (ruby_version_before_lowest_p()) {
+        *length = 3;
+        return "3.3";
+    } else {
+        *length = 0;
+        return NULL;
+    }
 }
 
 /**
- * Read the arguments of a string query, which look like (string, version:
- * nil), and return the version that the query takes. The version is read the
- * way the version: option of the parse methods reads it: the nearest version to
- * the running Ruby by default or with "nearest", and the running Ruby with
- * "current", which prism must support. Any other version is passed on as it is,
- * and the query itself checks it.
+ * Resolve the version keyword for a string query the same way as the parse
+ * methods. The query itself checks explicit version numbers.
  */
 static const char *
-string_query_arguments(int argc, VALUE *argv, VALUE *string) {
-    VALUE keywords;
-    rb_scan_args(argc, argv, "1:", string, &keywords);
-    check_string(*string);
-
-    VALUE value = Qundef;
-    if (!NIL_P(keywords)) {
-        ID keys[1] = { rb_id_option_version };
-        rb_get_kwargs(keywords, keys, 0, 1, &value);
+string_query_version(VALUE *value, size_t *length) {
+    if (*value == Qundef || NIL_P(*value)) {
+        return string_query_nearest_version(length);
     }
 
-    if (value == Qundef || NIL_P(value)) return string_query_nearest_version();
+    const char *version = StringValuePtr(*value);
+    *length = RSTRING_LEN(*value);
 
-    const char *version = StringValueCStr(value);
-    if (strcmp(version, "nearest") == 0) return string_query_nearest_version();
-
-    if (strcmp(version, "current") == 0) {
+    if (*length != 7) {
+        return version;
+    } else if (memcmp(version, "nearest", 7) == 0) {
+        return string_query_nearest_version(length);
+    } else if (memcmp(version, "current", 7) == 0) {
         if (!pm_options_version_supported_p(ruby_version, 3)) {
             rb_exc_raise(rb_exc_new_cstr(rb_cPrismCurrentVersionError, ruby_version));
         }
 
+        *length = 3;
         return ruby_version;
+    } else {
+        return version;
     }
-
-    return version;
 }
 
-/**
- * Process the result of a call to a string query method and return an
- * appropriate value. The version is the one that the query was given.
- */
+/** The source, encoding name, and version for a string query. */
+typedef struct {
+    const uint8_t *source; size_t source_length;
+    const char *encoding; size_t encoding_length;
+    const char *version; size_t version_length;
+
+    /* Keep a coerced Ruby string alive for the query and any error message. */
+    VALUE version_value;
+} string_query_arguments_t;
+
+static void
+string_query_arguments(int argc, VALUE *argv, string_query_arguments_t *args) {
+    VALUE string, keywords;
+    rb_scan_args(argc, argv, "1:", &string, &keywords);
+    check_string(string);
+
+    args->version_value = Qundef;
+    if (!NIL_P(keywords)) {
+        ID keys[1] = { rb_id_option_version };
+        rb_get_kwargs(keywords, keys, 0, 1, &args->version_value);
+    }
+
+    args->version = string_query_version(&args->version_value, &args->version_length);
+
+    args->encoding = rb_enc_name(rb_enc_get(string));
+    args->encoding_length = strlen(args->encoding);
+
+    args->source = (const uint8_t *) RSTRING_PTR(string);
+    args->source_length = RSTRING_LEN(string);
+}
+
+/** Convert a string query result to a Ruby boolean or raise the corresponding error. */
 static VALUE
-string_query(pm_string_query_t result, const char *version) {
+string_query_result(pm_string_query_t result, VALUE version) {
     switch (result) {
         case PM_STRING_QUERY_ERROR_VERSION:
-            rb_raise(rb_eArgError, "invalid version: %s", version);
+            rb_raise(rb_eArgError, "invalid version: %" PRIsVALUE, version);
             return Qfalse;
         case PM_STRING_QUERY_ERROR:
             rb_raise(rb_eArgError, "Invalid or non ascii-compatible encoding");
@@ -1694,9 +1728,11 @@ string_query(pm_string_query_t result, const char *version) {
  */
 static VALUE
 string_query_local_p(int argc, VALUE *argv, VALUE self) {
-    VALUE string;
-    const char *version = string_query_arguments(argc, argv, &string);
-    return string_query(pm_string_query_local((const uint8_t *) RSTRING_PTR(string), RSTRING_LEN(string), rb_enc_get(string)->name, version), version);
+    string_query_arguments_t args;
+    string_query_arguments(argc, argv, &args);
+
+    pm_string_query_t result = pm_string_query_local(args.source, args.source_length, args.encoding, args.encoding_length, args.version, args.version_length);
+    return string_query_result(result, args.version_value);
 }
 
 /**
@@ -1714,9 +1750,11 @@ string_query_local_p(int argc, VALUE *argv, VALUE self) {
  */
 static VALUE
 string_query_constant_p(int argc, VALUE *argv, VALUE self) {
-    VALUE string;
-    const char *version = string_query_arguments(argc, argv, &string);
-    return string_query(pm_string_query_constant((const uint8_t *) RSTRING_PTR(string), RSTRING_LEN(string), rb_enc_get(string)->name, version), version);
+    string_query_arguments_t args;
+    string_query_arguments(argc, argv, &args);
+
+    pm_string_query_t result = pm_string_query_constant(args.source, args.source_length, args.encoding, args.encoding_length, args.version, args.version_length);
+    return string_query_result(result, args.version_value);
 }
 
 /**
@@ -1732,9 +1770,11 @@ string_query_constant_p(int argc, VALUE *argv, VALUE self) {
  */
 static VALUE
 string_query_method_name_p(int argc, VALUE *argv, VALUE self) {
-    VALUE string;
-    const char *version = string_query_arguments(argc, argv, &string);
-    return string_query(pm_string_query_method_name((const uint8_t *) RSTRING_PTR(string), RSTRING_LEN(string), rb_enc_get(string)->name, version), version);
+    string_query_arguments_t args;
+    string_query_arguments(argc, argv, &args);
+
+    pm_string_query_t result = pm_string_query_method_name(args.source, args.source_length, args.encoding, args.encoding_length, args.version, args.version_length);
+    return string_query_result(result, args.version_value);
 }
 
 /**
@@ -1751,9 +1791,11 @@ string_query_method_name_p(int argc, VALUE *argv, VALUE self) {
  */
 static VALUE
 string_query_keyword_p(int argc, VALUE *argv, VALUE self) {
-    VALUE string;
-    const char *version = string_query_arguments(argc, argv, &string);
-    return string_query(pm_string_query_keyword((const uint8_t *) RSTRING_PTR(string), RSTRING_LEN(string), rb_enc_get(string)->name, version), version);
+    string_query_arguments_t args;
+    string_query_arguments(argc, argv, &args);
+
+    pm_string_query_t result = pm_string_query_keyword(args.source, args.source_length, args.encoding, args.encoding_length, args.version, args.version_length);
+    return string_query_result(result, args.version_value);
 }
 
 /******************************************************************************/

@@ -2478,14 +2478,12 @@ pm_serialize_diagnostic(pm_diagnostic_t *diagnostic, pm_buffer_t *buffer) {
     pm_buffer_append_varuint(buffer, (uint32_t) diagnostic->diag_id);
 
     // serialize message
-    size_t message_length = strlen(diagnostic->message);
-    pm_buffer_append_varuint(buffer, pm_sizet_to_u32(message_length));
-    pm_buffer_append_string(buffer, diagnostic->message, message_length);
+    pm_serialize_string(&diagnostic->message, buffer);
 
     // serialize location
     pm_serialize_location(&diagnostic->location, buffer);
 
-    pm_buffer_append_byte(buffer, diagnostic->level);
+    pm_buffer_append_byte(buffer, pm_diagnostic_level(diagnostic));
 }
 
 static void
@@ -2503,9 +2501,8 @@ pm_serialize_diagnostic_list(pm_list_t *list, pm_buffer_t *buffer) {
  */
 void
 pm_serialize_encoding(const pm_encoding_t *encoding, pm_buffer_t *buffer) {
-    size_t encoding_length = strlen(encoding->name);
-    pm_buffer_append_varuint(buffer, pm_sizet_to_u32(encoding_length));
-    pm_buffer_append_string(buffer, encoding->name, encoding_length);
+    pm_buffer_append_varuint(buffer, encoding->name_length);
+    pm_buffer_append_string(buffer, encoding->name, encoding->name_length);
 }
 
 static void
@@ -2523,7 +2520,7 @@ pm_serialize_metadata(pm_parser_t *parser, pm_buffer_t *buffer) {
     pm_buffer_append_byte(buffer, (uint8_t) parser->continuable);
 }
 
-#line 459 "prism/templates/src/serialize.c.erb"
+#line 456 "prism/templates/src/serialize.c.erb"
 /**
  * Serialize the metadata, nodes, and constant pool.
  */

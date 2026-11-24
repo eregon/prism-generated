@@ -8,11 +8,11 @@
 #include "prism/internal/line_offset_list.h"
 #include "prism/internal/oom.h"
 #include "prism/internal/parser.h"
+#include "prism/internal/stringy.h"
 
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
 
 /**
  * Check if the source in the given range of lines is valid UTF-8. The indices
@@ -41,28 +41,7 @@ typedef struct {
     uint32_t line_index;
     uint32_t column_start;
     uint32_t column_end;
-    size_t idx;
 } pm_rich_error_t;
-
-static int
-pm_rich_error_compare(const void *a, const void *b) {
-    const pm_rich_error_t *left = (const pm_rich_error_t *) a;
-    const pm_rich_error_t *right = (const pm_rich_error_t *) b;
-
-    if (left->line_index != right->line_index) {
-        return (left->line_index < right->line_index) ? -1 : 1;
-    }
-
-    if (left->column_start != right->column_start) {
-        return (left->column_start < right->column_start) ? -1 : 1;
-    }
-
-    if (left->idx != right->idx) {
-        return (left->idx < right->idx) ? 1 : -1;
-    }
-
-    return 0;
-}
 
 /**
  * Return the zero-based index of the last line of the source that can be displayed. When
@@ -439,10 +418,9 @@ pm_rich_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_
         }
 
         if (inline_messages) {
-            const char *message = pm_diagnostic_message(rich_error->diagnostic);
-
+            pm_string_t message = rich_error->diagnostic->message;
             pm_buffer_append_byte(buffer, ' ');
-            pm_buffer_append_string(buffer, message, strlen(message));
+            pm_buffer_append_bytes(buffer, message.source, message.length);
         }
 
         pm_buffer_append_byte(buffer, '\n');
@@ -492,12 +470,12 @@ pm_rich_error_init(const pm_parser_t *parser, pm_rich_error_t *rich_error, pm_di
  * message, which is how an error is displayed without a source snippet.
  */
 static void
-pm_error_append_summary(const pm_parser_t *parser, pm_buffer_t *buffer, uint32_t line, const char *message) {
+pm_error_append_summary(const pm_parser_t *parser, pm_buffer_t *buffer, uint32_t line, pm_string_t message) {
     pm_buffer_append_string(buffer, (const char *) pm_string_source(&parser->filepath), pm_string_length(&parser->filepath));
     pm_buffer_append_byte(buffer, ':');
     pm_buffer_append_line_number(buffer, pm_line_offset_list_line_number(line, parser->start_line), 0);
     PM_BUFFER_APPEND_LITERAL(buffer, ": ");
-    pm_buffer_append_string(buffer, message, strlen(message));
+    pm_buffer_append_bytes(buffer, message.source, message.length);
 }
 
 pm_error_level_t
@@ -512,6 +490,7 @@ pm_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_forma
     if (rich_errors == NULL) PRISM_OOM();
 
     size_t rich_errors_idx = 0;
+    uint32_t first_syntax_line_index = 0;
     const pm_diagnostic_t *encoding_error = NULL;
 
     for (pm_diagnostic_t *diagnostic = (pm_diagnostic_t *) parser->error_list.head; diagnostic != NULL; diagnostic = (pm_diagnostic_t *) diagnostic->node.next) {
@@ -519,8 +498,15 @@ pm_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_forma
 
         switch (pm_diagnostic_error_level(diagnostic)) {
           case PM_ERROR_LEVEL_SYNTAX: {
-            pm_rich_error_init(parser, &rich_errors[rich_errors_idx], diagnostic, &location);
-            rich_errors[rich_errors_idx].idx = rich_errors_idx;
+            /* Keep errors in source order. At the same offset, display the newest error first. */
+            size_t position = rich_errors_idx;
+            while (position > 0 && rich_errors[position - 1].diagnostic->location.start >= location.start) {
+                rich_errors[position] = rich_errors[position - 1];
+                position--;
+            }
+
+            pm_rich_error_init(parser, &rich_errors[position], diagnostic, &location);
+            if (rich_errors_idx == 0) first_syntax_line_index = rich_errors[position].line_index;
             rich_errors_idx++;
             break;
           }
@@ -529,7 +515,7 @@ pm_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_forma
              * immediately. They should include a snippet of the source if
              * possible. */
             pm_rich_error_init(parser, rich_errors, diagnostic, &location);
-            pm_error_append_summary(parser, buffer, rich_errors[0].line_index, pm_diagnostic_message(diagnostic));
+            pm_error_append_summary(parser, buffer, rich_errors[0].line_index, diagnostic->message);
 
             if (rich_errors_are_utf8(parser, 1, rich_errors)) {
                 pm_buffer_append_byte(buffer, '\n');
@@ -542,8 +528,7 @@ pm_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_forma
           case PM_ERROR_LEVEL_LOAD: {
             /* If we get a load error, we want to format it and return it
              * immediately. It should only include the diagnostic message. */
-            const char *message = pm_diagnostic_message(diagnostic);
-            pm_buffer_append_string(buffer, message, strlen(message));
+            pm_buffer_append_bytes(buffer, diagnostic->message.source, diagnostic->message.length);
 
             xfree_sized(rich_errors, rich_errors_size);
             return PM_ERROR_LEVEL_LOAD;
@@ -555,7 +540,7 @@ pm_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_forma
              * the source, so they are left out. It should include a snippet of
              * the source if possible. */
             pm_rich_error_init(parser, rich_errors, diagnostic, &location);
-            pm_error_append_summary(parser, buffer, rich_errors[0].line_index, pm_diagnostic_message(diagnostic));
+            pm_error_append_summary(parser, buffer, rich_errors[0].line_index, diagnostic->message);
 
             if (rich_errors_are_utf8(parser, 1, rich_errors)) {
                 pm_buffer_append_byte(buffer, '\n');
@@ -574,8 +559,7 @@ pm_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_forma
     /* The compiler would encounter a syntax error before joining any strings. */
     if (rich_errors_idx == 0) {
         PRISM_ASSERT(encoding_error != NULL);
-        const char *message = pm_diagnostic_message(encoding_error);
-        pm_buffer_append_string(buffer, message, strlen(message));
+        pm_buffer_append_bytes(buffer, encoding_error->message.source, encoding_error->message.length);
 
         xfree_sized(rich_errors, rich_errors_size);
         return PM_ERROR_LEVEL_ENCODING_COMPATIBILITY;
@@ -583,14 +567,9 @@ pm_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_forma
 
     nerrors = rich_errors_idx;
 
-    /* The header displays the line of the first error in parse order, which
-     * is the first entry in the array because it has not been sorted yet. */
-    pm_error_append_summary(parser, buffer, rich_errors[0].line_index, (nerrors > 1) ? "syntax errors found\n" : "syntax error found\n");
-
-    /* Sort the errors so that they are in the order that they appear in the
-     * source. This is the order they are displayed in, and it also lets the
-     * UTF-8 check visit each line only once. */
-    qsort(rich_errors, nerrors, sizeof(pm_rich_error_t), pm_rich_error_compare);
+    /* The header displays the line of the first syntax error in parse order. */
+    pm_string_t summary = (nerrors > 1) ? PM_STRING_LITERAL("syntax errors found\n") : PM_STRING_LITERAL("syntax error found\n");
+    pm_error_append_summary(parser, buffer, first_syntax_line_index, summary);
 
     if (rich_errors_are_utf8(parser, nerrors, rich_errors)) {
         /* In here, we have all of the rich diagnostic information and we know
@@ -605,7 +584,7 @@ pm_errors_format(const pm_parser_t *parser, pm_buffer_t *buffer, pm_errors_forma
          * source, as they are when the snippets are displayed. */
         for (size_t idx = 0; idx < nerrors; idx++) {
             if (idx > 0) pm_buffer_append_byte(buffer, '\n');
-            pm_error_append_summary(parser, buffer, rich_errors[idx].line_index, pm_diagnostic_message(rich_errors[idx].diagnostic));
+            pm_error_append_summary(parser, buffer, rich_errors[idx].line_index, rich_errors[idx].diagnostic->message);
         }
     }
 
