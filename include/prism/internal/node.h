@@ -8,6 +8,7 @@
 
 #include "prism/arena.h"
 #include "prism/internal/assert.h"
+#include "prism/internal/encoding.h"
 
 #include <stddef.h>
 #include <stdint.h>
@@ -29,6 +30,29 @@ pm_location_join(pm_location_t left, pm_location_t right) {
     uint32_t end = left_end > right_end ? left_end : right_end;
     pm_location_t location = { .start = start, .length = end - start };
     return location;
+}
+
+/*
+ * Return true if a statements node contains exactly one expression.
+ * A leading semicolon introduces an empty statement before the expression.
+ */
+static PRISM_INLINE bool
+pm_statements_node_single_expression_p(const pm_statements_node_t *node) {
+    return node != NULL && node->body.size == 1 && !PM_NODE_FLAG_P(node, PM_STATEMENTS_FLAGS_LEADING_SEMICOLON);
+}
+
+/* Return the sole expression in a statements node, if there is one. */
+static PRISM_INLINE pm_node_t *
+pm_statements_node_single_expression(const pm_statements_node_t *node) {
+    return pm_statements_node_single_expression_p(node) ? node->body.nodes[0] : NULL;
+}
+
+/* A string literal uses the source encoding unless an escape forced one. */
+static PRISM_INLINE const pm_encoding_t *
+pm_string_node_encoding(const pm_string_node_t *node, const pm_encoding_t *source_encoding) {
+    if (PM_NODE_FLAG_P(node, PM_STRING_FLAGS_FORCED_UTF8_ENCODING)) return PM_ENCODING_UTF_8_ENTRY;
+    if (PM_NODE_FLAG_P(node, PM_STRING_FLAGS_FORCED_BINARY_ENCODING)) return PM_ENCODING_ASCII_8BIT_ENTRY;
+    return source_encoding;
 }
 
 /*

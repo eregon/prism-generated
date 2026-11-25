@@ -130,6 +130,7 @@ export const ShareableConstantNodeFlags = {
  */
 export const StatementsFlags = {
   CONTAINS_PRE_EXECUTION: 1 << 2,
+  LEADING_SEMICOLON: 1 << 3,
 };
 
 /**
@@ -16133,6 +16134,15 @@ export class StatementsNode {
    */
   isContainsPreExecution() {
     return (this.#flags & StatementsFlags.CONTAINS_PRE_EXECUTION) !== 0;
+  }
+
+  /**
+   * True if this node has the LEADING_SEMICOLON flag.
+   *
+   * @returns {boolean}
+   */
+  isLeadingSemicolon() {
+    return (this.#flags & StatementsFlags.LEADING_SEMICOLON) !== 0;
   }
 
   /**

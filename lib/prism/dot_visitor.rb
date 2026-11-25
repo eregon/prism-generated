@@ -4830,6 +4830,7 @@ module Prism
     def statements_flags_inspect(node) # :nodoc:
       flags = [] #: Array[String]
       flags << "contains_pre_execution" if node.contains_pre_execution?
+      flags << "leading_semicolon" if node.leading_semicolon?
       flags.join(", ")
     end
 

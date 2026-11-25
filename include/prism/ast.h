@@ -7454,6 +7454,7 @@ typedef struct pm_splat_node {
 
  * Flags (#pm_statements_flags):
  * * ::PM_STATEMENTS_FLAGS_CONTAINS_PRE_EXECUTION
+ * * ::PM_STATEMENTS_FLAGS_LEADING_SEMICOLON
  *
  * @extends pm_node_t
  */
@@ -8162,6 +8163,9 @@ typedef enum pm_shareable_constant_node_flags {
 typedef enum pm_statements_flags {
     /** the statement list directly contains a `BEGIN` block */
     PM_STATEMENTS_FLAGS_CONTAINS_PRE_EXECUTION = 4,
+
+    /** a semicolon precedes the first statement in the list */
+    PM_STATEMENTS_FLAGS_LEADING_SEMICOLON = 8,
 
     PM_STATEMENTS_FLAGS_LAST,
 } pm_statements_flags_t;

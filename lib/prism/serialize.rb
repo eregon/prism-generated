@@ -677,6 +677,7 @@ module Prism
         :statement_preexe_begin,
         :statement_undef,
         :string_concatenation,
+        :string_concatenation_encoding,
         :string_interpolated_term,
         :string_literal_eof,
         :string_literal_term,

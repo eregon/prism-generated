@@ -5207,6 +5207,11 @@ pm_dump_json(pm_buffer_t *buffer, const pm_parser_t *parser, const pm_node_t *no
                 PM_BUFFER_APPEND_LITERAL(buffer, "\"CONTAINS_PRE_EXECUTION\"");
                 flags++;
             }
+            if (PM_NODE_FLAG_P(cast, PM_STATEMENTS_FLAGS_LEADING_SEMICOLON)) {
+                if (flags != 0) pm_buffer_append_byte(buffer, ',');
+                PM_BUFFER_APPEND_LITERAL(buffer, "\"LEADING_SEMICOLON\"");
+                flags++;
+            }
             pm_buffer_append_byte(buffer, ']');
 
             // Dump the body field

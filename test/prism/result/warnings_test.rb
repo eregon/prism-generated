@@ -274,6 +274,13 @@ module Prism
       refute_warning("if !:s; end")
     end
 
+    def test_grouped_predicate_warnings
+      assert_warning('if (setup; "s"); end', "string literal in condition", compare: RUBY_VERSION >= "3.3")
+      warnings = Prism.parse("if (setup; /r/)..(setup; 1); end").warnings
+      assert_equal ["regex literal in flip-flop", "literal in flip-flop"], warnings.map(&:message)
+      refute_warning("if (; 1..2); end")
+    end
+
     def test_literal_in_conditionals
       sources = [
         "if (a = 2); a; end",
@@ -411,6 +418,19 @@ module Prism
       source = "def foo\n#{names.map { |name| "  #{name} = 1\n" }.join}end\n"
 
       assert_warning(source, *names.map { |name| "assigned but unused variable - #{name}" })
+    end
+
+    def test_unused_local_variables_in_rescue_modifier_values
+      ["def f = not (a = 1) rescue (b = 2)", "def f = not return rescue (a = 1) rescue (b = 2)"].each do |source|
+        warnings = Prism.parse(source, version: "3.4").warnings
+        assert_equal [:unused_local_variable], warnings.map(&:type)
+        assert_equal "b", warnings.first.location.slice
+      end
+    end
+
+    def test_discarded_assignment_in_a_statement_list
+      source = "def f; consume(((discarded = 1); used = 2)); end"
+      assert_warning(source, "assigned but unused variable - discarded", compare: false, version: "4.1")
     end
 
     def test_unused_local_variable_or_assign_with_begin_node

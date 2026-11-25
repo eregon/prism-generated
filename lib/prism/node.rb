@@ -30962,6 +30962,14 @@ module Prism
       flags.anybits?(StatementsFlags::CONTAINS_PRE_EXECUTION)
     end
 
+    # :category: Flags
+    # a semicolon precedes the first statement in the list
+    #
+    #: () -> bool
+    def leading_semicolon?
+      flags.anybits?(StatementsFlags::LEADING_SEMICOLON)
+    end
+
     # :call-seq:
     #   body -> Array[Node]
     #
@@ -33913,6 +33921,9 @@ module Prism
   module StatementsFlags
     # the statement list directly contains a `BEGIN` block
     CONTAINS_PRE_EXECUTION = 1 << 2
+
+    # a semicolon precedes the first statement in the list
+    LEADING_SEMICOLON = 1 << 3
   end
 
   # Flags for string nodes.

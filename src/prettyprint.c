@@ -8270,6 +8270,11 @@ prettyprint_node(pm_buffer_t *output_buffer, const pm_parser_t *parser, const pm
                     PM_BUFFER_APPEND_LITERAL(output_buffer, " contains_pre_execution");
                     found = true;
                 }
+                if (cast->base.flags & PM_STATEMENTS_FLAGS_LEADING_SEMICOLON) {
+                    if (found) pm_buffer_append_byte(output_buffer, ',');
+                    PM_BUFFER_APPEND_LITERAL(output_buffer, " leading_semicolon");
+                    found = true;
+                }
                 if (!found) PM_BUFFER_APPEND_LITERAL(output_buffer, " nil");
                 pm_buffer_append_byte(output_buffer, '\n');
             }

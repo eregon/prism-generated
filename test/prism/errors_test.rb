@@ -57,11 +57,73 @@ module Prism
       end
     end
 
+    def test_anonymous_splat_at_the_end_of_command_arguments
+      ["g *", "g 1, *", "super *", "return *"].each do |body|
+        source = "def f(*) = #{body}"
+        assert Prism.parse_success?(source), source
+        refute Prism.parse_success?("def f = #{body}"), body
+      end
+      ["g 1, * rescue x", "g 1, * do end", "g 1, * and x", "g 1, * or x"].each do |body|
+        assert Prism.parse_success?("def f(*); #{body}; end"), body
+        refute Prism.parse_success?("def f(*) = #{body}"), body
+      end
+      ["g 1, *", "return *", "outer { g 1, * }", "outer { |*rest| g 1, * }"].each do |body|
+        assert Prism.parse_success?("def f(*)\n#{body}\nend"), body
+        refute Prism.parse_success?("def f\n#{body}\nend"), body
+      end
+
+      method = Prism.parse("def f(*) = g 1, *").value.statements.body.first
+      splat = method.body.body.first.arguments.arguments.last
+      assert_instance_of Prism::SplatNode, splat
+      assert_nil splat.expression
+    end
+
+    def test_trailing_star_with_whitespace_requires_an_operand
+      [" ", "\n"].each do |whitespace|
+        result = Prism.parse("def f(*) = g *#{whitespace}")
+        assert_equal :expect_expression_after_operator, result.errors.first.type
+      end
+    end
+
+    def test_retry_in_dead_code_still_requires_a_rescue_in_its_own_scope
+      errors = Prism.parse("if false; x rescue f { retry }; end").errors
+      assert_equal [:invalid_retry_without_rescue], errors.map(&:type)
+      assert_equal "retry", errors.first.location.slice
+    end
+
+    def test_top_level_yield_is_invalid_in_dead_code
+      assert_equal [:invalid_yield], Prism.parse("yield if false").errors.map(&:type)
+      assert Prism.parse_success?("def f; yield if false; end")
+    end
+
     def test_endless_method_rescue_rejects_unattached_do_block
       result = Prism.parse("relay def f = 1 rescue 2 do end")
 
       assert_equal [:def_endless_do_block], result.errors.map(&:type)
       assert_equal "do end", result.errors.first.location.slice
+    end
+
+    def test_do_after_a_brace_command_in_an_endless_method_argument
+      ["super A::B {}", "inner g (x) {}", "yield g (x) {}", "not super A::B {}", "return inner A::B {}"].each do |body|
+        source = "outer def f = #{body} do end; tail"
+        result = Prism.parse(source, version: "4.0")
+        assert_equal [:def_endless_do_block], result.errors.map(&:type), source
+        assert_equal "do end", result.errors.first.location.slice
+        outer, tail = result.value.statements.body
+        assert_nil outer.block
+        assert_equal :tail, tail.name
+      end
+    end
+
+    def test_missing_rescue_handler_inside_bare_not_in_an_endless_def
+      result = Prism.parse("def f = not work rescue; tail")
+      assert_equal [:rescue_modifier_value], result.errors.map(&:type)
+      assert_equal "rescue", result.errors.first.location.slice
+      definition, tail = result.value.statements.body
+      rescue_node = definition.body.body.first.receiver
+      assert_instance_of RescueModifierNode, rescue_node
+      assert_instance_of ErrorRecoveryNode, rescue_node.rescue_expression
+      assert_equal "tail", tail.slice
     end
 
     def test_module_name_rejects_symbol_ending_in_constant_token
@@ -81,12 +143,139 @@ module Prism
       assert_equal "return :ensure", result.errors.first.location.slice
     end
 
+    def test_bare_defined_in_a_block_default_preserves_the_next_parameter
+      ["x = defined? a && b, y", "x: defined? (a), y:"].each do |parameters|
+        result = Prism.parse("m { |#{parameters}| x }")
+        assert_equal [:unexpected_parameter_default_value], result.errors.map(&:type)
+        assert_equal "defined?", result.errors.first.location.slice
+        assert_equal :y, result.statement.block.parameters.parameters.compact_child_nodes.last.name
+      end
+    end
+
+    def test_command_super_and_grouped_argument_blocks
+      result = Prism.parse("outer super(x) {}")
+      assert_predicate result, :success?
+      assert_nil result.statement.block
+      assert_equal "{}", result.statement.arguments.arguments.first.block.slice
+      assert Prism.parse_success?("super(1) {}")
+      assert Prism.parse_success?("m (1) {}")
+      assert_equal [:argument_unexpected_block], Prism.parse("super (1) {}").errors.map(&:type)
+
+      ["super (x)", "super (x; y)", "defined? (x)", "defined? (x; y)", "def f = super (x)"].each do |argument|
+        result = Prism.parse("outer #{argument} {}", version: "4.1")
+        assert_predicate result, :success?, argument
+        assert_equal argument, result.statement.arguments.arguments.first.slice
+        assert_equal "{}", result.statement.block.slice
+      end
+    end
+
+    def test_unexpected_super_block_in_delimited_arguments
+      result = Prism.parse("f(super (x) {}, y); tail")
+      assert_equal [:argument_unexpected_block], result.errors.map(&:type)
+      assert_equal "{}", result.errors.first.location.slice
+      call, tail = result.value.statements.body
+      assert_equal ["super (x) {}", "y"], call.arguments.arguments.map(&:slice)
+      assert_equal :tail, tail.name
+    end
+
+    def test_command_brace_block_chained_after_a_command_block
+      [".", "&.", "::"].each do |operator|
+        source = "f x do end#{operator}g (y) {}.h"
+        result = Prism.parse(source, version: "4.1")
+        assert_predicate result, :success?, source
+        assert_equal :h, result.statement.name
+        assert_equal "{}", result.statement.receiver.block.slice
+        assert_equal "do end", result.statement.receiver.receiver.block.slice
+
+        %w[3.3 3.4 4.0].each do |version|
+          result = Prism.parse(source, version: version)
+          assert_equal [:argument_unexpected_block], result.errors.map(&:type), source
+          assert_equal "{}", result.errors.first.location.slice
+        end
+
+        assert Prism.parse_success?("f x do end#{operator}g(y) {}.h", version: "4.0")
+        assert Prism.parse_success?("(f x do end)#{operator}g (y) {}", version: "4.0")
+      end
+    end
+
+    def test_pattern_newlines_in_pins_and_guards
+      [
+        "x in ^(m k:\nand b)",
+        "x => [^(m k:\nand b)]",
+        "case x; in a if m k:\nand b; end",
+        "case x; in {} unless m k:\nand b; end",
+        "case x; in a if m \"key\":\n::C; end"
+      ].each do |source|
+        assert_false Prism.parse_success?(source), source
+        assert Prism.parse_success?(source.tr("\n", " ")), source
+      end
+    end
+
+    def test_range_patterns_require_literal_bounds
+      %w[.. ... 1.. 1...].each do |range|
+        result = Prism.parse("case x; in #{range}-2**2; end")
+        assert_equal [:expect_in_delimiter, :unexpected_token_ignore], result.errors.map(&:type)
+        assert_equal "**", result.errors.last.location.slice
+
+        right = result.statement.conditions.first.pattern.right
+        assert_instance_of IntegerNode, right
+        assert_equal(-2, right.value)
+      end
+    end
+
+    def test_call_on_jump_with_an_invalid_block_argument
+      result = Prism.parse("def f(&); return super 1 do end, & .g; end")
+      assert_equal [:invalid_comma, :unexpected_block_argument], result.errors.map(&:type)
+      call = result.statement.body.body.first
+      assert_equal :g, call.name
+      assert_instance_of ReturnNode, call.receiver
+    end
+
     def test_parenthesized_targets_reject_newline_before_assignment
       ["(first, second\n= [1, 2])", "((first, second), third\n= [1, 2, 3])"].each do |source|
         result = Prism.parse(source)
 
         assert_equal [:write_target_unexpected], result.errors.map(&:type), source
       end
+    end
+
+    def test_unexpected_in_after_an_assignment_inside_a_case_clause
+      source = "case x; in First; (work rescue u, v = values in Second); tail; in Third; end"
+      result = Prism.parse(source)
+      assert_equal [:expect_eol_after_statement], result.errors.map(&:type)
+      assert_equal source.index("in Second"), result.errors.first.location.start_offset
+      assert_equal ["First", "Third"], result.statement.conditions.map { |clause| clause.pattern.slice }
+      assert_equal "tail", result.statement.conditions.first.statements.body.last.slice
+    end
+
+    def test_missing_delimiter_between_in_clauses_after_a_rescue_handler
+      source = "case x; in First; work rescue u, v = values in Second in Third; end"
+      result = Prism.parse(source)
+      assert_equal [:expect_in_delimiter], result.errors.map(&:type)
+      assert_equal source.index(" in Third"), result.errors.first.location.start_offset
+      assert_equal ["First", "Second", "Third"], result.statement.conditions.map { |clause| clause.pattern.slice }
+    end
+
+    def test_then_after_a_pattern_match_in_a_case_body
+      source = "case v; in A; lhs + rhs in B then tail; in C; end"
+      result = Prism.parse(source)
+      assert_equal :expect_eol_after_statement, result.errors.fetch(0).type
+      assert_equal "then", result.errors.first.location.slice
+      assert_equal ["A", "C"], result.statement.conditions.map { |clause| clause.pattern.slice }
+      assert_instance_of MatchPredicateNode, result.statement.conditions.first.statements.body.first
+      assert_equal "tail", result.statement.conditions.first.statements.body.last.slice
+    end
+
+    def test_target_list_after_a_statement_in_parentheses
+      result = Prism.parse("(work; a, b)")
+      assert_equal [:write_target_unexpected], result.errors.map(&:type)
+      write = result.statement.body.body.last
+      assert_instance_of MultiWriteNode, write
+      assert_equal [:a, :b], write.lefts.map(&:name)
+      assert_instance_of ErrorRecoveryNode, write.value
+
+      assert Prism.parse_success?("(work; a, b = values)")
+      assert Prism.parse_success?("((a, b\n), c) = values")
     end
 
     def test_class_headers_respect_enclosing_loop_condition
@@ -127,6 +316,9 @@ module Prism
 
     def test_beginless_range_rejects_unparenthesized_binary_range_operand
       assert_equal [:unexpected_range_operator], Prism.parse("p(...1..2)").errors.map(&:type)
+      errors = Prism.parse("f(...x.. && y)").errors
+      assert_equal [:unexpected_range_operator], errors.map(&:type)
+      assert_equal "..", errors.first.location.slice
     end
 
     def test_leading_logical_label_does_not_turn_following_keyword_into_symbol
@@ -136,6 +328,13 @@ module Prism
         assert_predicate result, :failure?
         assert_equal "then", result.errors.first.location.slice
       end
+    end
+
+    def test_case_required_match_predicate_is_void
+      result = Prism.parse("case value => captured in Integer; :body; end")
+      assert_equal [:void_expression], result.errors.map(&:type)
+      assert_equal "value => captured", result.errors.first.location.slice
+      assert_equal "Integer", result.statement.conditions.first.pattern.slice
     end
 
     def test_keyword_not_is_not_a_write_target
@@ -345,6 +544,80 @@ module Prism
     def test_heredoc_diagnostic_with_embedded_nul
       result = Prism.parse("<<\"BEFORE\0AFTER\"\n")
       assert_equal ["unterminated heredoc; can't find string \"BEFORE\" anywhere before EOF"], result.errors.map(&:message)
+    end
+
+    def test_unexpected_statement_as_argument
+      result = Prism.parse("f(alias a b, 1); tail")
+      assert_equal [:statement_alias], result.errors.map(&:type)
+
+      call, tail = result.value.statements.body
+      unexpected, integer = call.arguments.arguments
+      assert_instance_of ErrorRecoveryNode, unexpected
+      assert_instance_of AliasMethodNode, unexpected.unexpected
+      assert_equal 1, integer.value
+      assert_equal :tail, tail.name
+    end
+
+    def test_unexpected_undef_preserves_its_names
+      result = Prism.parse("f(undef a, b)")
+      assert_equal [:statement_undef], result.errors.map(&:type)
+
+      argument = result.statement.arguments.arguments.fetch(0)
+      assert_instance_of ErrorRecoveryNode, argument
+      assert_instance_of UndefNode, argument.unexpected
+      assert_equal %w[a b], argument.unexpected.names.map(&:slice)
+    end
+
+    def test_unexpected_statement_as_array_element
+      result = Prism.parse("[END {}, 1]; tail")
+      assert_equal [:statement_postexe_end], result.errors.map(&:type)
+
+      array, tail = result.value.statements.body
+      unexpected, integer = array.elements
+      assert_instance_of ErrorRecoveryNode, unexpected
+      assert_instance_of PostExecutionNode, unexpected.unexpected
+      assert_equal 1, integer.value
+      assert_equal :tail, tail.name
+    end
+
+    def test_begin_in_a_statement_list_and_in_a_rescue_modifier
+      assert Prism.parse_success?("BEGIN { BEGIN { work } }")
+
+      nested = Prism.parse("begin; BEGIN { work }; end")
+      assert_equal [:begin_upcase_toplevel], nested.errors.map(&:type)
+      assert_instance_of PreExecutionNode, nested.statement.statements.body.first
+
+      result = Prism.parse("work rescue BEGIN { cleanup }; tail")
+      assert_equal [:begin_upcase_toplevel], result.errors.map(&:type)
+      rescue_modifier, tail = result.value.statements.body
+      assert_instance_of ErrorRecoveryNode, rescue_modifier.rescue_expression
+      assert_instance_of PreExecutionNode, rescue_modifier.rescue_expression.unexpected
+      assert_equal :tail, tail.name
+    end
+
+    def test_unexpected_statement_preserves_the_following_list_element
+      assignment = Prism.parse("x = 1, END {}, y")
+      assert_equal [:statement_postexe_end], assignment.errors.map(&:type)
+      _, unexpected, sibling = assignment.statement.value.elements
+      assert_instance_of PostExecutionNode, unexpected.unexpected
+      assert_equal :y, sibling.name
+
+      ["END {}", "*END {}"].each do |condition|
+        result = Prism.parse("case x; when #{condition}, y; end")
+        assert_equal [:statement_postexe_end], result.errors.map(&:type)
+        first, sibling = result.statement.conditions.first.conditions
+        first = first.expression if first.is_a?(SplatNode)
+        assert_instance_of PostExecutionNode, first.unexpected
+        assert_equal :y, sibling.name
+      end
+    end
+
+    def test_void_jump_receiver_preserves_the_enclosing_expression
+      result = Prism.parse("x = return A::B {}.f or ready")
+      assert_equal [:void_expression], result.errors.map(&:type)
+      assert_instance_of OrNode, result.statement
+      assert_instance_of ReturnNode, result.statement.left.value.receiver
+      assert_equal :ready, result.statement.right.name
     end
 
     def test_incomplete_def_closing_loc

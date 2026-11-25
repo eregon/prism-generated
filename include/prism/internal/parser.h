@@ -420,6 +420,9 @@ typedef enum {
     /* a rescue else statement within a lambda expression */
     PM_CONTEXT_LAMBDA_ELSE,
 
+    /* expressions in lambda parameters */
+    PM_CONTEXT_LAMBDA_PARAMETERS,
+
     /* a rescue statement within a lambda expression */
     PM_CONTEXT_LAMBDA_RESCUE,
 
@@ -455,6 +458,9 @@ typedef enum {
 
     /* a BEGIN block */
     PM_CONTEXT_PREEXE,
+
+    /* the exception list and assignment target of a rescue clause */
+    PM_CONTEXT_RESCUE_HEADER,
 
     /* a modifier rescue clause */
     PM_CONTEXT_RESCUE_MODIFIER,
@@ -1076,13 +1082,8 @@ struct pm_parser_t {
      */
     bool encoding_changed;
 
-    /*
-     * This flag indicates that we are currently parsing a pattern matching
-     * expression and impacts that calculation of newlines.
-     */
-    bool pattern_matching_newlines;
-
-    /* This flag indicates that we are currently parsing a keyword argument. */
+    /* In bare method parameters and patterns, a newline after a label
+     * terminates the expression. Braced hash patterns clear this flag. */
     bool in_keyword_arg;
 
     /*

@@ -1307,6 +1307,7 @@ module Prism
     def statements_flag(name)
       case name
       when :contains_pre_execution then StatementsFlags::CONTAINS_PRE_EXECUTION
+      when :leading_semicolon then StatementsFlags::LEADING_SEMICOLON
       else Kernel.raise ArgumentError, "invalid StatementsFlags flag: #{name.inspect}"
       end
     end

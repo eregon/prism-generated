@@ -20,7 +20,7 @@
 #include <stdint.h>
 #include <string.h>
 
-#define PM_DIAGNOSTIC_ID_MAX 330
+#define PM_DIAGNOSTIC_ID_MAX 331
 
 typedef enum {
     PM_DIAGNOSTIC_SIGNATURE_NONE,
@@ -1424,6 +1424,11 @@ static const pm_diagnostic_definition_t diagnostic_definitions[PM_DIAGNOSTIC_ID_
         .level = PM_ERROR_LEVEL_SYNTAX,
         .signature = PM_DIAGNOSTIC_SIGNATURE_NONE,
     },
+    [PM_ERR_STRING_CONCATENATION_ENCODING] = {
+        PM_DIAGNOSTIC_MESSAGE_3("string literal encodings differ (", " / ", ")"),
+        .level = PM_ERROR_LEVEL_SYNTAX,
+        .signature = PM_DIAGNOSTIC_SIGNATURE_SLICE_SLICE,
+    },
     [PM_ERR_STRING_INTERPOLATED_TERM] = {
         PM_DIAGNOSTIC_MESSAGE_1("unterminated string; expected a closing delimiter for the interpolated string"),
         .level = PM_ERROR_LEVEL_SYNTAX,
@@ -1999,6 +2004,7 @@ pm_diagnostic_id_name(pm_diagnostic_id_t diag_id) {
         case PM_ERR_STATEMENT_PREEXE_BEGIN: return "statement_preexe_begin";
         case PM_ERR_STATEMENT_UNDEF: return "statement_undef";
         case PM_ERR_STRING_CONCATENATION: return "string_concatenation";
+        case PM_ERR_STRING_CONCATENATION_ENCODING: return "string_concatenation_encoding";
         case PM_ERR_STRING_INTERPOLATED_TERM: return "string_interpolated_term";
         case PM_ERR_STRING_LITERAL_EOF: return "string_literal_eof";
         case PM_ERR_STRING_LITERAL_TERM: return "string_literal_term";

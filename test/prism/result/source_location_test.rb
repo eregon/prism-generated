@@ -238,6 +238,82 @@ module Prism
       assert_location(CaseMatchNode, "case foo; in bar; in baz; else; end")
     end
 
+    def test_multiple_assignment_in_rescue_before_if_modifier
+      ["obj.tail", "(f y do end).tail", "obj[0]", "A::B", "(a, b)", "*items"].each do |target|
+        source = "work rescue #{target}, z = values if ready"
+        assert_location(MultiWriteNode, source, source.index(target)...source.index(" if ready")) do |modifier|
+          assert_instance_of IfNode, modifier
+          modifier.statements.body.first.rescue_expression
+        end
+      end
+    end
+
+    def test_nested_assignment_as_first_value_of_a_multiple_rhs
+      [
+        "y = f(1) rescue 2", "(y = f 1 rescue 2)", "@y = (table[:k] = f 1 rescue 2)",
+        "y ||= f(1) rescue 2", "(obj.value &&= f 1 rescue 2)", "table[:k] += f(1) rescue 2",
+        "y ||= (@z <<= f 1 rescue 2)"
+      ].each do |first|
+        source = "x = #{first}, z"
+        assert_location(ArrayNode, source, 4...source.length) do |write|
+          assert_equal [first, "z"], write.value.elements.map(&:slice)
+          write.value
+        end
+      end
+    end
+
+    def test_void_return_in_an_endless_rescue_in_ruby_3_3
+      source = "def f = not return rescue retry rescue return"
+      assert_location(RescueModifierNode, source, source.index("return")...source.length, version: "3.3") do |node|
+        node.body.body.first.receiver
+      end
+    end
+
+    def test_call_on_jump_with_command_block
+      %w[return break next].each do |keyword|
+        source = "loop { x = #{keyword} m 1 do end.g }"
+        start = source.index(keyword)
+        assert_location(CallNode, source, start...source.index(" }")) do |node|
+          call = node.block.body.body.first.value
+          jump = call.receiver
+          assert_equal keyword, jump.keyword
+          assert_instance_of BlockNode, jump.arguments.arguments.first.block
+          assert_equal :g, call.name
+          call
+        end
+      end
+    end
+
+    def test_grouping_a_block_call_receiver
+      assert_location(CallNode, "C::F x do end::G") do |call|
+        assert_equal :G, call.name
+        call
+      end
+      assert_location(ConstantPathNode, "(C::F x do end)::G")
+      assert_location(MultiWriteNode, "(C::F x do end).tail, y = z")
+
+      source = "outer(C::F x do end.tail)"
+      assert_location(CallNode, source, source.index("C::F")...source.index(")"), version: "3.4") do |outer|
+        outer.arguments.arguments.fetch(0)
+      end
+    end
+
+    def test_do_block_after_an_argument_with_a_brace_block
+      ["inner(x) {}", "A::B() {}", "A.B {}", "A::b {}", "inner A::B {}"].each do |argument|
+        assert_location(CallNode, "outer #{argument} do end") do |outer|
+          assert_equal argument, outer.arguments.arguments.first.slice
+          assert_equal "do end", outer.block.slice
+          outer
+        end
+      end
+
+      assert_location(CallNode, "m x do end::B {}.tail") do |call|
+        assert_equal :tail, call.name
+        assert_equal "{}", call.receiver.block.slice
+        call
+      end
+    end
+
     def test_ClassNode
       assert_location(ClassNode, "class Foo end")
       assert_location(ClassNode, "class Foo < Bar; end")
@@ -366,6 +442,18 @@ module Prism
 
     def test_FlipFlopNode
       assert_location(FlipFlopNode, "if foo..bar; end", 3..11, &:predicate)
+
+      ["f(...x ? 1 : 2)", "f(y, ...x ? 1 : 2)", "super(...x ? 1 : 2)"].each do |source|
+        start = source.index("...")
+        assert_location(FlipFlopNode, source, start...(start + 4)) do |call|
+          conditional = call.arguments.arguments.last
+          assert_kind_of IfNode, conditional
+          assert_nil conditional.predicate.left
+          assert_equal "x", conditional.predicate.right.slice
+          assert_predicate conditional.predicate, :exclude_end?
+          conditional.predicate
+        end
+      end
     end
 
     def test_FloatNode
@@ -378,6 +466,11 @@ module Prism
     def test_ForNode
       assert_location(ForNode, "for foo in bar; end")
       assert_location(ForNode, "for foo, bar in baz do end")
+      assert_location(CallTargetNode, "for obj&.attr in ary; end", 4...13, &:index)
+      assert_location(MultiTargetNode, "for *x in ary; end", 4...6) do |node|
+        assert_instance_of LocalVariableTargetNode, node.index.rest.expression
+        node.index
+      end
     end
 
     def test_ForwardingArgumentsNode
@@ -389,6 +482,18 @@ module Prism
     def test_ForwardingParameterNode
       assert_location(ForwardingParameterNode, "def foo(...); end", 8...11) do |node|
         node.parameters.keyword_rest
+      end
+
+      [[:first], [:first, :second]].each do |posts|
+        source = "def f(opt = 1, #{posts.join(", ")}, ...) = first"
+        start = source.index("...")
+        assert_location(ForwardingParameterNode, source, start...(start + 3)) do |node|
+          parameters = node.parameters
+          assert_equal [:opt], parameters.optionals.map(&:name)
+          assert_equal posts, parameters.posts.map(&:name)
+          assert_nil parameters.rest
+          parameters.keyword_rest
+        end
       end
     end
 
@@ -436,6 +541,8 @@ module Prism
 
     def test_IfNode
       assert_location(IfNode, "if type in 1;elsif type in B;end")
+      assert_location(IfNode, "if ((a => k); x); end", version: "4.0")
+      assert_location(IfNode, "if ((return if flag); x); end", version: "4.1")
     end
 
     def test_ImaginaryNode
@@ -733,6 +840,7 @@ module Prism
 
     def test_PinnedExpressionNode
       assert_location(PinnedExpressionNode, "foo in ^(bar)", 7...13, &:pattern)
+      assert_location(CallNode, "x in ^(!-2**2)", 9...13) { |node| node.pattern.expression.receiver.receiver }
     end
 
     def test_PinnedVariableNode
@@ -745,6 +853,32 @@ module Prism
     def test_PostExecutionNode
       assert_location(PostExecutionNode, "END {}")
       assert_location(PostExecutionNode, "END { foo }")
+    end
+
+    def test_retry_inside_an_end_block
+      ["END { x rescue retry }", "defined?(m { END { retry } })"].each do |source|
+        start = source.index("retry")
+        assert_location(RetryNode, source, start...(start + 5)) do |node|
+          node.breadth_first_search { |child| child.is_a?(RetryNode) }
+        end
+      end
+    end
+
+    def test_class_and_module_headers_can_retry_the_enclosing_rescue
+      [
+        "work rescue class << (retry if b); end",
+        "work rescue class C < (retry if b); end",
+        "work rescue class (retry if b)::C; end",
+        "work rescue module (retry if b)::M; end",
+        "class << (x rescue (retry if b)); end",
+        "defined?(m { class << (retry if b); end })",
+        "begin; rescue; class C; end; retry; end"
+      ].each do |source|
+        start = source.index("retry")
+        assert_location(RetryNode, source, start...(start + 5)) do |node|
+          node.breadth_first_search { |child| child.is_a?(RetryNode) }
+        end
+      end
     end
 
     def test_PreExecutionNode
@@ -761,6 +895,11 @@ module Prism
 
       assert_location(RangeNode, "1..")
       assert_location(RangeNode, "1...")
+
+      %w[.. ... 1.. 1...].each do |range|
+        source = "x in #{range}-2"
+        assert_location(IntegerNode, source, (source.length - 2)...source.length) { |node| node.pattern.right }
+      end
     end
 
     def test_RationalNode
@@ -853,6 +992,13 @@ module Prism
 
     def test_SplatNode
       assert_location(SplatNode, "*foo = bar", 0...4, &:rest)
+      assert_location(SplatNode, "def f(*) = g *", 13...14) do |definition|
+        call = definition.body.body.first
+        assert_equal :g, call.name
+        splat = call.arguments.arguments.first
+        assert_nil splat.expression
+        splat
+      end
     end
 
     def test_StatementsNode
