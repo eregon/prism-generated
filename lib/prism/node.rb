@@ -16113,11 +16113,11 @@ module Prism
   #
   # [Explore code sample](https://ruby.github.io/prism/playground.html#eyBmb286IH0KCnsgRm9vOiB9Cgpmb28gaW4geyBiYXI6IH0K)
   class ImplicitNode < Node
-    # @rbs @value: (LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
+    # @rbs @value: (LocalVariableReadNode | ItLocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
 
     # Initialize a new ImplicitNode node.
     #
-    #: (Source source, Integer node_id, Location location, Integer flags, (LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode) value) -> void
+    #: (Source source, Integer node_id, Location location, Integer flags, (LocalVariableReadNode | ItLocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode) value) -> void
     def initialize(source, node_id, location, flags, value)
       @source = source
       @node_id = node_id
@@ -16173,7 +16173,7 @@ module Prism
     #
     # Creates a copy of self with the given fields, using self as the template.
     #
-    #: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: (LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)) -> ImplicitNode
+    #: (?node_id: Integer, ?location: Location, ?flags: Integer, ?value: (LocalVariableReadNode | ItLocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)) -> ImplicitNode
     def copy(node_id: self.node_id, location: self.location, flags: self.flags, value: self.value)
       ImplicitNode.new(source, node_id, location, flags, value)
     end
@@ -16215,11 +16215,11 @@ module Prism
     # :section:
 
     # :call-seq:
-    #   value -> LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode
+    #   value -> LocalVariableReadNode | ItLocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode
     #
     # Returns the `value` attribute.
     #
-    #: () -> (LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
+    #: () -> (LocalVariableReadNode | ItLocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
     def value
       @value
     end

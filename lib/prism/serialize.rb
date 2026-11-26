@@ -1709,7 +1709,7 @@ module Prism
               node_id = load_varuint
               location = load_location(freeze)
               flags = load_varuint
-              field_value = stack.pop #: (LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
+              field_value = stack.pop #: (LocalVariableReadNode | ItLocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
               value = ImplicitNode.new(source, node_id, location, flags, field_value)
               value.freeze if freeze
               stack << value
@@ -3447,7 +3447,7 @@ module Prism
               node_id = load_varuint
               location = load_location(freeze)
               flags = load_varuint
-              field_value = stack.pop #: (LocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
+              field_value = stack.pop #: (LocalVariableReadNode | ItLocalVariableReadNode | CallNode | ConstantReadNode | LocalVariableTargetNode)
               value = ImplicitNode.new(source, node_id, location, flags, field_value)
               value.freeze if freeze
               value

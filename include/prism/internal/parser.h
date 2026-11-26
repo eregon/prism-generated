@@ -751,8 +751,11 @@ struct pm_parser_t {
     /* The pointer to the start of the source. */
     const uint8_t *start;
 
-    /* The pointer to the end of the source. */
+    /* The end of the full input, including the data section. */
     const uint8_t *end;
+
+    /* The end of the Ruby code, at the start of the __END__ marker if present. */
+    const uint8_t *source_end;
 
     /* The previous token we were considering. */
     pm_token_t previous;
@@ -859,7 +862,7 @@ struct pm_parser_t {
 
     /*
      * This pointer indicates where a comment must start if it is to be
-     * considered an encoding comment.
+     * considered an encoding comment. NULL if the shebang has no terminating newline.
      */
     const uint8_t *encoding_comment_start;
 

@@ -131,6 +131,23 @@ module Prism
       end
     end
 
+    def test_unterminated_quoted_encoding
+      comment = '# encoding: "binary'
+
+      ["\n", "\r\n"].each do |newline|
+        result = Prism.parse("#{comment}#{newline}__ENCODING__")
+        assert_equal [:invalid_encoding_magic_comment], result.errors.map(&:type)
+        assert_equal "binary#{newline}", result.errors.first.location.slice
+        assert_equal Encoding::UTF_8, result.encoding
+      end
+
+      [comment, "#{comment}\"\n"].each do |source|
+        result = Prism.parse(source)
+        assert_predicate result, :success?
+        assert_equal Encoding::BINARY, result.encoding
+      end
+    end
+
     def test_encoding_after_leading_delimiters
       ['"', "'", ";", ":"].each do |delimiter|
         ["coding", "encoding"].each do |key|
@@ -184,6 +201,13 @@ module Prism
 
         assert_predicate result, :success?
         assert_equal Encoding::ASCII_8BIT, result.encoding
+      end
+    end
+
+    def test_searched_shebang_at_eof_is_not_an_encoding_comment
+      source = "#!/bin/sh\n#!ruby coding:bogus"
+      [{ main_script: true }, { command_line: "x" }].each do |options|
+        assert_empty Prism.parse(source, **options).errors
       end
     end
 
